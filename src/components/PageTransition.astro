@@ -1,0 +1,81 @@
+---
+---
+<div id="page-transition" class="page-transition-layer" aria-hidden="true"></div>
+
+<style is:global>
+  .page-transition-layer {
+    position: fixed;
+    inset: 0;
+    background: #080808;
+    z-index: 9999;
+    pointer-events: auto;
+    will-change: transform;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const el = document.getElementById('page-transition');
+  if (el) {
+    gsap.set(el, { xPercent: 0 });
+
+    function runExit() {
+      gsap.to(el, {
+        xPercent: 100,
+        duration: 0.7,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          el.style.pointerEvents = 'none';
+        },
+      });
+    }
+
+    function bindNavClicks() {
+      document.querySelectorAll('a[href]').forEach((a) => {
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('mailto:')) return;
+        if (a.target === '_blank') return;
+
+        let url;
+        try {
+          url = new URL(href, window.location.origin);
+        } catch {
+          return;
+        }
+        if (url.origin !== window.location.origin) return;
+        if (url.pathname === window.location.pathname) return;
+
+        a.addEventListener('click', (e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          if (e.button !== 0) return;
+          e.preventDefault();
+          el.style.pointerEvents = 'auto';
+          gsap.fromTo(
+            el,
+            { xPercent: -100 },
+            {
+              xPercent: 0,
+              duration: 0.7,
+              ease: 'power2.inOut',
+              onComplete: () => {
+                window.location.href = url.pathname + url.search + url.hash;
+              },
+            },
+          );
+        });
+      });
+    }
+
+    function boot() {
+      runExit();
+      bindNavClicks();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+      boot();
+    }
+  }
+</script>

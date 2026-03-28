@@ -1,0 +1,649 @@
+---
+import { getCollection } from 'astro:content';
+import PageTransition from '../../components/PageTransition.astro';
+
+const works = (await getCollection('solilium')).sort(
+  (a, b) => b.data.date.localeCompare(a.data.date),
+);
+---
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOLILIUM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --bg3: #141414;
+      --line: rgba(255,255,255,0.06);
+      --line2: rgba(255,255,255,0.12);
+      --text: #e8e8e8;
+      --muted: #555;
+      --accent: #c8ff00;
+      --accent2: #00ffc8;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Space Grotesk', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    #cursor {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor-ring {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(200,255,0,0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+    }
+    body:has(a:hover) #cursor, body:has(.work-item:hover) #cursor { width: 12px; height: 12px; }
+    body:has(a:hover) #cursor-ring, body:has(.work-item:hover) #cursor-ring {
+      width: 48px; height: 48px;
+      border-color: rgba(200,255,0,0.7);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 36px; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 48px 80px;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+    .hero-title {
+      font-family: var(--mono);
+      font-size: clamp(52px, 10vw, 120px);
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 40px;
+    }
+    .hero-line { display: block; }
+    .hero-line--outline {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+    }
+    .hero-char { display: inline-block; will-change: transform, opacity; }
+
+    .hero-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .hero-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 320px;
+      letter-spacing: 0.03em;
+    }
+    .hero-scroll {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-scroll::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+      animation: scrollline 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollline {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    .scroll-hint-vertical {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      color: var(--muted);
+      text-transform: uppercase;
+      z-index: 90;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    .scroll-hint-vertical.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .magnetic-view-label {
+      position: fixed;
+      left: 0;
+      top: 0;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      pointer-events: none;
+      z-index: 120;
+      opacity: 0;
+      white-space: nowrap;
+      will-change: transform, opacity;
+      transition: opacity 0.2s ease;
+    }
+    .magnetic-view-label.is-visible { opacity: 1; }
+
+    .works {
+      position: relative;
+      z-index: 1;
+      padding: 120px 48px;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 64px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line2);
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .section-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .work-item {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: visible;
+      background: var(--bg3);
+      cursor: none;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .work-item__inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .work-item:nth-child(3n+2) { margin-top: 48px; }
+    .work-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s;
+      filter: grayscale(20%);
+    }
+    .work-item:hover .work-img {
+      transform: scale(1.06);
+      filter: grayscale(0%);
+    }
+    .work-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px;
+    }
+    .work-item:hover .work-overlay { opacity: 1; }
+    .work-id {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      margin-bottom: 6px;
+    }
+    .work-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: white;
+      margin-bottom: 8px;
+    }
+    .work-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .work-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 3px 8px;
+      text-transform: uppercase;
+    }
+
+    .about {
+      position: relative;
+      z-index: 1;
+      padding: 120px 48px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .about-title {
+      font-family: var(--mono);
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 32px;
+      color: var(--text);
+    }
+    .about-text {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      margin-top: 0;
+    }
+    .stat {
+      background: var(--bg3);
+      padding: 32px 24px;
+      border: 1px solid var(--line);
+    }
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 48px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+    }
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      opacity: 0.4;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { gap: 20px; }
+      .hero { padding: 0 24px 60px; }
+      .works { padding: 80px 24px; }
+      .works-grid { grid-template-columns: 1fr 1fr; }
+      .work-item:nth-child(3n+2) { margin-top: 0; }
+      .work-item:nth-child(2n) { margin-top: 32px; }
+      .about { padding: 80px 24px; grid-template-columns: 1fr; gap: 48px; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
+      .scroll-hint-vertical { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <PageTransition />
+
+  <div id="magnetic-view-label" class="magnetic-view-label">VIEW →</div>
+  <div class="scroll-hint-vertical" id="scroll-hint-vertical">SCROLL DOWN</div>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <nav>
+    <a href="/solilium" class="nav-logo">SOLILIUM</a>
+    <div class="nav-links">
+      <a href="/">Platform</a>
+      <a href="#works">Works</a>
+      <a href="#about">About</a>
+      <a href="mailto:your@email.com">Contact</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-tag">Visual Portfolio</div>
+    <h1 class="hero-title" aria-label="SOLILIUM">
+      <span class="hero-line" data-hero-line>SOLI</span>
+      <span class="hero-line hero-line--outline" data-hero-line>LIUM</span>
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-desc">
+        Photography & visual creation.<br />
+        Geometry, light, and the spaces between.
+      </p>
+      <div class="hero-scroll">Scroll</div>
+    </div>
+  </section>
+
+  <section class="works" id="works">
+    <div class="section-header fade-up">
+      <span class="section-title">Selected Works</span>
+      <span class="section-count">{String(works.length).padStart(2, '0')}</span>
+    </div>
+    <div class="works-grid">
+      {works.map((work, i) => (
+        <a class="work-item work-card-anim" href={`/solilium/${work.id}`} data-work-card>
+          <div class="work-item__inner">
+            <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
+            <div class="work-overlay">
+              <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
+              <div class="work-title">{work.data.title}</div>
+              <div class="work-tags">
+                {work.data.tags.map((tag) => (
+                  <span class="work-tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="fade-up">
+      <div class="about-label">About</div>
+      <h2 class="about-title">Solilium</h2>
+      <p class="about-text">
+        視覺創作者，專注於幾何構成與光影之間的張力。
+        透過攝影探索城市空間的秩序與混沌。
+      </p>
+      <p class="about-text">
+        每一個畫面都是一次對空間的重新定義。
+      </p>
+    </div>
+    <div class="about-stats fade-up">
+      <div class="stat">
+        <span class="stat-num">{String(works.length).padStart(2, '0')}</span>
+        <span class="stat-label">Series</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Frames</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">01</span>
+        <span class="stat-label">Perspective</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">↗</span>
+        <span class="stat-label">Always evolving</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">SOLILIUM</span>
+    <span class="footer-copy">© 2026 — All rights reserved</span>
+  </footer>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('[data-hero-line]').forEach((line) => {
+      const text = line.textContent ?? '';
+      line.textContent = '';
+      for (const ch of text) {
+        const s = document.createElement('span');
+        s.className = 'hero-char';
+        s.textContent = ch === ' ' ? '\u00a0' : ch;
+        line.appendChild(s);
+      }
+    });
+
+    gsap.from('.hero-char', {
+      y: 60,
+      opacity: 0,
+      duration: 0.65,
+      stagger: 0.05,
+      ease: 'power2.out',
+      delay: 0.12,
+    });
+
+    const cards = gsap.utils.toArray('.work-card-anim');
+    gsap.set(cards, { y: 60, opacity: 0 });
+    ScrollTrigger.batch(cards, {
+      start: 'top 88%',
+      once: true,
+      onEnter: (batch) => {
+        gsap.to(batch, {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          stagger: 0.1,
+          ease: 'power2.out',
+          overwrite: true,
+        });
+      },
+    });
+
+    const magneticLabel = document.getElementById('magnetic-view-label');
+    let magX = 0, magY = 0, magLx = 0, magLy = 0, magActive = false;
+
+    function magneticLoop() {
+      if (magneticLabel && magActive) {
+        magLx += (magX - magLx) * 0.18;
+        magLy += (magY - magLy) * 0.18;
+        magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
+      }
+      requestAnimationFrame(magneticLoop);
+    }
+    magneticLoop();
+
+    document.querySelectorAll('[data-work-card]').forEach((card) => {
+      card.addEventListener('mouseenter', () => {
+        const rect = card.getBoundingClientRect();
+        magLx = rect.right - 56;
+        magLy = rect.top + 40;
+        magX = magLx;
+        magY = magLy;
+        magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
+        magActive = true;
+        magneticLabel.classList.add('is-visible');
+      });
+      card.addEventListener('mouseleave', () => {
+        magActive = false;
+        magneticLabel.classList.remove('is-visible');
+      });
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const anchorX = rect.right - 56;
+        const anchorY = rect.top + 40;
+        magX = anchorX + (e.clientX - anchorX) * 0.45;
+        magY = anchorY + (e.clientY - anchorY) * 0.45;
+      });
+    });
+
+    const heroEl = document.getElementById('hero');
+    const scrollHint = document.getElementById('scroll-hint-vertical');
+    function updateScrollHint() {
+      if (!heroEl || !scrollHint) return;
+      const past = window.scrollY > heroEl.offsetHeight - 48;
+      scrollHint.classList.toggle('is-hidden', past);
+    }
+    window.addEventListener('scroll', updateScrollHint, { passive: true });
+    updateScrollHint();
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add('visible');
+        });
+      },
+      { threshold: 0.1 },
+    );
+    document.querySelectorAll('.fade-up').forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>
