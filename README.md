@@ -1,46 +1,38 @@
-# Astro Starter Kit: Basics
+# Milifix.org
 
-```sh
-npm create astro@latest -- --template basics
-```
+獨立創作者空間策展站台：多語系（en / zh / ja）、各空間作品集與實驗室頁面。以 [Astro](https://astro.build) 建置，靜態輸出至 `dist/`。
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+**原始碼：** [github.com/div-sir/Milifix.org](https://github.com/div-sir/Milifix.org)
 
-## 🚀 Project Structure
+## 技術概要
 
-Inside of your Astro project, you'll see the following folders and files:
+- Astro 6、TypeScript
+- React 島嶼（[React Bits](https://github.com/DavidHDev/react-bits) 風格元件：SpotlightCard、ShinyText）
+- Tailwind CSS 4（Vite 外掛）
+- 內容：`src/content/works`、`src/content/blog`（Content Collections）
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+## 需求
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+- Node.js **≥ 22.12**（見 `package.json` 的 `engines`）
 
-## 🧞 Commands
+## 指令
 
-All commands are run from the root of the project, from a terminal:
+| 指令 | 說明 |
+|------|------|
+| `npm install` | 安裝依賴 |
+| `npm run dev` | 本機開發（預設 `localhost:4321`） |
+| `npm run build` | 產出正式站至 `./dist/` |
+| `npm run preview` | 本機預覽建置結果 |
+| `npm run check` | Astro 型別／診斷檢查 |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## 部署
 
-## 👀 Want to learn more?
+專案為**靜態站**，可部署至 [Vercel](https://vercel.com) 等平台：
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- **Build command：** `npm run build`
+- **Output directory：** `dist`
+- **Node.js：** 22.x
+
+## 授權
+
+若未另行標示，以專案內各檔案為準。
