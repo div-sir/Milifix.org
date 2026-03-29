@@ -1,0 +1,31 @@
+/* React Bits — SpotlightCard (MIT, github.com/DavidHDev/react-bits) */
+.card-spotlight {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--line2, rgba(255, 255, 255, 0.11));
+  background-color: color-mix(in srgb, var(--bg2, #171b22) 88%, transparent);
+  padding: 1.35rem 1.5rem;
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: color-mix(in srgb, var(--accent, #e2b565) 22%, transparent);
+}
+
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 420px at var(--mouse-x) var(--mouse-y),
+    var(--spotlight-color),
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.card-spotlight:hover::before,
+.card-spotlight:focus-within::before {
+  opacity: 1;
+}

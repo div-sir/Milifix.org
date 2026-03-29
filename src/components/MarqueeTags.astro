@@ -1,0 +1,73 @@
+---
+interface Props {
+  items: string[];
+  /** 秒／圈，數字愈大愈慢 */
+  durationSec?: number;
+}
+
+const { items, durationSec = 28 } = Astro.props;
+const track = [...items, ...items];
+---
+
+<div class="ui-marquee" style={`--ui-marquee-dur: ${durationSec}s`} role="presentation">
+  <div class="ui-marquee__track">
+    {
+      track.map((t, i) => (
+        <>
+          {i > 0 && <span class="ui-marquee__sep" aria-hidden="true">·</span>}
+          <span class="ui-marquee__item">{t}</span>
+        </>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ui-marquee {
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .ui-marquee__track {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    align-items: center;
+    gap: 0;
+    animation: uiMarquee var(--ui-marquee-dur, 28s) linear infinite;
+  }
+  @keyframes uiMarquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ui-marquee__track {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+      transform: none;
+    }
+  }
+  .ui-marquee__sep {
+    flex-shrink: 0;
+    margin: 0 1.25rem;
+    font-size: 14px;
+    color: var(--accent);
+    opacity: 0.45;
+    user-select: none;
+  }
+  .ui-marquee__item {
+    flex-shrink: 0;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

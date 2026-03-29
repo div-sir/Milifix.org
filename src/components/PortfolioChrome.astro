@@ -1,0 +1,38 @@
+---
+import ReadingProgress from './ReadingProgress.astro';
+import DockNav, { type DockSection } from './DockNav.astro';
+import type { Lang } from '../i18n/types';
+
+export type { DockSection };
+
+interface Props {
+  lang: Lang;
+  pathname: string;
+  /** 已廢棄：保留 prop 以免舊引用報錯，Dock 不再使用 */
+  dockVariant?: 'platform' | 'space';
+  spaceId?: string;
+  spaceLabel?: string;
+  showDock?: boolean;
+  dockSections?: DockSection[];
+  /** scroll：用按鈕捲動到區塊，網址不出現 #；預設 hash */
+  dockSectionLinkMode?: 'hash' | 'scroll';
+}
+
+const {
+  lang,
+  pathname,
+  showDock = true,
+  dockSections = [],
+  dockSectionLinkMode = 'hash',
+} = Astro.props;
+---
+
+<ReadingProgress />
+{showDock && (
+  <DockNav
+    lang={lang}
+    pathname={pathname}
+    dockSections={dockSections}
+    dockSectionLinkMode={dockSectionLinkMode}
+  />
+)}

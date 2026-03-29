@@ -1,0 +1,120 @@
+---
+import { getCollection } from 'astro:content';
+import '../../styles/theme.css';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+---
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog · Milifix</title>
+    <meta name="description" content="Milifix 筆記與更新" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('portfolio-theme');
+          document.documentElement.dataset.theme =
+            t === 'light' ? 'light' : t === 'dark' ? 'dark' : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --mono: 'Space Mono', monospace;
+        --sans: 'Space Grotesk', sans-serif;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+      .wrap {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 5rem;
+      }
+      h1 {
+        font-family: var(--mono);
+        font-size: clamp(1.35rem, 4vw, 1.75rem);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+        color: var(--accent);
+      }
+      ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      a {
+        text-decoration: none;
+        color: var(--text);
+        border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+        padding-bottom: 2px;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+      a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .meta {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted-dim);
+        margin-top: 0.35rem;
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 2rem;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">← Milifix</a>
+      <h1>Blog</h1>
+      <ul>
+        {
+          posts.map((p) => (
+            <li>
+              <a href={`/blog/${p.id}`}>
+                <div>{p.data.title}</div>
+                <div class="meta">{p.data.date}</div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </body>
+</html>

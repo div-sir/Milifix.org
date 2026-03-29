@@ -1,0 +1,128 @@
+---
+export type StepStatus = 'done' | 'current' | 'upcoming';
+
+interface Step {
+  title: string;
+  status: StepStatus;
+}
+
+interface Props {
+  steps: Step[];
+}
+
+const { steps } = Astro.props;
+---
+
+<ol class="ui-step-trail" role="list">
+  {
+    steps.map((step, i) => (
+      <li
+        class:list={[
+          'ui-step-trail__item',
+          step.status === 'done' && 'is-done',
+          step.status === 'current' && 'is-current',
+          step.status === 'upcoming' && 'is-upcoming',
+        ]}
+      >
+        <span class="ui-step-trail__node" aria-hidden="true">
+          {step.status === 'done' ? '✓' : String(i + 1).padStart(2, '0')}
+        </span>
+        <span class="ui-step-trail__title">{step.title}</span>
+        {i < steps.length - 1 && <span class="ui-step-trail__connector" aria-hidden="true" />}
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .ui-step-trail {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0 8px;
+  }
+  .ui-step-trail__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 72px;
+    max-width: 160px;
+    text-align: center;
+    margin: 0;
+    padding: 0 4px 20px;
+  }
+  .ui-step-trail__node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid var(--line2);
+    background: var(--bg2);
+    color: var(--muted);
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      color 0.2s;
+  }
+  .ui-step-trail__item.is-done .ui-step-trail__node {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line2));
+    background: color-mix(in srgb, var(--accent) 18%, var(--bg2));
+    color: var(--accent);
+    font-size: 13px;
+  }
+  .ui-step-trail__item.is-current .ui-step-trail__node {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 28%, var(--bg2));
+    color: var(--text);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .ui-step-trail__title {
+    font-size: 11px;
+    line-height: 1.35;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    max-width: 12ch;
+  }
+  .ui-step-trail__item.is-current .ui-step-trail__title {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .ui-step-trail__connector {
+    position: absolute;
+    top: 17px;
+    left: calc(50% + 22px);
+    width: calc(100% - 44px);
+    height: 1px;
+    background: linear-gradient(90deg, var(--line2), var(--line));
+    pointer-events: none;
+  }
+  .ui-step-trail__item:last-child .ui-step-trail__connector {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .ui-step-trail {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .ui-step-trail__item {
+      flex-direction: row;
+      max-width: none;
+      text-align: left;
+      padding-bottom: 12px;
+    }
+    .ui-step-trail__connector {
+      display: none;
+    }
+  }
+</style>

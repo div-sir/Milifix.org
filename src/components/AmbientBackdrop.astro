@@ -1,0 +1,14 @@
+---
+import '../styles/ambient-backdrop.css';
+---
+
+<div class="ambient-backdrop" data-ambient-backdrop aria-hidden="true">
+  <div class="ambient-backdrop__mesh"></div>
+  <div class="ambient-backdrop__blob"></div>
+</div>
+<div class="ambient-click-layer" data-ambient-click-layer aria-hidden="true"></div>
+
+<script>
+  import { initAmbientBackdrop } from '../scripts/ambient-backdrop';
+  initAmbientBackdrop();
+</script>

@@ -1,0 +1,28 @@
+/* 頂端閱讀進度細線 */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 205;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.reading-progress__fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--nav-accent) 75%, transparent),
+    color-mix(in srgb, var(--accent) 80%, transparent)
+  );
+  transition: transform 0.12s linear;
+}
+
+.reading-progress--reduced .reading-progress__fill {
+  transition: none;
+}

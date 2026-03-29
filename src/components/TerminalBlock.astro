@@ -1,0 +1,82 @@
+---
+interface Props {
+  /** 視窗列標題 */
+  title?: string;
+  lines: string[];
+}
+
+const { title = 'zsh', lines } = Astro.props;
+---
+
+<div class="ui-terminal" role="region" aria-label="指令列示意">
+  <div class="ui-terminal__chrome">
+    <span class="ui-terminal__dots" aria-hidden="true">
+      <span class="dot dot--r" /><span class="dot dot--y" /><span class="dot dot--g" />
+    </span>
+    <span class="ui-terminal__title">{title}</span>
+  </div>
+  <pre class="ui-terminal__body"><code>{lines.join('\n')}</code></pre>
+</div>
+
+<style>
+  .ui-terminal {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line2);
+    background: color-mix(in srgb, var(--bg3) 96%, #000);
+    box-shadow: 0 16px 48px -24px rgba(0, 0, 0, 0.6);
+  }
+  html[data-theme='light'] .ui-terminal {
+    box-shadow: 0 12px 32px -16px var(--shadow-card);
+  }
+  .ui-terminal__chrome {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg2) 88%, transparent);
+  }
+  .ui-terminal__dots {
+    display: flex;
+    gap: 6px;
+  }
+  .ui-terminal__dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0.85;
+  }
+  .dot--r {
+    background: #ff6b6b;
+  }
+  .dot--y {
+    background: #feca57;
+  }
+  .dot--g {
+    background: #1dd1a1;
+  }
+  .ui-terminal__title {
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted-dim);
+    flex: 1;
+    text-align: center;
+    padding-right: 52px;
+  }
+  .ui-terminal__body {
+    margin: 0;
+    padding: 16px 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 12px;
+    line-height: 1.65;
+    color: color-mix(in srgb, var(--text) 88%, var(--accent));
+    tab-size: 2;
+  }
+  .ui-terminal__body code {
+    font-family: inherit;
+    white-space: pre;
+  }
+</style>

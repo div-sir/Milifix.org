@@ -1,0 +1,172 @@
+/* 全站 portfolio-atmo：游標 + 捲動 + 點擊漣漪；見 ambient-backdrop.ts */
+.ambient-backdrop {
+  --amb-x: 0.5;
+  --amb-y: 0.5;
+  --amb-scroll: 0;
+  --amb-pulse-x: 0.5;
+  --amb-pulse-y: 0.5;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+.ambient-backdrop__mesh,
+.ambient-backdrop__blob {
+  position: absolute;
+  inset: -20%;
+}
+
+.ambient-backdrop__mesh {
+  opacity: 0.42;
+  background:
+    radial-gradient(
+      ellipse 90% 70% at calc(12% + (var(--amb-x) - 0.5) * 26%) calc(18% + (var(--amb-y) - 0.5) * 20% - var(--amb-scroll) * 8%),
+      color-mix(in srgb, var(--accent) 38%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 80% 65% at calc(88% + (var(--amb-x) - 0.5) * -18%) calc(72% + (var(--amb-y) - 0.5) * 14% - var(--amb-scroll) * 5%),
+      color-mix(in srgb, var(--accent2, var(--accent)) 28%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at calc(50% + (var(--amb-x) - 0.5) * 58%) calc(42% + (var(--amb-y) - 0.5) * 48% + var(--amb-scroll) * 6%),
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle 42vmin at calc(var(--amb-pulse-x) * 100%) calc(var(--amb-pulse-y) * 100%),
+      color-mix(in srgb, var(--accent) 0%, transparent),
+      transparent 70%
+    );
+  animation: ambient-mesh-drift 22s ease-in-out infinite;
+}
+
+.ambient-backdrop--pulse .ambient-backdrop__mesh {
+  animation:
+    ambient-mesh-drift 22s ease-in-out infinite,
+    ambient-pulse-flash 0.55s ease-out;
+}
+
+html[data-theme='light'] .ambient-backdrop__mesh {
+  opacity: 0.28;
+}
+
+.ambient-backdrop__blob {
+  filter: blur(72px);
+  opacity: 0.38;
+  transform: translate(
+    calc((var(--amb-x) - 0.5) * min(32vw, 260px)),
+    calc((var(--amb-y) - 0.5) * min(26vh, 200px) + var(--amb-scroll) * min(12vh, 100px))
+  );
+  background:
+    radial-gradient(circle at 40% 42%, color-mix(in srgb, var(--accent) 52%, transparent), transparent 58%),
+    radial-gradient(circle at 78% 64%, color-mix(in srgb, var(--accent2, var(--accent)) 36%, transparent), transparent 52%);
+  animation: ambient-blob-pulse 14s ease-in-out infinite;
+  transition: transform 0.35s ease-out;
+}
+
+@keyframes ambient-pulse-flash {
+  0% {
+    filter: brightness(1);
+  }
+  35% {
+    filter: brightness(1.12);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+html[data-theme='light'] .ambient-backdrop__blob {
+  opacity: 0.22;
+  filter: blur(88px);
+}
+
+.ambient-backdrop--static .ambient-backdrop__mesh,
+.ambient-backdrop--static .ambient-backdrop__blob {
+  animation: none;
+}
+
+@keyframes ambient-mesh-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(1.2%, -0.8%) scale(1.02);
+  }
+  66% {
+    transform: translate(-0.9%, 1.1%) scale(0.99);
+  }
+}
+
+@keyframes ambient-blob-pulse {
+  0%,
+  100% {
+    opacity: 0.36;
+  }
+  50% {
+    opacity: 0.48;
+  }
+}
+
+html[data-theme='light'] .ambient-backdrop__blob {
+  animation-name: ambient-blob-pulse-light;
+}
+
+@keyframes ambient-blob-pulse-light {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* 點擊擴散環：在 main(z-index:2) 之上、body 噪點(z-index:4) 之下 */
+.ambient-click-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+.ambient-click-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 140px;
+  height: 140px;
+  margin-left: -70px;
+  margin-top: -70px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent2, var(--accent)) 22%, transparent),
+    0 0 48px color-mix(in srgb, var(--accent) 28%, transparent);
+  transform: scale(0.08);
+  opacity: 0.92;
+  animation: ambient-click-ripple-out 0.72s cubic-bezier(0.22, 0.82, 0.28, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes ambient-click-ripple-out {
+  to {
+    transform: scale(2.85);
+    opacity: 0;
+  }
+}
+
+html[data-theme='light'] .ambient-click-ripple {
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent2, var(--accent)) 16%, transparent),
+    0 0 36px color-mix(in srgb, var(--accent) 18%, transparent);
+}

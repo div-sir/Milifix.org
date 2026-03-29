@@ -1,0 +1,450 @@
+---
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import { spacePath } from '../../i18n/routes';
+import { getCollection } from 'astro:content';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import PageTransition from '../PageTransition.astro';
+import Quote from '../Quote.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import SiteNav from '../SiteNav.astro';
+import MarqueeTags from '../MarqueeTags.astro';
+import ShinyText from '../react-bits/ShinyText.tsx';
+import SpotlightCard from '../react-bits/SpotlightCard.tsx';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import { SPACE_IDS, type SpaceId } from '../../data/spaces';
+import { getLocalizedSpace } from '../../i18n/space-locale';
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const labels = ui(lang);
+
+const allWorks = await getCollection('works');
+const creators = SPACE_IDS.map((id: SpaceId, i) => {
+  const def = getLocalizedSpace(id, lang);
+  return {
+    name: def.platformName,
+    tagline: def.tagline,
+    href: spacePath(lang, id),
+    workCount: allWorks.filter((w) => w.data.space === id).length,
+    idx: i,
+  };
+});
+
+const P = labels.platform;
+const marqueeList = [...P.marqueeItems];
+
+const dockSections = [
+  { id: 'platform-intro', label: P.dockIntro },
+  { id: 'platform-build', label: P.dockBuild },
+  { id: 'creators', label: P.dockSpaces },
+];
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{labels.metaTitlePlatform}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('portfolio-theme');
+          document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --mono: 'Space Mono', monospace;
+        --sans: 'Space Grotesk', sans-serif;
+        --accent2: #8fa8e8;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        cursor: none;
+        min-height: 100vh;
+      }
+
+      #cursor {
+        width: 8px; height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s, height 0.2s;
+      }
+      #cursor-ring {
+        width: 32px; height: 32px;
+        border: 1px solid var(--cursor-ring);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+      }
+      body:has(a:hover) #cursor { width: 12px; height: 12px; }
+      body:has(a:hover) #cursor-ring {
+        width: 48px; height: 48px;
+        border-color: var(--cursor-ring-hover);
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.55;
+        animation: gridBreathe 5s ease-in-out infinite;
+      }
+
+      @keyframes gridBreathe {
+        0%, 100% { opacity: 0.48; }
+        50% { opacity: 0.82; }
+      }
+
+      html[data-theme='light'] body::before {
+        opacity: 0.32;
+      }
+      html[data-theme='light'] body.portfolio-atmo::before {
+        animation: gridBreatheLight 5s ease-in-out infinite;
+      }
+      @keyframes gridBreatheLight {
+        0%, 100% { opacity: 0.28; }
+        50% { opacity: 0.45; }
+      }
+
+      main {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        padding: 140px 48px 80px;
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      .platform-section {
+        scroll-margin-bottom: 5rem;
+      }
+      .platform-section + .platform-section {
+        margin-top: 3rem;
+      }
+
+      #platform-title {
+        font-family: var(--mono);
+        font-size: clamp(40px, 8vw, 72px);
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin-bottom: 20px;
+        text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 120px color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+      .hero-shiny-wrap {
+        margin-bottom: 24px;
+      }
+      .hero-shiny-text {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .hero-desc {
+        font-size: 17px;
+        color: var(--muted);
+        line-height: 1.82;
+        max-width: 36rem;
+        margin: 0;
+        letter-spacing: 0.02em;
+      }
+      .platform-hero-spotlight {
+        margin-bottom: 40px;
+        max-width: 36rem;
+      }
+
+      [data-onscroll-reveal] {
+        opacity: 0;
+        will-change: opacity, transform;
+      }
+
+      .section-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        color: color-mix(in srgb, var(--muted) 78%, var(--text));
+        text-transform: uppercase;
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--line2);
+      }
+
+      .creator-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .creator-row {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 36px 40px;
+        border: 1px solid var(--line);
+        text-decoration: none;
+        color: inherit;
+        overflow: hidden;
+        transition: border-color 0.35s ease, box-shadow 0.45s ease;
+      }
+      .creator-row:hover {
+        border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), 0 12px 40px var(--shadow-card);
+      }
+      .creator-row__fill {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent) 0%, color-mix(in srgb, var(--accent) 10%, transparent) 55%, transparent 100%);
+        clip-path: inset(0 100% 0 0);
+        transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 0;
+        pointer-events: none;
+      }
+      .creator-row:hover .creator-row__fill {
+        clip-path: inset(0 0 0 0);
+      }
+      .creator-row__left {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .creator-row__idx {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        color: var(--muted-dim);
+      }
+      .creator-row__name {
+        font-family: var(--mono);
+        font-size: clamp(20px, 4vw, 28px);
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: var(--text);
+      }
+      .creator-row__right {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        text-align: right;
+      }
+      .creator-row__tagline {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.62;
+        max-width: 22rem;
+      }
+      .creator-row__cta {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+      .creator-row:hover .creator-row__cta {
+        color: var(--bg);
+      }
+      .creator-row:hover .creator-row__name {
+        color: var(--bg);
+      }
+      .creator-row:hover .creator-row__idx {
+        color: color-mix(in srgb, var(--bg) 55%, var(--text));
+      }
+      .creator-row:hover .creator-row__tagline {
+        color: color-mix(in srgb, var(--bg) 65%, var(--text));
+      }
+
+      footer {
+        position: relative;
+        z-index: 2;
+        padding: 40px 48px;
+        border-top: 1px solid var(--line);
+      }
+      .footer-copy {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: var(--muted-dim);
+        opacity: 0.75;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 14px;
+      }
+      .footer-copy a {
+        color: var(--accent);
+        text-decoration: none;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+      }
+      .footer-copy a:hover {
+        opacity: 1;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .footer-copy__sep {
+        opacity: 0.45;
+        user-select: none;
+      }
+
+      @media (max-width: 768px) {
+        main { padding: 120px 24px 64px; }
+        footer { padding: 32px 24px; }
+        .creator-row {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 28px 22px;
+        }
+        .creator-row__right { align-items: flex-start; text-align: left; }
+      }
+
+      /* 淺色主題：創作空間列預設字色加強（idx／tagline 原本偏淡） */
+      html[data-theme='light'] .creator-row__idx {
+        color: color-mix(in srgb, var(--muted-dim) 45%, var(--text));
+      }
+      html[data-theme='light'] .creator-row__tagline {
+        color: color-mix(in srgb, var(--text) 42%, var(--muted));
+      }
+      html[data-theme='light'] .creator-row {
+        border-color: color-mix(in srgb, var(--line) 70%, var(--text) 30%);
+        background: color-mix(in srgb, var(--bg) 96%, var(--text) 4%);
+      }
+      html[data-theme='light'] .section-label {
+        color: color-mix(in srgb, var(--muted) 48%, var(--text));
+        border-bottom-color: color-mix(in srgb, var(--line2) 75%, var(--text) 25%);
+      }
+    </style>
+  </head>
+  <body class="portfolio-atmo">
+    <AmbientBackdrop />
+    <PageTransition />
+
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
+    <SiteNav
+      variant="platform"
+      lang={lang}
+      pathname={Astro.url.pathname}
+    />
+
+    <PortfolioChrome
+      lang={lang}
+      pathname={Astro.url.pathname}
+      dockSections={dockSections}
+      dockSectionLinkMode="scroll"
+    />
+
+    <main id="main-content" tabindex="-1">
+      <section id="platform-intro" class="platform-section" aria-label={P.dockIntro}>
+        <div class="hero-shiny-wrap">
+          <ShinyText
+            client:visible
+            text={P.heroTag}
+            className="hero-shiny-text"
+            color="var(--muted-dim)"
+            shineColor="var(--accent)"
+            speed={2.8}
+            spread={110}
+          />
+        </div>
+        <h1 id="platform-title" data-anime-splittext="chars">{P.heroTitle}</h1>
+        <SpotlightCard
+          client:visible
+          className="platform-hero-spotlight"
+          spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
+        >
+          <p class="hero-desc">{P.heroDesc}</p>
+        </SpotlightCard>
+
+        <MarqueeTags items={marqueeList} durationSec={36} />
+      </section>
+
+      <section id="platform-build" class="platform-section" aria-label={P.dockBuild}>
+        <div data-onscroll-reveal>
+          <Quote variant="band" text={P.quoteBand} attribution={P.quoteBandAttr} />
+        </div>
+      </section>
+
+      <section id="creators" class="platform-section platform-section--spaces" aria-label={P.dockSpaces}>
+        <p class="section-label" data-anime-splittext="chars-inview">{P.sectionCreators}</p>
+        <div class="creator-rows">
+          {creators.map((c) => (
+            <a class="creator-row" href={c.href}>
+              <span class="creator-row__fill" aria-hidden="true"></span>
+              <div class="creator-row__left">
+                <span class="creator-row__idx">
+                  /{String(c.idx + 1).padStart(2, '0')} · {String(c.workCount).padStart(2, '0')}{' '}
+                  {P.worksUnit}
+                </span>
+                <span class="creator-row__name" data-anime-splittext="chars-inview">{c.name}</span>
+              </div>
+              <div class="creator-row__right">
+                <span class="creator-row__tagline">{c.tagline}</span>
+                <span class="creator-row__cta">{P.enter}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p class="footer-copy">
+        <span>{P.footer}</span>
+        <span class="footer-copy__sep" aria-hidden="true">·</span>
+        <a href="/lab">{labels.nav.lab}</a>
+      </p>
+    </footer>
+
+    <script>
+      import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
+      import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
+      import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+
+      initPortfolioCursor();
+      initAnimeSplitText();
+      initAnimeOnScrollReveals();
+    </script>
+  </body>
+</html>

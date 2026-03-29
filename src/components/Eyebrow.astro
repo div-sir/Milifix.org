@@ -1,0 +1,38 @@
+---
+interface Props {
+  text: string;
+  /** 顯示左側短線 */
+  line?: boolean;
+}
+
+const { text, line = true } = Astro.props;
+---
+
+<p class="ui-eyebrow">
+  {line && <span class="ui-eyebrow__line" aria-hidden="true" />}
+  <span class="ui-eyebrow__text">{text}</span>
+</p>
+
+<style>
+  .ui-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 20px;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .ui-eyebrow__line {
+    width: 28px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    flex-shrink: 0;
+  }
+  .ui-eyebrow__text {
+    opacity: 0.92;
+  }
+</style>

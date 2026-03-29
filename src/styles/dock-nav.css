@@ -1,0 +1,347 @@
+/* 底部 Pill Nav：單一淺色膠囊列 — Home、區塊、主題同一軌道（靈感 reactbits.dev/components/pill-nav） */
+html {
+  scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+body.portfolio-atmo {
+  padding-bottom: calc(4.85rem + env(safe-area-inset-bottom, 0px));
+}
+
+.dock-pill-nav.dock-nav {
+  --dock-pill-h: 40px;
+  --dock-pill-gap: 4px;
+  --dock-pill-pad-x: clamp(13px, 3.2vw, 17px);
+
+  position: fixed;
+  z-index: 185;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: min(calc(100vw - 1.25rem), 680px);
+  width: max-content;
+}
+
+/* 顏色跟隨 html[data-theme]：沿用 theme.css 的 --bg / --text / --nav-accent 等 */
+html[data-theme='dark'] .dock-pill-nav.dock-nav,
+html:not([data-theme]) .dock-pill-nav.dock-nav {
+  /* 內層按鈕底色 */
+  --dock-pill-bg: color-mix(in srgb, var(--bg) 28%, #050607);
+  /* 外殼與 hover 展開：僅略亮於按鈕，避免圓角左右兩端露出大塊淺色弧帶 */
+  --dock-pill-base: color-mix(in srgb, var(--dock-pill-bg) 82%, var(--text) 18%);
+  --dock-pill-text: color-mix(in srgb, var(--text) 96%, var(--dock-pill-bg));
+  /* hover 時 ::before 仍為偏深底，字需維持淺色（勿用高比例 --bg，否則字會變深而「消失」） */
+  --dock-pill-hover-text: color-mix(in srgb, var(--text) 94%, var(--dock-pill-bg));
+  --dock-pill-active-dot: color-mix(in srgb, var(--nav-accent) 72%, var(--text));
+  --dock-pill-shell-border: var(--line2);
+}
+
+html[data-theme='light'] .dock-pill-nav.dock-nav {
+  --dock-pill-bg: color-mix(in srgb, var(--text) 90%, var(--bg3) 10%);
+  --dock-pill-base: color-mix(in srgb, var(--dock-pill-bg) 72%, var(--bg) 28%);
+  --dock-pill-text: color-mix(in srgb, var(--bg) 93%, #fff);
+  --dock-pill-hover-text: color-mix(in srgb, var(--dock-pill-bg) 78%, var(--text));
+  --dock-pill-active-dot: color-mix(in srgb, var(--nav-accent) 58%, var(--text));
+  --dock-pill-shell-border: var(--line2);
+}
+
+/* 單一外殼：所有項目在同一顆淺色膠囊內 */
+.dock-pill-nav__shell {
+  display: flex;
+  align-items: center;
+  /* 水平 padding 縮小，減少圓角區內「外殼色」露出面積 */
+  padding: 5px 3px;
+  border-radius: 999px;
+  background: var(--dock-pill-base);
+  border: 1px solid var(--dock-pill-shell-border);
+  /* 陰影略收、加負 spread，減少往左右擴散的亮／暗暈 */
+  box-shadow: 0 10px 28px -6px var(--shadow-card);
+}
+
+.dock-pill-nav__row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--dock-pill-gap);
+  height: var(--dock-pill-h);
+  min-height: var(--dock-pill-h);
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dock-pill-nav__row::-webkit-scrollbar {
+  display: none;
+}
+
+.dock-pill-nav__cell {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.dock-pill-nav__cell--theme {
+  flex-shrink: 0;
+}
+
+.dock-pill-nav__sep-cell {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 1px;
+}
+
+.dock-pill-nav__vsep {
+  width: 1px;
+  height: 56%;
+  align-self: center;
+  background: color-mix(in srgb, var(--dock-pill-bg) 22%, var(--dock-pill-base));
+  border-radius: 1px;
+  opacity: 0.55;
+}
+
+/* 深色內層 pill（Home / 區塊 / 主題） */
+.dock-pill-nav__pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 100%;
+  padding: 0 var(--dock-pill-pad-x);
+  border: none;
+  border-radius: 999px;
+  background: var(--dock-pill-bg);
+  color: var(--dock-pill-text);
+  font-family: var(--mono, 'Space Mono', monospace);
+  font-size: clamp(8px, 2.2vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  transition: box-shadow 0.22s ease;
+}
+
+.dock-pill-nav__pill--home {
+  letter-spacing: 0.1em;
+}
+
+.dock-pill-nav__pill--theme {
+  width: var(--dock-pill-h);
+  min-width: var(--dock-pill-h);
+  padding: 0;
+}
+
+.dock-pill-nav__pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--nav-accent) 50%, transparent);
+}
+
+/*
+ * Hover 填滿：改用 ::before + clip-path circle 從底部擴張，並略超出邊界（inset 負值），
+ * 避免圓形 transform 與膠囊 border-radius 在上下緣留下 1px 反鋸齒縫隙。
+ */
+.dock-pill-nav__pill::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  background: var(--dock-pill-base);
+  z-index: 1;
+  clip-path: circle(0% at 50% calc(100% + 4px));
+  transition: clip-path 0.5s cubic-bezier(0.33, 1, 0.64, 1);
+  pointer-events: none;
+}
+
+.dock-pill-nav__pill:hover::before,
+.dock-pill-nav__pill:focus-visible::before {
+  clip-path: circle(185% at 50% calc(100% + 4px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-pill-nav__pill::before {
+    transition-duration: 0.01ms;
+  }
+}
+
+.dock-pill-nav__label-stack {
+  position: relative;
+  z-index: 3;
+  display: inline-block;
+  height: 1.12em;
+  line-height: 1.12;
+  overflow: hidden;
+}
+
+.dock-pill-nav__label {
+  display: block;
+  transition: transform 0.38s cubic-bezier(0.33, 1, 0.64, 1);
+}
+
+.dock-pill-nav__label--hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--dock-pill-hover-text);
+  transform: translateY(110%);
+  transition: transform 0.38s cubic-bezier(0.33, 1, 0.64, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-pill-nav__label,
+  .dock-pill-nav__label--hover {
+    transition: none;
+  }
+
+  .dock-pill-nav__pill:hover .dock-pill-nav__label,
+  .dock-pill-nav__pill:focus-visible .dock-pill-nav__label {
+    transform: none;
+  }
+
+  .dock-pill-nav__pill:hover .dock-pill-nav__label--hover,
+  .dock-pill-nav__pill:focus-visible .dock-pill-nav__label--hover {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+.dock-pill-nav__pill:hover .dock-pill-nav__label,
+.dock-pill-nav__pill:focus-visible .dock-pill-nav__label {
+  transform: translateY(-108%);
+}
+
+.dock-pill-nav__pill:hover .dock-pill-nav__label--hover,
+.dock-pill-nav__pill:focus-visible .dock-pill-nav__label--hover {
+  transform: translateY(0);
+}
+
+/* 主題鈕：圖示在 blob 之上，hover 時改深色 */
+.dock-pill-nav__theme-swap {
+  position: relative;
+  z-index: 3;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.dock-pill-nav__theme-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: var(--dock-pill-text);
+  transition:
+    opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.48s cubic-bezier(0.33, 1.28, 0.64, 1),
+    color 0.28s ease;
+}
+
+.dock-pill-nav__pill--theme:hover .dock-pill-nav__theme-icon,
+.dock-pill-nav__pill--theme:focus-visible .dock-pill-nav__theme-icon {
+  color: var(--dock-pill-hover-text);
+}
+
+.dock-pill-nav__theme-icon svg {
+  display: block;
+}
+
+html[data-theme='dark'] .dock-pill-nav__theme-icon--sun,
+html:not([data-theme]) .dock-pill-nav__theme-icon--sun {
+  opacity: 0;
+  transform: scale(0.52) rotate(78deg);
+  pointer-events: none;
+}
+
+html[data-theme='dark'] .dock-pill-nav__theme-icon--moon,
+html:not([data-theme]) .dock-pill-nav__theme-icon--moon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+html[data-theme='light'] .dock-pill-nav__theme-icon--moon {
+  opacity: 0;
+  transform: scale(0.52) rotate(-78deg);
+  pointer-events: none;
+}
+
+html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.dock-pill-nav__active-dot {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  z-index: 4;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--dock-pill-active-dot);
+  transform: translateX(-50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.28s cubic-bezier(0.33, 1, 0.64, 1),
+    opacity 0.22s ease;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--nav-accent) 35%, transparent);
+}
+
+.dock-nav__section--active.dock-pill-nav__pill .dock-pill-nav__active-dot {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+.dock-nav__section--active.dock-pill-nav__pill:hover .dock-pill-nav__active-dot,
+.dock-nav__section--active.dock-pill-nav__pill:focus-visible .dock-pill-nav__active-dot {
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-pill-nav__theme-icon {
+    transition: opacity 0.16s ease;
+  }
+
+  html[data-theme='dark'] .dock-pill-nav__theme-icon--sun,
+  html:not([data-theme]) .dock-pill-nav__theme-icon--sun,
+  html[data-theme='light'] .dock-pill-nav__theme-icon--moon,
+  html[data-theme='dark'] .dock-pill-nav__theme-icon--moon,
+  html:not([data-theme]) .dock-pill-nav__theme-icon--moon,
+  html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
+    transform: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .dock-pill-nav.dock-nav {
+    --dock-pill-h: 36px;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100vw - 0.85rem);
+  }
+
+  .dock-pill-nav__shell {
+    padding: 4px 2px;
+  }
+
+  .dock-pill-nav__pill {
+    padding: 0 clamp(10px, 2.8vw, 14px);
+    font-size: 8px;
+    letter-spacing: 0.09em;
+  }
+
+  .dock-pill-nav__pill--theme {
+    width: var(--dock-pill-h);
+    min-width: var(--dock-pill-h);
+  }
+}

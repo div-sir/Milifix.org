@@ -1,0 +1,607 @@
+---
+import '../styles/site-nav.css';
+import type { Lang } from '../i18n/types';
+import { LANGS } from '../i18n/types';
+import { ui } from '../i18n/ui';
+import {
+  equivalentUrl,
+  homePath,
+  parseLocalizedPath,
+  spacePath,
+} from '../i18n/routes';
+
+export interface NavLink {
+  href: string;
+  label: string;
+  cta?: boolean;
+}
+
+export interface WorkNavItem {
+  href: string;
+  title: string;
+  current?: boolean;
+}
+
+type NavBlock =
+  | { type: 'link'; href: string; label: string; cta?: boolean }
+  | {
+      type: 'works';
+      overviewHref?: string;
+      overviewLabel?: string;
+      items: WorkNavItem[];
+    };
+
+interface Props {
+  variant: 'platform' | 'space-home' | 'space-work';
+  lang: Lang;
+  pathname: string;
+  spaceId?: string;
+  spaceLabel?: string;
+  workNavItems?: WorkNavItem[];
+  worksOverviewHref?: string;
+  worksOverviewLabel?: string;
+}
+
+const {
+  variant,
+  lang,
+  pathname,
+  spaceId = '',
+  spaceLabel = '',
+  workNavItems: workNavItemsProp,
+  worksOverviewHref = '',
+  worksOverviewLabel = '',
+} = Astro.props;
+
+const workNavItems = workNavItemsProp ?? [];
+
+const labels = ui(lang);
+const N = labels.nav;
+
+const { logicalPath } = parseLocalizedPath(pathname);
+
+const onPlatform = variant === 'platform' && logicalPath === '/';
+const onSpaceHome =
+  variant === 'space-home' && spaceId && logicalPath === `/${spaceId}`;
+
+const logoText = variant === 'platform' ? N.logoPlatform : spaceLabel;
+const logoHref = variant === 'platform' ? homePath(lang) : spacePath(lang, spaceId);
+const logoCurrent = variant === 'platform' ? onPlatform : onSpaceHome;
+
+const navBlocks: NavBlock[] = [];
+
+if (variant === 'platform') {
+  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
+} else if (variant === 'space-home' && spaceId) {
+  navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
+  if (workNavItems.length > 0) {
+    navBlocks.push({
+      type: 'works',
+      ...(worksOverviewHref && worksOverviewLabel
+        ? { overviewHref: worksOverviewHref, overviewLabel: worksOverviewLabel }
+        : {}),
+      items: workNavItems,
+    });
+  } else {
+    navBlocks.push({
+      type: 'link',
+      href: spacePath(lang, spaceId),
+      label: N.works,
+    });
+  }
+  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
+  navBlocks.push({ type: 'link', href: 'mailto:your@email.com', label: N.contact });
+} else if (variant === 'space-work' && spaceId) {
+  navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
+  if (workNavItems.length > 0) {
+    navBlocks.push({
+      type: 'works',
+      ...(worksOverviewHref && worksOverviewLabel
+        ? { overviewHref: worksOverviewHref, overviewLabel: worksOverviewLabel }
+        : {}),
+      items: workNavItems,
+    });
+  } else {
+    navBlocks.push({
+      type: 'link',
+      href: spacePath(lang, spaceId),
+      label: N.allWorks,
+    });
+  }
+  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
+}
+
+const langUrls = Object.fromEntries(
+  LANGS.map((l) => [l, equivalentUrl(l, pathname)]),
+) as Record<Lang, string>;
+---
+
+<div class="site-nav-host">
+<nav class="site-nav" aria-label={N.ariaNav}>
+  <a class="site-nav__skip" href="#main-content">{N.skip}</a>
+  <div class="site-nav__bar">
+    <a
+      class="site-nav__logo"
+      href={logoHref}
+      aria-current={logoCurrent ? 'page' : undefined}
+    >
+      {logoText}
+    </a>
+    <div class="site-nav__flyout" id="site-nav-flyout">
+        <ul class="site-nav__links" id="site-nav-menu">
+        {
+          navBlocks.map((block) =>
+            block.type === 'link' ? (
+              <li>
+                <a
+                  href={block.href}
+                  class:list={[block.cta && 'site-nav__link--cta']}
+                >
+                  {block.label}
+                </a>
+              </li>
+            ) : (
+              <li class="site-nav__li--works">
+                <div class="site-nav__works-wrap">
+                  <button
+                    type="button"
+                    class="site-nav__works-trigger"
+                    id="site-nav-works-btn"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="site-nav-works-panel"
+                  >
+                    {N.works}
+                    <span class="site-nav__works-trigger-chev" aria-hidden="true">
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path
+                          d="M1 1.25L5 4.75L9 1.25"
+                          stroke="currentColor"
+                          stroke-width="1.2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                  <div
+                    class="site-nav__works-panel"
+                    id="site-nav-works-panel"
+                    role="menu"
+                    aria-label={N.worksMenuAria}
+                    hidden
+                  >
+                    {block.overviewHref && block.overviewLabel ? (
+                      <>
+                        <a
+                          role="menuitem"
+                          class="site-nav__works-overview"
+                          href={block.overviewHref}
+                          data-works-menuitem
+                        >
+                          {block.overviewLabel}
+                        </a>
+                        <div class="site-nav__works-divider" aria-hidden="true"></div>
+                      </>
+                    ) : null}
+                    {block.items.map((item) => (
+                      <a
+                        role="menuitem"
+                        class:list={['site-nav__works-link', item.current && 'is-current']}
+                        href={item.href}
+                        data-works-menuitem
+                        aria-current={item.current ? 'page' : undefined}
+                      >
+                        {item.title}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </div>
+    <div class="site-nav__tools">
+      <div class="site-nav__toolbar" role="group" aria-label={N.navControlCluster}>
+        <div class="site-nav__lang-wrap">
+          <button
+            type="button"
+            class="site-nav__lang-trigger"
+            id="site-nav-lang-btn"
+            aria-expanded="false"
+            aria-haspopup="true"
+            aria-controls="site-nav-lang-panel"
+            aria-label={`${N.langMenuHint}: ${N.langNames[lang]}`}
+          >
+            <span class="site-nav__lang-trigger-code">{N.langShort[lang]}</span>
+            <span class="site-nav__lang-trigger-chev" aria-hidden="true">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                <path d="M1 1.25L5 4.75L9 1.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </button>
+          <div
+            class="site-nav__lang-panel"
+            id="site-nav-lang-panel"
+            role="menu"
+            aria-label={N.langSwitcher}
+            hidden
+          >
+            {
+              LANGS.map((l) => (
+                <a
+                  role="menuitem"
+                  href={langUrls[l]}
+                  class:list={['site-nav__lang-option', l === lang && 'is-active']}
+                  hreflang={l === 'zh' ? 'zh-Hant' : l}
+                  aria-current={l === lang ? 'page' : undefined}
+                  data-lang-option
+                >
+                  <span class="site-nav__lang-option-code">{N.langShort[l]}</span>
+                  <span class="site-nav__lang-option-name">{N.langNames[l]}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+        <button
+          type="button"
+          class="site-nav__theme"
+          id="site-nav-theme"
+          aria-label={N.themeToLight}
+          title={N.themeToLight}
+          data-label-dark={N.themeToDark}
+          data-label-light={N.themeToLight}
+        >
+          <span class="site-nav__theme-swap" aria-hidden="true">
+            <span class="site-nav__theme-icon site-nav__theme-icon--sun">
+              <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2" />
+                <path
+                  d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.5 3.5l-1.06 1.06M4.56 11.44l-1.06 1.06M12.5 12.5l-1.06-1.06M4.56 4.56L3.5 3.5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <span class="site-nav__theme-icon site-nav__theme-icon--moon">
+              <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M13.2 9.1A4.2 4.2 0 0 1 6.9 2.8 5 5 0 1 0 13.2 9.1z"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="site-nav__toggle"
+      aria-expanded="false"
+      aria-controls="site-nav-flyout"
+      aria-label={N.menuOpen}
+      data-aria-open={N.menuOpen}
+      data-aria-close={N.menuClose}
+    >
+      <span class="site-nav__sr-only">{N.menuHidden}</span>
+      <span class="site-nav__toggle-icon" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </span>
+    </button>
+  </div>
+  <div class="site-nav__backdrop" aria-hidden="true"></div>
+</nav>
+<button
+  type="button"
+  class="site-nav__unhide"
+  id="site-nav-unhide"
+  aria-label={N.navShowNav}
+  hidden
+>
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <path
+      d="M3.5 5.25L7 8.75L10.5 5.25"
+      stroke="currentColor"
+      stroke-width="1.25"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+</button>
+</div>
+
+<style is:global>
+  .site-nav__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .site-nav__tools {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .site-nav__toolbar {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--line2);
+    border-radius: 100px;
+    background: var(--nav-toolbar-bg);
+    overflow: visible;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 4%, transparent) inset;
+  }
+
+  .site-nav__lang-wrap {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  @media (min-width: 769px) {
+    .site-nav__lang-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: 10px;
+      z-index: 215;
+    }
+  }
+
+  .site-nav__lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 7px 12px 7px 14px;
+    border: none;
+    border-radius: 100px 0 0 100px;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .site-nav__lang-trigger:hover,
+  .site-nav__lang-trigger:focus-visible {
+    color: var(--text);
+    background: color-mix(in srgb, var(--nav-accent) 8%, transparent);
+  }
+
+  .site-nav__lang-trigger:focus-visible {
+    outline: 2px solid var(--nav-accent);
+    outline-offset: 2px;
+    z-index: 2;
+  }
+
+  .site-nav__lang-trigger[aria-expanded='true'] {
+    color: var(--nav-accent);
+    background: color-mix(in srgb, var(--nav-accent) 12%, transparent);
+  }
+
+  .site-nav__lang-trigger-code {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .site-nav__lang-trigger-chev {
+    display: flex;
+    opacity: 0.65;
+    transition: transform 0.28s ease, opacity 0.2s ease;
+  }
+
+  .site-nav__lang-trigger[aria-expanded='true'] .site-nav__lang-trigger-chev {
+    transform: rotate(-180deg);
+    opacity: 0.9;
+  }
+
+  .site-nav__lang-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 12.5rem;
+    padding: 4px;
+    border: 1px solid var(--line2);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 18px 48px var(--shadow-card);
+    z-index: 220;
+  }
+
+  .site-nav__lang-panel[hidden] {
+    display: none !important;
+  }
+
+  .site-nav__lang-option {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 2px;
+    text-decoration: none;
+    color: var(--muted-dim);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .site-nav__lang-option:hover,
+  .site-nav__lang-option:focus-visible {
+    background: color-mix(in srgb, var(--nav-accent) 9%, transparent);
+    color: var(--text);
+    outline: none;
+  }
+
+  .site-nav__lang-option.is-active {
+    color: var(--nav-accent);
+    background: color-mix(in srgb, var(--nav-accent) 13%, transparent);
+  }
+
+  .site-nav__lang-option-code {
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    min-width: 1.5rem;
+  }
+
+  .site-nav__lang-option-name {
+    font-family: var(--sans, 'Space Grotesk', sans-serif);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .site-nav__theme {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-left: 1px solid var(--line2);
+    border-radius: 0 100px 100px 0;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted-dim);
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .site-nav__theme:hover,
+  .site-nav__theme:focus-visible {
+    color: var(--text);
+    background: color-mix(in srgb, var(--nav-accent) 8%, transparent);
+  }
+
+  .site-nav__theme:focus-visible {
+    outline: 2px solid var(--nav-accent);
+    outline-offset: 2px;
+    z-index: 2;
+  }
+
+  .site-nav__theme-swap {
+    position: relative;
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+
+  .site-nav__theme-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    transition:
+      opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.48s cubic-bezier(0.33, 1.28, 0.64, 1);
+  }
+
+  .site-nav__theme-icon svg {
+    display: block;
+  }
+
+  html[data-theme='dark'] .site-nav__theme-icon--sun,
+  html:not([data-theme]) .site-nav__theme-icon--sun {
+    opacity: 0;
+    transform: scale(0.52) rotate(78deg);
+    pointer-events: none;
+  }
+
+  html[data-theme='dark'] .site-nav__theme-icon--moon,
+  html:not([data-theme]) .site-nav__theme-icon--moon {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  html[data-theme='light'] .site-nav__theme-icon--moon {
+    opacity: 0;
+    transform: scale(0.52) rotate(-78deg);
+    pointer-events: none;
+  }
+
+  html[data-theme='light'] .site-nav__theme-icon--sun {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-nav__theme-icon {
+      transition: opacity 0.16s ease;
+    }
+
+    html[data-theme='dark'] .site-nav__theme-icon--sun,
+    html:not([data-theme]) .site-nav__theme-icon--sun,
+    html[data-theme='light'] .site-nav__theme-icon--moon {
+      transform: none;
+    }
+
+    html[data-theme='dark'] .site-nav__theme-icon--moon,
+    html:not([data-theme]) .site-nav__theme-icon--moon,
+    html[data-theme='light'] .site-nav__theme-icon--sun {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .site-nav__lang-trigger {
+      padding: 6px 10px 6px 12px;
+      font-size: 8px;
+    }
+
+    .site-nav__lang-panel {
+      min-width: min(14rem, calc(100vw - 2rem));
+    }
+
+    .site-nav__theme {
+      width: 38px;
+    }
+  }
+</style>
+
+<script>
+  import { initSiteNav } from '../scripts/site-nav-client';
+  import { initTheme, toggleTheme } from '../scripts/theme-init';
+
+  initTheme();
+  initSiteNav();
+
+  const btn = document.getElementById('site-nav-theme');
+  const labelDark = btn?.getAttribute('data-label-dark') || '';
+  const labelLight = btn?.getAttribute('data-label-light') || '';
+
+  function syncThemeButton() {
+    const isLight = document.documentElement.dataset.theme === 'light';
+    btn?.setAttribute('aria-label', isLight ? labelDark : labelLight);
+    btn?.setAttribute('title', isLight ? labelDark : labelLight);
+  }
+
+  syncThemeButton();
+  btn?.addEventListener('click', () => {
+    toggleTheme();
+    syncThemeButton();
+  });
+</script>

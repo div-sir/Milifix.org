@@ -1,0 +1,235 @@
+---
+interface Props {
+  text: string;
+  attribution?: string;
+  /** band = 標準區塊；inline = 較緊湊；pull = 大號編輯式摘句 */
+  variant?: 'band' | 'inline' | 'pull';
+  /** 左上角標籤，預設 Quote */
+  label?: string;
+}
+
+const { text, attribution, variant = 'band', label = 'Quote' } = Astro.props;
+---
+
+<figure class:list={['site-quote', variant !== 'band' && `site-quote--${variant}`]}>
+  <div class="site-quote__inner">
+    <span class="site-quote__mark" aria-hidden="true">“</span>
+    <span class="site-quote__glow" aria-hidden="true" />
+    <span class="site-quote__label" aria-hidden="true">{label}</span>
+    <blockquote class="site-quote__blockquote">
+      <p class="site-quote__text" data-anime-splittext="words-inview">{text}</p>
+    </blockquote>
+    {attribution && (
+      <figcaption class="site-quote__cite">{attribution}</figcaption>
+    )}
+  </div>
+</figure>
+
+<style>
+  .site-quote {
+    position: relative;
+    z-index: 1;
+    margin: clamp(40px, 6vw, 64px) 0;
+  }
+  .site-quote--inline {
+    margin: 32px 0;
+  }
+  .site-quote--pull {
+    margin: clamp(48px, 8vw, 88px) 0;
+  }
+
+  .site-quote__inner {
+    position: relative;
+    padding: clamp(24px, 4vw, 36px) clamp(24px, 4vw, 40px) clamp(24px, 4vw, 32px)
+      clamp(28px, 5vw, 48px);
+    border-radius: 16px;
+    border: 1px solid var(--line2, rgba(255, 255, 255, 0.11));
+    background:
+      radial-gradient(
+        120% 80% at 0% 0%,
+        color-mix(in srgb, var(--accent) 14%, transparent),
+        transparent 55%
+      ),
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--bg2) 94%, #000) 0%,
+        color-mix(in srgb, var(--quote-bg-mid, #171b22) 88%, transparent) 48%,
+        color-mix(in srgb, var(--bg3) 90%, #000) 100%
+      );
+    box-shadow:
+      0 1px 0 color-mix(in srgb, #fff 4%, transparent) inset,
+      0 0 0 1px color-mix(in srgb, var(--accent) 5%, transparent) inset,
+      0 24px 56px -32px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+
+  html[data-theme='light'] .site-quote__inner {
+    background:
+      radial-gradient(
+        100% 70% at 0% 0%,
+        color-mix(in srgb, var(--accent) 12%, var(--bg)),
+        transparent 50%
+      ),
+      linear-gradient(
+        168deg,
+        var(--quote-bg-mid, #fffefc) 0%,
+        color-mix(in srgb, var(--bg) 96%, #fff) 100%
+      );
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--text) 6%, transparent) inset,
+      0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent) inset,
+      0 20px 40px -28px var(--shadow-card, rgba(0, 0, 0, 0.12));
+  }
+
+  .site-quote--inline .site-quote__inner {
+    padding: 20px 22px 20px 28px;
+    border-radius: 12px;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 4%, transparent) inset,
+      0 12px 32px -24px rgba(0, 0, 0, 0.45);
+  }
+
+  html[data-theme='light'] .site-quote--inline .site-quote__inner {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent) inset,
+      0 14px 28px -20px var(--shadow-card);
+  }
+
+  .site-quote--pull .site-quote__inner {
+    padding: clamp(32px, 6vw, 52px) clamp(28px, 5vw, 56px);
+    text-align: center;
+    border-radius: 20px;
+  }
+
+  .site-quote__glow {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    top: -80px;
+    right: -60px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 68%
+    );
+    pointer-events: none;
+    opacity: 0.55;
+    filter: blur(2px);
+  }
+
+  .site-quote__mark {
+    position: absolute;
+    left: clamp(12px, 3vw, 22px);
+    top: clamp(4px, 1.5vw, 12px);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(4rem, 12vw, 5.5rem);
+    line-height: 0.85;
+    color: color-mix(in srgb, var(--accent) 22%, transparent);
+    user-select: none;
+    pointer-events: none;
+  }
+  .site-quote--inline .site-quote__mark {
+    font-size: clamp(2.5rem, 8vw, 3.25rem);
+    left: 10px;
+    top: 2px;
+    opacity: 0.9;
+  }
+  .site-quote--pull .site-quote__mark {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 8px;
+    font-size: clamp(3.5rem, 14vw, 6rem);
+    color: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+
+  .site-quote__label {
+    position: relative;
+    display: block;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.9;
+    margin-bottom: clamp(14px, 2.5vw, 22px);
+    padding-left: 2px;
+  }
+  .site-quote--inline .site-quote__label {
+    margin-bottom: 10px;
+  }
+  .site-quote--pull .site-quote__label {
+    margin-bottom: clamp(18px, 3vw, 28px);
+  }
+
+  .site-quote__blockquote {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: none;
+    max-width: 52ch;
+  }
+  .site-quote--pull .site-quote__blockquote {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 38ch;
+  }
+
+  .site-quote__text {
+    font-family: var(--sans, 'Space Grotesk', sans-serif);
+    font-size: clamp(17px, 2.15vw, 22px);
+    font-weight: 400;
+    line-height: 1.75;
+    letter-spacing: 0.018em;
+    color: var(--text, #f2f2f2);
+    margin: 0;
+  }
+  .site-quote--inline .site-quote__text {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .site-quote--pull .site-quote__text {
+    font-size: clamp(20px, 2.8vw, 28px);
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    font-weight: 400;
+  }
+
+  .site-quote__cite {
+    position: relative;
+    display: block;
+    margin-top: clamp(18px, 3vw, 26px);
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    font-style: normal;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-dim, #6d7676);
+  }
+  .site-quote--inline .site-quote__cite {
+    margin-top: 14px;
+  }
+  .site-quote--pull .site-quote__cite {
+    margin-top: clamp(22px, 4vw, 32px);
+  }
+  .site-quote:not(.site-quote--pull) .site-quote__cite::before {
+    content: '— ';
+    opacity: 0.65;
+  }
+  .site-quote--pull .site-quote__cite::before {
+    display: block;
+    content: '';
+    width: 48px;
+    height: 1px;
+    margin: 0 auto 14px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  @media (max-width: 768px) {
+    .site-quote__inner {
+      padding: 22px 20px 22px 26px;
+    }
+    .site-quote--pull .site-quote__inner {
+      padding: 28px 22px;
+    }
+  }
+</style>

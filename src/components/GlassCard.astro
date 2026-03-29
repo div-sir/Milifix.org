@@ -1,0 +1,52 @@
+---
+interface Props {
+  /** 可選小標 */
+  subtitle?: string;
+}
+
+const { subtitle } = Astro.props;
+---
+
+<div class="ui-glass-card">
+  {subtitle && <p class="ui-glass-card__sub">{subtitle}</p>}
+  <div class="ui-glass-card__body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .ui-glass-card {
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--accent) 35%, transparent),
+      color-mix(in srgb, var(--line2) 90%, transparent) 50%,
+      color-mix(in srgb, var(--accent) 15%, transparent) 100%
+    );
+  }
+  .ui-glass-card__sub {
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0 22px;
+    padding-top: 18px;
+    opacity: 0.9;
+  }
+  .ui-glass-card__body {
+    margin: 10px;
+    padding: 22px 24px 24px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid color-mix(in srgb, #fff 6%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 5%, transparent);
+  }
+  html[data-theme='light'] .ui-glass-card__body {
+    background: color-mix(in srgb, var(--bg) 88%, #fff);
+    border-color: color-mix(in srgb, var(--text) 6%, transparent);
+  }
+</style>

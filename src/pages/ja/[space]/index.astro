@@ -1,18 +1,58 @@
 ---
 import { getCollection } from 'astro:content';
-import PageTransition from '../../components/PageTransition.astro';
+import AmbientBackdrop from '../../../components/AmbientBackdrop.astro';
+import PageTransition from '../../../components/PageTransition.astro';
+import Quote from '../../../components/Quote.astro';
+import PortfolioChrome from '../../../components/PortfolioChrome.astro';
+import SiteNav from '../../../components/SiteNav.astro';
+import '../../../styles/theme.css';
+import '../../../styles/portfolio-atmosphere.css';
+import type { Lang } from '../../../i18n/types';
+import { HTML_LANG } from '../../../i18n/types';
+import { workPath } from '../../../i18n/routes';
+import { ui } from '../../../i18n/ui';
+import { getLocalizedSpace } from '../../../i18n/space-locale';
+import { SPACE_IDS, isSpaceId, type SpaceId } from '../../../data/spaces';
 
-const works = (await getCollection('solilium')).sort(
-  (a, b) => b.data.date.localeCompare(a.data.date),
-);
+export async function getStaticPaths() {
+  return SPACE_IDS.map((space) => ({ params: { space } }));
+}
+
+const lang: Lang = 'ja';
+const raw = Astro.params.space;
+if (!raw || !isSpaceId(raw)) {
+  return Astro.redirect('/ja/');
+}
+const space = raw as SpaceId;
+const spaceDef = getLocalizedSpace(space, lang);
+
+const works = (await getCollection('works'))
+  .filter((w) => w.data.space === space)
+  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+const navN = ui(lang).nav;
+const spaceDockSections = [
+  { id: 'main-content', label: navN.dockSpaceHero },
+  { id: 'works', label: navN.dockSpaceWorks },
+  { id: 'about', label: navN.dockSpaceAbout },
+];
 ---
 
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang={HTML_LANG[lang]}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOLILIUM</title>
+  <title>{spaceDef.navLabel}</title>
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -20,17 +60,9 @@ const works = (await getCollection('solilium')).sort(
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #080808;
-      --bg2: #0f0f0f;
-      --bg3: #141414;
-      --line: rgba(255,255,255,0.06);
-      --line2: rgba(255,255,255,0.12);
-      --text: #e8e8e8;
-      --muted: #555;
-      --accent: #c8ff00;
-      --accent2: #00ffc8;
       --mono: 'Space Mono', monospace;
       --sans: 'Space Grotesk', sans-serif;
+      --accent2: #8fa8e8;
     }
 
     html { scroll-behavior: smooth; }
@@ -55,7 +87,7 @@ const works = (await getCollection('solilium')).sort(
     }
     #cursor-ring {
       width: 32px; height: 32px;
-      border: 1px solid rgba(200,255,0,0.4);
+      border: 1px solid var(--cursor-ring);
       border-radius: 50%;
       position: fixed;
       pointer-events: none;
@@ -66,7 +98,7 @@ const works = (await getCollection('solilium')).sort(
     body:has(a:hover) #cursor, body:has(.work-item:hover) #cursor { width: 12px; height: 12px; }
     body:has(a:hover) #cursor-ring, body:has(.work-item:hover) #cursor-ring {
       width: 48px; height: 48px;
-      border-color: rgba(200,255,0,0.7);
+      border-color: var(--cursor-ring-hover);
     }
 
     body::before {
@@ -78,39 +110,21 @@ const works = (await getCollection('solilium')).sort(
         linear-gradient(90deg, var(--line) 1px, transparent 1px);
       background-size: 60px 60px;
       pointer-events: none;
-      z-index: 0;
+      z-index: 1;
+      opacity: 0.78;
+      animation: soliGridPulse 6s ease-in-out infinite;
+    }
+    @keyframes soliGridPulse {
+      0%, 100% { opacity: 0.62; }
+      50% { opacity: 0.9; }
     }
 
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 24px 48px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(8,8,8,0.85);
-      backdrop-filter: blur(12px);
+    body[data-space='voidlane'] {
+      --accent: #5ca3ff;
     }
-    .nav-logo {
-      font-family: var(--mono);
-      font-size: 13px;
-      letter-spacing: 0.2em;
-      color: var(--accent);
-      text-decoration: none;
+    body[data-space='lumenlab'] {
+      --accent: #e8c972;
     }
-    .nav-links { display: flex; gap: 36px; }
-    .nav-links a {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.15em;
-      color: var(--muted);
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); }
 
     .hero {
       position: relative;
@@ -120,6 +134,22 @@ const works = (await getCollection('solilium')).sort(
       flex-direction: column;
       justify-content: flex-end;
       padding: 0 48px 80px;
+    }
+    .hero-kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted-dim);
+      margin-bottom: 20px;
+      max-width: 22rem;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    .hero-kicker strong {
+      color: var(--accent);
+      font-weight: 700;
     }
     .hero-tag {
       font-family: var(--mono);
@@ -151,65 +181,40 @@ const works = (await getCollection('solilium')).sort(
     .hero-line { display: block; }
     .hero-line--outline {
       color: transparent;
-      -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+      -webkit-text-stroke: 1px rgba(255,255,255,0.38);
+      filter: drop-shadow(0 0 40px color-mix(in srgb, var(--accent) 10%, transparent));
     }
-    .hero-char { display: inline-block; will-change: transform, opacity; }
-
     .hero-bottom {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
     }
     .hero-desc {
-      font-size: 14px;
+      font-size: 16px;
       color: var(--muted);
-      line-height: 1.7;
-      max-width: 320px;
+      line-height: 1.82;
+      max-width: 22rem;
       letter-spacing: 0.03em;
     }
     .hero-scroll {
       font-family: var(--mono);
       font-size: 10px;
       letter-spacing: 0.2em;
-      color: var(--muted);
+      color: var(--muted-dim);
       text-transform: uppercase;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
     }
-    .hero-scroll::after {
-      content: '';
+    .hero-scroll__line {
       display: block;
       width: 1px;
       height: 48px;
+      transform-origin: 50% 0%;
+      transform: scaleY(0);
       background: linear-gradient(to bottom, var(--muted), transparent);
-      animation: scrollline 1.8s ease-in-out infinite;
-    }
-    @keyframes scrollline {
-      0%, 100% { opacity: 0.3; transform: scaleY(1); }
-      50% { opacity: 1; transform: scaleY(1.2); }
-    }
-
-    .scroll-hint-vertical {
-      position: fixed;
-      right: 28px;
-      top: 50%;
-      transform: translateY(-50%);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.28em;
-      color: var(--muted);
-      text-transform: uppercase;
-      z-index: 90;
-      transition: opacity 0.45s ease, visibility 0.45s ease;
-    }
-    .scroll-hint-vertical.is-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
+      will-change: transform;
     }
 
     .magnetic-view-label {
@@ -226,6 +231,7 @@ const works = (await getCollection('solilium')).sort(
       white-space: nowrap;
       will-change: transform, opacity;
       transition: opacity 0.2s ease;
+      text-shadow: 0 0 24px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 48px color-mix(in srgb, var(--accent) 16%, transparent);
     }
     .magnetic-view-label.is-visible { opacity: 1; }
 
@@ -241,12 +247,28 @@ const works = (await getCollection('solilium')).sort(
       margin-bottom: 64px;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--line2);
+      position: relative;
+    }
+    .section-header::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      height: 2px;
+      width: 120px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.85;
+      animation: sectionAccent 3.5s ease-in-out infinite;
+    }
+    @keyframes sectionAccent {
+      0%, 100% { opacity: 0.5; width: 80px; }
+      50% { opacity: 1; width: 160px; }
     }
     .section-title {
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.2em;
-      color: var(--muted);
+      color: var(--muted-dim);
       text-transform: uppercase;
     }
     .section-count {
@@ -257,18 +279,40 @@ const works = (await getCollection('solilium')).sort(
 
     .works-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 3px;
+      align-items: stretch;
     }
     .work-item {
       position: relative;
-      aspect-ratio: 3/4;
       overflow: visible;
       background: var(--bg3);
       cursor: none;
       display: block;
       text-decoration: none;
       color: inherit;
+      transition: box-shadow 0.45s ease, transform 0.45s ease;
+    }
+    .work-item--standard {
+      grid-column: span 4;
+      aspect-ratio: 3/4;
+    }
+    .work-item--featured {
+      grid-column: span 8;
+      aspect-ratio: 16/10;
+      min-height: 280px;
+    }
+    .work-item--compact {
+      grid-column: span 4;
+      aspect-ratio: 1;
+    }
+    .work-item--cinema {
+      grid-column: span 12;
+      aspect-ratio: 21/9;
+      min-height: 220px;
+    }
+    .work-item:hover {
+      box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
     }
     .work-item__inner {
       position: relative;
@@ -276,7 +320,6 @@ const works = (await getCollection('solilium')).sort(
       height: 100%;
       overflow: hidden;
     }
-    .work-item:nth-child(3n+2) { margin-top: 48px; }
     .work-img {
       width: 100%; height: 100%;
       object-fit: cover;
@@ -284,8 +327,28 @@ const works = (await getCollection('solilium')).sort(
       transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s;
       filter: grayscale(20%);
     }
+    .work-item--cinema .work-img,
+    .work-item--featured .work-img {
+      transform: scale(1.02);
+    }
+    .work-item--kenburns .work-img {
+      animation: workKenBurns 22s ease-in-out infinite alternate;
+    }
+    @keyframes workKenBurns {
+      from { transform: scale(1.04) translate3d(-1%, 0, 0); }
+      to { transform: scale(1.12) translate3d(1.2%, -0.8%, 0); }
+    }
     .work-item:hover .work-img {
       transform: scale(1.06);
+      filter: grayscale(0%);
+    }
+    .work-item--cinema:hover .work-img,
+    .work-item--featured:hover .work-img {
+      transform: scale(1.08);
+    }
+    .work-item--kenburns:hover .work-img {
+      animation-play-state: paused;
+      transform: scale(1.08);
       filter: grayscale(0%);
     }
     .work-overlay {
@@ -300,6 +363,15 @@ const works = (await getCollection('solilium')).sort(
       padding: 24px;
     }
     .work-item:hover .work-overlay { opacity: 1; }
+    .work-item--featured .work-overlay {
+      opacity: 0.42;
+    }
+    .work-item--featured:hover .work-overlay {
+      opacity: 1;
+    }
+    .work-item--cinema .work-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%);
+    }
     .work-id {
       font-family: var(--mono);
       font-size: 10px;
@@ -308,20 +380,26 @@ const works = (await getCollection('solilium')).sort(
       margin-bottom: 6px;
     }
     .work-title {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 500;
-      color: white;
+      color: #fff;
       margin-bottom: 8px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.85);
     }
     .work-tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .work-tag {
       font-family: var(--mono);
       font-size: 9px;
       letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.5);
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 3px 8px;
+      color: rgba(255,255,255,0.62);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 4px 9px;
       text-transform: uppercase;
+      transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .work-item:hover .work-tag {
+      border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+      color: rgba(255,255,255,0.85);
     }
 
     .about {
@@ -351,10 +429,11 @@ const works = (await getCollection('solilium')).sort(
       color: var(--text);
     }
     .about-text {
-      font-size: 15px;
+      font-size: 16px;
       color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 16px;
+      line-height: 1.88;
+      margin-bottom: 18px;
+      max-width: 38rem;
     }
     .about-stats {
       display: grid;
@@ -366,6 +445,12 @@ const works = (await getCollection('solilium')).sort(
       background: var(--bg3);
       padding: 32px 24px;
       border: 1px solid var(--line);
+      transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .stat:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--accent) 18%, var(--line));
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
     }
     .stat-num {
       font-family: var(--mono);
@@ -379,7 +464,7 @@ const works = (await getCollection('solilium')).sort(
       font-family: var(--mono);
       font-size: 10px;
       letter-spacing: 0.15em;
-      color: var(--muted);
+      color: var(--muted-dim);
       text-transform: uppercase;
     }
 
@@ -396,14 +481,19 @@ const works = (await getCollection('solilium')).sort(
       font-family: var(--mono);
       font-size: 13px;
       letter-spacing: 0.2em;
-      color: var(--muted);
+      color: var(--muted-dim);
     }
     .footer-copy {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 0.1em;
-      color: var(--muted);
-      opacity: 0.4;
+      color: var(--muted-dim);
+      opacity: 0.72;
+    }
+
+    [data-onscroll-reveal] {
+      opacity: 0;
+      will-change: opacity, transform;
     }
 
     .fade-up {
@@ -417,61 +507,85 @@ const works = (await getCollection('solilium')).sort(
     }
 
     @media (max-width: 768px) {
-      nav { padding: 20px 24px; }
-      .nav-links { gap: 20px; }
       .hero { padding: 0 24px 60px; }
       .works { padding: 80px 24px; }
-      .works-grid { grid-template-columns: 1fr 1fr; }
-      .work-item:nth-child(3n+2) { margin-top: 0; }
-      .work-item:nth-child(2n) { margin-top: 32px; }
+      .work-item--standard,
+      .work-item--featured,
+      .work-item--compact,
+      .work-item--cinema {
+        grid-column: span 12;
+        aspect-ratio: 4/5;
+        min-height: 0;
+      }
       .about { padding: 80px 24px; grid-template-columns: 1fr; gap: 48px; }
       footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
-      .scroll-hint-vertical { display: none; }
     }
   </style>
 </head>
-<body>
+<body class="portfolio-atmo" data-space={space}>
+  <AmbientBackdrop />
   <PageTransition />
 
-  <div id="magnetic-view-label" class="magnetic-view-label">VIEW →</div>
-  <div class="scroll-hint-vertical" id="scroll-hint-vertical">SCROLL DOWN</div>
+  <div id="magnetic-view-label" class="magnetic-view-label">{spaceDef.magneticLabel}</div>
 
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
 
-  <nav>
-    <a href="/solilium" class="nav-logo">SOLILIUM</a>
-    <div class="nav-links">
-      <a href="/">Platform</a>
-      <a href="#works">Works</a>
-      <a href="#about">About</a>
-      <a href="mailto:your@email.com">Contact</a>
-    </div>
-  </nav>
+  <SiteNav
+    variant="space-home"
+    lang={lang}
+    pathname={Astro.url.pathname}
+    spaceId={space}
+    spaceLabel={spaceDef.navLabel}
+    workNavItems={works.map((w) => ({
+      href: workPath(lang, space, w.id),
+      title: w.data.title,
+    }))}
+  />
 
-  <section class="hero" id="hero">
-    <div class="hero-tag">Visual Portfolio</div>
-    <h1 class="hero-title" aria-label="SOLILIUM">
-      <span class="hero-line" data-hero-line>SOLI</span>
-      <span class="hero-line hero-line--outline" data-hero-line>LIUM</span>
+  <PortfolioChrome
+    lang={lang}
+    pathname={Astro.url.pathname}
+    dockSections={spaceDockSections}
+  />
+
+  <section class="hero" id="main-content" tabindex="-1">
+    <p
+      class="hero-kicker"
+      data-anime-splittext="words"
+      data-anime-splittext-delay="120"
+      set:html={spaceDef.heroKicker}
+    />
+    <div class="hero-tag">{spaceDef.heroTag}</div>
+    <h1 class="hero-title" aria-label={spaceDef.navLabel} data-anime-splittext="chars" data-anime-splittext-delay="360">
+      <span class="hero-line">{spaceDef.heroLine1}</span>
+      <span class="hero-line hero-line--outline">{spaceDef.heroLine2}</span>
     </h1>
     <div class="hero-bottom">
-      <p class="hero-desc">
-        Photography & visual creation.<br />
-        Geometry, light, and the spaces between.
-      </p>
-      <div class="hero-scroll">Scroll</div>
+      <p class="hero-desc" data-anime-splittext="words-inview" set:html={spaceDef.heroDesc} />
+      <div class="hero-scroll" data-anime-scroll-nudge>
+        <span class="hero-scroll__label">Scroll</span>
+        <span class="hero-scroll__line" aria-hidden="true"></span>
+      </div>
     </div>
   </section>
 
   <section class="works" id="works">
     <div class="section-header fade-up">
-      <span class="section-title">Selected Works</span>
+      <span class="section-title" data-anime-splittext="chars-inview">Selected Works</span>
       <span class="section-count">{String(works.length).padStart(2, '0')}</span>
     </div>
     <div class="works-grid">
       {works.map((work, i) => (
-        <a class="work-item work-card-anim" href={`/solilium/${work.id}`} data-work-card>
+        <a
+          class:list={[
+            'work-item work-card-anim',
+            `work-item--${work.data.cardVariant}`,
+            (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
+          ]}
+          href={workPath(lang, space, work.id)}
+          data-work-card
+        >
           <div class="work-item__inner">
             <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
             <div class="work-overlay">
@@ -487,19 +601,23 @@ const works = (await getCollection('solilium')).sort(
         </a>
       ))}
     </div>
+
+    <div data-onscroll-reveal>
+      <Quote variant="band" text={spaceDef.quoteBand} attribution={spaceDef.quoteBandAttr} />
+    </div>
   </section>
 
   <section class="about" id="about">
     <div class="fade-up">
-      <div class="about-label">About</div>
-      <h2 class="about-title">Solilium</h2>
-      <p class="about-text">
-        視覺創作者，專注於幾何構成與光影之間的張力。
-        透過攝影探索城市空間的秩序與混沌。
-      </p>
-      <p class="about-text">
-        每一個畫面都是一次對空間的重新定義。
-      </p>
+      <div class="about-label" data-anime-splittext="chars-inview">About</div>
+      <h2 class="about-title" data-anime-splittext="chars-inview">{spaceDef.aboutTitle}</h2>
+      <p class="about-text" data-anime-splittext="words-inview">{spaceDef.aboutLead}</p>
+      <p class="about-text" data-anime-splittext="words-inview">{spaceDef.aboutSecond}</p>
+      <Quote
+        variant="inline"
+        text="留白不是空無，而是留給觀者呼吸的位置。"
+        attribution="Studio ethos"
+      />
     </div>
     <div class="about-stats fade-up">
       <div class="stat">
@@ -522,128 +640,13 @@ const works = (await getCollection('solilium')).sort(
   </section>
 
   <footer>
-    <span class="footer-logo">SOLILIUM</span>
+    <span class="footer-logo">{spaceDef.navLabel}</span>
     <span class="footer-copy">© 2026 — All rights reserved</span>
   </footer>
 
   <script>
-    import { gsap } from 'gsap';
-    import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursor-ring');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-
-    document.addEventListener('mousemove', (e) => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top = my + 'px';
-    });
-
-    function animateRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      requestAnimationFrame(animateRing);
-    }
-    animateRing();
-
-    document.querySelectorAll('[data-hero-line]').forEach((line) => {
-      const text = line.textContent ?? '';
-      line.textContent = '';
-      for (const ch of text) {
-        const s = document.createElement('span');
-        s.className = 'hero-char';
-        s.textContent = ch === ' ' ? '\u00a0' : ch;
-        line.appendChild(s);
-      }
-    });
-
-    gsap.from('.hero-char', {
-      y: 60,
-      opacity: 0,
-      duration: 0.65,
-      stagger: 0.05,
-      ease: 'power2.out',
-      delay: 0.12,
-    });
-
-    const cards = gsap.utils.toArray('.work-card-anim');
-    gsap.set(cards, { y: 60, opacity: 0 });
-    ScrollTrigger.batch(cards, {
-      start: 'top 88%',
-      once: true,
-      onEnter: (batch) => {
-        gsap.to(batch, {
-          y: 0,
-          opacity: 1,
-          duration: 0.75,
-          stagger: 0.1,
-          ease: 'power2.out',
-          overwrite: true,
-        });
-      },
-    });
-
-    const magneticLabel = document.getElementById('magnetic-view-label');
-    let magX = 0, magY = 0, magLx = 0, magLy = 0, magActive = false;
-
-    function magneticLoop() {
-      if (magneticLabel && magActive) {
-        magLx += (magX - magLx) * 0.18;
-        magLy += (magY - magLy) * 0.18;
-        magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
-      }
-      requestAnimationFrame(magneticLoop);
-    }
-    magneticLoop();
-
-    document.querySelectorAll('[data-work-card]').forEach((card) => {
-      card.addEventListener('mouseenter', () => {
-        const rect = card.getBoundingClientRect();
-        magLx = rect.right - 56;
-        magLy = rect.top + 40;
-        magX = magLx;
-        magY = magLy;
-        magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
-        magActive = true;
-        magneticLabel.classList.add('is-visible');
-      });
-      card.addEventListener('mouseleave', () => {
-        magActive = false;
-        magneticLabel.classList.remove('is-visible');
-      });
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const anchorX = rect.right - 56;
-        const anchorY = rect.top + 40;
-        magX = anchorX + (e.clientX - anchorX) * 0.45;
-        magY = anchorY + (e.clientY - anchorY) * 0.45;
-      });
-    });
-
-    const heroEl = document.getElementById('hero');
-    const scrollHint = document.getElementById('scroll-hint-vertical');
-    function updateScrollHint() {
-      if (!heroEl || !scrollHint) return;
-      const past = window.scrollY > heroEl.offsetHeight - 48;
-      scrollHint.classList.toggle('is-hidden', past);
-    }
-    window.addEventListener('scroll', updateScrollHint, { passive: true });
-    updateScrollHint();
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add('visible');
-        });
-      },
-      { threshold: 0.1 },
-    );
-    document.querySelectorAll('.fade-up').forEach((el) => io.observe(el));
+    import { initSpaceHomeClient } from '../../../scripts/space-home-client';
+    initSpaceHomeClient();
   </script>
 </body>
 </html>

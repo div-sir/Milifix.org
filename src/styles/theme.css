@@ -1,0 +1,71 @@
+/* 與 portfolio-atmo 併用：以 html[data-theme] 切換淺／深色 */
+:root {
+  color-scheme: dark light;
+}
+
+/* 主題切換：支援 View Transitions API 的瀏覽器會有較平滑的整頁過渡 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.001ms;
+  }
+}
+
+html[data-theme='dark'],
+html:not([data-theme]) {
+  --bg: #111318;
+  --bg2: #171b22;
+  --bg3: #1e242e;
+  --line: rgba(255, 255, 255, 0.06);
+  --line2: rgba(255, 255, 255, 0.11);
+  --text: #e9ebef;
+  --muted: #9aa3ad;
+  --muted-dim: #6f7a86;
+  --accent: #e2b565;
+  --cursor-ring: color-mix(in srgb, var(--accent) 38%, transparent);
+  --cursor-ring-hover: color-mix(in srgb, var(--accent) 62%, transparent);
+  --grid-opacity: 0.58;
+  --nav-bg: color-mix(in srgb, var(--bg) 88%, transparent);
+  --nav-bg-scrolled: color-mix(in srgb, var(--bg) 94%, transparent);
+  --nav-toolbar-bg: rgba(255, 255, 255, 0.045);
+  --shadow-card: rgba(0, 0, 0, 0.5);
+  --quote-bg-mid: rgba(23, 27, 34, 0.55);
+  --on-accent: #16130f;
+  /* 導覽列專用輔色（與內文 --accent 區隔） */
+  --nav-accent: #a3b8ff;
+  --on-nav-accent: #0e1118;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f2ec;
+  --bg2: #ebe8e0;
+  --bg3: #e0dcd2;
+  --line: rgba(20, 22, 26, 0.1);
+  --line2: rgba(20, 22, 26, 0.16);
+  --text: #16181d;
+  --muted: #4a5058;
+  --muted-dim: #6a7179;
+  --accent: #7a5220;
+  --cursor-ring: color-mix(in srgb, var(--accent) 42%, transparent);
+  --cursor-ring-hover: color-mix(in srgb, var(--accent) 68%, transparent);
+  --grid-opacity: 0.32;
+  --nav-bg: color-mix(in srgb, var(--bg) 92%, transparent);
+  --nav-bg-scrolled: color-mix(in srgb, var(--bg) 97%, transparent);
+  --nav-toolbar-bg: rgba(255, 255, 255, 0.72);
+  --shadow-card: rgba(0, 0, 0, 0.1);
+  --quote-bg-mid: rgba(255, 252, 246, 0.92);
+  --on-accent: #f7f6f2;
+  --nav-accent: #4f63c4;
+  --on-nav-accent: #f5f6fc;
+}
+
+html[data-theme='light'] body.portfolio-atmo::after {
+  opacity: 0.028;
+}

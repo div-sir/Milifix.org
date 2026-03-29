@@ -1,0 +1,45 @@
+---
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="ui-pill-group" role="list">
+  {items.map((label) => (
+    <li class="ui-pill-group__item">{label}</li>
+  ))}
+</ul>
+
+<style>
+  .ui-pill-group {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+  }
+  .ui-pill-group__item {
+    margin: 0;
+    padding: 8px 14px;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted, #9aa3ad);
+    border: 1px solid var(--line2, rgba(255, 255, 255, 0.11));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg2) 70%, transparent);
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+  .ui-pill-group__item:hover {
+    color: var(--text);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--line2));
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
+  }
+</style>

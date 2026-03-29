@@ -1,0 +1,78 @@
+---
+interface Props {
+  caption?: string;
+  /** 僅展示用佔位，可換成 <img slot="media" /> 由外層包一層 */
+  aspect?: 'video' | 'square' | 'wide';
+}
+
+const { caption, aspect = 'video' } = Astro.props;
+---
+
+<figure class:list={['ui-figure', aspect === 'square' && 'ui-figure--square', aspect === 'wide' && 'ui-figure--wide']}>
+  <div class="ui-figure__frame">
+    <div class="ui-figure__shine" aria-hidden="true" />
+    <div class="ui-figure__slot">
+      <slot />
+    </div>
+  </div>
+  {caption && <figcaption class="ui-figure__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .ui-figure {
+    margin: 0;
+  }
+  .ui-figure__frame {
+    position: relative;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 42%, transparent),
+      color-mix(in srgb, var(--line2) 80%, transparent) 45%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 100%
+    );
+    box-shadow: 0 18px 48px var(--shadow-card, rgba(0, 0, 0, 0.35));
+  }
+  .ui-figure__shine {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      125deg,
+      color-mix(in srgb, #fff 8%, transparent) 0%,
+      transparent 42%
+    );
+    pointer-events: none;
+    opacity: 0.35;
+  }
+  .ui-figure__slot {
+    position: relative;
+    border-radius: 11px;
+    overflow: hidden;
+    background: var(--bg3, #1e242e);
+    aspect-ratio: 16 / 9;
+    min-height: 140px;
+  }
+  .ui-figure__slot > :global(*) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .ui-figure--square .ui-figure__slot {
+    aspect-ratio: 1;
+  }
+  .ui-figure--wide .ui-figure__slot {
+    aspect-ratio: 21 / 9;
+    min-height: 120px;
+  }
+  .ui-figure__caption {
+    margin-top: 14px;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-dim, #6f7a86);
+    line-height: 1.5;
+  }
+</style>

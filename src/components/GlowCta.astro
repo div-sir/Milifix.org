@@ -1,0 +1,77 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  external?: boolean;
+}
+
+const { href, label, external } = Astro.props;
+---
+
+<a
+  class="ui-glow-cta"
+  href={href}
+  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+>
+  <span class="ui-glow-cta__glow" aria-hidden="true" />
+  <span class="ui-glow-cta__label">{label}</span>
+</a>
+
+<style>
+  .ui-glow-cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    border-radius: 999px;
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--on-accent, #16130f);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 92%, #fff) 0%,
+      var(--accent) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+    overflow: hidden;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.25s ease;
+  }
+  .ui-glow-cta:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent),
+      0 12px 40px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .ui-glow-cta__glow {
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(
+      from 120deg,
+      transparent 0deg,
+      color-mix(in srgb, #fff 35%, transparent) 120deg,
+      transparent 240deg
+    );
+    opacity: 0.25;
+    animation: uiGlowSpin 8s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes uiGlowSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .ui-glow-cta__label {
+    position: relative;
+    z-index: 1;
+  }
+  html[data-theme='light'] .ui-glow-cta {
+    color: var(--on-accent);
+  }
+</style>

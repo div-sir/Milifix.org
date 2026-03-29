@@ -1,0 +1,158 @@
+---
+import '../styles/dock-nav.css';
+import type { Lang } from '../i18n/types';
+import { ui } from '../i18n/ui';
+import { homePath, parseLocalizedPath } from '../i18n/routes';
+
+export interface DockSection {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  lang: Lang;
+  pathname: string;
+  dockSections: DockSection[];
+  dockSectionLinkMode?: 'hash' | 'scroll';
+}
+
+const { lang, pathname, dockSections, dockSectionLinkMode = 'hash' } = Astro.props;
+const useScrollSections = dockSectionLinkMode === 'scroll';
+const N = ui(lang).nav;
+const { logicalPath } = parseLocalizedPath(pathname);
+const lp = logicalPath.replace(/\/$/, '') || '/';
+const onHome = lp === '/' || lp === '';
+const homeHref = homePath(lang);
+const hasSections = dockSections.length > 0;
+---
+
+<nav class="dock-nav dock-pill-nav" aria-label={N.dockAria}>
+  <div class="dock-pill-nav__shell">
+    <ul class="dock-pill-nav__row" role="menubar">
+      <li class="dock-pill-nav__cell" role="none">
+        <a
+          class:list={['dock-pill-nav__pill', 'dock-pill-nav__pill--home']}
+          href={homeHref}
+          aria-current={onHome ? 'page' : undefined}
+        >
+          <span class="dock-pill-nav__label-stack">
+            <span class="dock-pill-nav__label">{N.dockHome}</span>
+            <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+              {N.dockHome}
+            </span>
+          </span>
+        </a>
+      </li>
+
+      {
+        hasSections && (
+          <li class="dock-pill-nav__sep-cell" aria-hidden="true">
+            <span class="dock-pill-nav__vsep" />
+          </li>
+        )
+      }
+
+      {
+        hasSections &&
+          dockSections.map((s) => (
+            <li class="dock-pill-nav__cell" role="none">
+              {useScrollSections ? (
+                <button
+                  type="button"
+                  class="dock-pill-nav__pill dock-nav__section"
+                  data-dock-scroll-id={s.id}
+                >
+                  <span class="dock-pill-nav__label-stack">
+                    <span class="dock-pill-nav__label">{s.label}</span>
+                    <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                      {s.label}
+                    </span>
+                  </span>
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </button>
+              ) : (
+                <a class="dock-pill-nav__pill dock-nav__section" href={`#${s.id}`}>
+                  <span class="dock-pill-nav__label-stack">
+                    <span class="dock-pill-nav__label">{s.label}</span>
+                    <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                      {s.label}
+                    </span>
+                  </span>
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </a>
+              )}
+            </li>
+          ))
+      }
+
+      {
+        hasSections && (
+          <li class="dock-pill-nav__sep-cell" aria-hidden="true">
+            <span class="dock-pill-nav__vsep" />
+          </li>
+        )
+      }
+
+      <li class="dock-pill-nav__cell dock-pill-nav__cell--theme" role="none">
+        <button
+          type="button"
+          class="dock-pill-nav__pill dock-pill-nav__pill--theme"
+          id="dock-nav-theme"
+          aria-label={N.themeToLight}
+          title={N.themeToLight}
+          data-label-dark={N.themeToDark}
+          data-label-light={N.themeToLight}
+        >
+          <span class="dock-pill-nav__theme-swap">
+            <span class="dock-pill-nav__theme-icon dock-pill-nav__theme-icon--sun">
+              <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2" />
+                <path
+                  d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.5 3.5l-1.06 1.06M4.56 11.44l-1.06 1.06M12.5 12.5l-1.06-1.06M4.56 4.56L3.5 3.5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <span class="dock-pill-nav__theme-icon dock-pill-nav__theme-icon--moon">
+              <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M13.2 9.1A4.2 4.2 0 0 1 6.9 2.8 5 5 0 1 0 13.2 9.1z"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </span>
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  import { toggleTheme } from '../scripts/theme-init';
+  import { initDockSectionSpy } from '../scripts/dock-section-spy';
+
+  const nav = document.querySelector<HTMLElement>('.dock-nav');
+  if (nav) initDockSectionSpy(nav);
+
+  const btn = document.getElementById('dock-nav-theme');
+  const labelDark = btn?.getAttribute('data-label-dark') || '';
+  const labelLight = btn?.getAttribute('data-label-light') || '';
+
+  function syncDockThemeButton() {
+    const isLight = document.documentElement.dataset.theme === 'light';
+    btn?.setAttribute('aria-label', isLight ? labelDark : labelLight);
+    btn?.setAttribute('title', isLight ? labelDark : labelLight);
+  }
+
+  syncDockThemeButton();
+  btn?.addEventListener('click', () => {
+    toggleTheme();
+    syncDockThemeButton();
+  });
+</script>

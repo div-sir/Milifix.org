@@ -1,0 +1,151 @@
+---
+import { getCollection, render } from 'astro:content';
+import '../../styles/theme.css';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((p) => ({ params: { slug: p.id } }));
+}
+
+const slug = Astro.params.slug;
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+const all = await getCollection('blog');
+const entry = all.find((p) => p.id === slug);
+if (!entry || entry.data.draft) {
+  return Astro.redirect('/blog');
+}
+
+const { Content } = await render(entry);
+---
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{entry.data.title} · Blog</title>
+    <meta name="description" content={entry.data.description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('portfolio-theme');
+          document.documentElement.dataset.theme =
+            t === 'light' ? 'light' : t === 'dark' ? 'dark' : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --mono: 'Space Mono', monospace;
+        --sans: 'Space Grotesk', sans-serif;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.75;
+      }
+      .wrap {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 5rem;
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 2rem;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-decoration: none;
+        border: none;
+      }
+      .back:hover {
+        color: var(--accent);
+      }
+      .post-meta {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted-dim);
+        margin-bottom: 1.25rem;
+      }
+      .post-title {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 2rem;
+        line-height: 1.25;
+      }
+      .prose {
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+      .prose :global(h2) {
+        font-size: 1.15rem;
+        color: var(--text);
+        margin: 2rem 0 0.75rem;
+      }
+      .prose :global(p) {
+        margin-bottom: 1rem;
+      }
+      .prose :global(ul),
+      .prose :global(ol) {
+        margin: 1rem 0 1rem 1.25rem;
+      }
+      .prose :global(li) {
+        margin-bottom: 0.35rem;
+      }
+      .prose :global(pre) {
+        margin: 1.25rem 0;
+        padding: 1rem 1.1rem;
+        border-radius: 8px;
+        border: 1px solid var(--line2);
+        background: var(--bg2);
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+      }
+      .prose :global(code) {
+        font-family: var(--mono);
+        font-size: 0.88em;
+      }
+      .prose :global(a) {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <article class="wrap">
+      <a class="back" href="/blog">← Blog</a>
+      <p class="post-meta">{entry.data.date}</p>
+      <h1 class="post-title">{entry.data.title}</h1>
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+  </body>
+</html>
