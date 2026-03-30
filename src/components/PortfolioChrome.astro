@@ -16,6 +16,8 @@ interface Props {
   dockSections?: DockSection[];
   /** scroll：用按鈕捲動到區塊，網址不出現 #；預設 hash */
   dockSectionLinkMode?: 'hash' | 'scroll';
+  dockHomeHref?: string;
+  dockHomeLabel?: string;
 }
 
 const {
@@ -24,6 +26,8 @@ const {
   showDock = true,
   dockSections = [],
   dockSectionLinkMode = 'hash',
+  dockHomeHref,
+  dockHomeLabel,
 } = Astro.props;
 ---
 
@@ -34,5 +38,7 @@ const {
     pathname={pathname}
     dockSections={dockSections}
     dockSectionLinkMode={dockSectionLinkMode}
+    dockHomeHref={dockHomeHref}
+    dockHomeLabel={dockHomeLabel}
   />
 )}

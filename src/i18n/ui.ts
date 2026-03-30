@@ -30,6 +30,8 @@ const STRINGS: Record<
       dockAria: string;
       /** 底部導覽：回到網站首頁 */
       dockHome: string;
+      /** 底部導覽：作品頁回到該創作者空間首頁 */
+      dockBackToCreator: string;
       /** 底部導覽：本頁區塊導覽 aria 標籤 */
       dockOnPage: string;
       dockPfTitle: string;
@@ -76,7 +78,7 @@ const STRINGS: Record<
       browseCreators: 'Browse spaces',
       lab: 'Lab',
       dockLabTitle: 'UI lab — components preview',
-      logoPlatform: 'milifix | Home',
+      logoPlatform: 'milifix | home',
       platform: 'Milifix',
       works: 'Works',
       about: 'About',
@@ -91,6 +93,7 @@ const STRINGS: Record<
       worksMenuAria: 'Jump to a work',
       dockAria: 'Quick dock',
       dockHome: 'Home',
+      dockBackToCreator: 'Back to creator',
       dockOnPage: 'On this page',
       dockPfTitle: 'Milifix home',
       dockSpaceTitle: 'Studio home',
@@ -149,7 +152,7 @@ const STRINGS: Record<
       browseCreators: '空間一覽',
       lab: '實驗室',
       dockLabTitle: '元件實驗室',
-      logoPlatform: 'milifix | 首頁',
+      logoPlatform: 'milifix | home',
       platform: 'Milifix',
       works: '作品',
       about: '關於',
@@ -164,6 +167,7 @@ const STRINGS: Record<
       worksMenuAria: '前往作品',
       dockAria: '快捷導覽',
       dockHome: '首頁',
+      dockBackToCreator: '回到創作者頁面',
       dockOnPage: '本頁區塊',
       dockPfTitle: 'Milifix 首頁',
       dockSpaceTitle: '創作者首頁',
@@ -218,7 +222,7 @@ const STRINGS: Record<
       browseCreators: 'スペース一覧',
       lab: 'ラボ',
       dockLabTitle: 'UIラボ・コンポーネント',
-      logoPlatform: 'milifix | ホーム',
+      logoPlatform: 'milifix | home',
       platform: 'Milifix',
       works: '作品',
       about: '概要',
@@ -233,6 +237,7 @@ const STRINGS: Record<
       worksMenuAria: '作品へ移動',
       dockAria: 'クイックドック',
       dockHome: 'ホーム',
+      dockBackToCreator: 'クリエイターへ戻る',
       dockOnPage: 'このページ',
       dockPfTitle: 'Milifix ホーム',
       dockSpaceTitle: 'スタジオのトップ',

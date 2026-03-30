@@ -14,15 +14,29 @@ interface Props {
   pathname: string;
   dockSections: DockSection[];
   dockSectionLinkMode?: 'hash' | 'scroll';
+  /** 首顆連結網址（預設平台首頁） */
+  dockHomeHref?: string;
+  /** 首顆連結文案（預設 dockHome） */
+  dockHomeLabel?: string;
 }
 
-const { lang, pathname, dockSections, dockSectionLinkMode = 'hash' } = Astro.props;
+const {
+  lang,
+  pathname,
+  dockSections,
+  dockSectionLinkMode = 'hash',
+  dockHomeHref: dockHomeHrefProp,
+  dockHomeLabel: dockHomeLabelProp,
+} = Astro.props;
 const useScrollSections = dockSectionLinkMode === 'scroll';
 const N = ui(lang).nav;
 const { logicalPath } = parseLocalizedPath(pathname);
 const lp = logicalPath.replace(/\/$/, '') || '/';
-const onHome = lp === '/' || lp === '';
-const homeHref = homePath(lang);
+const homeHref = dockHomeHrefProp ?? homePath(lang);
+const homeLabel = dockHomeLabelProp ?? N.dockHome;
+const { logicalPath: dockTargetLogical } = parseLocalizedPath(homeHref);
+const dockTargetKey = dockTargetLogical.replace(/\/$/, '') || '/';
+const onDockHome = lp === dockTargetKey;
 const hasSections = dockSections.length > 0;
 ---
 
@@ -33,12 +47,12 @@ const hasSections = dockSections.length > 0;
         <a
           class:list={['dock-pill-nav__pill', 'dock-pill-nav__pill--home']}
           href={homeHref}
-          aria-current={onHome ? 'page' : undefined}
+          aria-current={onDockHome ? 'page' : undefined}
         >
           <span class="dock-pill-nav__label-stack">
-            <span class="dock-pill-nav__label">{N.dockHome}</span>
+            <span class="dock-pill-nav__label">{homeLabel}</span>
             <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
-              {N.dockHome}
+              {homeLabel}
             </span>
           </span>
         </a>

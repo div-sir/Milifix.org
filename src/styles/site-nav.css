@@ -568,32 +568,34 @@
     width: 100%;
   }
 
+  /* 語言區約 72%／主題約 28%，主題維持較寬的方形觸控區 */
   .site-nav__flyout .site-nav__toolbar {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(3.35rem, 28%);
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
     align-items: stretch;
-    justify-content: flex-start;
     box-sizing: border-box;
   }
 
   .site-nav__flyout .site-nav__lang-wrap {
-    flex: 1;
     min-width: 0;
     display: flex;
     align-items: stretch;
   }
 
   .site-nav__flyout .site-nav__lang-trigger {
-    flex: 1;
+    width: 100%;
     min-width: 0;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: 14px;
+    padding-right: 12px;
   }
 
   .site-nav__flyout .site-nav__theme {
-    width: 48px;
-    min-height: 44px;
-    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
     box-sizing: border-box;
   }
 

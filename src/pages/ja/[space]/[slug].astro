@@ -9,7 +9,7 @@ import '../../../styles/theme.css';
 import '../../../styles/portfolio-atmosphere.css';
 import type { Lang } from '../../../i18n/types';
 import { HTML_LANG } from '../../../i18n/types';
-import { workPath } from '../../../i18n/routes';
+import { spacePath, workPath } from '../../../i18n/routes';
 import { ui } from '../../../i18n/ui';
 import { getLocalizedSpace } from '../../../i18n/space-locale';
 import { isSpaceId, type SpaceId } from '../../../data/spaces';
@@ -417,7 +417,13 @@ const workDockSections = [
     workNavItems={workNavItems}
   />
 
-  <PortfolioChrome lang={lang} pathname={Astro.url.pathname} dockSections={workDockSections} />
+  <PortfolioChrome
+    lang={lang}
+    pathname={Astro.url.pathname}
+    dockSections={workDockSections}
+    dockHomeHref={spacePath(lang, space)}
+    dockHomeLabel={navUi.nav.dockBackToCreator}
+  />
 
   <header
     id="work-hero"
