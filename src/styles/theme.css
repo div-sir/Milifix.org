@@ -133,6 +133,8 @@ html:not([data-theme]) {
   /* 導覽列專用輔色（與內文 --accent 區隔） */
   --nav-accent: #a3b8ff;
   --on-nav-accent: #0e1118;
+  /* 作品頁 hero 文字疊在深色圖片遮罩上，淺色主題也要保持可讀 */
+  --work-hero-title: var(--text);
   /** 空間首頁大標「描邊字」（hero-line--outline） */
   --hero-outline-stroke: rgba(255, 255, 255, 0.44);
 }
@@ -160,6 +162,7 @@ html[data-theme='light'] {
   --on-accent: #f7f6f2;
   --nav-accent: #3949a8;
   --on-nav-accent: #f5f6fc;
+  --work-hero-title: #f5f6fc;
   --hero-outline-stroke: rgba(22, 24, 29, 0.62);
 }
 
