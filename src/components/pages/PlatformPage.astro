@@ -147,6 +147,15 @@ const dockSections = [
       .platform-section {
         scroll-margin-bottom: 5rem;
       }
+
+      /* 確保首屏只會看到封面內容：
+         main 具有 padding-top（桌機/手機都約 120px），因此用同等尺度扣掉，避免創作者列表露出。 */
+      #platform-intro {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
       .platform-section + .platform-section {
         /* 拉大封面與創作者列表間距，避免首屏出現列表 */
         margin-top: clamp(4.5rem, 18vh, 9rem);
