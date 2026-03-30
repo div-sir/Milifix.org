@@ -180,13 +180,27 @@ export function initSiteNav() {
     setOpen(opening);
     if (opening && flyout) {
       requestAnimationFrame(() => {
-        const first = flyout.querySelector<HTMLElement>(focusableSelector);
+        const closeDrawer = flyout.querySelector<HTMLElement>('.site-nav__close-drawer');
+        const first =
+          mq.matches && closeDrawer
+            ? closeDrawer
+            : flyout.querySelector<HTMLElement>(focusableSelector);
         first?.focus();
       });
     }
   });
 
+  siteNav.querySelector('.site-nav__close-drawer')?.addEventListener('click', () => {
+    close();
+    btn?.focus();
+  });
+
   backdrop?.addEventListener('click', close);
+
+  const themeBtn = siteNav.querySelector<HTMLButtonElement>('#site-nav-theme');
+  themeBtn?.addEventListener('click', () => {
+    if (mq.matches) close();
+  });
 
   siteNav.querySelectorAll<HTMLAnchorElement>(
     '.site-nav__logo, .site-nav__links a, [data-lang-option], [data-works-menuitem]',

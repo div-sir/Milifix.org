@@ -167,6 +167,10 @@
     flex: 1;
     justify-content: flex-end;
   }
+
+  .site-nav__drawer-head {
+    display: none;
+  }
 }
 
 .site-nav__logo {
@@ -491,6 +495,8 @@
   }
 
   .site-nav__logo {
+    position: relative;
+    z-index: 210;
     font-size: clamp(9px, 2.6vw, 12px);
     letter-spacing: 0.1em;
     max-width: min(52vw, 14rem);
@@ -499,8 +505,11 @@
     text-overflow: ellipsis;
   }
 
+  /* 漢堡鈕須高於側欄（flyout z-index:199 會蓋住同列後方元素） */
   .site-nav__toggle {
     display: flex;
+    position: relative;
+    z-index: 210;
   }
 
   .site-nav__backdrop {
@@ -529,6 +538,58 @@
     z-index: 201;
   }
 
+  /* 抽屜頂列：關閉（僅手機顯示，見上方 @media min-width 769） */
+  .site-nav__drawer-head {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 0 0.35rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--line2) 85%, transparent);
+  }
+
+  .site-nav__close-drawer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line2);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--nav-accent) 10%, transparent);
+    color: var(--text);
+    font-family: var(--mono, 'Space Mono', monospace);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .site-nav__close-drawer:hover,
+  .site-nav__close-drawer:focus-visible {
+    border-color: color-mix(in srgb, var(--nav-accent) 45%, var(--line2));
+    background: color-mix(in srgb, var(--nav-accent) 16%, transparent);
+    color: var(--nav-accent);
+    outline: none;
+  }
+
+  .site-nav__close-drawer:focus-visible {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--nav-accent) 40%, transparent);
+  }
+
+  .site-nav__close-drawer-icon {
+    display: flex;
+    line-height: 0;
+    opacity: 0.9;
+  }
+
   .site-nav__flyout {
     position: fixed;
     z-index: 199;
@@ -540,7 +601,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: calc(var(--site-nav-pad-y) + 52px) 1.5rem 2rem;
+    padding: calc(var(--site-nav-pad-y) + 48px) 1.5rem 2rem;
     background: color-mix(in srgb, var(--bg) 96%, #000);
     border-left: 1px solid var(--line, rgba(255, 255, 255, 0.085));
     box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
