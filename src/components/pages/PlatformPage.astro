@@ -159,7 +159,8 @@ const dockSections = [
         line-height: 1.05;
         letter-spacing: -0.02em;
         margin-bottom: 20px;
-        /* ShinyText 會把文字做成透明填充，因此主要的視覺光暈直接套到子元素 */
+        /* ShinyText 文字是透明填充，這裡補一個底光暈，避免首幀漸層未就緒看起來像消失 */
+        text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 120px color-mix(in srgb, var(--accent) 8%, transparent);
       }
       .platform-title-shiny {
         text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent),
@@ -395,7 +396,7 @@ const dockSections = [
         </div>
         <h1 id="platform-title">
           <ShinyText
-            client:visible
+            client:load
             text={P.heroTitle}
             className="platform-title-shiny"
             color="var(--text)"
