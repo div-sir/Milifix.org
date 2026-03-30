@@ -169,43 +169,78 @@ const dockSections = [
         );
       }
 
-      /* 平台封面：對齊個人頁面（空間首頁）的 hero 排版 */
+      /* 首屏改版：cinematic brand opening */
       .hero.hero--platform {
         position: relative;
         z-index: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 24px;
-        padding: 0;
+        display: grid;
+        gap: clamp(1.1rem, 2.8vw, 2rem);
+        padding: clamp(1rem, 2.5vw, 1.4rem);
+        border-radius: 22px;
+        border: 1px solid color-mix(in srgb, var(--line2) 80%, var(--accent) 20%);
+        background:
+          radial-gradient(120% 100% at 8% -8%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 58%),
+          linear-gradient(140deg, color-mix(in srgb, var(--bg2) 80%, transparent) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 55%, color-mix(in srgb, var(--bg3) 35%, transparent) 100%);
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent),
+          0 24px 65px -35px var(--shadow-card),
+          inset 0 1px 0 color-mix(in srgb, #ffffff 8%, transparent);
+        overflow: hidden;
+      }
+
+      .hero.hero--platform::before {
+        content: '';
+        position: absolute;
+        inset: -15% -20%;
+        background:
+          radial-gradient(38% 42% at 20% 20%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 70%),
+          radial-gradient(30% 30% at 78% 32%, color-mix(in srgb, var(--accent2) 36%, transparent), transparent 72%);
+        filter: blur(22px);
+        opacity: 0.9;
+        pointer-events: none;
+        animation: platform-hero-aura 8s ease-in-out infinite alternate;
+      }
+
+      .hero.hero--platform > * {
+        position: relative;
+        z-index: 1;
       }
 
       .hero.hero--platform .hero-tag {
+        width: fit-content;
         font-family: var(--mono);
         font-size: 11px;
-        letter-spacing: 0.2em;
-        color: var(--accent);
+        letter-spacing: 0.22em;
+        color: color-mix(in srgb, var(--accent) 85%, var(--text));
         text-transform: uppercase;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 12px;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line2));
+        background: color-mix(in srgb, var(--bg) 65%, transparent);
+        backdrop-filter: blur(6px);
       }
       .hero.hero--platform .hero-tag::before {
         content: '';
         display: block;
-        width: 32px;
-        height: 1px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
         background: var(--accent);
+        box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
       }
 
       .hero.hero--platform .hero-title {
         font-family: var(--mono);
-        font-size: clamp(52px, 10vw, 120px);
+        font-size: clamp(54px, 11vw, 138px);
         font-weight: 700;
-        line-height: 0.95;
-        letter-spacing: -0.02em;
+        line-height: 0.92;
+        letter-spacing: -0.03em;
         color: var(--text);
         margin: 0;
+        text-wrap: balance;
       }
 
       .hero.hero--platform .hero-line {
@@ -214,28 +249,99 @@ const dockSections = [
 
       .hero.hero--platform .hero-line--outline {
         color: transparent;
-        -webkit-text-stroke: 1.25px var(--hero-outline-stroke);
-        text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 10%, transparent);
+        -webkit-text-stroke: 1.3px var(--hero-outline-stroke);
+        text-shadow:
+          0 0 28px color-mix(in srgb, var(--accent) 16%, transparent),
+          0 0 70px color-mix(in srgb, var(--accent) 8%, transparent);
       }
 
-      /* scramble 的層級：確保填字在 outline 上方 */
       .hero.hero--platform .hero-line--fill[data-scramble-text] {
         position: relative;
         z-index: 1;
+        text-shadow:
+          0 0 26px color-mix(in srgb, var(--accent) 32%, transparent),
+          0 0 72px color-mix(in srgb, var(--accent) 15%, transparent);
       }
 
       .hero.hero--platform .hero-bottom {
-        display: flex;
-        align-items: flex-end;
+        display: grid;
+        gap: 1.1rem;
+        max-width: 40rem;
       }
 
       .hero.hero--platform .hero-desc {
-        font-size: 16px;
+        font-size: clamp(15px, 1.7vw, 18px);
         color: var(--muted);
-        line-height: 1.82;
-        max-width: 22rem;
-        letter-spacing: 0.03em;
+        line-height: 1.85;
+        max-width: 38rem;
+        letter-spacing: 0.02em;
         margin: 0;
+      }
+
+      .hero.hero--platform .hero-cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.72rem;
+      }
+
+      .hero.hero--platform .hero-cta a {
+        text-decoration: none;
+      }
+
+      .hero.hero--platform .hero-cta-primary,
+      .hero.hero--platform .hero-cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.65rem;
+        padding: 0.58rem 1rem;
+        border-radius: 999px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      }
+
+      .hero.hero--platform .hero-cta-primary {
+        color: var(--bg);
+        background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 88%, #ffffff 12%), color-mix(in srgb, var(--accent2) 78%, #ffffff 22%));
+        box-shadow: 0 14px 28px -18px color-mix(in srgb, var(--accent) 75%, transparent);
+      }
+
+      .hero.hero--platform .hero-cta-secondary {
+        color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--line2) 70%, var(--accent) 30%);
+        background: color-mix(in srgb, var(--bg) 72%, transparent);
+      }
+
+      .hero.hero--platform .hero-cta-primary:hover,
+      .hero.hero--platform .hero-cta-secondary:hover {
+        transform: translateY(-2px);
+      }
+
+      .hero.hero--platform .hero-cta-primary:hover {
+        box-shadow: 0 18px 34px -20px color-mix(in srgb, var(--accent) 82%, transparent);
+      }
+
+      .hero.hero--platform .hero-cta-secondary:hover {
+        border-color: color-mix(in srgb, var(--accent) 58%, var(--line2));
+      }
+
+      @keyframes platform-hero-aura {
+        0% {
+          transform: translate3d(0, 0, 0) scale(1);
+          opacity: 0.82;
+        }
+        50% {
+          transform: translate3d(2%, -1.5%, 0) scale(1.05);
+          opacity: 1;
+        }
+        100% {
+          transform: translate3d(-1.5%, 2%, 0) scale(1.02);
+          opacity: 0.86;
+        }
       }
 
       .platform-hero__frame {
@@ -451,6 +557,20 @@ const dockSections = [
       }
 
       @media (max-width: 768px) {
+        .hero.hero--platform {
+          border-radius: 16px;
+          padding: 1rem 0.9rem;
+        }
+
+        .hero.hero--platform .hero-cta {
+          gap: 0.55rem;
+        }
+
+        .hero.hero--platform .hero-cta-primary,
+        .hero.hero--platform .hero-cta-secondary {
+          width: 100%;
+        }
+
         .platform-hero__frame {
           padding: 1.35rem 1.1rem 1.5rem;
           border-radius: 16px;
@@ -715,6 +835,10 @@ const dockSections = [
           </h1>
           <div class="hero-bottom">
             <p class="hero-desc">{P.heroDesc}</p>
+            <div class="hero-cta">
+              <a class="hero-cta-primary" href="#creators">{P.sectionCreators}</a>
+              <a class="hero-cta-secondary" href="/lab">{labels.nav.lab}</a>
+            </div>
           </div>
         </div>
       </section>
