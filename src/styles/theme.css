@@ -133,6 +133,8 @@ html:not([data-theme]) {
   /* 導覽列專用輔色（與內文 --accent 區隔） */
   --nav-accent: #a3b8ff;
   --on-nav-accent: #0e1118;
+  /** 空間首頁大標「描邊字」（hero-line--outline） */
+  --hero-outline-stroke: rgba(255, 255, 255, 0.44);
 }
 
 html[data-theme='light'] {
@@ -143,8 +145,9 @@ html[data-theme='light'] {
   --line: rgba(20, 22, 26, 0.1);
   --line2: rgba(20, 22, 26, 0.16);
   --text: #16181d;
-  --muted: #4a5058;
-  --muted-dim: #6a7179;
+  /* 淺底上須明顯加深，避免導覽與內文輔助字過淡 */
+  --muted: #3a3f47;
+  --muted-dim: #484e57;
   --accent: #7a5220;
   --cursor-ring: color-mix(in srgb, var(--accent) 42%, transparent);
   --cursor-ring-hover: color-mix(in srgb, var(--accent) 68%, transparent);
@@ -155,8 +158,9 @@ html[data-theme='light'] {
   --shadow-card: rgba(0, 0, 0, 0.1);
   --quote-bg-mid: rgba(255, 252, 246, 0.92);
   --on-accent: #f7f6f2;
-  --nav-accent: #4f63c4;
+  --nav-accent: #3949a8;
   --on-nav-accent: #f5f6fc;
+  --hero-outline-stroke: rgba(22, 24, 29, 0.62);
 }
 
 html[data-theme='light'] body.portfolio-atmo::after {
