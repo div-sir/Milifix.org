@@ -110,7 +110,14 @@ export default function ShinyText({
     backgroundSize: '200% auto',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
+    // background-clip:text 在某些環境可能不生效：
+    // 若不支援，避免整段文字變成透明「看不到」。
+    color,
+    ...(typeof CSS !== 'undefined' &&
+    (CSS.supports?.('-webkit-background-clip', 'text') ||
+      CSS.supports?.('background-clip', 'text'))
+      ? { WebkitTextFillColor: 'transparent' }
+      : {}),
   };
 
   return (

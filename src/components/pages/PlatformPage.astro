@@ -171,15 +171,10 @@ const dockSections = [
         text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 120px color-mix(in srgb, var(--accent) 8%, transparent);
       }
       .platform-title-shiny {
-        text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent),
-          0 0 120px color-mix(in srgb, var(--accent) 8%, transparent);
-      }
-      /* 保底：ShinyText 會用 background-clip:text + text-fill-color:transparent
-         若你的環境 background-clip 沒生效，文字會變成「看不到」。
-         這裡強制把填充顏色改回正常文字顏色，確保首屏永遠可讀。 */
-      .shiny-text.platform-title-shiny {
-        color: var(--text);
-        -webkit-text-fill-color: var(--text) !important;
+        text-shadow:
+          0 0 28px color-mix(in srgb, var(--accent) 38%, transparent),
+          0 0 70px color-mix(in srgb, var(--accent) 18%, transparent),
+          0 0 140px color-mix(in srgb, #ffffff 18%, transparent);
       }
       .hero-shiny-wrap {
         margin-bottom: 16px;
@@ -190,10 +185,7 @@ const dockSections = [
         font-weight: 700;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-      }
-      .shiny-text.hero-shiny-text {
-        color: var(--muted-dim);
-        -webkit-text-fill-color: var(--muted-dim) !important;
+        text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
       }
       .hero-desc {
         font-size: 17px;
@@ -407,10 +399,10 @@ const dockSections = [
             client:visible
             text={P.heroTag}
             className="hero-shiny-text"
-            color="var(--muted-dim)"
-            shineColor="var(--accent)"
-            speed={2.8}
-            spread={110}
+            color="color-mix(in srgb, var(--muted-dim) 58%, var(--accent) 42%)"
+            shineColor="#ffffff"
+            speed={3.25}
+            spread={130}
           />
         </div>
         <h1 id="platform-title">
@@ -418,12 +410,12 @@ const dockSections = [
             client:load
             text={P.heroTitle}
             className="platform-title-shiny"
-            color="var(--text)"
-            shineColor="var(--accent)"
-            speed={2.35}
-            spread={105}
+            color="color-mix(in srgb, var(--text) 86%, var(--accent) 14%)"
+            shineColor="#ffffff"
+            speed={3.6}
+            spread={145}
             yoyo
-            direction="left"
+            direction="right"
           />
         </h1>
         <SpotlightCard

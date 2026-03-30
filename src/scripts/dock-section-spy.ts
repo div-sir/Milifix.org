@@ -52,6 +52,12 @@ export function initDockSectionSpy(navRoot: HTMLElement) {
   });
 
   function updateActive() {
+    // 首次打開時：直接鎖定在第一個 section（Cover），避免 marker 判斷在載入瞬間跳動
+    if (!window.location.hash && window.scrollY < 4) {
+      setActive(sections[0].id);
+      return;
+    }
+
     const marker = window.innerHeight * 0.32;
     let current: string | null = null;
     for (const { id, el } of sections) {
@@ -86,4 +92,6 @@ export function initDockSectionSpy(navRoot: HTMLElement) {
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
   window.addEventListener('resize', onScrollOrResize, { passive: true });
   updateActive();
+  // 額外再同步一次：等待 layout / font / min-height 調整完成，確保初始點位置正確
+  requestAnimationFrame(() => updateActive());
 }
