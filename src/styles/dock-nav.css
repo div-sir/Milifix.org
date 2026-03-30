@@ -132,7 +132,23 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
 }
 
 .dock-pill-nav__pill--home {
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
+  min-width: var(--dock-pill-h);
+  padding: 0 clamp(11px, 3vw, 15px);
+}
+
+.dock-pill-nav__home-icon {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: inherit;
+}
+
+.dock-pill-nav__home-icon svg {
+  display: block;
 }
 
 .dock-pill-nav__pill--theme {

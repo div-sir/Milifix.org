@@ -48,12 +48,17 @@ const hasSections = dockSections.length > 0;
           class:list={['dock-pill-nav__pill', 'dock-pill-nav__pill--home']}
           href={homeHref}
           aria-current={onDockHome ? 'page' : undefined}
+          aria-label={homeLabel}
         >
-          <span class="dock-pill-nav__label-stack">
-            <span class="dock-pill-nav__label">{homeLabel}</span>
-            <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
-              {homeLabel}
-            </span>
+          <span class="dock-pill-nav__home-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H8v6H4a1 1 0 0 1-1-1v-9.5z"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linejoin="round"
+              />
+            </svg>
           </span>
         </a>
       </li>

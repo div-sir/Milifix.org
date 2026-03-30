@@ -502,12 +502,6 @@
     text-transform: none;
   }
 
-  /* 平台頂標：完整顯示 milifix | home，避免被截成單字 */
-  .site-nav__logo--platform {
-    max-width: min(calc(100vw - 5.75rem), 19rem);
-    letter-spacing: 0.06em;
-  }
-
   /* 僅漢堡鈕高於抽屜（flyout z-index:199）；logo 維持較低層級，避免長標題疊在側欄上 */
   .site-nav__toggle {
     display: flex;
