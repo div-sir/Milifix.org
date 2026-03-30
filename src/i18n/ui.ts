@@ -39,6 +39,10 @@ const STRINGS: Record<
       dockSpaceHero: string;
       dockSpaceWorks: string;
       dockSpaceAbout: string;
+      /** 作品分區：圖庫 / 文章 / 專案 */
+      workGalleryTitle: string;
+      workArticleTitle: string;
+      workProjectTitle: string;
       langShort: { en: string; zh: string; ja: string };
       langNames: { en: string; zh: string; ja: string };
     };
@@ -101,6 +105,9 @@ const STRINGS: Record<
       dockSpaceHero: 'Intro',
       dockSpaceWorks: 'Works',
       dockSpaceAbout: 'About',
+      workGalleryTitle: 'Gallery',
+      workArticleTitle: 'Articles',
+      workProjectTitle: 'Projects',
       langShort: { en: 'EN', zh: '中', ja: '日' },
       langNames: {
         en: 'English',
@@ -176,6 +183,9 @@ const STRINGS: Record<
       dockSpaceHero: '開場',
       dockSpaceWorks: '作品',
       dockSpaceAbout: '關於',
+      workGalleryTitle: '圖庫',
+      workArticleTitle: '文章',
+      workProjectTitle: '專案',
       langShort: { en: 'EN', zh: '中', ja: '日' },
       langNames: { en: '英文', zh: '繁體中文', ja: '日文' },
     },
@@ -247,6 +257,9 @@ const STRINGS: Record<
       dockSpaceHero: 'イントロ',
       dockSpaceWorks: '作品',
       dockSpaceAbout: '概要',
+      workGalleryTitle: 'ギャラリー',
+      workArticleTitle: '記事',
+      workProjectTitle: 'プロジェクト',
       langShort: { en: 'EN', zh: '中', ja: '日' },
       langNames: { en: '英語', zh: '繁体字中国語', ja: '日本語' },
     },

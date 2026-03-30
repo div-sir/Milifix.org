@@ -29,6 +29,19 @@ const spaceDef = getLocalizedSpace(space, lang);
 const works = (await getCollection('works'))
   .filter((w) => w.data.space === space)
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
+
+type WorkType = 'gallery' | 'article' | 'project';
+const inferWorkType = (w: any): WorkType => {
+  if (w.data.workType) return w.data.workType as WorkType;
+  if (w.data.media && w.data.media.length > 0) return 'gallery';
+  if (w.data.pageVariant === 'minimal') return 'article';
+  return 'project';
+};
+
+const worksGallery = works.filter((w) => inferWorkType(w) === 'gallery');
+const worksArticle = works.filter((w) => inferWorkType(w) === 'article');
+const worksProject = works.filter((w) => inferWorkType(w) === 'project');
+
 const navN = ui(lang).nav;
 const spaceDockSections = [
   { id: 'main-content', label: navN.dockSpaceHero },
@@ -275,6 +288,10 @@ const spaceDockSections = [
       font-family: var(--mono);
       font-size: 11px;
       color: var(--muted);
+    }
+
+    .works-category + .works-category {
+      margin-top: 72px;
     }
 
     .works-grid {
@@ -571,36 +588,110 @@ const spaceDockSections = [
   </section>
 
   <section class="works" id="works">
-    <div class="section-header fade-up">
-      <span class="section-title" data-anime-splittext="chars-inview">Selected Works</span>
-      <span class="section-count">{String(works.length).padStart(2, '0')}</span>
-    </div>
-    <div class="works-grid">
-      {works.map((work, i) => (
-        <a
-          class:list={[
-            'work-item work-card-anim',
-            `work-item--${work.data.cardVariant}`,
-            (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
-          ]}
-          href={workPath(lang, space, work.id)}
-          data-work-card
-        >
-          <div class="work-item__inner">
-            <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
-            <div class="work-overlay">
-              <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
-              <div class="work-title">{work.data.title}</div>
-              <div class="work-tags">
-                {work.data.tags.map((tag) => (
-                  <span class="work-tag">{tag}</span>
-                ))}
+    {worksGallery.length > 0 && (
+      <div class="works-category" id="works-gallery">
+        <div class="section-header fade-up">
+          <span class="section-title" data-anime-splittext="chars-inview">{navN.workGalleryTitle}</span>
+          <span class="section-count">{String(worksGallery.length).padStart(2, '0')}</span>
+        </div>
+        <div class="works-grid">
+          {worksGallery.map((work, i) => (
+            <a
+              class:list={[
+                'work-item work-card-anim',
+                `work-item--${work.data.cardVariant}`,
+                (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
+              ]}
+              href={workPath(lang, space, work.id)}
+              data-work-card
+            >
+              <div class="work-item__inner">
+                <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
+                <div class="work-overlay">
+                  <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
+                  <div class="work-title">{work.data.title}</div>
+                  <div class="work-tags">
+                    {work.data.tags.map((tag) => (
+                      <span class="work-tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </a>
-      ))}
-    </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {worksArticle.length > 0 && (
+      <div class="works-category" id="works-article">
+        <div class="section-header fade-up">
+          <span class="section-title" data-anime-splittext="chars-inview">{navN.workArticleTitle}</span>
+          <span class="section-count">{String(worksArticle.length).padStart(2, '0')}</span>
+        </div>
+        <div class="works-grid">
+          {worksArticle.map((work, i) => (
+            <a
+              class:list={[
+                'work-item work-card-anim',
+                `work-item--${work.data.cardVariant}`,
+                (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
+              ]}
+              href={workPath(lang, space, work.id)}
+              data-work-card
+            >
+              <div class="work-item__inner">
+                <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
+                <div class="work-overlay">
+                  <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
+                  <div class="work-title">{work.data.title}</div>
+                  <div class="work-tags">
+                    {work.data.tags.map((tag) => (
+                      <span class="work-tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {worksProject.length > 0 && (
+      <div class="works-category" id="works-project">
+        <div class="section-header fade-up">
+          <span class="section-title" data-anime-splittext="chars-inview">{navN.workProjectTitle}</span>
+          <span class="section-count">{String(worksProject.length).padStart(2, '0')}</span>
+        </div>
+        <div class="works-grid">
+          {worksProject.map((work, i) => (
+            <a
+              class:list={[
+                'work-item work-card-anim',
+                `work-item--${work.data.cardVariant}`,
+                (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
+              ]}
+              href={workPath(lang, space, work.id)}
+              data-work-card
+            >
+              <div class="work-item__inner">
+                <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
+                <div class="work-overlay">
+                  <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
+                  <div class="work-title">{work.data.title}</div>
+                  <div class="work-tags">
+                    {work.data.tags.map((tag) => (
+                      <span class="work-tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
 
     <div data-onscroll-reveal>
       <Quote variant="band" text={spaceDef.quoteBand} attribution={spaceDef.quoteBandAttr} />

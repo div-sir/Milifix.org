@@ -42,6 +42,8 @@ const works = defineCollection({
     cardVariant: z.enum(['standard', 'featured', 'compact', 'cinema']).default('standard'),
     /** 作品內頁版型與特效基調 */
     pageVariant: z.enum(['classic', 'editorial', 'immersive', 'minimal']).default('classic'),
+    /** 作品分類（用於空間首頁分區顯示；沒填時會用推斷） */
+    workType: z.enum(['gallery', 'article', 'project']).optional(),
     /** 內文後方的圖庫／影片列（可選） */
     media: z.array(workMediaItemSchema).optional(),
   }),
