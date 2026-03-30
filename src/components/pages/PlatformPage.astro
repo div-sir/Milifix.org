@@ -8,7 +8,6 @@ import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import PortfolioChrome from '../PortfolioChrome.astro';
 import SiteNav from '../SiteNav.astro';
-import SpotlightCard from '../react-bits/SpotlightCard.tsx';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import { SPACE_IDS, type SpaceId } from '../../data/spaces';
@@ -168,6 +167,75 @@ const dockSections = [
           color-mix(in srgb, var(--accent) 14%, transparent),
           transparent 55%
         );
+      }
+
+      /* 平台封面：對齊個人頁面（空間首頁）的 hero 排版 */
+      .hero.hero--platform {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 24px;
+        padding: 0;
+      }
+
+      .hero.hero--platform .hero-tag {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .hero.hero--platform .hero-tag::before {
+        content: '';
+        display: block;
+        width: 32px;
+        height: 1px;
+        background: var(--accent);
+      }
+
+      .hero.hero--platform .hero-title {
+        font-family: var(--mono);
+        font-size: clamp(52px, 10vw, 120px);
+        font-weight: 700;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        color: var(--text);
+        margin: 0;
+      }
+
+      .hero.hero--platform .hero-line {
+        display: block;
+      }
+
+      .hero.hero--platform .hero-line--outline {
+        color: transparent;
+        -webkit-text-stroke: 1.25px var(--hero-outline-stroke);
+        text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 10%, transparent);
+      }
+
+      /* scramble 的層級：確保填字在 outline 上方 */
+      .hero.hero--platform .hero-line--fill[data-scramble-text] {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero.hero--platform .hero-bottom {
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .hero.hero--platform .hero-desc {
+        font-size: 16px;
+        color: var(--muted);
+        line-height: 1.82;
+        max-width: 22rem;
+        letter-spacing: 0.03em;
+        margin: 0;
       }
 
       .platform-hero__frame {
@@ -635,20 +703,19 @@ const dockSections = [
 
     <main id="main-content" tabindex="-1">
       <section id="platform-intro" class="platform-section platform-hero" aria-label={P.dockIntro}>
-        <div class="platform-hero__inner">
-          <p class="hero-kicker">{P.heroTag}</p>
-          <h1 id="platform-title">
-            <span class="platform-hero-title__text" data-scramble-text={P.heroTitle}>
+        <div class="hero hero--platform">
+          <div class="hero-tag">{P.heroTag}</div>
+          <h1 class="hero-title" aria-label={P.heroTitle}>
+            <span class="hero-line hero-line--fill" data-scramble-text={P.heroTitle}>
+              {P.heroTitle}
+            </span>
+            <span class="hero-line hero-line--outline" aria-hidden="true">
               {P.heroTitle}
             </span>
           </h1>
-          <SpotlightCard
-            client:visible
-            className="platform-hero-spotlight"
-            spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
-          >
+          <div class="hero-bottom">
             <p class="hero-desc">{P.heroDesc}</p>
-          </SpotlightCard>
+          </div>
         </div>
       </section>
 
