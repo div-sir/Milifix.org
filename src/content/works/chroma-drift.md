@@ -9,6 +9,7 @@ quote: "顏色一旦開始漂移，故事就不再需要對白。"
 quoteAttribution: "Void Lane"
 cardVariant: featured
 pageVariant: editorial
+workType: project
 ---
 
 以通道分離與時間偏移疊出殘影，靜態影像帶有動態的張力。每一幀都是「幾乎對焦」的瞬間。

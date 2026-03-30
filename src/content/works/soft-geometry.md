@@ -7,6 +7,7 @@ date: "2026-01"
 description: "柔光下的形體失去銳利邊緣，只剩漸層與體積感。"
 cardVariant: compact
 pageVariant: minimal
+workType: article
 ---
 
 以單一光源繞行簡單物件，記錄明暗過渡的微妙差異。越少裝飾，光越像主角。

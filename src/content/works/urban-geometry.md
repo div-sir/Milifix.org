@@ -9,6 +9,7 @@ quote: "幾何不是形狀的堆疊，而是視線在秩序與偶然之間來回
 quoteAttribution: "Solilium"
 cardVariant: standard
 pageVariant: classic
+workType: gallery
 media:
   - kind: image
     src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80"

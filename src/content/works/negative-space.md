@@ -9,6 +9,7 @@ quote: "空白不是缺席，而是讓形狀有地方呼吸。"
 quoteAttribution: "Solilium"
 cardVariant: featured
 pageVariant: editorial
+workType: article
 ---
 
 這組作品刻意壓低物件的敘事性，讓陰影邊緣與背景融為一體。畫面越安靜，邊界越清晰。

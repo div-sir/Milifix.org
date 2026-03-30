@@ -9,6 +9,7 @@ quote: "圖庫不是作品的堆疊，而是一串可以慢慢走的視線節點
 quoteAttribution: "Solilium"
 cardVariant: featured
 pageVariant: editorial
+workType: gallery
 media:
   - kind: image
     src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80"

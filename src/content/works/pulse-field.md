@@ -9,6 +9,7 @@ quote: "亮與暗之間，永遠有一格屬於觀者的停頓。"
 quoteAttribution: "Lumen Lab"
 cardVariant: cinema
 pageVariant: classic
+workType: project
 ---
 
 寬幅場景中，光源以節奏性的強弱掃過表面。影像接近抽象，卻仍保留可觸摸的體積暗示。
