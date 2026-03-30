@@ -153,6 +153,21 @@ const dockSections = [
         /* 不做垂直置中，避免某些視窗高度下內容被推到視窗外。 */
         min-height: 100vh;
         position: relative;
+        padding: clamp(1.75rem, 4.5vw, 3rem) clamp(1.35rem, 3.5vw, 2.65rem);
+        overflow: hidden;
+      }
+
+      #platform-intro.platform-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          120% 80% at 12% -10%,
+          color-mix(in srgb, var(--accent) 14%, transparent),
+          transparent 55%
+        );
       }
 
       .platform-hero__frame {
@@ -573,29 +588,20 @@ const dockSections = [
 
     <main id="main-content" tabindex="-1">
       <section id="platform-intro" class="platform-section platform-hero" aria-label={P.dockIntro}>
-        <div class="platform-hero__frame">
-          <span class="platform-hero__corner platform-hero__corner--tl" aria-hidden="true" />
-          <span class="platform-hero__corner platform-hero__corner--br" aria-hidden="true" />
-          <div class="platform-hero__inner">
-            <div class="platform-hero__meta">
-              <span class="platform-hero__meta-idx">00</span>
-              <span class="platform-hero__meta-sep">—</span>
-              <span>{P.dockIntro}</span>
-            </div>
-            <p class="hero-kicker">{P.heroTag}</p>
-            <h1 id="platform-title">
-              <span class="platform-hero-title__text" data-scramble-text={P.heroTitle}>
-                {P.heroTitle}
-              </span>
-            </h1>
-            <SpotlightCard
-              client:visible
-              className="platform-hero-spotlight"
-              spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
-            >
-              <p class="hero-desc">{P.heroDesc}</p>
-            </SpotlightCard>
-          </div>
+        <div class="platform-hero__inner">
+          <p class="hero-kicker">{P.heroTag}</p>
+          <h1 id="platform-title">
+            <span class="platform-hero-title__text" data-scramble-text={P.heroTitle}>
+              {P.heroTitle}
+            </span>
+          </h1>
+          <SpotlightCard
+            client:visible
+            className="platform-hero-spotlight"
+            spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
+          >
+            <p class="hero-desc">{P.heroDesc}</p>
+          </SpotlightCard>
         </div>
       </section>
 
