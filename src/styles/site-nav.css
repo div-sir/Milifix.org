@@ -499,6 +499,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-transform: none;
+  }
+
+  /* 平台頂標：完整顯示 milifix | home，避免被截成單字 */
+  .site-nav__logo--platform {
+    max-width: min(calc(100vw - 5.75rem), 19rem);
+    letter-spacing: 0.06em;
   }
 
   /* 僅漢堡鈕高於抽屜（flyout z-index:199）；logo 維持較低層級，避免長標題疊在側欄上 */
@@ -559,19 +566,21 @@
     transform: translateX(0);
   }
 
-  /* 語言／主題在抽屜內，與連結區隔開 */
+  /* 語言／主題在抽屜內：藥丸縮窄、左右各半 */
   .site-nav__flyout .site-nav__tools {
     margin-top: 0.35rem;
     padding-top: 1.15rem;
     border-top: 1px solid color-mix(in srgb, var(--line2) 80%, transparent);
-    align-self: stretch;
+    align-self: center;
     width: 100%;
+    max-width: 12.75rem;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  /* 語言區約 72%／主題約 28%，主題維持較寬的方形觸控區 */
   .site-nav__flyout .site-nav__toolbar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(3.35rem, 28%);
+    grid-template-columns: 1fr 1fr;
     width: 100%;
     min-height: 46px;
     align-items: stretch;
@@ -587,9 +596,9 @@
   .site-nav__flyout .site-nav__lang-trigger {
     width: 100%;
     min-width: 0;
-    justify-content: flex-start;
-    padding-left: 14px;
-    padding-right: 12px;
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .site-nav__flyout .site-nav__theme {

@@ -121,7 +121,7 @@ const langUrls = Object.fromEntries(
   <a class="site-nav__skip" href="#main-content">{N.skip}</a>
   <div class="site-nav__bar">
     <a
-      class="site-nav__logo"
+      class:list={['site-nav__logo', variant === 'platform' && 'site-nav__logo--platform']}
       href={logoHref}
       aria-current={logoCurrent ? 'page' : undefined}
     >
@@ -583,7 +583,7 @@ const langUrls = Object.fromEntries(
 </style>
 
 <script>
-  import { initSiteNav } from '../scripts/site-nav-client';
+  import { initSiteNav, closeMobileSiteNavFlyout } from '../scripts/site-nav-client';
   import { initTheme, toggleTheme } from '../scripts/theme-init';
 
   initTheme();
@@ -603,5 +603,6 @@ const langUrls = Object.fromEntries(
   btn?.addEventListener('click', () => {
     toggleTheme();
     syncThemeButton();
+    closeMobileSiteNavFlyout();
   });
 </script>

@@ -187,11 +187,6 @@ export function initSiteNav() {
 
   backdrop?.addEventListener('click', close);
 
-  const themeBtn = siteNav.querySelector<HTMLButtonElement>('#site-nav-theme');
-  themeBtn?.addEventListener('click', () => {
-    if (mq.matches) close();
-  });
-
   siteNav.querySelectorAll<HTMLAnchorElement>(
     '.site-nav__logo, .site-nav__links a, [data-lang-option], [data-works-menuitem]',
   ).forEach((a) => {
@@ -249,5 +244,20 @@ export function initSiteNav() {
 
   syncUnhide();
   document.addEventListener('focusin', syncUnhide);
+}
 
+/** 手機版：關閉漢堡抽屜（主題鈕 script 等可呼叫，需與 initSiteNav 同步 aria / body overflow） */
+export function closeMobileSiteNavFlyout() {
+  const w = window.matchMedia('(max-width: 768px)');
+  if (!w.matches) return;
+  const siteNav = document.querySelector<HTMLElement>('.site-nav');
+  if (!siteNav?.classList.contains('is-open')) return;
+  siteNav.classList.remove('is-open');
+  document.body.style.overflow = '';
+  const toggle = siteNav.querySelector<HTMLButtonElement>('.site-nav__toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', 'false');
+    const openL = toggle.dataset.ariaOpen || 'Open menu';
+    toggle.setAttribute('aria-label', openL);
+  }
 }
