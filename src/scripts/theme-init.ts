@@ -23,13 +23,21 @@ export function initTheme() {
   });
 }
 
+function shouldUseViewTransition(): boolean {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return false;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  /** 窄螢幕整頁 View Transition 成本高，易與側欄／scrollbar 競態造成跳動 */
+  if (window.matchMedia('(max-width: 768px)').matches) return false;
+  const d = document as Document & { startViewTransition?: (cb: () => void | Promise<void>) => unknown };
+  return typeof d.startViewTransition === 'function';
+}
+
 function runWithThemeTransition(run: () => void) {
   const d = document as Document & {
-    startViewTransition?: (cb: () => void | Promise<void>) => void;
+    startViewTransition?: (cb: () => void | Promise<void>) => unknown;
   };
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!reduceMotion && typeof d.startViewTransition === 'function') {
-    d.startViewTransition(run);
+  if (shouldUseViewTransition()) {
+    d.startViewTransition!(run);
   } else {
     run();
   }

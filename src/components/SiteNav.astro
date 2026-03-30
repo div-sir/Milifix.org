@@ -583,7 +583,7 @@ const langUrls = Object.fromEntries(
 </style>
 
 <script>
-  import { initSiteNav, closeMobileSiteNavFlyout } from '../scripts/site-nav-client';
+  import { initSiteNav } from '../scripts/site-nav-client';
   import { initTheme, toggleTheme } from '../scripts/theme-init';
 
   initTheme();
@@ -603,6 +603,5 @@ const langUrls = Object.fromEntries(
   btn?.addEventListener('click', () => {
     toggleTheme();
     syncThemeButton();
-    closeMobileSiteNavFlyout();
   });
 </script>

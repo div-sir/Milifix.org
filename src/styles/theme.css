@@ -3,6 +3,11 @@
   color-scheme: dark light;
 }
 
+/* 減少 overflow 鎖捲動／解鎖時因捲軸出現與否造成的水平位移 */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* 主題切換：支援 View Transitions API 的瀏覽器會有較平滑的整頁過渡 */
 ::view-transition-old(root),
 ::view-transition-new(root) {
