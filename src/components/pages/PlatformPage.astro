@@ -149,49 +149,143 @@ const dockSections = [
 
       /* 確保首屏只會看到封面內容：
          main 具有 padding-top（桌機/手機都約 120px），因此用同等尺度扣掉，避免創作者列表露出。 */
-      #platform-intro {
+      #platform-intro.platform-hero {
         /* 不做垂直置中，避免某些視窗高度下內容被推到視窗外。 */
-        /* 仍用足夠的 min-height 確保創作者列表不會在首屏直接露出。 */
         min-height: 100vh;
+        position: relative;
+      }
+
+      .platform-hero__frame {
+        position: relative;
+        padding: clamp(1.75rem, 4.5vw, 3rem) clamp(1.35rem, 3.5vw, 2.65rem);
+        border-radius: 20px;
+        border: 1px solid color-mix(in srgb, var(--line2) 88%, var(--accent) 12%);
+        background: linear-gradient(
+          155deg,
+          color-mix(in srgb, var(--bg2) 72%, transparent) 0%,
+          color-mix(in srgb, var(--bg) 48%, transparent) 48%,
+          color-mix(in srgb, var(--bg3) 22%, transparent) 100%
+        );
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--accent) 6%, transparent),
+          0 28px 56px -28px var(--shadow-card),
+          inset 0 1px 0 color-mix(in srgb, #ffffff 5%, transparent);
+        overflow: hidden;
+      }
+
+      html[data-theme='light'] .platform-hero__frame {
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+          0 22px 48px -26px var(--shadow-card),
+          inset 0 1px 0 color-mix(in srgb, #ffffff 65%, transparent);
+      }
+
+      .platform-hero__frame::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          120% 80% at 12% -10%,
+          color-mix(in srgb, var(--accent) 14%, transparent),
+          transparent 55%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .platform-hero__corner {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        pointer-events: none;
+        z-index: 1;
+        border-color: color-mix(in srgb, var(--accent) 45%, var(--line2));
+        opacity: 0.85;
+      }
+
+      .platform-hero__corner--tl {
+        top: 14px;
+        left: 14px;
+        border-top: 2px solid;
+        border-left: 2px solid;
+        border-radius: 4px 0 0 0;
+      }
+
+      .platform-hero__corner--br {
+        right: 14px;
+        bottom: 14px;
+        border-bottom: 2px solid;
+        border-right: 2px solid;
+        border-radius: 0 0 4px 0;
+      }
+
+      .platform-hero__inner {
+        position: relative;
+        z-index: 2;
+      }
+
+      .platform-hero__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: clamp(1rem, 2.5vw, 1.35rem);
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--muted-dim) 55%, var(--accent) 45%);
+      }
+
+      .platform-hero__meta-idx {
+        color: var(--accent);
+        letter-spacing: 0.18em;
+      }
+
+      .platform-hero__meta-sep {
+        opacity: 0.45;
+        letter-spacing: 0;
       }
       .platform-section + .platform-section {
         /* 拉大封面與創作者列表間距，避免首屏出現列表 */
         margin-top: clamp(4.5rem, 18vh, 9rem);
       }
 
-      /* 封面標題：純 CSS，不依賴 React／透明文字填充，避免某些環境整段看不到 */
+      /* 封面主標：放大 + 純色填字（scramble 由腳本處理），避免透明填充問題 */
       #platform-title {
         position: relative;
         font-family: var(--mono);
-        font-size: clamp(40px, 8vw, 72px);
+        font-size: clamp(52px, 12.5vw, 108px);
         font-weight: 700;
-        line-height: 1.08;
-        letter-spacing: -0.02em;
-        margin: 0 0 20px;
-        padding-bottom: 0.35em;
+        line-height: 1.02;
+        letter-spacing: -0.035em;
+        margin: 0 0 clamp(1rem, 2.5vw, 1.35rem);
+        padding-bottom: 0.42em;
         color: var(--text);
+        max-width: 100%;
       }
       #platform-title::after {
         content: '';
         position: absolute;
         left: 0;
         bottom: 0;
-        width: 100%;
-        height: 2px;
-        border-radius: 2px;
+        width: min(14rem, 52%);
+        height: 3px;
+        border-radius: 3px;
         background: linear-gradient(
           90deg,
-          transparent,
-          color-mix(in srgb, var(--accent) 55%, transparent),
+          color-mix(in srgb, var(--accent) 70%, transparent),
           transparent
         );
-        opacity: 0.85;
+        opacity: 0.9;
         transform-origin: left center;
         animation: platform-hero-title-line 3.2s ease-in-out infinite;
       }
       .platform-hero-title__text {
         display: inline-block;
         color: var(--text);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
         animation: platform-hero-title-glow 4s ease-in-out infinite;
       }
       @keyframes platform-hero-title-glow {
@@ -221,12 +315,13 @@ const dockSections = [
       }
       .hero-kicker {
         font-family: var(--mono);
-        font-size: 11px;
+        font-size: clamp(10px, 2.2vw, 12px);
         font-weight: 700;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        margin: 0 0 16px;
-        color: color-mix(in srgb, var(--muted-dim) 45%, var(--accent) 55%);
+        margin: 0 0 clamp(0.85rem, 2vw, 1.1rem);
+        max-width: 28rem;
+        color: color-mix(in srgb, var(--muted-dim) 38%, var(--accent) 62%);
         text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 35%, transparent);
         animation: platform-hero-kicker 5s ease-in-out infinite;
       }
@@ -250,6 +345,25 @@ const dockSections = [
         #platform-title::after {
           transform: scaleX(1);
           opacity: 0.75;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .platform-hero__frame {
+          padding: 1.35rem 1.1rem 1.5rem;
+          border-radius: 16px;
+        }
+        .platform-hero__corner {
+          width: 22px;
+          height: 22px;
+        }
+        .platform-hero__corner--tl {
+          top: 10px;
+          left: 10px;
+        }
+        .platform-hero__corner--br {
+          right: 10px;
+          bottom: 10px;
         }
       }
       .hero-desc {
@@ -458,18 +572,31 @@ const dockSections = [
     />
 
     <main id="main-content" tabindex="-1">
-      <section id="platform-intro" class="platform-section" aria-label={P.dockIntro}>
-        <p class="hero-kicker">{P.heroTag}</p>
-        <h1 id="platform-title">
-          <span class="platform-hero-title__text">{P.heroTitle}</span>
-        </h1>
-        <SpotlightCard
-          client:visible
-          className="platform-hero-spotlight"
-          spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
-        >
-          <p class="hero-desc">{P.heroDesc}</p>
-        </SpotlightCard>
+      <section id="platform-intro" class="platform-section platform-hero" aria-label={P.dockIntro}>
+        <div class="platform-hero__frame">
+          <span class="platform-hero__corner platform-hero__corner--tl" aria-hidden="true" />
+          <span class="platform-hero__corner platform-hero__corner--br" aria-hidden="true" />
+          <div class="platform-hero__inner">
+            <div class="platform-hero__meta">
+              <span class="platform-hero__meta-idx">00</span>
+              <span class="platform-hero__meta-sep">—</span>
+              <span>{P.dockIntro}</span>
+            </div>
+            <p class="hero-kicker">{P.heroTag}</p>
+            <h1 id="platform-title">
+              <span class="platform-hero-title__text" data-scramble-text={P.heroTitle}>
+                {P.heroTitle}
+              </span>
+            </h1>
+            <SpotlightCard
+              client:visible
+              className="platform-hero-spotlight"
+              spotlightColor="color-mix(in srgb, var(--accent) 28%, transparent)"
+            >
+              <p class="hero-desc">{P.heroDesc}</p>
+            </SpotlightCard>
+          </div>
+        </div>
       </section>
 
       <section id="creators" class="platform-section platform-section--spaces" aria-label={P.dockSpaces}>
@@ -506,9 +633,11 @@ const dockSections = [
     <script>
       import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
       import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
+      import { initPlatformHeroScramble } from '../../scripts/platform-hero-scramble';
       import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
 
       initPortfolioCursor();
+      initPlatformHeroScramble();
       initAnimeSplitText();
       initAnimeOnScrollReveals();
     </script>
