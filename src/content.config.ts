@@ -2,6 +2,29 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+const workMediaItemSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('image'),
+    src: z.string(),
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal('video'),
+    /** 影片檔網址（mp4 / webm 等，用原生 <video>） */
+    src: z.string(),
+    poster: z.string().optional(),
+    caption: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal('embed'),
+    /** 嵌入網址（YouTube/Vimeo 的 embed URL） */
+    src: z.string(),
+    title: z.string().optional(),
+    caption: z.string().optional(),
+  }),
+]);
+
 const works = defineCollection({
   loader: glob({ base: './src/content/works', pattern: '**/*.md' }),
   schema: z.object({
@@ -19,6 +42,8 @@ const works = defineCollection({
     cardVariant: z.enum(['standard', 'featured', 'compact', 'cinema']).default('standard'),
     /** 作品內頁版型與特效基調 */
     pageVariant: z.enum(['classic', 'editorial', 'immersive', 'minimal']).default('classic'),
+    /** 內文後方的圖庫／影片列（可選） */
+    media: z.array(workMediaItemSchema).optional(),
   }),
 });
 

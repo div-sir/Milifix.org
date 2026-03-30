@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import AmbientBackdrop from '../../../components/AmbientBackdrop.astro';
 import PageTransition from '../../../components/PageTransition.astro';
 import Quote from '../../../components/Quote.astro';
+import WorkMediaGallery from '../../../components/WorkMediaGallery.astro';
 import PortfolioChrome from '../../../components/PortfolioChrome.astro';
 import SiteNav from '../../../components/SiteNav.astro';
 import '../../../styles/theme.css';
@@ -34,6 +35,7 @@ const {
   quoteAttribution,
   pageVariant,
   space: workSpace,
+  media = [],
 } = entry.data;
 
 const lang: Lang = 'ja';
@@ -59,6 +61,7 @@ const workNavItems = allWorks.map((w) => ({
 const workDockSections = [
   { id: 'work-hero', label: navUi.work.dockHero },
   { id: 'main-content', label: navUi.work.dockStory },
+  ...(media.length > 0 ? [{ id: 'work-media', label: navUi.work.dockMedia }] : []),
 ];
 ---
 
@@ -458,6 +461,7 @@ const workDockSections = [
     <div class="work-body">
       <Content />
     </div>
+    <WorkMediaGallery items={media} sectionTitle={navUi.work.dockMedia} />
   </article>
 
   <nav class="work-junction" aria-label={navUi.work.junctionAria}>

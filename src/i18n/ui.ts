@@ -64,6 +64,7 @@ const STRINGS: Record<
       junctionAria: string;
       dockHero: string;
       dockStory: string;
+      dockMedia: string;
     };
   }
 > = {
@@ -139,6 +140,7 @@ const STRINGS: Record<
       junctionAria: 'Adjacent works',
       dockHero: 'Cover',
       dockStory: 'Case',
+      dockMedia: 'Gallery',
     },
   },
   zh: {
@@ -209,6 +211,7 @@ const STRINGS: Record<
       junctionAria: '相鄰作品',
       dockHero: '開場',
       dockStory: '案例',
+      dockMedia: '圖庫',
     },
   },
   ja: {
@@ -279,6 +282,7 @@ const STRINGS: Record<
       junctionAria: '隣接する作品',
       dockHero: 'ヒーロー',
       dockStory: 'ケース',
+      dockMedia: 'ギャラリー',
     },
   },
 };

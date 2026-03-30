@@ -1,0 +1,70 @@
+---
+import '../styles/work-media-gallery.css';
+
+type MediaItem =
+  | { kind: 'image'; src: string; alt?: string; caption?: string }
+  | { kind: 'video'; src: string; poster?: string; caption?: string }
+  | { kind: 'embed'; src: string; title?: string; caption?: string };
+
+interface Props {
+  items: MediaItem[];
+  sectionTitle: string;
+}
+
+const { items, sectionTitle } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section class="work-media" id="work-media" aria-labelledby="work-media-heading" data-onscroll-reveal>
+      <h2 id="work-media-heading" class="work-media__heading">
+        {sectionTitle}
+      </h2>
+      <div class="work-media__grid">
+        {items.map((item) => (
+          <figure
+            class:list={[
+              'work-media__item',
+              (item.kind === 'video' || item.kind === 'embed') && 'work-media__item--full',
+            ]}
+          >
+            {item.kind === 'image' && (
+              <img
+                class="work-media__img"
+                src={item.src}
+                alt={item.alt ?? ''}
+                loading="lazy"
+                decoding="async"
+                sizes="(min-width: 900px) 42vw, 96vw"
+              />
+            )}
+            {item.kind === 'video' && (
+              <video
+                class="work-media__video"
+                controls
+                playsinline
+                preload="metadata"
+                poster={item.poster}
+              >
+                <source src={item.src} />
+              </video>
+            )}
+            {item.kind === 'embed' && (
+              <div class="work-media__embed">
+                <iframe
+                  class="work-media__iframe"
+                  src={item.src}
+                  title={item.title ?? 'Video embed'}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                />
+              </div>
+            )}
+            {item.caption ? <figcaption class="work-media__caption">{item.caption}</figcaption> : null}
+          </figure>
+        ))}
+      </div>
+    </section>
+  )
+}
