@@ -490,6 +490,15 @@
     --site-nav-pad-x: 1.25rem;
   }
 
+  .site-nav__logo {
+    font-size: clamp(9px, 2.6vw, 12px);
+    letter-spacing: 0.1em;
+    max-width: min(52vw, 14rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .site-nav__toggle {
     display: flex;
   }
@@ -510,6 +519,14 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 頂列（含漢堡鈕）蓋在全螢幕 backdrop 之上，才能再次點擊關閉選單 */
+  .site-nav.is-open .site-nav__bar {
+    position: relative;
+    z-index: 201;
   }
 
   .site-nav__flyout {
@@ -529,10 +546,31 @@
     box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
     transform: translateX(100%);
     transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .site-nav.is-open .site-nav__flyout {
     transform: translateX(0);
+  }
+
+  /* 語言／主題在抽屜內，與連結區隔開 */
+  .site-nav__flyout .site-nav__tools {
+    margin-top: 0.35rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid color-mix(in srgb, var(--line2) 80%, transparent);
+    align-self: stretch;
+  }
+
+  .site-nav__flyout .site-nav__toolbar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .site-nav__flyout .site-nav__lang-panel {
+    left: 0;
+    right: 0;
+    min-width: 0;
   }
 
   .site-nav__links {

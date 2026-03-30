@@ -30,3 +30,17 @@ body.portfolio-atmo :where(a, button):focus-visible {
 body.portfolio-atmo :is(.anime-split-char, .anime-split-word) {
   display: inline-block;
 }
+
+/* 移動端：關閉自訂游標與跟隨環（仍由 portfolio-cursor.ts 略過事件／動畫） */
+@media (max-width: 768px) {
+  body.portfolio-atmo {
+    cursor: auto !important;
+  }
+
+  body.portfolio-atmo #cursor,
+  body.portfolio-atmo #cursor-ring {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
