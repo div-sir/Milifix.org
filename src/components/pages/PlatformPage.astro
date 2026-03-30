@@ -237,6 +237,10 @@ const dockSections = [
       .platform-hero__inner {
         position: relative;
         z-index: 2;
+        display: grid;
+        grid-template-rows: auto auto auto;
+        gap: clamp(0.9rem, 2.2vw, 1.5rem);
+        align-content: start;
       }
 
       .platform-hero__meta {
@@ -340,6 +344,21 @@ const dockSections = [
         text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 35%, transparent);
         animation: platform-hero-kicker 5s ease-in-out infinite;
       }
+      .hero-kicker {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+      .hero-kicker::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line2));
+        transform: rotate(45deg);
+        box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 32%, transparent);
+        flex-shrink: 0;
+      }
       @keyframes platform-hero-kicker {
         0%,
         100% {
@@ -388,10 +407,38 @@ const dockSections = [
         max-width: 36rem;
         margin: 0;
         letter-spacing: 0.02em;
+        position: relative;
+        padding-left: 18px;
+      }
+      .hero-desc::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.1em;
+        bottom: 0.1em;
+        width: 2px;
+        border-radius: 2px;
+        background: linear-gradient(
+          to bottom,
+          color-mix(in srgb, var(--accent) 55%, transparent),
+          transparent
+        );
+        opacity: 0.85;
       }
       .platform-hero-spotlight {
         margin-bottom: 28px;
         max-width: 36rem;
+        /* 移除副標的底色/框框：把 SpotlightCard 變成透明排版容器 */
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        overflow: visible;
+      }
+      .platform-hero-spotlight::before {
+        /* 關掉 SpotlightCard 的動態亮斑背景 */
+        opacity: 0 !important;
       }
 
       [data-onscroll-reveal] {
