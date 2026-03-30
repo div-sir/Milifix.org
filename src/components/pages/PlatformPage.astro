@@ -6,10 +6,8 @@ import { spacePath } from '../../i18n/routes';
 import { getCollection } from 'astro:content';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
-import Quote from '../Quote.astro';
 import PortfolioChrome from '../PortfolioChrome.astro';
 import SiteNav from '../SiteNav.astro';
-import MarqueeTags from '../MarqueeTags.astro';
 import ShinyText from '../react-bits/ShinyText.tsx';
 import SpotlightCard from '../react-bits/SpotlightCard.tsx';
 import '../../styles/theme.css';
@@ -36,7 +34,6 @@ const creators = SPACE_IDS.map((id: SpaceId, i) => {
 });
 
 const P = labels.platform;
-const marqueeList = [...P.marqueeItems];
 
 const dockSections = [
   { id: 'platform-intro', label: P.dockIntro },
@@ -151,7 +148,7 @@ const dockSections = [
         scroll-margin-bottom: 5rem;
       }
       .platform-section + .platform-section {
-        margin-top: 3rem;
+        margin-top: 2.25rem;
       }
 
       #platform-title {
@@ -164,7 +161,7 @@ const dockSections = [
         text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 120px color-mix(in srgb, var(--accent) 8%, transparent);
       }
       .hero-shiny-wrap {
-        margin-bottom: 24px;
+        margin-bottom: 16px;
       }
       .hero-shiny-text {
         font-family: var(--mono);
@@ -182,7 +179,7 @@ const dockSections = [
         letter-spacing: 0.02em;
       }
       .platform-hero-spotlight {
-        margin-bottom: 40px;
+        margin-bottom: 28px;
         max-width: 36rem;
       }
 
@@ -395,14 +392,6 @@ const dockSections = [
         >
           <p class="hero-desc">{P.heroDesc}</p>
         </SpotlightCard>
-
-        <MarqueeTags items={marqueeList} durationSec={36} />
-      </section>
-
-      <section id="platform-build" class="platform-section" aria-label={P.dockBuild}>
-        <div data-onscroll-reveal>
-          <Quote variant="band" text={P.quoteBand} attribution={P.quoteBandAttr} />
-        </div>
       </section>
 
       <section id="creators" class="platform-section platform-section--spaces" aria-label={P.dockSpaces}>
