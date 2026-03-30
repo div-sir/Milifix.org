@@ -8,17 +8,105 @@ html {
   scrollbar-gutter: stable;
 }
 
-/* 主題切換：支援 View Transitions API 的瀏覽器會有較平滑的整頁過渡 */
-::view-transition-old(root),
+/* 主題切換：View Transitions — 由點擊處圓形揭開 + 舊畫面霧化退出 */
+::view-transition-group(root) {
+  animation-duration: 0.68s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.32, 1);
+}
+
+::view-transition-old(root) {
+  animation: theme-vt-root-out 0.62s cubic-bezier(0.33, 1, 0.36, 1) both;
+}
+
 ::view-transition-new(root) {
-  animation-duration: 0.42s;
-  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+  animation: theme-vt-root-in 0.72s cubic-bezier(0.2, 0.95, 0.28, 1) both;
+}
+
+@keyframes theme-vt-root-out {
+  from {
+    opacity: 1;
+    filter: blur(0) saturate(1);
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.25;
+    filter: blur(16px) saturate(1.35) brightness(1.08);
+    transform: scale(1.018);
+  }
+}
+
+@keyframes theme-vt-root-in {
+  from {
+    opacity: 0.92;
+    filter: brightness(1.35) blur(5px);
+    clip-path: circle(0px at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+  }
+  55% {
+    filter: brightness(1.08) blur(1px);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1) blur(0);
+    clip-path: circle(160vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+  }
+}
+
+@media (max-width: 768px) {
+  ::view-transition-group(root) {
+    animation-duration: 0.42s;
+  }
+
+  ::view-transition-old(root) {
+    animation: theme-vt-root-out-m 0.4s cubic-bezier(0.37, 0, 0.21, 1) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: theme-vt-root-in-m 0.46s cubic-bezier(0.22, 1, 0.34, 1) both;
+  }
+
+  @keyframes theme-vt-root-out-m {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0.2;
+      transform: scale(1.01);
+    }
+  }
+
+  @keyframes theme-vt-root-in-m {
+    from {
+      opacity: 0.85;
+      filter: brightness(1.2);
+      clip-path: circle(0px at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+    }
+    to {
+      opacity: 1;
+      filter: brightness(1);
+      clip-path: circle(160vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%));
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root) {
+    animation-duration: 0.001ms;
+  }
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 0.001ms;
+    animation: theme-vt-none 0.001ms both !important;
+  }
+
+  @keyframes theme-vt-none {
+    from,
+    to {
+      opacity: 1;
+      filter: none;
+      transform: none;
+      clip-path: none;
+    }
   }
 }
 

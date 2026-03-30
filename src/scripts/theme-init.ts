@@ -26,10 +26,26 @@ export function initTheme() {
 function shouldUseViewTransition(): boolean {
   if (typeof document === 'undefined' || typeof window === 'undefined') return false;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  /** 窄螢幕整頁 View Transition 成本高，易與側欄／scrollbar 競態造成跳動 */
-  if (window.matchMedia('(max-width: 768px)').matches) return false;
   const d = document as Document & { startViewTransition?: (cb: () => void | Promise<void>) => unknown };
   return typeof d.startViewTransition === 'function';
+}
+
+/** 圓形揭開中心（像素）；無事件時用視窗中心 */
+function setThemeTransitionOrigin(ev?: Pick<PointerEvent | MouseEvent, 'clientX' | 'clientY'>) {
+  const x =
+    ev && Number.isFinite(ev.clientX) && ev.clientX >= 0
+      ? ev.clientX
+      : typeof window !== 'undefined'
+        ? window.innerWidth / 2
+        : 0;
+  const y =
+    ev && Number.isFinite(ev.clientY) && ev.clientY >= 0
+      ? ev.clientY
+      : typeof window !== 'undefined'
+        ? window.innerHeight / 2
+        : 0;
+  document.documentElement.style.setProperty('--theme-vt-x', `${x}px`);
+  document.documentElement.style.setProperty('--theme-vt-y', `${y}px`);
 }
 
 function runWithThemeTransition(run: () => void) {
@@ -43,7 +59,8 @@ function runWithThemeTransition(run: () => void) {
   }
 }
 
-export function toggleTheme(): Theme {
+export function toggleTheme(ev?: PointerEvent | MouseEvent): Theme {
+  setThemeTransitionOrigin(ev);
   const next: Theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   runWithThemeTransition(() => applyTheme(next));
   return next;

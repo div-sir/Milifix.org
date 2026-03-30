@@ -400,7 +400,7 @@ const labDockSections = navItems.map((item) => ({ id: item.id, label: item.label
       import { toggleTheme } from '../scripts/theme-init';
       import { initAnimeSplitText } from '../scripts/init-anime-splittext';
 
-      document.getElementById('lab-theme-toggle')?.addEventListener('click', () => toggleTheme());
+      document.getElementById('lab-theme-toggle')?.addEventListener('click', (e) => toggleTheme(e));
       initAnimeSplitText();
     </script>
   </body>
