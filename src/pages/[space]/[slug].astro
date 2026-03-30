@@ -222,7 +222,13 @@ const workDockSections = [
       line-height: 1.08;
       margin-bottom: 24px;
       color: var(--work-hero-title);
-      text-shadow: 0 2px 24px rgba(0,0,0,0.9), 0 0 48px rgba(0,0,0,0.5), 0 0 80px color-mix(in srgb, var(--accent) 7%, transparent);
+      /* 避免大範圍黑暈看起來像「字後面有底色」 */
+      text-shadow: 0 2px 18px rgba(0,0,0,0.42), 0 0 34px color-mix(in srgb, var(--accent) 9%, transparent);
+    }
+
+    /* splitText wrap: clip 可能裁到字尾，下伸部位強制允許溢出 */
+    .work-hero__title :is(.anime-split-char, .anime-split-word) {
+      overflow: visible !important;
     }
     .work-hero--editorial .work-hero__title {
       font-size: clamp(36px, 7vw, 64px);
@@ -231,7 +237,7 @@ const workDockSections = [
     }
     .work-hero--immersive .work-hero__title {
       font-size: clamp(38px, 7.5vw, 72px);
-      text-shadow: 0 4px 40px rgba(0,0,0,0.95), 0 0 100px rgba(0,0,0,0.55);
+      text-shadow: 0 4px 28px rgba(0,0,0,0.46), 0 0 60px color-mix(in srgb, var(--accent) 8%, transparent);
     }
     .work-hero--minimal .work-hero__title {
       font-weight: 600;
