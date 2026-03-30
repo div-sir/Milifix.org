@@ -34,7 +34,9 @@ type WorkType = 'gallery' | 'article' | 'project';
 const inferWorkType = (w: any): WorkType => {
   if (w.data.workType) return w.data.workType as WorkType;
   if (w.data.media && w.data.media.length > 0) return 'gallery';
+  /** 文章：沒有 media 的作品中，cardVariant 為 standard/compact 視為文章；minimal 也歸類為文章 */
   if (w.data.pageVariant === 'minimal') return 'article';
+  if (w.data.cardVariant === 'standard' || w.data.cardVariant === 'compact') return 'article';
   return 'project';
 };
 
