@@ -180,19 +180,9 @@ export function initSiteNav() {
     setOpen(opening);
     if (opening && flyout) {
       requestAnimationFrame(() => {
-        const closeDrawer = flyout.querySelector<HTMLElement>('.site-nav__close-drawer');
-        const first =
-          mq.matches && closeDrawer
-            ? closeDrawer
-            : flyout.querySelector<HTMLElement>(focusableSelector);
-        first?.focus();
+        flyout.querySelector<HTMLElement>(focusableSelector)?.focus();
       });
     }
-  });
-
-  siteNav.querySelector('.site-nav__close-drawer')?.addEventListener('click', () => {
-    close();
-    btn?.focus();
   });
 
   backdrop?.addEventListener('click', close);
