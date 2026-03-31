@@ -153,57 +153,19 @@ const dockSections = [
         min-height: 100vh;
         position: relative;
         padding: clamp(1.75rem, 4.5vw, 3rem) clamp(1.35rem, 3.5vw, 2.65rem);
-        overflow: hidden;
       }
 
-      #platform-intro.platform-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        background: radial-gradient(
-          120% 80% at 12% -10%,
-          color-mix(in srgb, var(--accent) 14%, transparent),
-          transparent 55%
-        );
-      }
-
-      /* 首屏改版：cinematic brand opening */
+      /* 首屏：內容直接疊在全站網格／背景上，無卡片底色或邊框 */
       .hero.hero--platform {
         position: relative;
         z-index: 1;
         display: grid;
         gap: clamp(1.1rem, 2.8vw, 2rem);
-        padding: clamp(1rem, 2.5vw, 1.4rem);
-        border-radius: 22px;
-        border: 1px solid color-mix(in srgb, var(--line2) 80%, var(--accent) 20%);
-        background:
-          radial-gradient(120% 100% at 8% -8%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 58%),
-          linear-gradient(140deg, color-mix(in srgb, var(--bg2) 80%, transparent) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 55%, color-mix(in srgb, var(--bg3) 35%, transparent) 100%);
-        box-shadow:
-          0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent),
-          0 24px 65px -35px var(--shadow-card),
-          inset 0 1px 0 color-mix(in srgb, #ffffff 8%, transparent);
-        overflow: hidden;
-      }
-
-      .hero.hero--platform::before {
-        content: '';
-        position: absolute;
-        inset: -15% -20%;
-        background:
-          radial-gradient(38% 42% at 20% 20%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 70%),
-          radial-gradient(30% 30% at 78% 32%, color-mix(in srgb, var(--accent2) 36%, transparent), transparent 72%);
-        filter: blur(22px);
-        opacity: 0.9;
-        pointer-events: none;
-        animation: platform-hero-aura 8s ease-in-out infinite alternate;
-      }
-
-      .hero.hero--platform > * {
-        position: relative;
-        z-index: 1;
+        padding: 0;
+        border: none;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
       }
 
       .hero.hero--platform .hero-tag {
@@ -245,14 +207,6 @@ const dockSections = [
 
       .hero.hero--platform .hero-line {
         display: block;
-      }
-
-      .hero.hero--platform .hero-line--outline {
-        color: transparent;
-        -webkit-text-stroke: 1.3px var(--hero-outline-stroke);
-        text-shadow:
-          0 0 28px color-mix(in srgb, var(--accent) 16%, transparent),
-          0 0 70px color-mix(in srgb, var(--accent) 8%, transparent);
       }
 
       .hero.hero--platform .hero-line--fill[data-scramble-text] {
@@ -327,21 +281,6 @@ const dockSections = [
 
       .hero.hero--platform .hero-cta-secondary:hover {
         border-color: color-mix(in srgb, var(--accent) 58%, var(--line2));
-      }
-
-      @keyframes platform-hero-aura {
-        0% {
-          transform: translate3d(0, 0, 0) scale(1);
-          opacity: 0.82;
-        }
-        50% {
-          transform: translate3d(2%, -1.5%, 0) scale(1.05);
-          opacity: 1;
-        }
-        100% {
-          transform: translate3d(-1.5%, 2%, 0) scale(1.02);
-          opacity: 0.86;
-        }
       }
 
       .platform-hero__frame {
@@ -557,11 +496,6 @@ const dockSections = [
       }
 
       @media (max-width: 768px) {
-        .hero.hero--platform {
-          border-radius: 16px;
-          padding: 1rem 0.9rem;
-        }
-
         .hero.hero--platform .hero-cta {
           gap: 0.55rem;
         }
@@ -827,9 +761,6 @@ const dockSections = [
           <div class="hero-tag">{P.heroTag}</div>
           <h1 class="hero-title" aria-label={P.heroTitle}>
             <span class="hero-line hero-line--fill" data-scramble-text={P.heroTitle}>
-              {P.heroTitle}
-            </span>
-            <span class="hero-line hero-line--outline" aria-hidden="true">
               {P.heroTitle}
             </span>
           </h1>
