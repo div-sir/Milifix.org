@@ -321,7 +321,7 @@ const dockSections = [
       .hero.hero--platform .hero-foot-scroll {
         position: absolute;
         right: 0;
-        bottom: 0;
+        bottom: 1.35rem;
         font-family: var(--mono);
         font-size: 12px;
         letter-spacing: 0.2em;
@@ -336,7 +336,7 @@ const dockSections = [
         transition: transform 0.22s ease, color 0.22s ease;
       }
       .hero.hero--platform .hero-foot-scroll::after {
-        content: '';
+        content: none;
         width: 10px;
         height: 10px;
         border-right: 1px solid currentColor;
@@ -613,7 +613,7 @@ const dockSections = [
         }
         .hero.hero--platform .hero-foot-scroll {
           right: 0;
-          bottom: 0;
+          bottom: 1rem;
         }
 
         .hero.hero--platform .hero-cta-primary,
