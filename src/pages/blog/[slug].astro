@@ -28,8 +28,15 @@ const isTravelDataPost =
   entry.id.startsWith('cabin-') ||
   entry.id.startsWith('aircraft-') ||
   entry.id.startsWith('airline-') ||
-  entry.id.startsWith('import-') ||
-  entry.id.startsWith('train-');
+  entry.id.startsWith('train-') ||
+  [
+    'tokyo-wide-pass',
+    'nex-roundtrip-ticket',
+    'yufuin-no-mori',
+    'aoniyoshi-train',
+    'iruca-tokyo',
+    'sugita',
+  ].includes(entry.id);
 ---
 
 <!DOCTYPE html>
@@ -109,7 +116,7 @@ const isTravelDataPost =
         margin-bottom: 2rem;
         line-height: 1.25;
       }
-      .post-title--zephlog {
+      .post-title--travel-data {
         background: linear-gradient(
           95deg,
           color-mix(in srgb, var(--text) 88%, var(--accent) 12%),
@@ -120,14 +127,14 @@ const isTravelDataPost =
         background-clip: text;
         color: transparent;
         background-size: 220% 100%;
-        animation: zephlog-title-sheen 5.2s linear infinite;
+        animation: travel-data-title-sheen 5.2s linear infinite;
       }
-      @keyframes zephlog-title-sheen {
+      @keyframes travel-data-title-sheen {
         0% { background-position: 140% 0; }
         100% { background-position: -80% 0; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .post-title--zephlog {
+        .post-title--travel-data {
           animation: none;
           background-position: 0 0;
         }
@@ -174,7 +181,7 @@ const isTravelDataPost =
     <article class="wrap">
       <a class="back" href="/blog">← Blog</a>
       <p class="post-meta">{entry.data.date}</p>
-      <h1 class:list={['post-title', isTravelDataPost && 'post-title--zephlog']}>{entry.data.title}</h1>
+      <h1 class:list={['post-title', isTravelDataPost && 'post-title--travel-data']}>{entry.data.title}</h1>
       <div class="prose">
         <Content />
       </div>

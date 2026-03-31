@@ -45,12 +45,20 @@ draft: false
 
 ## 已匯入示範（第一批）
 
-- [東京廣域](/blog/import-tokyo-wide-pass)
-- [N'EX 東京去回車票](/blog/import-nex-roundtrip)
-- [由布院之森](/blog/import-yufuin-no-mori)
-- [Aoniyoshi](/blog/import-aoniyoshi)
-- [IRUCA TOKYO](/blog/import-iruca-tokyo)
-- [Sugita](/blog/import-sugita)
+- [東京廣域](/blog/tokyo-wide-pass)
+- [N'EX 東京去回車票](/blog/nex-roundtrip-ticket)
+- [由布院之森](/blog/yufuin-no-mori)
+- [Aoniyoshi](/blog/aoniyoshi-train)
+- [IRUCA TOKYO](/blog/iruca-tokyo)
+- [Sugita](/blog/sugita)
+
+## 內容完整度與翻譯狀態確認
+
+- **完整度（目前）**：已建立分類索引與兩批示範內容；每篇皆有標題、描述、日期與來源分類。
+- **欄位密度**：示範內容以結構化欄位為主（如價格、路線、公司、地址），深度敘述型內容尚可再擴寫。
+- **翻譯狀態**：目前文章內容以原始語料為主（中/英/日混合命名保留），尚未做三語完整翻譯版本。
+- **可讀性處理**：已完成 slug 英文化與前綴清理，連結結構可長期維護。
+- **下一步建議**：若要做正式發佈，建議先補齊「中文主敘述 + 英文對照摘要」兩層內容。
 
 
 ## 已匯入示範（第二批：觀光列車）
