@@ -304,6 +304,20 @@ const dockSections = [
         gap: 1.1rem;
         padding-top: clamp(1rem, 2.3vw, 1.4rem);
       }
+      .hero.hero--platform .hero-foot-note {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.7rem;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--muted-dim) 58%, var(--accent) 42%);
+      }
+      .hero.hero--platform .hero-foot-note-sep {
+        opacity: 0.42;
+      }
       .hero.hero--platform .hero-foot-scroll {
         position: absolute;
         right: 0;
@@ -318,52 +332,51 @@ const dockSections = [
         display: inline-flex;
         align-items: center;
         gap: 0.55rem;
-        padding: 0.2rem 0;
+        padding: 0.3rem 0.15rem 0.3rem 0.7rem;
+        isolation: isolate;
         transition: transform 0.22s ease, color 0.22s ease;
+      }
+      .hero.hero--platform .hero-foot-scroll::before {
+        content: '';
+        position: absolute;
+        inset: -0.2rem -0.35rem;
+        z-index: -1;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--line2) 66%, var(--accent) 34%);
+        background: color-mix(in srgb, var(--bg) 74%, transparent);
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+          0 0 24px -10px color-mix(in srgb, var(--accent) 55%, transparent);
+        animation: hero-enter-breathe 2.8s ease-in-out infinite;
       }
       .hero.hero--platform .hero-foot-scroll::after {
         content: '↓';
         line-height: 1;
         font-size: 12px;
         transform: translateY(-1px);
+        animation: hero-enter-bob 1.4s ease-in-out infinite;
       }
       .hero.hero--platform .hero-foot-scroll:hover {
         color: var(--accent);
         transform: translateY(-1px) translateX(2px);
       }
-      .hero.hero--platform .hero-foot-fx {
-        flex: 1;
-        min-width: 0;
-        margin-left: auto;
+      @keyframes hero-enter-breathe {
+        0%,
+        100% {
+          box-shadow:
+            0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+            0 0 20px -10px color-mix(in srgb, var(--accent) 40%, transparent);
+        }
+        50% {
+          box-shadow:
+            0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent),
+            0 0 34px -8px color-mix(in srgb, var(--accent) 62%, transparent);
+        }
       }
-      .hero.hero--platform .hero-foot-fx__viewport {
-        overflow: hidden;
-        mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
-      }
-      .hero.hero--platform .hero-foot-fx__track {
-        display: inline-flex;
-        align-items: center;
-        gap: 1.15rem;
-        white-space: nowrap;
-        min-width: max-content;
-        flex-shrink: 0;
-        animation: hero-foot-marquee 16s linear infinite;
-      }
-      .hero.hero--platform .hero-foot-fx__item {
-        font-family: var(--mono);
-        font-size: 9px;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: color-mix(in srgb, var(--muted-dim) 55%, var(--accent) 45%);
-      }
-      .hero.hero--platform .hero-foot-fx__item::after {
-        content: '•';
-        margin-left: 1.15rem;
-        opacity: 0.45;
-      }
-      @keyframes hero-foot-marquee {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
+      @keyframes hero-enter-bob {
+        0%,
+        100% { transform: translateY(-1px); }
+        50% { transform: translateY(2px); }
       }
 
       .platform-hero__frame {
@@ -572,7 +585,8 @@ const dockSections = [
         #platform-title::after {
           animation: none !important;
         }
-        .hero.hero--platform .hero-foot-fx__track {
+        .hero.hero--platform .hero-foot-scroll::before,
+        .hero.hero--platform .hero-foot-scroll::after {
           animation: none !important;
         }
         #platform-title::after {
@@ -591,10 +605,7 @@ const dockSections = [
           gap: 0.7rem;
           padding-bottom: 2rem;
         }
-        .hero.hero--platform .hero-foot-fx {
-          margin-left: 0;
-        }
-        .hero.hero--platform .hero-foot-fx {
+        .hero.hero--platform .hero-foot-note {
           width: 100%;
         }
         .hero.hero--platform .hero-foot-scroll {
@@ -880,15 +891,12 @@ const dockSections = [
             </div>
           </div>
           <div class="hero-foot" aria-label="cover details">
-            <div class="hero-foot-fx" aria-label="animated cover details">
-              <div class="hero-foot-fx__viewport">
-                <div class="hero-foot-fx__track">
-                  {creators.map((c) => <span class="hero-foot-fx__item">{c.name}</span>)}
-                  <span class="hero-foot-fx__item">Milifix Archive</span>
-                  {creators.map((c) => <span class="hero-foot-fx__item">{c.name}</span>)}
-                  <span class="hero-foot-fx__item">Milifix Archive</span>
-                </div>
-              </div>
+            <div class="hero-foot-note" aria-label="cover details">
+              <span>Milifix Archive</span>
+              <span class="hero-foot-note-sep" aria-hidden="true">•</span>
+              <span>{String(totalWorks).padStart(2, '0')} {P.worksUnit}</span>
+              <span class="hero-foot-note-sep" aria-hidden="true">•</span>
+              <span>{P.sectionCreators}</span>
             </div>
             <a class="hero-foot-scroll" href="#creators-content">
               {P.enter.replace(/[→↓↘]/g, '').trim()}
