@@ -154,7 +154,12 @@ const dockSections = [
         /* 不做垂直置中，避免某些視窗高度下內容被推到視窗外。 */
         min-height: calc(100svh - 120px);
         position: relative;
-        padding: clamp(1.75rem, 4.5vw, 3rem) 0;
+        display: flex;
+        align-items: stretch;
+        padding:
+          clamp(1.75rem, 4.5vw, 3rem)
+          0
+          calc(4.5rem + env(safe-area-inset-bottom, 0px));
       }
 
       /* 首屏：內容直接疊在全站網格／背景上，無卡片底色或邊框 */
@@ -796,6 +801,7 @@ const dockSections = [
         }
         #platform-intro.platform-hero {
           min-height: calc(100svh - 110px);
+          padding-bottom: calc(3.8rem + env(safe-area-inset-bottom, 0px));
         }
         footer { padding: 32px 24px; }
         .platform-section + .platform-section {
