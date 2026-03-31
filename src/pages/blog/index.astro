@@ -5,6 +5,23 @@ import '../../styles/theme.css';
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
+
+const isTravelDataPost = (id: string) =>
+  id.startsWith('travel-') ||
+  id.startsWith('timeline-') ||
+  id.startsWith('records-') ||
+  id.startsWith('cabin-') ||
+  id.startsWith('aircraft-') ||
+  id.startsWith('airline-') ||
+  id.startsWith('train-') ||
+  [
+    'tokyo-wide-pass',
+    'nex-roundtrip-ticket',
+    'yufuin-no-mori',
+    'aoniyoshi-train',
+    'iruca-tokyo',
+    'sugita',
+  ].includes(id);
 ---
 
 <!DOCTYPE html>
@@ -69,6 +86,59 @@ const posts = (await getCollection('blog'))
         flex-direction: column;
         gap: 1.25rem;
       }
+      .post-item {
+        position: relative;
+      }
+      .post-item[data-travel='true'] {
+        padding: 0.55rem 0.65rem 0.65rem;
+        border: 1px solid color-mix(in srgb, var(--line2) 68%, var(--accent) 32%);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--bg2) 64%, transparent);
+      }
+      .travel-badge {
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--accent) 74%, var(--text) 26%);
+        margin-bottom: 0.45rem;
+      }
+      .travel-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        background: currentColor;
+        box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
+      }
+      .post-title {
+        position: relative;
+      }
+      .post-item[data-travel='true'] .post-title {
+        background: linear-gradient(
+          100deg,
+          color-mix(in srgb, var(--text) 88%, var(--accent) 12%),
+          color-mix(in srgb, var(--accent) 70%, var(--text) 30%),
+          color-mix(in srgb, var(--text) 88%, var(--accent) 12%)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        background-size: 220% 100%;
+        animation: blog-travel-sheen 5.4s linear infinite;
+      }
+      @keyframes blog-travel-sheen {
+        0% { background-position: 130% 0; }
+        100% { background-position: -80% 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .post-item[data-travel='true'] .post-title {
+          animation: none;
+        }
+      }
       a {
         text-decoration: none;
         color: var(--text);
@@ -106,9 +176,10 @@ const posts = (await getCollection('blog'))
       <ul>
         {
           posts.map((p) => (
-            <li>
+            <li class="post-item" data-travel={isTravelDataPost(p.id) ? 'true' : 'false'}>
               <a href={`/blog/${p.id}`}>
-                <div>{p.data.title}</div>
+                {isTravelDataPost(p.id) && <div class="travel-badge">Travel Data</div>}
+                <div class="post-title">{p.data.title}</div>
                 <div class="meta">{p.data.date}</div>
               </a>
             </li>
