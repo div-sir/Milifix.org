@@ -20,7 +20,6 @@ const { lang } = Astro.props;
 const labels = ui(lang);
 
 const allWorks = await getCollection('works');
-const totalWorks = allWorks.length;
 const creators = SPACE_IDS.map((id: SpaceId, i) => {
   const def = getLocalizedSpace(id, lang);
   return {
