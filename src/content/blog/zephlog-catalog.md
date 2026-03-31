@@ -55,20 +55,20 @@ draft: false
 
 ## 已匯入示範（第二批：觀光列車）
 
-- [ZephLog 匯入｜Hinotori 火鳥](/blog/zephlog-train-1a34cd6fef)
-- [ZephLog 匯入｜Sea Spica](/blog/zephlog-train-1d54cd6fef)
+- [ZephLog 匯入｜Hinotori 火鳥](/blog/zephlog-train-hinotori-firebird)
+- [ZephLog 匯入｜Sea Spica](/blog/zephlog-train-sea-spica)
 
 
 - [ZephLog 匯入｜La Malle de Bois](/blog/zephlog-train-la-malle-de-bois-fd69)
-- [ZephLog 匯入｜Shimakaze志摩之風](/blog/zephlog-train-shimakaze志摩之風-9a70)
-- [ZephLog 匯入｜WEST EXPRESS 銀河](/blog/zephlog-train-west-express-銀河-9bc5)
-- [ZephLog 匯入｜etSETOra  エトセトラ](/blog/zephlog-train-etsetora-エトセトラ-5173)
-- [ZephLog 匯入｜あめつち](/blog/zephlog-train-あめつち-cfb0)
-- [ZephLog 匯入｜はなあかり](/blog/zephlog-train-はなあかり-f5c6)
-- [ZephLog 匯入｜まほろば](/blog/zephlog-train-まほろば-0cbe)
-- [ZephLog 匯入｜丹後黑松號](/blog/zephlog-train-丹後黑松號-ae69)
-- [ZephLog 匯入｜京TRAIN雅洛](/blog/zephlog-train-京train雅洛-a716)
-- [ZephLog 匯入｜伊予灘物語](/blog/zephlog-train-伊予灘物語-f035)
+- [ZephLog 匯入｜Shimakaze志摩之風](/blog/zephlog-train-shimakaze)
+- [ZephLog 匯入｜WEST EXPRESS 銀河](/blog/zephlog-train-west-express-ginga)
+- [ZephLog 匯入｜etSETOra  エトセトラ](/blog/zephlog-train-etsetora)
+- [ZephLog 匯入｜あめつち](/blog/zephlog-train-ametsuchi)
+- [ZephLog 匯入｜はなあかり](/blog/zephlog-train-hanaakari)
+- [ZephLog 匯入｜まほろば](/blog/zephlog-train-mahoroba)
+- [ZephLog 匯入｜丹後黑松號](/blog/zephlog-train-tango-kuromatsu)
+- [ZephLog 匯入｜京TRAIN雅洛](/blog/zephlog-train-kyotrain-garaku)
+- [ZephLog 匯入｜伊予灘物語](/blog/zephlog-train-iyonada-monogatari)
 ## 後續我可以直接幫你做的下一步
 
 - 自動把 `ZephLog` 內 `.md` 批次轉成你站內 `blog` 文章格式（含 frontmatter）。
