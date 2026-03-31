@@ -303,7 +303,6 @@ const dockSections = [
         justify-content: space-between;
         gap: 1rem;
         padding-top: clamp(1rem, 2.3vw, 1.4rem);
-        border-top: 1px solid color-mix(in srgb, var(--line2) 72%, var(--accent) 28%);
       }
       .hero.hero--platform .hero-foot-meta {
         display: inline-flex;
@@ -342,26 +341,35 @@ const dockSections = [
         color: var(--accent);
       }
       .hero.hero--platform .hero-foot-fx {
+        flex: 1;
+        min-width: 0;
+      }
+      .hero.hero--platform .hero-foot-fx__viewport {
+        overflow: hidden;
+        mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+      }
+      .hero.hero--platform .hero-foot-fx__track {
+        display: inline-flex;
+        align-items: center;
+        gap: 1.15rem;
+        white-space: nowrap;
+        animation: hero-foot-marquee 16s linear infinite;
+      }
+      .hero.hero--platform .hero-foot-fx__item {
         font-family: var(--mono);
         font-size: 9px;
-        letter-spacing: 0.24em;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
-        color: transparent;
-        background: linear-gradient(
-          110deg,
-          color-mix(in srgb, var(--muted-dim) 65%, transparent) 0%,
-          color-mix(in srgb, var(--accent) 72%, var(--muted-dim)) 42%,
-          color-mix(in srgb, var(--muted-dim) 70%, transparent) 85%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        background-size: 220% 100%;
-        animation: hero-foot-shimmer 4.6s linear infinite;
-        opacity: 0.9;
+        color: color-mix(in srgb, var(--muted-dim) 55%, var(--accent) 45%);
       }
-      @keyframes hero-foot-shimmer {
-        0% { background-position: 140% 0; }
-        100% { background-position: -80% 0; }
+      .hero.hero--platform .hero-foot-fx__item::after {
+        content: '•';
+        margin-left: 1.15rem;
+        opacity: 0.45;
+      }
+      @keyframes hero-foot-marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
       }
 
       .platform-hero__frame {
@@ -570,7 +578,7 @@ const dockSections = [
         #platform-title::after {
           animation: none !important;
         }
-        .hero.hero--platform .hero-foot-fx {
+        .hero.hero--platform .hero-foot-fx__track {
           animation: none !important;
         }
         #platform-title::after {
@@ -589,8 +597,7 @@ const dockSections = [
           gap: 0.7rem;
         }
         .hero.hero--platform .hero-foot-fx {
-          letter-spacing: 0.18em;
-          font-size: 8px;
+          width: 100%;
         }
 
         .hero.hero--platform .hero-cta-primary,
@@ -876,7 +883,16 @@ const dockSections = [
               <span class="hero-foot-sep" aria-hidden="true">·</span>
               <span>{String(totalWorks).padStart(2, '0')} {P.worksUnit}</span>
             </div>
-            <span class="hero-foot-fx" aria-hidden="true">from signal to cadence</span>
+            <div class="hero-foot-fx" aria-label="animated cover details">
+              <div class="hero-foot-fx__viewport">
+                <div class="hero-foot-fx__track">
+                  {creators.map((c) => <span class="hero-foot-fx__item">{c.name}</span>)}
+                  <span class="hero-foot-fx__item">Milifix Archive</span>
+                  {creators.map((c) => <span class="hero-foot-fx__item">{c.name}</span>)}
+                  <span class="hero-foot-fx__item">Milifix Archive</span>
+                </div>
+              </div>
+            </div>
             <a class="hero-foot-scroll" href="#creators">{P.enter}</a>
           </div>
         </div>
