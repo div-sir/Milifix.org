@@ -321,7 +321,7 @@ const dockSections = [
       .hero.hero--platform .hero-foot-scroll {
         position: absolute;
         right: 0;
-        bottom: 1.35rem;
+        bottom: 0.35rem;
         font-family: var(--mono);
         font-size: 12px;
         letter-spacing: 0.2em;
@@ -332,22 +332,12 @@ const dockSections = [
         display: inline-flex;
         align-items: center;
         gap: 0.55rem;
-        padding: 0.3rem 0.15rem 0.3rem 0.7rem;
+        padding: 0.2rem 0;
         isolation: isolate;
         transition: transform 0.22s ease, color 0.22s ease;
       }
       .hero.hero--platform .hero-foot-scroll::before {
-        content: '';
-        position: absolute;
-        inset: -0.2rem -0.35rem;
-        z-index: -1;
-        border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--line2) 66%, var(--accent) 34%);
-        background: color-mix(in srgb, var(--bg) 74%, transparent);
-        box-shadow:
-          0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
-          0 0 24px -10px color-mix(in srgb, var(--accent) 55%, transparent);
-        animation: hero-enter-breathe 2.8s ease-in-out infinite;
+        content: none;
       }
       .hero.hero--platform .hero-foot-scroll::after {
         content: '↓';
@@ -359,19 +349,6 @@ const dockSections = [
       .hero.hero--platform .hero-foot-scroll:hover {
         color: var(--accent);
         transform: translateY(-1px) translateX(2px);
-      }
-      @keyframes hero-enter-breathe {
-        0%,
-        100% {
-          box-shadow:
-            0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
-            0 0 20px -10px color-mix(in srgb, var(--accent) 40%, transparent);
-        }
-        50% {
-          box-shadow:
-            0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent),
-            0 0 34px -8px color-mix(in srgb, var(--accent) 62%, transparent);
-        }
       }
       @keyframes hero-enter-bob {
         0%,
@@ -585,7 +562,6 @@ const dockSections = [
         #platform-title::after {
           animation: none !important;
         }
-        .hero.hero--platform .hero-foot-scroll::before,
         .hero.hero--platform .hero-foot-scroll::after {
           animation: none !important;
         }
@@ -610,7 +586,7 @@ const dockSections = [
         }
         .hero.hero--platform .hero-foot-scroll {
           right: 0;
-          bottom: 1rem;
+          bottom: 0.1rem;
         }
 
         .hero.hero--platform .hero-cta-primary,
@@ -893,10 +869,6 @@ const dockSections = [
           <div class="hero-foot" aria-label="cover details">
             <div class="hero-foot-note" aria-label="cover details">
               <span>Milifix Archive</span>
-              <span class="hero-foot-note-sep" aria-hidden="true">•</span>
-              <span>{String(totalWorks).padStart(2, '0')} {P.worksUnit}</span>
-              <span class="hero-foot-note-sep" aria-hidden="true">•</span>
-              <span>{P.sectionCreators}</span>
             </div>
             <a class="hero-foot-scroll" href="#creators-content">
               {P.enter.replace(/[→↓↘]/g, '').trim()}
