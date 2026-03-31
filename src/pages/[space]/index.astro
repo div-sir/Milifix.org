@@ -52,7 +52,9 @@ const spaceDockSections = [
 <html lang={HTML_LANG[lang]}>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
   <title>{spaceDef.navLabel}</title>
   <script is:inline>
     (function () {
@@ -76,7 +78,11 @@ const spaceDockSections = [
       --accent2: #8fa8e8;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+      min-height: 100%;
+    }
 
     body {
       background: var(--bg);
@@ -84,6 +90,8 @@ const spaceDockSections = [
       font-family: var(--sans);
       cursor: none;
       overflow-x: hidden;
+      min-height: 100vh;
+      min-height: 100svh;
     }
 
     #cursor {
