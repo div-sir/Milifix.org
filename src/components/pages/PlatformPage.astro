@@ -20,6 +20,7 @@ const { lang } = Astro.props;
 const labels = ui(lang);
 
 const allWorks = await getCollection('works');
+const totalWorks = allWorks.length;
 const creators = SPACE_IDS.map((id: SpaceId, i) => {
   const def = getLocalizedSpace(id, lang);
   return {
@@ -162,6 +163,8 @@ const dockSections = [
         z-index: 1;
         display: grid;
         gap: clamp(1.1rem, 2.8vw, 2rem);
+        min-height: 100%;
+        align-content: start;
         padding: 0;
         border: none;
         background: none;
@@ -282,6 +285,52 @@ const dockSections = [
 
       .hero.hero--platform .hero-cta-secondary:hover {
         border-color: color-mix(in srgb, var(--accent) 58%, var(--line2));
+      }
+
+      .hero.hero--platform .hero-foot {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-top: clamp(1rem, 2.3vw, 1.4rem);
+        border-top: 1px solid color-mix(in srgb, var(--line2) 72%, var(--accent) 28%);
+      }
+      .hero.hero--platform .hero-foot-meta {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.4rem 0.7rem;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--muted-dim) 62%, var(--accent) 38%);
+      }
+      .hero.hero--platform .hero-foot-sep {
+        opacity: 0.4;
+      }
+      .hero.hero--platform .hero-foot-scroll {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--muted-dim) 52%, var(--accent) 48%);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .hero.hero--platform .hero-foot-scroll::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-right: 1px solid currentColor;
+        border-bottom: 1px solid currentColor;
+        transform: rotate(45deg) translateY(-1px);
+      }
+      .hero.hero--platform .hero-foot-scroll:hover {
+        color: var(--accent);
       }
 
       .platform-hero__frame {
@@ -499,6 +548,11 @@ const dockSections = [
       @media (max-width: 768px) {
         .hero.hero--platform .hero-cta {
           gap: 0.55rem;
+        }
+        .hero.hero--platform .hero-foot {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.7rem;
         }
 
         .hero.hero--platform .hero-cta-primary,
@@ -776,6 +830,14 @@ const dockSections = [
               <a class="hero-cta-primary" href="#creators">{P.sectionCreators}</a>
               <a class="hero-cta-secondary" href="/lab">{labels.nav.lab}</a>
             </div>
+          </div>
+          <div class="hero-foot" aria-label="cover details">
+            <div class="hero-foot-meta">
+              <span>{String(creators.length).padStart(2, '0')} {P.sectionCreators}</span>
+              <span class="hero-foot-sep" aria-hidden="true">·</span>
+              <span>{String(totalWorks).padStart(2, '0')} {P.worksUnit}</span>
+            </div>
+            <a class="hero-foot-scroll" href="#creators">{P.enter}</a>
           </div>
         </div>
       </section>
