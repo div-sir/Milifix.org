@@ -7,6 +7,38 @@ draft: false
 
 `Record` 是你的基礎資料池，適合做：
 
+<div class="data-snapshot">
+  <div class="data-snapshot__grid">
+    <div class="data-kpi">
+      <div class="data-kpi__label">資料定位</div>
+      <div class="data-kpi__value">Raw</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">處理階段</div>
+      <div class="data-kpi__value">Draft</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">完成度</div>
+      <div class="data-kpi__value">L1</div>
+    </div>
+  </div>
+
+  <div class="data-bars">
+    <div class="data-bars__row">
+      <span>欄位對齊</span>
+      <div class="data-bars__track"><i style="width: 58%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>清洗進度</span>
+      <div class="data-bars__track"><i style="width: 36%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>分類完成</span>
+      <div class="data-bars__track"><i style="width: 29%"></i></div>
+    </div>
+  </div>
+</div>
+
 - 未分類資料暫存
 - 欄位對齊與清洗
 - 交叉查詢入口

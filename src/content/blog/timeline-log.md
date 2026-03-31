@@ -7,6 +7,38 @@ draft: false
 
 此分類對應 `活動年表` 匯出資料，目的是把分散紀錄收斂為時間軸視角。
 
+<div class="data-snapshot">
+  <div class="data-snapshot__grid">
+    <div class="data-kpi">
+      <div class="data-kpi__label">時間維度</div>
+      <div class="data-kpi__value">Y / M / D</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">主要結構</div>
+      <div class="data-kpi__value">03</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">完成度</div>
+      <div class="data-kpi__value">L1</div>
+    </div>
+  </div>
+
+  <div class="data-bars">
+    <div class="data-bars__row">
+      <span>事件歸檔</span>
+      <div class="data-bars__track"><i style="width: 62%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>關聯連結</span>
+      <div class="data-bars__track"><i style="width: 41%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>視覺化程度</span>
+      <div class="data-bars__track"><i style="width: 22%"></i></div>
+    </div>
+  </div>
+</div>
+
 ## 可用於頁面的資訊型態
 
 - 日期（年/月/日）
