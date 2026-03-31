@@ -406,6 +406,21 @@ const workDockSections = [
       color: var(--muted-dim);
       opacity: 0.72;
     }
+    .footer-copy a {
+      color: var(--accent);
+      text-decoration: none;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .footer-copy a:hover {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .footer-copy__sep {
+      opacity: 0.45;
+      user-select: none;
+    }
 
     @media (max-width: 768px) {
       .work-hero__content { padding: 88px 24px 40px; }
@@ -502,7 +517,11 @@ const workDockSections = [
 
   <footer>
     <span class="footer-logo">{spaceDef.navLabel}</span>
-    <span class="footer-copy">© 2026 — All rights reserved</span>
+    <p class="footer-copy">
+      <span>{navUi.platform.footer}</span>
+      <span class="footer-copy__sep" aria-hidden="true">·</span>
+      <a href="/lab">{navUi.nav.lab}</a>
+    </p>
   </footer>
 
   <script>
