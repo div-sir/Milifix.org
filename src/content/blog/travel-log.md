@@ -5,7 +5,39 @@ date: '2026-03-31'
 draft: false
 ---
 
-這是 旅行資料 的旅行資料主分類，目前已整理出三個可持續擴充的子類：
+這是旅行紀錄主分類，目前已整理出三個可持續擴充的子類：
+
+<div class="data-snapshot">
+  <div class="data-snapshot__grid">
+    <div class="data-kpi">
+      <div class="data-kpi__label">子分類</div>
+      <div class="data-kpi__value">03</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">示範文章</div>
+      <div class="data-kpi__value">18</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">完成度</div>
+      <div class="data-kpi__value">L1</div>
+    </div>
+  </div>
+
+  <div class="data-bars">
+    <div class="data-bars__row">
+      <span>JR PASS / 票價</span>
+      <div class="data-bars__track"><i style="width: 52%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>觀光列車</span>
+      <div class="data-bars__track"><i style="width: 68%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>必比登清單</span>
+      <div class="data-bars__track"><i style="width: 28%"></i></div>
+    </div>
+  </div>
+</div>
 
 ## 1) JR PASS 與參考票價
 
