@@ -170,6 +170,7 @@ const dockSections = [
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto auto 1fr auto;
         gap: clamp(1.1rem, 2.8vw, 2rem);
+        width: 100%;
         min-height: 100%;
         align-content: start;
         padding: 0;
@@ -297,11 +298,13 @@ const dockSections = [
 
       .hero.hero--platform .hero-foot {
         margin-top: auto;
+        position: relative;
         display: flex;
         width: 100%;
         align-items: center;
         justify-content: flex-start;
         gap: 1.1rem;
+        min-height: 1.8rem;
         padding-top: clamp(1rem, 2.3vw, 1.4rem);
       }
       .hero.hero--platform .hero-foot-note {
