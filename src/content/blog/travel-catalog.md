@@ -43,6 +43,38 @@ draft: false
 - 飛機（CSV 匯出）
 - 航空公司（CSV 匯出）
 
+<div class="data-snapshot">
+  <div class="data-snapshot__grid">
+    <div class="data-kpi">
+      <div class="data-kpi__label">主分類</div>
+      <div class="data-kpi__value">06</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">已整理批次</div>
+      <div class="data-kpi__value">02</div>
+    </div>
+    <div class="data-kpi">
+      <div class="data-kpi__label">示範文章</div>
+      <div class="data-kpi__value">18</div>
+    </div>
+  </div>
+
+  <div class="data-bars">
+    <div class="data-bars__row">
+      <span>旅行紀錄</span>
+      <div class="data-bars__track"><i style="width: 100%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>觀光列車</span>
+      <div class="data-bars__track"><i style="width: 68%"></i></div>
+    </div>
+    <div class="data-bars__row">
+      <span>翻譯覆蓋</span>
+      <div class="data-bars__track"><i style="width: 34%"></i></div>
+    </div>
+  </div>
+</div>
+
 ## 已匯入示範（第一批）
 
 - [東京廣域](/blog/tokyo-wide-pass)

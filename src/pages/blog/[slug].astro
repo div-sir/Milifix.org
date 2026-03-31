@@ -175,6 +175,82 @@ const isTravelDataPost =
       .prose :global(a) {
         color: var(--accent);
       }
+      .prose :global(.data-snapshot) {
+        margin: 1.25rem 0 1.75rem;
+        padding: 1rem;
+        border: 1px solid color-mix(in srgb, var(--line2) 70%, var(--accent) 30%);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--bg2) 72%, transparent);
+      }
+      .prose :global(.data-snapshot__grid) {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-bottom: 0.95rem;
+      }
+      .prose :global(.data-kpi) {
+        border: 1px solid color-mix(in srgb, var(--line2) 75%, transparent);
+        border-radius: 10px;
+        padding: 0.55rem 0.65rem;
+        background: color-mix(in srgb, var(--bg) 72%, transparent);
+      }
+      .prose :global(.data-kpi__label) {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted-dim);
+      }
+      .prose :global(.data-kpi__value) {
+        margin-top: 0.3rem;
+        font-family: var(--mono);
+        font-size: 1.05rem;
+        color: var(--text);
+      }
+      .prose :global(.data-bars) {
+        display: grid;
+        gap: 0.52rem;
+      }
+      .prose :global(.data-bars__row) {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .prose :global(.data-bars__row > span) {
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .prose :global(.data-bars__track) {
+        height: 8px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--line2) 56%, transparent);
+        overflow: hidden;
+      }
+      .prose :global(.data-bars__track > i) {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 85%, #fff 15%), color-mix(in srgb, var(--accent) 65%, #8fa8e8 35%));
+        transform-origin: left center;
+        animation: data-bar-in 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      @keyframes data-bar-in {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      @media (max-width: 640px) {
+        .prose :global(.data-snapshot__grid) {
+          grid-template-columns: 1fr;
+        }
+        .prose :global(.data-bars__row) {
+          grid-template-columns: 1fr;
+          gap: 0.35rem;
+        }
+      }
     </style>
   </head>
   <body>
