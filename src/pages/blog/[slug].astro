@@ -21,6 +21,7 @@ if (!entry || entry.data.draft) {
 }
 
 const { Content } = await render(entry);
+const isZephlog = entry.id.startsWith('zephlog-');
 ---
 
 <!DOCTYPE html>
@@ -100,6 +101,29 @@ const { Content } = await render(entry);
         margin-bottom: 2rem;
         line-height: 1.25;
       }
+      .post-title--zephlog {
+        background: linear-gradient(
+          95deg,
+          color-mix(in srgb, var(--text) 88%, var(--accent) 12%),
+          color-mix(in srgb, var(--accent) 62%, var(--text) 38%),
+          color-mix(in srgb, var(--text) 88%, var(--accent) 12%)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        background-size: 220% 100%;
+        animation: zephlog-title-sheen 5.2s linear infinite;
+      }
+      @keyframes zephlog-title-sheen {
+        0% { background-position: 140% 0; }
+        100% { background-position: -80% 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .post-title--zephlog {
+          animation: none;
+          background-position: 0 0;
+        }
+      }
       .prose {
         color: var(--muted);
         font-size: 1.05rem;
@@ -142,7 +166,7 @@ const { Content } = await render(entry);
     <article class="wrap">
       <a class="back" href="/blog">← Blog</a>
       <p class="post-meta">{entry.data.date}</p>
-      <h1 class="post-title">{entry.data.title}</h1>
+      <h1 class:list={['post-title', isZephlog && 'post-title--zephlog']}>{entry.data.title}</h1>
       <div class="prose">
         <Content />
       </div>

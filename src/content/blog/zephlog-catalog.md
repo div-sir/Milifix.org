@@ -43,6 +43,15 @@ draft: false
 - 飛機（CSV 匯出）
 - 航空公司（CSV 匯出）
 
+## 已匯入示範（第一批）
+
+- [ZephLog 匯入｜東京廣域](/blog/zephlog-import-tokyo-wide-pass)
+- [ZephLog 匯入｜N'EX 東京去回車票](/blog/zephlog-import-nex-roundtrip)
+- [ZephLog 匯入｜由布院之森](/blog/zephlog-import-yufuin-no-mori)
+- [ZephLog 匯入｜Aoniyoshi](/blog/zephlog-import-aoniyoshi)
+- [ZephLog 匯入｜IRUCA TOKYO](/blog/zephlog-import-iruca-tokyo)
+- [ZephLog 匯入｜Sugita](/blog/zephlog-import-sugita)
+
 ## 後續我可以直接幫你做的下一步
 
 - 自動把 `ZephLog` 內 `.md` 批次轉成你站內 `blog` 文章格式（含 frontmatter）。
