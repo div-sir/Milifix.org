@@ -336,12 +336,10 @@ const dockSections = [
         transition: transform 0.22s ease, color 0.22s ease;
       }
       .hero.hero--platform .hero-foot-scroll::after {
-        content: none;
-        width: 10px;
-        height: 10px;
-        border-right: 1px solid currentColor;
-        border-bottom: 1px solid currentColor;
-        transform: rotate(45deg) translateY(-1px);
+        content: '↓';
+        line-height: 1;
+        font-size: 12px;
+        transform: translateY(-1px);
       }
       .hero.hero--platform .hero-foot-scroll:hover {
         color: var(--accent);
@@ -361,6 +359,8 @@ const dockSections = [
         align-items: center;
         gap: 1.15rem;
         white-space: nowrap;
+        min-width: max-content;
+        flex-shrink: 0;
         animation: hero-foot-marquee 16s linear infinite;
       }
       .hero.hero--platform .hero-foot-fx__item {
@@ -909,7 +909,9 @@ const dockSections = [
                 </div>
               </div>
             </div>
-            <a class="hero-foot-scroll" href="#creators-content">{P.enter}</a>
+            <a class="hero-foot-scroll" href="#creators-content">
+              {P.enter.replace(/[→↓↘]/g, '').trim()}
+            </a>
           </div>
         </div>
       </section>
