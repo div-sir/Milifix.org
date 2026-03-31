@@ -197,7 +197,7 @@ const STRINGS: Record<
       quoteBand:
         '作品集不是獎盃櫃——是節奏。若第一眼與最後一捲都像同一雙手，工作室就盡責了。',
       quoteBandAttr: 'Milifix',
-      sectionCreators: '創作空間',
+      sectionCreators: '創作者',
       worksUnit: '件作品',
       enter: '進入 →',
       footer: '© 2026 Milifix',

@@ -304,20 +304,6 @@ const dockSections = [
         gap: 1.1rem;
         padding-top: clamp(1rem, 2.3vw, 1.4rem);
       }
-      .hero.hero--platform .hero-foot-meta {
-        display: inline-flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.4rem 0.7rem;
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: color-mix(in srgb, var(--muted-dim) 62%, var(--accent) 38%);
-      }
-      .hero.hero--platform .hero-foot-sep {
-        opacity: 0.4;
-      }
       .hero.hero--platform .hero-foot-scroll {
         position: absolute;
         right: 0;
@@ -894,11 +880,6 @@ const dockSections = [
             </div>
           </div>
           <div class="hero-foot" aria-label="cover details">
-            <div class="hero-foot-meta">
-              <span>{String(creators.length).padStart(2, '0')} {P.sectionCreators}</span>
-              <span class="hero-foot-sep" aria-hidden="true">·</span>
-              <span>{String(totalWorks).padStart(2, '0')} {P.worksUnit}</span>
-            </div>
             <div class="hero-foot-fx" aria-label="animated cover details">
               <div class="hero-foot-fx__viewport">
                 <div class="hero-foot-fx__track">
