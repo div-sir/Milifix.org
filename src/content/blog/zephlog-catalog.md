@@ -52,6 +52,23 @@ draft: false
 - [ZephLog 匯入｜IRUCA TOKYO](/blog/zephlog-import-iruca-tokyo)
 - [ZephLog 匯入｜Sugita](/blog/zephlog-import-sugita)
 
+
+## 已匯入示範（第二批：觀光列車）
+
+- [ZephLog 匯入｜Hinotori 火鳥](/blog/zephlog-train-1a34cd6fef)
+- [ZephLog 匯入｜Sea Spica](/blog/zephlog-train-1d54cd6fef)
+
+
+- [ZephLog 匯入｜La Malle de Bois](/blog/zephlog-train-la-malle-de-bois-fd69)
+- [ZephLog 匯入｜Shimakaze志摩之風](/blog/zephlog-train-shimakaze志摩之風-9a70)
+- [ZephLog 匯入｜WEST EXPRESS 銀河](/blog/zephlog-train-west-express-銀河-9bc5)
+- [ZephLog 匯入｜etSETOra  エトセトラ](/blog/zephlog-train-etsetora-エトセトラ-5173)
+- [ZephLog 匯入｜あめつち](/blog/zephlog-train-あめつち-cfb0)
+- [ZephLog 匯入｜はなあかり](/blog/zephlog-train-はなあかり-f5c6)
+- [ZephLog 匯入｜まほろば](/blog/zephlog-train-まほろば-0cbe)
+- [ZephLog 匯入｜丹後黑松號](/blog/zephlog-train-丹後黑松號-ae69)
+- [ZephLog 匯入｜京TRAIN雅洛](/blog/zephlog-train-京train雅洛-a716)
+- [ZephLog 匯入｜伊予灘物語](/blog/zephlog-train-伊予灘物語-f035)
 ## 後續我可以直接幫你做的下一步
 
 - 自動把 `ZephLog` 內 `.md` 批次轉成你站內 `blog` 文章格式（含 frontmatter）。
