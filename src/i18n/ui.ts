@@ -11,8 +11,6 @@ const STRINGS: Record<
       menuClose: string;
       menuHidden: string;
       browseCreators: string;
-      lab: string;
-      dockLabTitle: string;
       /** 平台首頁 Logo 文字 */
       logoPlatform: string;
       platform: string;
@@ -81,8 +79,6 @@ const STRINGS: Record<
       menuClose: 'Close menu',
       menuHidden: 'Menu',
       browseCreators: 'Browse spaces',
-      lab: 'Lab',
-      dockLabTitle: 'UI lab — components preview',
       logoPlatform: 'Milifix',
       platform: 'Milifix',
       works: 'Works',
@@ -108,7 +104,7 @@ const STRINGS: Record<
       workGalleryTitle: 'Gallery',
       workArticleTitle: 'Articles',
       workProjectTitle: 'Projects',
-      langShort: { en: 'EN', zh: '中', ja: '日' },
+      langShort: { en: 'EN', zh: 'CN', ja: 'JP' },
       langNames: {
         en: 'English',
         zh: 'Traditional Chinese',
@@ -159,8 +155,6 @@ const STRINGS: Record<
       menuClose: '關閉選單',
       menuHidden: '選單',
       browseCreators: '空間一覽',
-      lab: '實驗室',
-      dockLabTitle: '元件實驗室',
       logoPlatform: 'Milifix',
       platform: 'Milifix',
       works: '作品',
@@ -186,7 +180,7 @@ const STRINGS: Record<
       workGalleryTitle: '圖庫',
       workArticleTitle: '文章',
       workProjectTitle: '專案',
-      langShort: { en: 'EN', zh: '中', ja: '日' },
+      langShort: { en: '英', zh: '中', ja: '日' },
       langNames: { en: '英文', zh: '繁體中文', ja: '日文' },
     },
     platform: {
@@ -233,8 +227,6 @@ const STRINGS: Record<
       menuClose: 'メニューを閉じる',
       menuHidden: 'メニュー',
       browseCreators: 'スペース一覧',
-      lab: 'ラボ',
-      dockLabTitle: 'UIラボ・コンポーネント',
       logoPlatform: 'Milifix',
       platform: 'Milifix',
       works: '作品',
@@ -260,7 +252,7 @@ const STRINGS: Record<
       workGalleryTitle: 'ギャラリー',
       workArticleTitle: '記事',
       workProjectTitle: 'プロジェクト',
-      langShort: { en: 'EN', zh: '中', ja: '日' },
+      langShort: { en: '英', zh: '中', ja: '日' },
       langNames: { en: '英語', zh: '繁体字中国語', ja: '日本語' },
     },
     platform: {

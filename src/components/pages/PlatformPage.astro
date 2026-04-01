@@ -18,20 +18,37 @@ interface Props {
 
 const { lang } = Astro.props;
 const labels = ui(lang);
+const P = labels.platform;
 
 const allWorks = await getCollection('works');
-const creators = SPACE_IDS.map((id: SpaceId, i) => {
+const allPosts = await getCollection('blog');
+
+const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
   const def = getLocalizedSpace(id, lang);
   return {
     name: def.platformName,
     tagline: def.tagline,
     href: spacePath(lang, id),
     workCount: allWorks.filter((w) => w.data.space === id).length,
+    countUnit: P.worksUnit,
     idx: i,
   };
 });
 
-const P = labels.platform;
+const blogTaglineByLang: Record<Lang, string> = {
+  zh: '旅行資料、分類索引與長文筆記',
+  en: 'Travel data archive, indexes, and long-form notes',
+  ja: '旅行データ、分類インデックス、長文ノート',
+};
+
+creators.push({
+  name: 'BLOG',
+  tagline: blogTaglineByLang[lang],
+  href: '/blog',
+  workCount: allPosts.filter((p) => !p.data.draft).length,
+  countUnit: lang === 'zh' ? '篇文章' : lang === 'ja' ? '記事' : 'Posts',
+  idx: creators.length,
+});
 
 const dockSections = [
   { id: 'platform-intro', label: P.dockIntro },
@@ -872,7 +889,6 @@ const dockSections = [
             <p class="hero-desc">{P.heroDesc}</p>
             <div class="hero-cta">
               <a class="hero-cta-primary" href="#creators">{P.sectionCreators}</a>
-              <a class="hero-cta-secondary" href="/lab">{labels.nav.lab}</a>
             </div>
           </div>
           <div class="hero-foot" aria-label="cover details">
@@ -895,7 +911,7 @@ const dockSections = [
               <div class="creator-row__left">
                 <span class="creator-row__idx">
                   /{String(c.idx + 1).padStart(2, '0')} · {String(c.workCount).padStart(2, '0')}{' '}
-                  {P.worksUnit}
+                  {c.countUnit}
                 </span>
                 <span class="creator-row__name" data-anime-splittext="chars-inview">{c.name}</span>
               </div>
@@ -912,8 +928,6 @@ const dockSections = [
     <footer>
       <p class="footer-copy">
         <span>{P.footer}</span>
-        <span class="footer-copy__sep" aria-hidden="true">·</span>
-        <a href="/lab">{labels.nav.lab}</a>
       </p>
     </footer>
 

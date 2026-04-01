@@ -41,8 +41,6 @@ export function parseLocalizedPath(pathname: string): { lang: Lang; logicalPath:
 /** 在維持相同「邏輯路徑」下切換語言 */
 export function equivalentUrl(targetLang: Lang, pathname: string): string {
   const { logicalPath } = parseLocalizedPath(pathname);
-  /** 僅 `/lab`，不跟語系前綴 */
-  if (logicalPath === '/lab') return '/lab';
   if (logicalPath === '/') return homePath(targetLang);
   const p = langPrefix(targetLang);
   return p ? `${p}${logicalPath}` : logicalPath;

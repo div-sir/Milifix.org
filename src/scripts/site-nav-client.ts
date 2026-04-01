@@ -14,10 +14,97 @@ export function initSiteNav() {
   const worksWrap = siteNav.querySelector<HTMLElement>('.site-nav__works-wrap');
   const unhide = document.getElementById('site-nav-unhide');
   const focusableSelector = 'a[href], button:not([disabled])';
+  const BLOG_VIEW_LANG_KEY = 'portfolio:blog-view-lang';
+  const PREFERRED_LANG_KEY = 'portfolio:preferred-lang';
 
   const mq = window.matchMedia('(max-width: 768px)');
   const desktopMq = window.matchMedia('(min-width: 769px)');
   let lastScrollY = window.scrollY;
+
+  function isBlogPage() {
+    return window.location.pathname === '/blog' || window.location.pathname.startsWith('/blog/');
+  }
+
+  function withBlogLangParam(url: URL, langCode: string) {
+    url.searchParams.set('hl', langCode);
+    return url;
+  }
+
+  function clearGoogleTranslateState() {
+    const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = `googtrans=; expires=${expire}; path=/`;
+    document.cookie = `googtrans=; expires=${expire}; path=/; domain=${window.location.hostname}`;
+    const rootDomain = window.location.hostname.split('.').slice(-2).join('.');
+    if (rootDomain && rootDomain !== window.location.hostname) {
+      document.cookie = `googtrans=; expires=${expire}; path=/; domain=.${rootDomain}`;
+    }
+  }
+
+  function syncBlogLangMenuHighlight() {
+    if (!isBlogPage()) return;
+    let activeLang = 'zh';
+    try {
+      const urlLang = (new URL(window.location.href).searchParams.get('hl') || '').toLowerCase();
+      const savedBlog = (localStorage.getItem(BLOG_VIEW_LANG_KEY) || '').toLowerCase();
+      const preferred = (localStorage.getItem(PREFERRED_LANG_KEY) || '').toLowerCase();
+      const candidate = urlLang || savedBlog || preferred;
+      if (candidate === 'en' || candidate === 'zh' || candidate === 'ja') {
+        activeLang = candidate;
+      }
+    } catch {
+      // Ignore storage read errors.
+    }
+
+    siteNav.querySelectorAll<HTMLAnchorElement>('[data-lang-option]').forEach((option) => {
+      const code = (option.getAttribute('data-lang-code') || '').toLowerCase();
+      const isActive = code === activeLang;
+      option.classList.toggle('is-active', isActive);
+      if (isActive) option.setAttribute('aria-current', 'page');
+      else option.removeAttribute('aria-current');
+    });
+
+    const langUiByLocale = {
+      en: {
+        short: { en: 'EN', zh: 'CN', ja: 'JP' },
+        name: { en: 'English', zh: 'Traditional Chinese', ja: 'Japanese' },
+      },
+      zh: {
+        short: { en: '英', zh: '中', ja: '日' },
+        name: { en: '英文', zh: '繁體中文', ja: '日文' },
+      },
+      ja: {
+        short: { en: '英', zh: '中', ja: '日' },
+        name: { en: '英語', zh: '繁体字中国語', ja: '日本語' },
+      },
+    } as const;
+    const ui = langUiByLocale[activeLang as 'en' | 'zh' | 'ja'] || langUiByLocale.zh;
+
+    const triggerCode = siteNav.querySelector<HTMLElement>('.site-nav__lang-trigger-code');
+    if (triggerCode) {
+      triggerCode.textContent = ui.short[activeLang as 'en' | 'zh' | 'ja'] || '中';
+    }
+
+    siteNav.querySelectorAll<HTMLElement>('[data-lang-option]').forEach((option) => {
+      const code = (option.getAttribute('data-lang-code') || '').toLowerCase() as 'en' | 'zh' | 'ja';
+      if (code !== 'en' && code !== 'zh' && code !== 'ja') return;
+      const codeEl = option.querySelector<HTMLElement>('.site-nav__lang-option-code');
+      const nameEl = option.querySelector<HTMLElement>('.site-nav__lang-option-name');
+      if (codeEl) codeEl.textContent = ui.short[code];
+      if (nameEl) nameEl.textContent = ui.name[code];
+    });
+  }
+
+  syncBlogLangMenuHighlight();
+
+  // Keep global preference in sync with the current non-blog localized path.
+  try {
+    const p = window.location.pathname;
+    if (p === '/ja' || p.startsWith('/ja/')) localStorage.setItem(PREFERRED_LANG_KEY, 'ja');
+    else if (p === '/zh' || p.startsWith('/zh/')) localStorage.setItem(PREFERRED_LANG_KEY, 'zh');
+    else if (!isBlogPage()) localStorage.setItem(PREFERRED_LANG_KEY, 'en');
+  } catch {
+    // Ignore storage errors.
+  }
 
   function syncUnhide() {
     if (!unhide) return;
@@ -190,7 +277,31 @@ export function initSiteNav() {
   siteNav.querySelectorAll<HTMLAnchorElement>(
     '.site-nav__logo, .site-nav__links a, [data-lang-option], [data-works-menuitem]',
   ).forEach((a) => {
-    a.addEventListener('click', () => {
+    a.addEventListener('click', (e) => {
+      if (a.hasAttribute('data-lang-option')) {
+        const langCode = (a.getAttribute('data-lang-code') || '').toLowerCase();
+        if (langCode) {
+          try {
+            localStorage.setItem(PREFERRED_LANG_KEY, langCode);
+          } catch {
+            // Ignore storage errors in private / restricted mode.
+          }
+        }
+
+        // Blog 目前只有單語內容：語言切換時停留同頁，僅切換介面語系狀態。
+        if (isBlogPage()) {
+          try {
+            localStorage.setItem(BLOG_VIEW_LANG_KEY, langCode);
+          } catch {
+            // Ignore storage write errors in private / restricted mode.
+          }
+          if (langCode === 'zh') clearGoogleTranslateState();
+          e.preventDefault();
+          const next = withBlogLangParam(new URL(window.location.href), langCode);
+          window.location.href = next.toString();
+          return;
+        }
+      }
       if (mq.matches) close();
       closeLang();
       closeWorks();

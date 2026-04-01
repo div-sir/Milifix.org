@@ -18,6 +18,8 @@ interface Props {
   dockSectionLinkMode?: 'hash' | 'scroll';
   dockHomeHref?: string;
   dockHomeLabel?: string;
+  dockHomeIcon?: 'home' | 'back';
+  dockOrder?: 'home-first' | 'sections-first';
 }
 
 const {
@@ -28,6 +30,8 @@ const {
   dockSectionLinkMode = 'hash',
   dockHomeHref,
   dockHomeLabel,
+  dockHomeIcon = 'home',
+  dockOrder = 'home-first',
 } = Astro.props;
 ---
 
@@ -40,6 +44,8 @@ const {
     dockSectionLinkMode={dockSectionLinkMode}
     dockHomeHref={dockHomeHref}
     dockHomeLabel={dockHomeLabel}
+    dockHomeIcon={dockHomeIcon}
+    dockOrder={dockOrder}
   />
 )}
 

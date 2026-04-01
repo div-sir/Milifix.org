@@ -1,0 +1,629 @@
+---
+import { getCollection, render } from 'astro:content';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import SiteNav from '../../components/SiteNav.astro';
+import PortfolioChrome from '../../components/PortfolioChrome.astro';
+import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
+import zephlogBlogPathRedirects from '../../data/zephlogBlogPathRedirects.json';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const published = posts.filter((p) => !p.data.draft);
+  const postPaths = published.map((p) => ({ params: { slug: p.id } }));
+  const ids = new Set(published.map((p) => p.id));
+  const redirectOnly = Object.keys(zephlogBlogPathRedirects as Record<string, string>).filter(
+    (id) => !ids.has(id),
+  );
+  const redirectPaths = redirectOnly.map((slug) => ({ params: { slug } }));
+  return [...postPaths, ...redirectPaths];
+}
+
+const slugParam = Astro.params.slug;
+const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam;
+
+/** Location 標頭須為 ASCII；內容集合 id 可含中文等字元。支援 `#錨點`（觀光列車合併頁）。 */
+function blogPostUrlFromId(id: string) {
+  const hashIdx = id.indexOf('#');
+  const pathPart = hashIdx === -1 ? id : id.slice(0, hashIdx);
+  const hash = hashIdx === -1 ? '' : id.slice(hashIdx + 1);
+  const base = `/blog/${pathPart.split('/').map((s) => encodeURIComponent(s)).join('/')}`;
+  return hash ? `${base}#${hash}` : base;
+}
+
+const JR_COMPILATION = 'zephlog/筆記/jr-pass-與參考票價-統整';
+const TOKYO_BIB_COMPILATION = 'zephlog/筆記/東京必比登清單-統整';
+const SCENIC_PAGE = 'zephlog/筆記/日本觀光列車';
+const RECORD_COMPILATION = 'zephlog/筆記/record-統整';
+
+/** 舊子路徑檔名 → 合併頁 h2 錨點 id */
+const SCENIC_LEAF_TO_ANCHOR: Record<string, string> = {
+  Aoniyoshi: 'aoniyoshi-train',
+  'etSETOra-エトセトラ': 'train-etsetora',
+  'Hinotori-火鳥': 'train-hinotori-firebird',
+  'La-Malle-de-Bois': 'train-la-malle-de-bois',
+  'Sea-Spica': 'train-sea-spica',
+  'Shimakaze志摩之風': 'train-shimakaze',
+  'WEST-EXPRESS-銀河': 'train-west-express-ginga',
+  由布院之森: 'yufuin-no-mori',
+  あめつち: 'train-ametsuchi',
+  はなあかり: 'train-hanaakari',
+  まほろば: 'train-mahoroba',
+  丹後黑松號: 'train-tango-kuromatsu',
+  伊予灘物語: 'train-iyonada-monogatari',
+};
+
+const legacySlugRedirects: Record<string, string> = {
+  'tokyo-wide-pass': JR_COMPILATION,
+  'nex-roundtrip-ticket': JR_COMPILATION,
+  'yufuin-no-mori': `${SCENIC_PAGE}#yufuin-no-mori`,
+  'aoniyoshi-train': `${SCENIC_PAGE}#aoniyoshi-train`,
+  'train-hinotori-firebird': `${SCENIC_PAGE}#train-hinotori-firebird`,
+  'train-sea-spica': `${SCENIC_PAGE}#train-sea-spica`,
+  'train-la-malle-de-bois': `${SCENIC_PAGE}#train-la-malle-de-bois`,
+  'train-shimakaze': `${SCENIC_PAGE}#train-shimakaze`,
+  'train-west-express-ginga': `${SCENIC_PAGE}#train-west-express-ginga`,
+  'train-etsetora': `${SCENIC_PAGE}#train-etsetora`,
+  'train-ametsuchi': `${SCENIC_PAGE}#train-ametsuchi`,
+  'train-hanaakari': `${SCENIC_PAGE}#train-hanaakari`,
+  'train-mahoroba': `${SCENIC_PAGE}#train-mahoroba`,
+  'train-tango-kuromatsu': `${SCENIC_PAGE}#train-tango-kuromatsu`,
+  'train-kyotrain-garaku': `${SCENIC_PAGE}#train-kyotrain-garaku`,
+  'train-iyonada-monogatari': `${SCENIC_PAGE}#train-iyonada-monogatari`,
+};
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+const all = await getCollection('blog');
+const entry = all.find((p) => p.id === slug);
+if (!entry || entry.data.draft) {
+  if (slug.startsWith('zephlog/旅行紀錄/') || slug === 'zephlog/旅行紀錄') {
+    const next = slug === 'zephlog/旅行紀錄' ? 'zephlog/筆記' : slug.replace(/^zephlog\/旅行紀錄/, 'zephlog/筆記');
+    return Astro.redirect(blogPostUrlFromId(next));
+  }
+  if (slug.startsWith('zephlog/飛機/') || slug.startsWith('zephlog/航空公司/')) {
+    return Astro.redirect('/blog');
+  }
+  if (slug.startsWith('curated/')) {
+    return Astro.redirect(blogPostUrlFromId(`zephlog/${slug}`));
+  }
+  if (
+    slug === 'travel-catalog' ||
+    slug === 'travel-log' ||
+    slug === 'timeline-log' ||
+    slug === 'records-raw' ||
+    slug === 'cabin-data' ||
+    slug === 'aircraft-data' ||
+    slug === 'airline-data' ||
+    slug === 'zephlog/curated/overview/travel-catalog' ||
+    slug.startsWith('zephlog/curated/categories/')
+  ) {
+    return Astro.redirect('/blog');
+  }
+  if (slug.startsWith('zephlog/curated/scenic-trains/')) {
+    const fn = slug.replace(/^.*\//, '');
+    return Astro.redirect(blogPostUrlFromId(`${SCENIC_PAGE}#${fn}`));
+  }
+  if (slug.startsWith('zephlog/curated/jr-passes/')) {
+    return Astro.redirect(blogPostUrlFromId(JR_COMPILATION));
+  }
+  if (slug === 'zephlog/旅行紀錄/jr-pass-1d64cd6fef0c80aea2a0d8c9c3f70875') {
+    return Astro.redirect(blogPostUrlFromId(JR_COMPILATION));
+  }
+  if (slug.includes('/東京必比登清單/')) {
+    return Astro.redirect(blogPostUrlFromId(TOKYO_BIB_COMPILATION));
+  }
+  if (slug.startsWith('zephlog/旅行紀錄/JR PASS & 參考票價/')) {
+    return Astro.redirect(blogPostUrlFromId(JR_COMPILATION));
+  }
+  if (
+    slug === 'iruca-tokyo' ||
+    slug === 'sugita' ||
+    slug === 'zephlog/curated/tokyo-food/iruca-tokyo' ||
+    slug === 'zephlog/curated/tokyo-food/sugita'
+  ) {
+    return Astro.redirect(blogPostUrlFromId(TOKYO_BIB_COMPILATION));
+  }
+  if (slug === 'welcome' || slug === 'zephlog/curated/meta/welcome') {
+    return Astro.redirect('/blog');
+  }
+  if (slug.startsWith('zephlog/艙等/') || slug === 'zephlog/艙等-統整') {
+    return Astro.redirect('/blog');
+  }
+  if (slug.startsWith('zephlog/活動年表/')) {
+    return Astro.redirect('/blog');
+  }
+  if (slug.startsWith('zephlog/Record/') || slug.startsWith('zephlog/record/')) {
+    return Astro.redirect(blogPostUrlFromId(RECORD_COMPILATION));
+  }
+  if (slug.startsWith('zephlog/筆記/日本觀光列車/')) {
+    const leaf = slug.replace(/^zephlog\/筆記\/日本觀光列車\//, '');
+    const anchor = SCENIC_LEAF_TO_ANCHOR[leaf] || leaf;
+    return Astro.redirect(blogPostUrlFromId(`${SCENIC_PAGE}#${anchor}`));
+  }
+  const zephPathRedirect = (zephlogBlogPathRedirects as Record<string, string>)[slug];
+  if (zephPathRedirect) {
+    return Astro.redirect(blogPostUrlFromId(zephPathRedirect));
+  }
+  const redirectTo = legacySlugRedirects[slug];
+  if (redirectTo) {
+    return Astro.redirect(blogPostUrlFromId(redirectTo));
+  }
+  return Astro.redirect('/blog');
+}
+
+const { Content } = await render(entry);
+const firstContentH1Match = entry.body.match(/^#\s+(.+)$/m);
+const firstContentH1 = firstContentH1Match?.[1]?.trim() || '';
+const displayTitle = firstContentH1 || entry.data.title;
+
+const hl = Astro.url.searchParams.get('hl');
+const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
+const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
+  { id: 'back-to-blog', label: '返回', href: '/blog', icon: 'back' },
+];
+---
+
+<!DOCTYPE html>
+<html lang={lang === 'zh' ? 'zh-Hant' : lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{displayTitle} · Blog</title>
+    <meta name="description" content={entry.data.description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('portfolio-theme');
+          document.documentElement.dataset.theme =
+            t === 'light' ? 'light' : t === 'dark' ? 'dark' : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        try {
+          var qs = new URLSearchParams(window.location.search);
+          if (qs.get('hl')) return;
+          var preferred = (localStorage.getItem('portfolio:preferred-lang') || '').toLowerCase();
+          if (preferred !== 'en' && preferred !== 'ja') return;
+          var url = new URL(window.location.href);
+          url.searchParams.set('hl', preferred);
+          window.location.replace(url.toString());
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --mono: 'Space Mono', monospace;
+        --sans: 'Space Grotesk', sans-serif;
+        --accent2: #8fa8e8;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        min-height: 100svh;
+        line-height: 1.75;
+        position: relative;
+        overflow-x: hidden;
+        cursor: none;
+      }
+      #cursor {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s, height 0.2s;
+      }
+      #cursor-ring {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--cursor-ring);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+      }
+      body:has(a:hover) #cursor {
+        width: 12px;
+        height: 12px;
+      }
+      body:has(a:hover) #cursor-ring {
+        width: 48px;
+        height: 48px;
+        border-color: var(--cursor-ring-hover);
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.55;
+        animation: gridBreathe 5s ease-in-out infinite;
+      }
+      @keyframes gridBreathe {
+        0%,
+        100% {
+          opacity: 0.48;
+        }
+        50% {
+          opacity: 0.82;
+        }
+      }
+      html[data-theme='light'] body::before {
+        opacity: 0.32;
+      }
+      html[data-theme='light'] body.portfolio-atmo::before {
+        animation: gridBreatheLight 5s ease-in-out infinite;
+      }
+      @keyframes gridBreatheLight {
+        0%,
+        100% {
+          opacity: 0.28;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      .wrap {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 5rem;
+        position: relative;
+        z-index: 2;
+      }
+      .outline-progress {
+        position: fixed;
+        right: 1.1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .outline-progress__dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--line2) 64%, var(--accent) 36%);
+        background: color-mix(in srgb, var(--bg2) 78%, transparent);
+        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      }
+      .outline-progress__dot.is-active {
+        transform: scale(1.35);
+        border-color: color-mix(in srgb, var(--accent) 82%, var(--line2) 18%);
+        background: color-mix(in srgb, var(--accent) 78%, #ffffff 22%);
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 2rem;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-decoration: none;
+        border: none;
+      }
+      .back:hover {
+        color: var(--accent);
+      }
+      .post-meta {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted-dim);
+        margin-bottom: 1.25rem;
+      }
+      .post-title {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 2rem;
+        line-height: 1.25;
+        text-wrap: balance;
+      }
+      .prose {
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.85;
+      }
+      .prose :global(h1),
+      .prose :global(h2) {
+        font-size: 1.15rem;
+        color: var(--text);
+        margin: 2rem 0 0.75rem;
+      }
+      /* 頁面已經有主標題，隱藏 markdown 內第一個 h1 避免重複 */
+      .prose :global(h1:first-child) {
+        display: none;
+      }
+      .prose :global(h3),
+      .prose :global(h4) {
+        color: var(--text);
+        margin: 1.6rem 0 0.7rem;
+      }
+      .prose :global(p) {
+        margin-bottom: 1rem;
+      }
+      .prose :global(ul),
+      .prose :global(ol) {
+        margin: 1rem 0 1rem 1.25rem;
+      }
+      .prose :global(li) {
+        margin-bottom: 0.35rem;
+      }
+      .prose :global(pre) {
+        margin: 1.25rem 0;
+        padding: 1rem 1.1rem;
+        border-radius: 8px;
+        border: 1px solid var(--line2);
+        background: var(--bg2);
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+      }
+      .prose :global(code) {
+        font-family: var(--mono);
+        font-size: 0.88em;
+      }
+      .prose :global(blockquote) {
+        margin: 1.2rem 0;
+        padding: 0.35rem 0 0.35rem 0.9rem;
+        border-left: 2px solid color-mix(in srgb, var(--accent) 45%, var(--line2) 55%);
+        color: color-mix(in srgb, var(--muted) 85%, var(--text) 15%);
+      }
+      .prose :global(hr) {
+        border: 0;
+        border-top: 1px solid color-mix(in srgb, var(--line2) 72%, transparent);
+        margin: 1.4rem 0;
+      }
+      .prose :global(table) {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.25rem 0;
+        font-size: 0.95rem;
+      }
+      .prose :global(th),
+      .prose :global(td) {
+        border-bottom: 1px solid color-mix(in srgb, var(--line2) 70%, transparent);
+        padding: 0.55rem 0.45rem;
+        text-align: left;
+        vertical-align: top;
+      }
+      .prose :global(thead th) {
+        color: var(--text);
+      }
+      .prose :global(img),
+      .prose :global(video),
+      .prose :global(iframe) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+      .prose :global(del) {
+        opacity: 0.8;
+      }
+      .prose :global(a) {
+        color: var(--accent);
+      }
+      .prose :global(.data-snapshot) {
+        margin: 1.25rem 0 1.75rem;
+        padding: 1rem;
+        border: 1px solid color-mix(in srgb, var(--line2) 70%, var(--accent) 30%);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--bg2) 72%, transparent);
+      }
+      .prose :global(.data-bars) {
+        display: grid;
+        gap: 0.52rem;
+      }
+      .prose :global(.data-bars__row) {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .prose :global(.data-bars__row > span) {
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .prose :global(.data-bars__track) {
+        height: 8px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--line2) 56%, transparent);
+        overflow: hidden;
+      }
+      .prose :global(.data-bars__track > i) {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 85%, #fff 15%), color-mix(in srgb, var(--accent) 65%, #8fa8e8 35%));
+        transform-origin: left center;
+        animation: data-bar-in 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      @keyframes data-bar-in {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      @media (max-width: 640px) {
+        .outline-progress {
+          display: none;
+        }
+        .prose :global(.data-bars__row) {
+          grid-template-columns: 1fr;
+          gap: 0.35rem;
+        }
+      }
+      :global(.skiptranslate iframe),
+      :global(.goog-te-banner-frame.skiptranslate) {
+        display: none !important;
+      }
+      :global(body) {
+        top: 0 !important;
+      }
+    </style>
+  </head>
+  <body class="portfolio-atmo">
+    <AmbientBackdrop />
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <SiteNav variant="platform" lang={lang} pathname={Astro.url.pathname} />
+    <PortfolioChrome
+      lang={lang}
+      pathname={Astro.url.pathname}
+      dockSections={dockSections}
+      dockOrder="sections-first"
+      dockHomeHref="/"
+      dockHomeLabel="Milifix"
+      dockHomeIcon="home"
+    />
+    <article class="wrap" id="main-content" tabindex="-1">
+      <a class="back" href="/blog">← Blog</a>
+      <h1 class="post-title">{displayTitle}</h1>
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+    <aside class="outline-progress" id="outline-progress" aria-hidden="true"></aside>
+    <script>
+      import { initPretextLayout } from '../../scripts/init-pretext-layout';
+      import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+
+      initPortfolioCursor();
+      initPretextLayout();
+
+      const progressEl = document.getElementById('outline-progress');
+      const h2s = Array.from(document.querySelectorAll('.prose h2'));
+      if (progressEl && h2s.length > 0) {
+        const dots = h2s.map(() => {
+          const dot = document.createElement('div');
+          dot.className = 'outline-progress__dot';
+          progressEl.appendChild(dot);
+          return dot;
+        });
+
+        const updateActive = () => {
+          const y = window.scrollY + window.innerHeight * 0.32;
+          let activeIdx = 0;
+          for (let i = 0; i < h2s.length; i++) {
+            const el = h2s[i];
+            if (el.offsetTop <= y) activeIdx = i;
+            else break;
+          }
+          dots.forEach((dot, idx) => {
+            dot.classList.toggle('is-active', idx === activeIdx);
+          });
+        };
+
+        updateActive();
+        window.addEventListener('scroll', updateActive, { passive: true });
+        window.addEventListener('resize', updateActive, { passive: true });
+      }
+
+      const BLOG_VIEW_LANG_KEY = 'portfolio:blog-view-lang';
+      const PREFERRED_LANG_KEY = 'portfolio:preferred-lang';
+
+      function clearGoogleTranslateState() {
+        const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = `googtrans=; expires=${expire}; path=/`;
+        document.cookie = `googtrans=; expires=${expire}; path=/; domain=${window.location.hostname}`;
+      }
+
+      function getBlogDisplayLang() {
+        const qsLang = (new URL(window.location.href).searchParams.get('hl') || '').toLowerCase();
+        if (qsLang === 'en' || qsLang === 'ja' || qsLang === 'zh') return qsLang;
+        const savedBlog = (localStorage.getItem(BLOG_VIEW_LANG_KEY) || '').toLowerCase();
+        if (savedBlog === 'en' || savedBlog === 'ja' || savedBlog === 'zh') return savedBlog;
+        const preferred = (localStorage.getItem(PREFERRED_LANG_KEY) || '').toLowerCase();
+        if (preferred === 'en' || preferred === 'ja' || preferred === 'zh') return preferred;
+        return 'zh';
+      }
+
+      function applyGoogleTranslate(targetLang) {
+        const combo = document.querySelector('.goog-te-combo');
+        if (!combo) return false;
+        if (combo.value === targetLang) return true;
+        combo.value = targetLang;
+        combo.dispatchEvent(new Event('change'));
+        return true;
+      }
+
+      function mountTranslateScript(targetLang) {
+        const host = document.createElement('div');
+        host.id = 'google_translate_element';
+        host.style.display = 'none';
+        document.body.appendChild(host);
+
+        window.googleTranslateElementInit = () => {
+          // eslint-disable-next-line no-undef
+          new google.translate.TranslateElement(
+            {
+              pageLanguage: 'zh-TW',
+              includedLanguages: 'zh-TW,ja,en',
+              autoDisplay: false,
+            },
+            'google_translate_element'
+          );
+
+          let retries = 0;
+          const maxRetries = 24;
+          const timer = window.setInterval(() => {
+            retries += 1;
+            if (applyGoogleTranslate(targetLang) || retries >= maxRetries) {
+              window.clearInterval(timer);
+            }
+          }, 250);
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+
+      const displayLang = getBlogDisplayLang();
+      if (displayLang === 'zh') {
+        clearGoogleTranslateState();
+      } else if (displayLang === 'en' || displayLang === 'ja') {
+        mountTranslateScript(displayLang);
+      }
+
+    </script>
+  </body>
+</html>

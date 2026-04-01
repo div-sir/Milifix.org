@@ -1,34 +1,153 @@
 ---
 import { getCollection } from 'astro:content';
 import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import SiteNav from '../../components/SiteNav.astro';
+import PortfolioChrome from '../../components/PortfolioChrome.astro';
+import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 
-const isTravelDataPost = (id: string) =>
-  id.startsWith('travel-') ||
-  id.startsWith('timeline-') ||
-  id.startsWith('records-') ||
-  id.startsWith('cabin-') ||
-  id.startsWith('aircraft-') ||
-  id.startsWith('airline-') ||
-  id.startsWith('train-') ||
-  [
-    'tokyo-wide-pass',
-    'nex-roundtrip-ticket',
-    'yufuin-no-mori',
-    'aoniyoshi-train',
-    'iruca-tokyo',
-    'sugita',
-  ].includes(id);
+type BlogPost = (typeof posts)[number];
+
+/** zephlog 內容根資料夾（原「旅行紀錄」） */
+const ZEPH_NOTES = '筆記';
+
+type TopCatId =
+  | 'journey'
+  | 'projects'
+  | 'misc';
+
+const topCatMeta: Record<TopCatId, { id: string; label: string }> = {
+  journey: { id: 'blog-cat-journey', label: '旅行·生活·航空' },
+  projects: { id: 'blog-cat-projects', label: '專題·技術' },
+  misc: { id: 'blog-cat-misc', label: '其他' },
+};
+
+const topCatOrder: TopCatId[] = [
+  'journey',
+  'projects',
+  'misc',
+];
+
+/** 歸在「遊記·足跡」的檔名（zephlog/筆記/ 根下） */
+const tripLeaves = new Set([
+  'record-統整',
+  '2025-1d84cd6fef0c80a883a4cb610856520d',
+  '2025-1db4cd6fef0c806a968dc3655d6ad50b',
+  '2025-1dd4cd6fef0c8050950ada53a2f9cb2f',
+  '60-1864cd6fef0c80caafa0c604dac2f93e',
+  'barcelona-madrid-28c4cd6fef0c801495a0cfdc1243779e',
+  '波士頓唐人街牌樓',
+  '地下神殿!-首都圈外郭放水路',
+  '《拉麵系流派介紹》',
+  '金屬工藝聖地打鐵體驗!-來燕三条打造自己專屬的刀',
+  '極光環歐',
+  'chi-project-29b4cd6fef0c8031b7a6cce79e30ff7b',
+  '日本精選自行車道',
+]);
+
+function resolveBucket(post: BlogPost): string {
+  const parts = post.id.split('/');
+  if (parts[0] !== 'zephlog') return '其他 · 未分類';
+
+  if (parts[1] === 'curated') {
+    return '其他 · 未分類';
+  }
+
+  if (parts[1] === ZEPH_NOTES) {
+    const leaf = parts[parts.length - 1] || '';
+
+    if (leaf === '東京必比登清單-統整') return '食旅·指南 · 必比登';
+    if (leaf.startsWith('起司大解密')) return '食旅·指南 · 研食';
+
+    if (leaf === 'jr-pass-與參考票價-統整') return '鐵道·票券 · JR／周遊券';
+    if (parts[2] === '日本觀光列車' || leaf === '日本觀光列車') return '鐵道·票券 · 觀光列車';
+    if (leaf.includes('成田機場') || leaf === '歐鐵筆記區' || leaf.startsWith('orange-ferry'))
+      return '鐵道·票券 · 樞紐與歐鐵';
+
+    if (
+      leaf.includes('地下神殿') ||
+      leaf.includes('拉麵系流派介紹') ||
+      leaf.includes('金屬工藝聖地打鐵體驗')
+    ) {
+      return '遊記·足跡 · 行程';
+    }
+
+    if (tripLeaves.has(leaf)) return '遊記·足跡 · 行程';
+
+    if (
+      leaf === '航空聯盟' ||
+      leaf === '阿拉斯加航空哩程計畫' ||
+      leaf === '貴賓室計畫' ||
+      leaf.startsWith('a320-') ||
+      leaf.startsWith('f35-')
+    ) {
+      return '航空·哩程 · 計畫與手冊';
+    }
+
+    if (leaf === '酒店集團') return '住宿 · 集團筆記';
+
+    if (leaf.startsWith('esp32-') || leaf.startsWith('http-')) return '專題·技術 · 實作';
+
+    return '其他 · 筆記未歸類';
+  }
+
+  return `其他 · ${parts[1] || '未分類'}`;
+}
+
+function bucketToTopCat(bucket: string): TopCatId {
+  if (
+    bucket.startsWith('鐵道·票券') ||
+    bucket.startsWith('遊記·足跡') ||
+    bucket.startsWith('食旅·指南') ||
+    bucket.startsWith('住宿') ||
+    bucket.startsWith('航空·哩程')
+  ) {
+    return 'journey';
+  }
+  if (bucket.startsWith('專題·技術')) return 'projects';
+  return 'misc';
+}
+
+const postsByTopCat: Record<TopCatId, BlogPost[]> = {
+  journey: [],
+  projects: [],
+  misc: [],
+};
+
+for (const p of posts) {
+  const b = resolveBucket(p);
+  postsByTopCat[bucketToTopCat(b)].push(p);
+}
+
+for (const k of topCatOrder) {
+  postsByTopCat[k].sort((a, b) => b.data.date.localeCompare(a.data.date));
+}
+
+const activeTopCats = topCatOrder.filter((k) => postsByTopCat[k].length > 0);
+
+const hl = Astro.url.searchParams.get('hl');
+const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
+const dockSections = [
+  { id: 'blog-top', label: '頂部' },
+  ...activeTopCats.map((k) => ({ id: topCatMeta[k].id, label: topCatMeta[k].label })),
+];
+
+const blogAnchorLinks = [
+  { href: '#blog-top', label: '頂部' },
+  ...activeTopCats.map((k) => ({ href: `#${topCatMeta[k].id}`, label: topCatMeta[k].label })),
+];
+
 ---
 
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang={lang === 'zh' ? 'zh-Hant' : lang}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Blog · Milifix</title>
     <meta name="description" content="Milifix 筆記與更新" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -48,6 +167,19 @@ const isTravelDataPost = (id: string) =>
         }
       })();
     </script>
+    <script is:inline>
+      (function () {
+        try {
+          var qs = new URLSearchParams(window.location.search);
+          if (qs.get('hl')) return;
+          var preferred = (localStorage.getItem('portfolio:preferred-lang') || '').toLowerCase();
+          if (preferred !== 'en' && preferred !== 'ja') return;
+          var url = new URL(window.location.href);
+          url.searchParams.set('hl', preferred);
+          window.location.replace(url.toString());
+        } catch (e) {}
+      })();
+    </script>
     <style>
       *,
       *::before,
@@ -59,18 +191,98 @@ const isTravelDataPost = (id: string) =>
       :root {
         --mono: 'Space Mono', monospace;
         --sans: 'Space Grotesk', sans-serif;
+        --accent2: #8fa8e8;
       }
       body {
         font-family: var(--sans);
         background: var(--bg);
         color: var(--text);
         min-height: 100vh;
+        min-height: 100svh;
         line-height: 1.6;
+        position: relative;
+        overflow-x: hidden;
+        cursor: none;
+      }
+      #cursor {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s, height 0.2s;
+      }
+      #cursor-ring {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--cursor-ring);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+      }
+      body:has(a:hover) #cursor {
+        width: 12px;
+        height: 12px;
+      }
+      body:has(a:hover) #cursor-ring {
+        width: 48px;
+        height: 48px;
+        border-color: var(--cursor-ring-hover);
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.55;
+        animation: gridBreathe 5s ease-in-out infinite;
+      }
+      @keyframes gridBreathe {
+        0%,
+        100% {
+          opacity: 0.48;
+        }
+        50% {
+          opacity: 0.82;
+        }
+      }
+      html[data-theme='light'] body::before {
+        opacity: 0.32;
+      }
+      html[data-theme='light'] body.portfolio-atmo::before {
+        animation: gridBreatheLight 5s ease-in-out infinite;
+      }
+      @keyframes gridBreatheLight {
+        0%,
+        100% {
+          opacity: 0.28;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        html {
+          scroll-behavior: smooth;
+        }
       }
       .wrap {
-        max-width: 40rem;
+        width: min(960px, calc(100vw - 2rem));
         margin: 0 auto;
-        padding: 4rem 1.5rem 5rem;
+        padding: 4rem 1.5rem calc(7rem + env(safe-area-inset-bottom, 0px));
+        position: relative;
+        z-index: 2;
       }
       h1 {
         font-family: var(--mono);
@@ -89,55 +301,11 @@ const isTravelDataPost = (id: string) =>
       .post-item {
         position: relative;
       }
-      .post-item[data-travel='true'] {
-        padding: 0.55rem 0.65rem 0.65rem;
-        border: 1px solid color-mix(in srgb, var(--line2) 68%, var(--accent) 32%);
-        border-radius: 12px;
-        background: color-mix(in srgb, var(--bg2) 64%, transparent);
-      }
-      .travel-badge {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--mono);
-        font-size: 0.62rem;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: color-mix(in srgb, var(--accent) 74%, var(--text) 26%);
-        margin-bottom: 0.45rem;
-      }
-      .travel-badge::before {
-        content: '';
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-        background: currentColor;
-        box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
-      }
       .post-title {
         position: relative;
       }
-      .post-item[data-travel='true'] .post-title {
-        background: linear-gradient(
-          100deg,
-          color-mix(in srgb, var(--text) 88%, var(--accent) 12%),
-          color-mix(in srgb, var(--accent) 70%, var(--text) 30%),
-          color-mix(in srgb, var(--text) 88%, var(--accent) 12%)
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        background-size: 220% 100%;
-        animation: blog-travel-sheen 5.4s linear infinite;
-      }
-      @keyframes blog-travel-sheen {
-        0% { background-position: 130% 0; }
-        100% { background-position: -80% 0; }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .post-item[data-travel='true'] .post-title {
-          animation: none;
-        }
+      .group-list .post-item .post-title {
+        color: var(--text);
       }
       a {
         text-decoration: none;
@@ -150,14 +318,6 @@ const isTravelDataPost = (id: string) =>
         color: var(--accent);
         border-color: var(--accent);
       }
-      .meta {
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted-dim);
-        margin-top: 0.35rem;
-      }
       .back {
         display: inline-block;
         margin-bottom: 2rem;
@@ -167,30 +327,250 @@ const isTravelDataPost = (id: string) =>
         text-transform: uppercase;
         color: var(--muted);
       }
+      #blog-top {
+        scroll-margin-top: 1.25rem;
+      }
+      .blog-page-head {
+        margin-bottom: 1.5rem;
+      }
+      .blog-cat-region {
+        scroll-margin-top: 6.5rem;
+      }
+      .blog-cat-region + .blog-cat-region {
+        margin-top: 2.75rem;
+      }
+      .blog-cat-head {
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 1.1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--line2) 72%, var(--accent) 8%);
+      }
+      .blog-cat-title {
+        font-family: var(--mono);
+        font-size: clamp(0.72rem, 1.5vw, 0.82rem);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        font-weight: 500;
+        color: color-mix(in srgb, var(--accent) 58%, var(--text));
+        margin: 0;
+      }
+      .group-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: start;
+      }
+      .group-list .post-item {
+        width: 100%;
+        border-radius: 14px;
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--bg2) 82%, transparent),
+          color-mix(in srgb, var(--bg3) 72%, transparent)
+        );
+        box-shadow:
+          0 10px 24px -20px color-mix(in srgb, var(--shadow-card) 95%, transparent),
+          inset 0 0 0 1px color-mix(in srgb, var(--line2) 78%, transparent);
+        overflow: hidden;
+      }
+      .group-list .post-item a {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 0.85rem;
+        min-height: 100%;
+        border-bottom: none;
+        padding: 0.84rem 0.9rem 0.88rem;
+        margin: 0;
+        border-radius: 14px;
+        transition: transform 0.26s ease, box-shadow 0.26s ease, background 0.26s ease;
+      }
+      .group-list .post-item a::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          115deg,
+          transparent 16%,
+          color-mix(in srgb, var(--accent) 13%, transparent) 45%,
+          transparent 74%
+        );
+        transform: translateX(-115%);
+        transition: transform 0.55s cubic-bezier(0.33, 1, 0.64, 1);
+        pointer-events: none;
+      }
+      .group-list .post-item a:hover {
+        background: color-mix(in srgb, var(--accent) 6%, transparent);
+        transform: translateY(-1px);
+        box-shadow:
+          0 12px 30px -22px color-mix(in srgb, var(--accent) 65%, var(--shadow-card)),
+          inset 0 0 0 1px color-mix(in srgb, var(--accent) 36%, var(--line2));
+      }
+      .group-list .post-item a:hover::before {
+        transform: translateX(115%);
+      }
+      .post-index {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        color: color-mix(in srgb, var(--accent) 65%, var(--muted));
+        opacity: 0.88;
+      }
+      .post-arrow {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: color-mix(in srgb, var(--accent) 56%, var(--text));
+        transform: translate(-2px, 1px);
+        transition: transform 0.22s ease, color 0.22s ease;
+      }
+      .group-list .post-item a:hover .post-arrow {
+        transform: translate(1px, -1px);
+        color: var(--accent);
+      }
+      .post-title {
+        font-size: clamp(1rem, 1.7vw, 1.08rem);
+        line-height: 1.45;
+        letter-spacing: 0.01em;
+        text-wrap: balance;
+      }
+      @media (max-width: 640px) {
+        .wrap {
+          width: calc(100vw - 1rem);
+          padding: 3.25rem 0.75rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
+        }
+      }
+      :global(.skiptranslate iframe),
+      :global(.goog-te-banner-frame.skiptranslate) {
+        display: none !important;
+      }
+      :global(body) {
+        top: 0 !important;
+      }
     </style>
   </head>
-  <body>
-    <div class="wrap">
-      <a class="back" href="/">← Milifix</a>
-      <h1>Blog</h1>
-      <ul>
-        {
-          posts.map((p) => (
-            <li class="post-item" data-travel={isTravelDataPost(p.id) ? 'true' : 'false'}>
-              <a href={`/blog/${p.id}`}>
-                {isTravelDataPost(p.id) && <div class="travel-badge">Travel Data</div>}
-                <div class="post-title">{p.data.title}</div>
-                <div class="meta">{p.data.date}</div>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
+  <body class="portfolio-atmo">
+    <AmbientBackdrop />
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <SiteNav variant="platform" lang={lang} pathname={Astro.url.pathname} blogAnchorLinks={blogAnchorLinks} />
+    <PortfolioChrome
+      lang={lang}
+      pathname={Astro.url.pathname}
+      dockSections={dockSections}
+      dockSectionLinkMode="scroll"
+      dockHomeHref="/"
+      dockHomeLabel="Milifix"
+    />
+    <main class="wrap" id="main-content" tabindex="-1">
+      <div id="blog-top" class="blog-page-head">
+        <a class="back" href="/">← Milifix</a>
+        <h1 data-anime-splittext="chars">Blog</h1>
+      </div>
+      {
+        activeTopCats.map((k) => (
+          <section
+            id={topCatMeta[k].id}
+            class="blog-cat-region"
+            aria-label={`${topCatMeta[k].label}，共 ${postsByTopCat[k].length} 篇`}
+          >
+            <header class="blog-cat-head">
+              <h2 class="blog-cat-title">{topCatMeta[k].label}</h2>
+            </header>
+            <ul class="group-list">
+              {postsByTopCat[k].map((p, idx) => (
+                <li class="post-item">
+                  <a href={`/blog/${p.id}`}>
+                    <span class="post-index" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+                    <div class="post-title">{p.data.title}</div>
+                    <span class="post-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </main>
     <script>
       import { initPretextLayout } from '../../scripts/init-pretext-layout';
+      import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
+      import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
 
+      initPortfolioCursor();
       initPretextLayout();
+      initAnimeSplitText();
+
+      const BLOG_VIEW_LANG_KEY = 'portfolio:blog-view-lang';
+      const PREFERRED_LANG_KEY = 'portfolio:preferred-lang';
+
+      function clearGoogleTranslateState() {
+        const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = `googtrans=; expires=${expire}; path=/`;
+        document.cookie = `googtrans=; expires=${expire}; path=/; domain=${window.location.hostname}`;
+      }
+
+      function getBlogDisplayLang() {
+        const qsLang = (new URL(window.location.href).searchParams.get('hl') || '').toLowerCase();
+        if (qsLang === 'en' || qsLang === 'ja' || qsLang === 'zh') return qsLang;
+        const savedBlog = (localStorage.getItem(BLOG_VIEW_LANG_KEY) || '').toLowerCase();
+        if (savedBlog === 'en' || savedBlog === 'ja' || savedBlog === 'zh') return savedBlog;
+        const preferred = (localStorage.getItem(PREFERRED_LANG_KEY) || '').toLowerCase();
+        if (preferred === 'en' || preferred === 'ja' || preferred === 'zh') return preferred;
+        return 'zh';
+      }
+
+      function applyGoogleTranslate(targetLang) {
+        const combo = document.querySelector('.goog-te-combo');
+        if (!combo) return false;
+        if (combo.value === targetLang) return true;
+        combo.value = targetLang;
+        combo.dispatchEvent(new Event('change'));
+        return true;
+      }
+
+      function mountTranslateScript(targetLang) {
+        const host = document.createElement('div');
+        host.id = 'google_translate_element';
+        host.style.display = 'none';
+        document.body.appendChild(host);
+
+        window.googleTranslateElementInit = () => {
+          // eslint-disable-next-line no-undef
+          new google.translate.TranslateElement(
+            {
+              pageLanguage: 'zh-TW',
+              includedLanguages: 'zh-TW,ja,en',
+              autoDisplay: false,
+            },
+            'google_translate_element'
+          );
+
+          let retries = 0;
+          const maxRetries = 24;
+          const timer = window.setInterval(() => {
+            retries += 1;
+            if (applyGoogleTranslate(targetLang) || retries >= maxRetries) {
+              window.clearInterval(timer);
+            }
+          }, 250);
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+
+      const displayLang = getBlogDisplayLang();
+      if (displayLang === 'zh') {
+        clearGoogleTranslateState();
+      } else if (displayLang === 'en' || displayLang === 'ja') {
+        mountTranslateScript(displayLang);
+      }
+
     </script>
   </body>
 </html>

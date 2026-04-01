@@ -7,6 +7,8 @@ import { homePath, parseLocalizedPath } from '../i18n/routes';
 export interface DockSection {
   id: string;
   label: string;
+  href?: string;
+  icon?: 'back';
 }
 
 interface Props {
@@ -18,6 +20,8 @@ interface Props {
   dockHomeHref?: string;
   /** 首顆連結文案（預設 dockHome） */
   dockHomeLabel?: string;
+  dockHomeIcon?: 'home' | 'back';
+  dockOrder?: 'home-first' | 'sections-first';
 }
 
 const {
@@ -27,6 +31,8 @@ const {
   dockSectionLinkMode = 'hash',
   dockHomeHref: dockHomeHrefProp,
   dockHomeLabel: dockHomeLabelProp,
+  dockHomeIcon = 'home',
+  dockOrder = 'home-first',
 } = Astro.props;
 const useScrollSections = dockSectionLinkMode === 'scroll';
 const N = ui(lang).nav;
@@ -43,6 +49,79 @@ const hasSections = dockSections.length > 0;
 <nav class="dock-nav dock-pill-nav" aria-label={N.dockAria}>
   <div class="dock-pill-nav__shell">
     <ul class="dock-pill-nav__row" role="menubar">
+      {
+        dockOrder === 'sections-first' &&
+          hasSections &&
+          dockSections.map((s) => (
+            <li class="dock-pill-nav__cell" role="none">
+              {s.href ? (
+                <a
+                  class:list={[
+                    'dock-pill-nav__pill',
+                    'dock-nav__section',
+                    s.icon ? 'dock-pill-nav__pill--icon' : undefined,
+                  ]}
+                  href={s.href}
+                >
+                  {s.icon === 'back' ? (
+                    <span class="dock-pill-nav__home-icon" aria-hidden="true">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M14.5 4.5L7 12l7.5 7.5M7 12h12"
+                          stroke="currentColor"
+                          stroke-width="1.65"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span class="dock-pill-nav__label-stack">
+                      <span class="dock-pill-nav__label">{s.label}</span>
+                      <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                        {s.label}
+                      </span>
+                    </span>
+                  )}
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </a>
+              ) : useScrollSections ? (
+                <button
+                  type="button"
+                  class="dock-pill-nav__pill dock-nav__section"
+                  data-dock-scroll-id={s.id}
+                >
+                  <span class="dock-pill-nav__label-stack">
+                    <span class="dock-pill-nav__label">{s.label}</span>
+                    <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                      {s.label}
+                    </span>
+                  </span>
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </button>
+              ) : (
+                <a class="dock-pill-nav__pill dock-nav__section" href={`#${s.id}`}>
+                  <span class="dock-pill-nav__label-stack">
+                    <span class="dock-pill-nav__label">{s.label}</span>
+                    <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                      {s.label}
+                    </span>
+                  </span>
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </a>
+              )}
+            </li>
+          ))
+      }
+
+      {
+        dockOrder === 'sections-first' && hasSections && (
+          <li class="dock-pill-nav__sep-cell" aria-hidden="true">
+            <span class="dock-pill-nav__vsep" />
+          </li>
+        )
+      }
+
       <li class="dock-pill-nav__cell" role="none">
         <a
           class:list={['dock-pill-nav__pill', 'dock-pill-nav__pill--home']}
@@ -51,31 +130,69 @@ const hasSections = dockSections.length > 0;
           aria-label={homeLabel}
         >
           <span class="dock-pill-nav__home-icon" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H8v6H4a1 1 0 0 1-1-1v-9.5z"
-                stroke="currentColor"
-                stroke-width="1.65"
-                stroke-linejoin="round"
-              />
-            </svg>
+            {
+              dockHomeIcon === 'back' ? (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M15.5 5.5L8.5 12l7 6.5M9.5 12H21"
+                    stroke="currentColor"
+                    stroke-width="1.65"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H8v6H4a1 1 0 0 1-1-1v-9.5z"
+                    stroke="currentColor"
+                    stroke-width="1.65"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              )
+            }
           </span>
         </a>
       </li>
 
       {
-        hasSections && (
-          <li class="dock-pill-nav__sep-cell" aria-hidden="true">
-            <span class="dock-pill-nav__vsep" />
-          </li>
-        )
-      }
-
-      {
-        hasSections &&
+        dockOrder !== 'sections-first' &&
+          hasSections &&
           dockSections.map((s) => (
             <li class="dock-pill-nav__cell" role="none">
-              {useScrollSections ? (
+              {s.href ? (
+                <a
+                  class:list={[
+                    'dock-pill-nav__pill',
+                    'dock-nav__section',
+                    s.icon ? 'dock-pill-nav__pill--icon' : undefined,
+                  ]}
+                  href={s.href}
+                >
+                  {s.icon === 'back' ? (
+                    <span class="dock-pill-nav__home-icon" aria-hidden="true">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M14.5 4.5L7 12l7.5 7.5M7 12h12"
+                          stroke="currentColor"
+                          stroke-width="1.65"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span class="dock-pill-nav__label-stack">
+                      <span class="dock-pill-nav__label">{s.label}</span>
+                      <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                        {s.label}
+                      </span>
+                    </span>
+                  )}
+                  <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+                </a>
+              ) : useScrollSections ? (
                 <button
                   type="button"
                   class="dock-pill-nav__pill dock-nav__section"

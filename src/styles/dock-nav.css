@@ -137,6 +137,12 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
   padding: 0 clamp(11px, 3vw, 15px);
 }
 
+.dock-pill-nav__pill--icon {
+  width: var(--dock-pill-h);
+  min-width: var(--dock-pill-h);
+  padding: 0;
+}
+
 .dock-pill-nav__home-icon {
   position: relative;
   z-index: 3;
@@ -149,6 +155,8 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
 
 .dock-pill-nav__home-icon svg {
   display: block;
+  width: 17px;
+  height: 17px;
 }
 
 .dock-pill-nav__pill--theme {

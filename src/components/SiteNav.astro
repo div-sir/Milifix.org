@@ -40,6 +40,8 @@ interface Props {
   workNavItems?: WorkNavItem[];
   worksOverviewHref?: string;
   worksOverviewLabel?: string;
+  /** Blog 列表頁：抽屜內錨點（同頁 #id） */
+  blogAnchorLinks?: { href: string; label: string }[];
 }
 
 const {
@@ -51,6 +53,7 @@ const {
   workNavItems: workNavItemsProp,
   worksOverviewHref = '',
   worksOverviewLabel = '',
+  blogAnchorLinks = undefined,
 } = Astro.props;
 
 const workNavItems = workNavItemsProp ?? [];
@@ -71,7 +74,6 @@ const logoCurrent = variant === 'platform' ? onPlatform : onSpaceHome;
 const navBlocks: NavBlock[] = [];
 
 if (variant === 'platform') {
-  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
 } else if (variant === 'space-home' && spaceId) {
   navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
   if (workNavItems.length > 0) {
@@ -89,7 +91,6 @@ if (variant === 'platform') {
       label: N.works,
     });
   }
-  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
   navBlocks.push({ type: 'link', href: 'mailto:your@email.com', label: N.contact });
 } else if (variant === 'space-work' && spaceId) {
   navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
@@ -108,7 +109,6 @@ if (variant === 'platform') {
       label: N.allWorks,
     });
   }
-  navBlocks.push({ type: 'link', href: '/lab', label: N.lab });
 }
 
 const langUrls = Object.fromEntries(
@@ -201,10 +201,17 @@ const langUrls = Object.fromEntries(
             ),
           )
         }
+        {
+          blogAnchorLinks?.map((j) => (
+            <li>
+              <a href={j.href}>{j.label}</a>
+            </li>
+          ))
+        }
       </ul>
       <div class="site-nav__tools">
       <div class="site-nav__toolbar" role="group" aria-label={N.navControlCluster}>
-        <div class="site-nav__lang-wrap">
+        <div class="site-nav__lang-wrap notranslate" translate="no">
           <button
             type="button"
             class="site-nav__lang-trigger"
@@ -214,7 +221,7 @@ const langUrls = Object.fromEntries(
             aria-controls="site-nav-lang-panel"
             aria-label={`${N.langMenuHint}: ${N.langNames[lang]}`}
           >
-            <span class="site-nav__lang-trigger-code">{N.langShort[lang]}</span>
+            <span class="site-nav__lang-trigger-code notranslate" translate="no">{N.langShort[lang]}</span>
             <span class="site-nav__lang-trigger-chev" aria-hidden="true">
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
                 <path d="M1 1.25L5 4.75L9 1.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
@@ -237,9 +244,11 @@ const langUrls = Object.fromEntries(
                   hreflang={l === 'zh' ? 'zh-Hant' : l}
                   aria-current={l === lang ? 'page' : undefined}
                   data-lang-option
+                  data-lang-code={l}
+                  translate="no"
                 >
-                  <span class="site-nav__lang-option-code">{N.langShort[l]}</span>
-                  <span class="site-nav__lang-option-name">{N.langNames[l]}</span>
+                  <span class="site-nav__lang-option-code notranslate" translate="no">{N.langShort[l]}</span>
+                  <span class="site-nav__lang-option-name notranslate" translate="no">{N.langNames[l]}</span>
                 </a>
               ))
             }
