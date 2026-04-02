@@ -28,6 +28,8 @@ const STRINGS: Record<
       dockAria: string;
       /** 底部導覽：回到網站首頁 */
       dockHome: string;
+      /** 底部導覽：捲動到頁面頂端 */
+      dockScrollTop: string;
       /** 底部導覽：作品頁回到該創作者空間首頁 */
       dockBackToCreator: string;
       /** 底部導覽：本頁區塊導覽 aria 標籤 */
@@ -94,6 +96,7 @@ const STRINGS: Record<
       worksMenuAria: 'Jump to a work',
       dockAria: 'Quick dock',
       dockHome: 'Home',
+      dockScrollTop: 'Back to top',
       dockBackToCreator: 'Creator',
       dockOnPage: 'On this page',
       dockPfTitle: 'Milifix home',
@@ -170,6 +173,7 @@ const STRINGS: Record<
       worksMenuAria: '前往作品',
       dockAria: '快捷導覽',
       dockHome: '首頁',
+      dockScrollTop: '回頂部',
       dockBackToCreator: '回創作者',
       dockOnPage: '本頁區塊',
       dockPfTitle: 'Milifix 首頁',
@@ -242,6 +246,7 @@ const STRINGS: Record<
       worksMenuAria: '作品へ移動',
       dockAria: 'クイックドック',
       dockHome: 'ホーム',
+      dockScrollTop: 'トップへ',
       dockBackToCreator: 'クリエイター',
       dockOnPage: 'このページ',
       dockPfTitle: 'Milifix ホーム',

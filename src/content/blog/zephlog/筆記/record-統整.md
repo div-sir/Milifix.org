@@ -2,7 +2,7 @@
 title: Record（統整）
 description: 共 5 筆，由原 zephlog/Record 合併，歸入旅行紀錄。
 date: '2026-03-31'
-draft: false
+draft: true
 ---
 
 > 飛行／行程紀錄類原始條目合併。

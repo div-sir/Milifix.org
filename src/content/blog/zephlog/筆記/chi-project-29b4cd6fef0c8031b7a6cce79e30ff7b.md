@@ -2,7 +2,7 @@
 title: "Chi Project"
 description: "| **核心人格** | **痛點** |"
 date: '2026-03-31'
-draft: false
+draft: true
 ---
 # Chi Project
 

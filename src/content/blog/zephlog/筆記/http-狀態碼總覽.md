@@ -1,8 +1,8 @@
 ---
 title: "HTTP 狀態碼總覽"
-description: "| 狀態碼 | 名稱 |"
+description: "常見 HTTP 4xx／5xx 狀態碼速查表"
 date: '2026-03-31'
-draft: false
+draft: true
 ---
 # HTTP 狀態碼總覽
 

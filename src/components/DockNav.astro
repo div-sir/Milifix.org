@@ -22,6 +22,8 @@ interface Props {
   dockHomeLabel?: string;
   dockHomeIcon?: 'home' | 'back';
   dockOrder?: 'home-first' | 'sections-first';
+  /** 首屏封面／hero 頁面可關閉，與版面內捲動提示分工 */
+  showScrollTop?: boolean;
 }
 
 const {
@@ -33,6 +35,7 @@ const {
   dockHomeLabel: dockHomeLabelProp,
   dockHomeIcon = 'home',
   dockOrder = 'home-first',
+  showScrollTop = true,
 } = Astro.props;
 const useScrollSections = dockSectionLinkMode === 'scroll';
 const N = ui(lang).nav;
@@ -229,6 +232,32 @@ const hasSections = dockSections.length > 0;
         )
       }
 
+      {
+        showScrollTop && (
+          <li class="dock-pill-nav__cell" role="none">
+            <button
+              type="button"
+              class="dock-pill-nav__pill dock-pill-nav__pill--top"
+              id="dock-nav-scroll-top"
+              aria-label={N.dockScrollTop}
+              title={N.dockScrollTop}
+            >
+              <span class="dock-pill-nav__home-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M7 14.5L12 9l5 5.5"
+                    stroke="currentColor"
+                    stroke-width="1.65"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+          </li>
+        )
+      }
+
       <li class="dock-pill-nav__cell dock-pill-nav__cell--theme" role="none">
         <button
           type="button"
@@ -272,9 +301,17 @@ const hasSections = dockSections.length > 0;
 <script>
   import { toggleTheme } from '../scripts/theme-init';
   import { initDockSectionSpy } from '../scripts/dock-section-spy';
+  import { closeMobileSiteNavFlyout } from '../scripts/site-nav-client';
 
   const nav = document.querySelector<HTMLElement>('.dock-nav');
   if (nav) initDockSectionSpy(nav);
+
+  document.getElementById('dock-nav-scroll-top')?.addEventListener('click', () => {
+    closeMobileSiteNavFlyout();
+    const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+  });
 
   const btn = document.getElementById('dock-nav-theme');
   const labelDark = btn?.getAttribute('data-label-dark') || '';

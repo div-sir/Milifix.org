@@ -34,18 +34,13 @@ const topCatOrder: TopCatId[] = [
 
 /** 歸在「遊記·足跡」的檔名（zephlog/筆記/ 根下） */
 const tripLeaves = new Set([
-  'record-統整',
-  '2025-1d84cd6fef0c80a883a4cb610856520d',
-  '2025-1db4cd6fef0c806a968dc3655d6ad50b',
-  '2025-1dd4cd6fef0c8050950ada53a2f9cb2f',
-  '60-1864cd6fef0c80caafa0c604dac2f93e',
-  'barcelona-madrid-28c4cd6fef0c801495a0cfdc1243779e',
-  '波士頓唐人街牌樓',
+  '2025-瀨戶內海藝術季',
+  '2025-曼谷旅行手冊',
+  '大阪萬博2025-完全攻略',
+  '東京隱藏景點-陽光60瞭望台',
   '地下神殿!-首都圈外郭放水路',
   '《拉麵系流派介紹》',
   '金屬工藝聖地打鐵體驗!-來燕三条打造自己專屬的刀',
-  '極光環歐',
-  'chi-project-29b4cd6fef0c8031b7a6cce79e30ff7b',
   '日本精選自行車道',
 ]);
 
@@ -131,15 +126,16 @@ const activeTopCats = topCatOrder.filter((k) => postsByTopCat[k].length > 0);
 
 const hl = Astro.url.searchParams.get('hl');
 const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
-const dockSections = [
-  { id: 'blog-top', label: '頂部' },
-  ...activeTopCats.map((k) => ({ id: topCatMeta[k].id, label: topCatMeta[k].label })),
-];
+const dockSections = activeTopCats.map((k) => ({
+  id: topCatMeta[k].id,
+  label: topCatMeta[k].label,
+}));
 
-const blogAnchorLinks = [
-  { href: '#blog-top', label: '頂部' },
-  ...activeTopCats.map((k) => ({ href: `#${topCatMeta[k].id}`, label: topCatMeta[k].label })),
-];
+/** 選單內錨點：不含「頂部」，與 Dock 向上箭頭分工，避免兩個回頂部 */
+const blogAnchorLinks = activeTopCats.map((k) => ({
+  href: `#${topCatMeta[k].id}`,
+  label: topCatMeta[k].label,
+}));
 
 ---
 
@@ -165,6 +161,24 @@ const blogAnchorLinks = [
         } catch (e) {
           document.documentElement.dataset.theme = 'dark';
         }
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        try {
+          if (!sessionStorage.getItem('portfolio:lang-transition-v1')) return;
+          var light = document.documentElement.dataset.theme === 'light';
+          var bg = light ? '#f4f2ec' : '#111318';
+          var d = document.createElement('div');
+          d.id = 'portfolio-lang-transition';
+          d.setAttribute('data-early', '1');
+          d.setAttribute('aria-hidden', 'true');
+          d.style.cssText =
+            'position:fixed;inset:0;z-index:2147483646;background:' +
+            bg +
+            ';opacity:1;pointer-events:auto';
+          document.documentElement.appendChild(d);
+        } catch (e) {}
       })();
     </script>
     <script is:inline>
@@ -498,6 +512,11 @@ const blogAnchorLinks = [
       import { initPretextLayout } from '../../scripts/init-pretext-layout';
       import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
       import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+      import {
+        consumeLangTransitionPending,
+        finishBlogLangTransitionOverlay,
+        prepareBlogLangTransitionOverlay,
+      } from '../../scripts/lang-transition';
 
       initPortfolioCursor();
       initPretextLayout();
@@ -531,7 +550,7 @@ const blogAnchorLinks = [
         return true;
       }
 
-      function mountTranslateScript(targetLang) {
+      function mountTranslateScript(targetLang, onSettled) {
         const host = document.createElement('div');
         host.id = 'google_translate_element';
         host.style.display = 'none';
@@ -554,6 +573,7 @@ const blogAnchorLinks = [
             retries += 1;
             if (applyGoogleTranslate(targetLang) || retries >= maxRetries) {
               window.clearInterval(timer);
+              onSettled?.();
             }
           }, 250);
         };
@@ -565,10 +585,15 @@ const blogAnchorLinks = [
       }
 
       const displayLang = getBlogDisplayLang();
+      const fromLangNav = consumeLangTransitionPending();
+
       if (displayLang === 'zh') {
+        if (fromLangNav) prepareBlogLangTransitionOverlay(true);
         clearGoogleTranslateState();
+        if (fromLangNav) requestAnimationFrame(() => finishBlogLangTransitionOverlay());
       } else if (displayLang === 'en' || displayLang === 'ja') {
-        mountTranslateScript(displayLang);
+        prepareBlogLangTransitionOverlay(fromLangNav);
+        mountTranslateScript(displayLang, () => finishBlogLangTransitionOverlay());
       }
 
     </script>

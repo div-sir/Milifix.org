@@ -52,13 +52,18 @@ export function initDockSectionSpy(navRoot: HTMLElement) {
   });
 
   function updateActive() {
-    // 首次打開時：直接鎖定在第一個 section（Cover），避免 marker 判斷在載入瞬間跳動
-    if (!window.location.hash && window.scrollY < 4) {
+    const marker = window.innerHeight * 0.32;
+
+    // 靠近頁面頂端時：若第一個區塊還在 marker 下方（例如 Blog 列表頁頂部標題區），不高亮任一 pill
+    if (!window.location.hash && window.scrollY < 8) {
+      const first = sections[0];
+      if (first && first.el.getBoundingClientRect().top > marker + 2) {
+        setActive(null);
+        return;
+      }
       setActive(sections[0].id);
       return;
     }
-
-    const marker = window.innerHeight * 0.32;
     let current: string | null = null;
     for (const { id, el } of sections) {
       const r = el.getBoundingClientRect();

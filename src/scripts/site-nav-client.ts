@@ -1,3 +1,5 @@
+import { navigateWithLangTransition } from './lang-transition';
+
 export function initSiteNav() {
   const el = document.querySelector<HTMLElement>('.site-nav');
   if (!el) return;
@@ -297,10 +299,19 @@ export function initSiteNav() {
           }
           if (langCode === 'zh') clearGoogleTranslateState();
           e.preventDefault();
+          if (mq.matches) close();
+          closeLang();
+          closeWorks();
           const next = withBlogLangParam(new URL(window.location.href), langCode);
-          window.location.href = next.toString();
+          navigateWithLangTransition(next.toString());
           return;
         }
+        e.preventDefault();
+        if (mq.matches) close();
+        closeLang();
+        closeWorks();
+        navigateWithLangTransition(a.href);
+        return;
       }
       if (mq.matches) close();
       closeLang();

@@ -159,6 +159,18 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
   height: 17px;
 }
 
+.dock-pill-nav__pill--top {
+  width: var(--dock-pill-h);
+  min-width: var(--dock-pill-h);
+  padding: 0;
+  letter-spacing: 0;
+}
+
+.dock-pill-nav__pill--top:hover .dock-pill-nav__home-icon,
+.dock-pill-nav__pill--top:focus-visible .dock-pill-nav__home-icon {
+  color: var(--dock-pill-hover-text);
+}
+
 .dock-pill-nav__pill--theme {
   width: var(--dock-pill-h);
   min-width: var(--dock-pill-h);

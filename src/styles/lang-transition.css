@@ -1,0 +1,69 @@
+/* 語言切換與 Blog 自動翻譯：短促毛玻璃 + 頂緣單次掃線 */
+.portfolio-lang-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  pointer-events: auto;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(10px) saturate(1.08);
+  -webkit-backdrop-filter: blur(10px) saturate(1.08);
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+}
+
+.portfolio-lang-transition.is-visible {
+  opacity: 1;
+}
+
+.portfolio-lang-transition.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in;
+}
+
+.portfolio-lang-transition__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--nav-accent, #8fa8e8) 85%, var(--bg)),
+    transparent
+  );
+  animation: portfolio-lang-fx-bar 0.28s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes portfolio-lang-fx-bar {
+  from {
+    transform: scaleX(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-lang-transition {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: color-mix(in srgb, var(--bg) 94%, #000);
+    transition: opacity 0.1s ease;
+  }
+
+  .portfolio-lang-transition.is-leaving {
+    transition: opacity 0.1s ease;
+  }
+
+  .portfolio-lang-transition__bar {
+    animation: none;
+    transform: scaleX(1);
+    opacity: 0.75;
+  }
+}

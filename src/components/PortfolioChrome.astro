@@ -20,6 +20,8 @@ interface Props {
   dockHomeLabel?: string;
   dockHomeIcon?: 'home' | 'back';
   dockOrder?: 'home-first' | 'sections-first';
+  /** 首屏封面／hero 頁面設 false，隱藏 Dock「回頂部」箭頭 */
+  showDockScrollTop?: boolean;
 }
 
 const {
@@ -32,6 +34,7 @@ const {
   dockHomeLabel,
   dockHomeIcon = 'home',
   dockOrder = 'home-first',
+  showDockScrollTop = true,
 } = Astro.props;
 ---
 
@@ -46,6 +49,7 @@ const {
     dockHomeLabel={dockHomeLabel}
     dockHomeIcon={dockHomeIcon}
     dockOrder={dockOrder}
+    showScrollTop={showDockScrollTop}
   />
 )}
 

@@ -57,6 +57,8 @@ const blog = defineCollection({
     date: z.string(),
     /** 設為 true 則不產生靜態頁 */
     draft: z.boolean().default(false),
+    /** 為 true 時不顯示文章側邊浮動目錄 */
+    hideToc: z.boolean().optional(),
   }),
 });
 

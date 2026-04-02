@@ -34,8 +34,6 @@ function blogPostUrlFromId(id: string) {
 const JR_COMPILATION = 'zephlog/筆記/jr-pass-與參考票價-統整';
 const TOKYO_BIB_COMPILATION = 'zephlog/筆記/東京必比登清單-統整';
 const SCENIC_PAGE = 'zephlog/筆記/日本觀光列車';
-const RECORD_COMPILATION = 'zephlog/筆記/record-統整';
-
 /** 舊子路徑檔名 → 合併頁 h2 錨點 id */
 const SCENIC_LEAF_TO_ANCHOR: Record<string, string> = {
   Aoniyoshi: 'aoniyoshi-train',
@@ -135,7 +133,7 @@ if (!entry || entry.data.draft) {
     return Astro.redirect('/blog');
   }
   if (slug.startsWith('zephlog/Record/') || slug.startsWith('zephlog/record/')) {
-    return Astro.redirect(blogPostUrlFromId(RECORD_COMPILATION));
+    return Astro.redirect('/blog');
   }
   if (slug.startsWith('zephlog/筆記/日本觀光列車/')) {
     const leaf = slug.replace(/^zephlog\/筆記\/日本觀光列車\//, '');
@@ -144,6 +142,9 @@ if (!entry || entry.data.draft) {
   }
   const zephPathRedirect = (zephlogBlogPathRedirects as Record<string, string>)[slug];
   if (zephPathRedirect) {
+    if (zephPathRedirect.startsWith('/')) {
+      return Astro.redirect(zephPathRedirect);
+    }
     return Astro.redirect(blogPostUrlFromId(zephPathRedirect));
   }
   const redirectTo = legacySlugRedirects[slug];
@@ -160,6 +161,12 @@ const displayTitle = firstContentH1 || entry.data.title;
 
 const hl = Astro.url.searchParams.get('hl');
 const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
+/** 僅供 aria，畫面上不顯示「目錄」標題 */
+const tocAriaLabel = lang === 'en' ? 'On this page' : lang === 'ja' ? 'このページの見出し' : '本篇章節';
+const tocToggleUnpin =
+  lang === 'en' ? 'Collapse' : lang === 'ja' ? '閉じる' : '收合';
+const tocTogglePin =
+  lang === 'en' ? 'Expand' : lang === 'ja' ? '開く' : '展開';
 const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
   { id: 'back-to-blog', label: '返回', href: '/blog', icon: 'back' },
 ];
@@ -187,6 +194,24 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         } catch (e) {
           document.documentElement.dataset.theme = 'dark';
         }
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        try {
+          if (!sessionStorage.getItem('portfolio:lang-transition-v1')) return;
+          var light = document.documentElement.dataset.theme === 'light';
+          var bg = light ? '#f4f2ec' : '#111318';
+          var d = document.createElement('div');
+          d.id = 'portfolio-lang-transition';
+          d.setAttribute('data-early', '1');
+          d.setAttribute('aria-hidden', 'true');
+          d.style.cssText =
+            'position:fixed;inset:0;z-index:2147483646;background:' +
+            bg +
+            ';opacity:1;pointer-events:auto';
+          document.documentElement.appendChild(d);
+        } catch (e) {}
       })();
     </script>
     <script is:inline>
@@ -301,29 +326,6 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         position: relative;
         z-index: 2;
       }
-      .outline-progress {
-        position: fixed;
-        right: 1.1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 5;
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
-      }
-      .outline-progress__dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--line2) 64%, var(--accent) 36%);
-        background: color-mix(in srgb, var(--bg2) 78%, transparent);
-        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-      }
-      .outline-progress__dot.is-active {
-        transform: scale(1.35);
-        border-color: color-mix(in srgb, var(--accent) 82%, var(--line2) 18%);
-        background: color-mix(in srgb, var(--accent) 78%, #ffffff 22%);
-      }
       .back {
         display: inline-block;
         margin-bottom: 2rem;
@@ -364,6 +366,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         font-size: 1.15rem;
         color: var(--text);
         margin: 2rem 0 0.75rem;
+        scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
       }
       /* 頁面已經有主標題，隱藏 markdown 內第一個 h1 避免重複 */
       .prose :global(h1:first-child) {
@@ -373,6 +376,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
       .prose :global(h4) {
         color: var(--text);
         margin: 1.6rem 0 0.7rem;
+        scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
       }
       .prose :global(p) {
         margin-bottom: 1rem;
@@ -482,14 +486,467 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         to { transform: scaleX(1); }
       }
       @media (max-width: 640px) {
-        .outline-progress {
-          display: none;
-        }
         .prose :global(.data-bars__row) {
           grid-template-columns: 1fr;
           gap: 0.35rem;
         }
       }
+
+      /* 文章目錄：固定右側；無標題列；h1–h4 階層縮排；小字、左對齊 */
+      .blog-toc {
+        --blog-toc-panel-w: min(15rem, calc(100vw - 2.85rem));
+        --blog-toc-expanded-max-h: min(21rem, 46vh);
+        --blog-toc-glass-blur: 24px;
+        --blog-toc-glass-sat: 1.28;
+        --blog-toc-panel-pad-y: 0.52rem;
+        --blog-toc-panel-pad-x: 0.5rem;
+        /* 切換鈕固定尺寸：勿依 collapsed 改寬高，否則點擊像縮放 */
+        --toc-toggle-w: 36px;
+        --toc-toggle-h: 2.35rem;
+        --toc-card-bg: color-mix(in srgb, var(--bg3) 52%, var(--bg2) 48%);
+        --toc-card-bg-hover: color-mix(in srgb, var(--nav-toolbar-bg) 92%, var(--bg3) 8%);
+        --toc-card-border: color-mix(in srgb, var(--line2) 88%, var(--line) 12%);
+        --toc-card-shadow: 0 2px 8px color-mix(in srgb, var(--shadow-card) 75%, transparent);
+        --toc-card-shadow-hover: 0 5px 18px color-mix(in srgb, var(--shadow-card) 90%, transparent);
+        /* 目錄項目字級（原 0.6rem；約放大 1–2 級以利閱讀） */
+        --blog-toc-link-font-size: 0.78rem;
+        /* 面板開合：時長與曲線（略偏「展開慢、收合俐落」） */
+        --blog-toc-panel-dur: 0.46s;
+        --blog-toc-panel-dur-out: 0.36s;
+        --blog-toc-ease-open: cubic-bezier(0.22, 1, 0.32, 1);
+        --blog-toc-ease-close: cubic-bezier(0.4, 0, 0.2, 1);
+        position: fixed;
+        z-index: 90;
+        top: calc(4.35rem + env(safe-area-inset-top, 0px));
+        bottom: calc(5.35rem + env(safe-area-inset-bottom, 0px));
+        max-height: none;
+        right: max(0.3rem, env(safe-area-inset-right, 0px));
+        left: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+          visibility 0.45s;
+        visibility: hidden;
+      }
+      .blog-toc.blog-toc--mounted {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: none;
+      }
+      .blog-toc.blog-toc--mounted .blog-toc__shell {
+        pointer-events: auto;
+      }
+      .blog-toc__shell {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        max-height: min(100%, calc(100dvh - 9.5rem));
+      }
+      #blog-post-toc.blog-toc,
+      #blog-post-toc .blog-toc__panel,
+      #blog-post-toc .blog-toc__nav {
+        text-align: left !important;
+      }
+      .blog-toc__panel {
+        position: relative;
+        width: var(--blog-toc-panel-w);
+        max-width: var(--blog-toc-panel-w);
+        min-width: 0;
+        min-height: 0;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        padding: var(--blog-toc-panel-pad-y) var(--blog-toc-panel-pad-x) calc(var(--blog-toc-panel-pad-y) + 0.06rem);
+        overflow: hidden;
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg2) 76%, var(--nav-bg) 24%) 78%,
+          transparent
+        );
+        backdrop-filter: blur(var(--blog-toc-glass-blur)) saturate(var(--blog-toc-glass-sat));
+        -webkit-backdrop-filter: blur(var(--blog-toc-glass-blur)) saturate(var(--blog-toc-glass-sat));
+        border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+        box-shadow: 0 5px 28px color-mix(in srgb, var(--shadow-card) 88%, transparent);
+        border-radius: 11px 0 0 11px;
+        border-right: none;
+        transform: translate3d(0, 0, 0);
+        transform-origin: center right;
+        transition:
+          max-width var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          width var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          max-height var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          min-width var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          opacity calc(var(--blog-toc-panel-dur) * 0.88) var(--blog-toc-ease-open),
+          transform var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          padding var(--blog-toc-panel-dur) var(--blog-toc-ease-open),
+          border-color 0.32s ease,
+          background 0.38s ease,
+          box-shadow 0.42s ease,
+          visibility 0s linear 0s;
+      }
+      .blog-toc:not(.blog-toc--collapsed) .blog-toc__panel {
+        max-height: var(--blog-toc-expanded-max-h);
+        transform: translate3d(0, 0, 0);
+        visibility: visible;
+      }
+      html[data-theme='light'] .blog-toc__panel {
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, #fff 82%, var(--bg2) 18%) 76%,
+          transparent
+        );
+        border-color: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--line) 72%, var(--line2) 28%) 88%,
+          transparent
+        );
+        box-shadow:
+          0 1px 0 color-mix(in srgb, #fff 62%, transparent) inset,
+          0 8px 36px color-mix(in srgb, #000 8%, transparent);
+      }
+      html[data-theme='dark'] .blog-toc__panel,
+      html:not([data-theme]) .blog-toc__panel {
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg2) 78%, #0a0c10 22%) 78%,
+          transparent
+        );
+        box-shadow:
+          0 1px 0 color-mix(in srgb, #fff 8%, transparent) inset,
+          0 12px 40px color-mix(in srgb, #000 42%, transparent);
+      }
+      .blog-toc__panel::after {
+        content: '';
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        top: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--nav-accent) 45%, transparent) 40%,
+          color-mix(in srgb, var(--nav-accent) 65%, transparent) 50%,
+          color-mix(in srgb, var(--nav-accent) 45%, transparent) 60%,
+          transparent
+        );
+        opacity: 0.85;
+        pointer-events: none;
+      }
+      .blog-toc__toggle {
+        position: relative;
+        z-index: 2;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--toc-toggle-w);
+        height: var(--toc-toggle-h);
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg2) 76%, var(--nav-bg) 24%) 78%,
+          transparent
+        );
+        backdrop-filter: blur(var(--blog-toc-glass-blur)) saturate(var(--blog-toc-glass-sat));
+        -webkit-backdrop-filter: blur(var(--blog-toc-glass-blur)) saturate(var(--blog-toc-glass-sat));
+        color: var(--muted-dim);
+        cursor: pointer;
+        box-shadow: 0 5px 24px color-mix(in srgb, var(--shadow-card) 85%, transparent);
+        /* 勿對寬高做 transition：點擊切換 collapsed 時會像整顆按鈕在縮放 */
+        transition:
+          color 0.25s ease,
+          border-color 0.25s ease,
+          background 0.35s ease;
+        border-radius: 0 6px 6px 0;
+        border-left: 1px solid color-mix(in srgb, var(--line2) 65%, transparent);
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html[data-theme='light'] .blog-toc__toggle {
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, #fff 82%, var(--bg2) 18%) 76%,
+          transparent
+        );
+        border-color: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--line) 72%, var(--line2) 28%) 88%,
+          transparent
+        );
+        box-shadow: 0 6px 26px color-mix(in srgb, #000 8%, transparent);
+      }
+      html[data-theme='dark'] .blog-toc__toggle,
+      html:not([data-theme]) .blog-toc__toggle {
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg2) 78%, #0a0c10 22%) 78%,
+          transparent
+        );
+        box-shadow: 0 8px 32px color-mix(in srgb, #000 38%, transparent);
+      }
+      .blog-toc__toggle:hover,
+      .blog-toc__toggle:focus-visible {
+        color: var(--nav-accent);
+        outline: none;
+      }
+      .blog-toc__toggle:focus-visible {
+        box-shadow:
+          0 0 0 2px color-mix(in srgb, var(--nav-accent) 40%, transparent),
+          0 4px 20px var(--shadow-card);
+      }
+      .blog-toc__toggle-chevron {
+        display: block;
+        transition: transform var(--blog-toc-panel-dur) var(--blog-toc-ease-open);
+      }
+      .blog-toc__toggle-chevron svg {
+        display: block;
+        width: 12px;
+        height: 18px;
+        transition: none;
+      }
+      /* 箭頭僅反映實際收合狀態，勿用 :hover 預覽旋轉——否則游標移入目錄列時離開按鈕會誤轉 */
+      .blog-toc .blog-toc__toggle-chevron {
+        transform: rotate(0deg);
+      }
+      .blog-toc.blog-toc--collapsed .blog-toc__toggle-chevron {
+        transform: rotate(180deg);
+        transition-duration: var(--blog-toc-panel-dur-out);
+        transition-timing-function: var(--blog-toc-ease-close);
+      }
+      /* 收合態但 shell 暫露（peek）時，面板可見，箭頭與「可讀目錄」一致 */
+      .blog-toc.blog-toc--collapsed.blog-toc--peek .blog-toc__toggle-chevron {
+        transform: rotate(0deg);
+      }
+      .blog-toc__nav {
+        flex: 1;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.22rem;
+        padding: 0.14rem 0.1rem 0.12rem;
+      }
+      .blog-toc--collapsed .blog-toc__panel {
+        max-width: 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-height: 0 !important;
+        opacity: 0;
+        padding: 0;
+        overflow: hidden;
+        visibility: hidden;
+        border-color: transparent;
+        pointer-events: none;
+        transform: translate3d(0.55rem, 0, 0) scale(0.985);
+        transition-duration: var(--blog-toc-panel-dur-out), var(--blog-toc-panel-dur-out),
+          var(--blog-toc-panel-dur-out), var(--blog-toc-panel-dur-out),
+          calc(var(--blog-toc-panel-dur-out) * 0.9), var(--blog-toc-panel-dur-out),
+          var(--blog-toc-panel-dur-out), 0.28s, 0.32s, 0.36s, 0s;
+        transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, var(--blog-toc-panel-dur-out);
+        transition-timing-function: var(--blog-toc-ease-close), var(--blog-toc-ease-close),
+          var(--blog-toc-ease-close), var(--blog-toc-ease-close), var(--blog-toc-ease-close),
+          var(--blog-toc-ease-close), var(--blog-toc-ease-close), ease, ease, ease, linear;
+      }
+      .blog-toc--collapsed.blog-toc--peek .blog-toc__panel,
+      .blog-toc--collapsed .blog-toc__shell:focus-within .blog-toc__panel {
+        max-width: var(--blog-toc-panel-w) !important;
+        width: var(--blog-toc-panel-w) !important;
+        min-width: 0 !important;
+        max-height: var(--blog-toc-expanded-max-h) !important;
+        opacity: 1;
+        padding: var(--blog-toc-panel-pad-y) var(--blog-toc-panel-pad-x)
+          calc(var(--blog-toc-panel-pad-y) + 0.06rem);
+        overflow-x: hidden;
+        overflow-y: hidden;
+        visibility: visible;
+        border-color: var(--line);
+        border-right: none;
+        pointer-events: auto;
+        transform: translate3d(0, 0, 0) scale(1);
+        transition-duration: var(--blog-toc-panel-dur), var(--blog-toc-panel-dur),
+          var(--blog-toc-panel-dur), var(--blog-toc-panel-dur),
+          calc(var(--blog-toc-panel-dur) * 0.88), var(--blog-toc-panel-dur),
+          var(--blog-toc-panel-dur), 0.32s, 0.38s, 0.42s, 0s;
+        transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0s;
+        transition-timing-function: var(--blog-toc-ease-open), var(--blog-toc-ease-open),
+          var(--blog-toc-ease-open), var(--blog-toc-ease-open), var(--blog-toc-ease-open),
+          var(--blog-toc-ease-open), var(--blog-toc-ease-open), ease, ease, ease, linear;
+      }
+      @keyframes blog-toc-link-in {
+        from {
+          opacity: 0;
+          transform: translateX(calc(-1 * var(--toc-slide, 6px)));
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      #blog-post-toc :global(button.blog-toc__link) {
+        --toc-slide: 6px;
+        --toc-indent: 0rem;
+        --toc-link-bg: var(--toc-card-bg);
+        appearance: none;
+        -webkit-appearance: none;
+        font-family: var(--sans);
+        font-size: var(--blog-toc-link-font-size);
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+        text-wrap: pretty;
+        box-sizing: border-box;
+        display: block;
+        margin: 0;
+        margin-inline-start: var(--toc-indent);
+        padding: 0.28rem 0.38rem;
+        padding-inline-start: 0.34rem;
+        width: calc(100% - var(--toc-indent));
+        max-width: calc(100% - var(--toc-indent));
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        border-radius: 9px;
+        border: 1px solid var(--toc-card-border);
+        text-align: left !important;
+        cursor: pointer;
+        color: var(--muted);
+        background: color-mix(in srgb, var(--toc-link-bg) 86%, transparent);
+        backdrop-filter: blur(14px) saturate(1.16);
+        -webkit-backdrop-filter: blur(14px) saturate(1.16);
+        box-shadow: var(--toc-card-shadow);
+        text-decoration: none;
+        transition:
+          background 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+          color 0.22s ease,
+          border-color 0.22s ease,
+          box-shadow 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+          transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+          margin-inline-start 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+          width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+          max-width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: blog-toc-link-in 0.46s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: calc(var(--toc-stagger, 0) * 32ms);
+      }
+      html[data-theme='light'] #blog-post-toc :global(button.blog-toc__link) {
+        --toc-card-bg: color-mix(in srgb, color-mix(in srgb, #fff 76%, var(--bg3) 24%) 86%, transparent);
+        --toc-card-bg-hover: color-mix(in srgb, color-mix(in srgb, #fff 90%, var(--bg2) 10%) 90%, transparent);
+        --toc-card-border: color-mix(in srgb, var(--line2) 95%, var(--text) 5%);
+        --toc-card-shadow: 0 2px 6px color-mix(in srgb, #000 7%, transparent);
+        --toc-card-shadow-hover: 0 6px 16px color-mix(in srgb, #000 11%, transparent);
+      }
+      html[data-theme='dark'] #blog-post-toc :global(button.blog-toc__link),
+      html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
+        --toc-card-bg: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg3) 55%, var(--bg2) 45%) 86%,
+          transparent
+        );
+        --toc-card-bg-hover: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bg3) 35%, var(--nav-toolbar-bg) 65%) 88%,
+          transparent
+        );
+        --toc-card-shadow: 0 2px 10px color-mix(in srgb, #000 40%, transparent);
+        --toc-card-shadow-hover: 0 8px 22px color-mix(in srgb, #000 48%, transparent);
+      }
+      #blog-post-toc :global(button.blog-toc__link--depth-0) {
+        --toc-indent: 0rem;
+      }
+      #blog-post-toc :global(button.blog-toc__link--depth-1) {
+        --toc-indent: 0.72rem;
+      }
+      #blog-post-toc :global(button.blog-toc__link--depth-2) {
+        --toc-indent: 1.44rem;
+      }
+      #blog-post-toc :global(button.blog-toc__link--depth-3) {
+        --toc-indent: 2.16rem;
+      }
+      #blog-post-toc :global(button.blog-toc__link:hover) {
+        color: var(--text);
+        --toc-link-bg: var(--toc-card-bg-hover);
+        background: color-mix(in srgb, var(--toc-card-bg-hover) 88%, transparent);
+        box-shadow: var(--toc-card-shadow-hover);
+        transform: translateY(-2px) scale(1);
+      }
+      #blog-post-toc :global(button.blog-toc__link:active) {
+        transform: translateY(0) scale(1);
+      }
+      #blog-post-toc :global(button.blog-toc__link:hover:active) {
+        transform: translateY(-2px) scale(1);
+      }
+      #blog-post-toc :global(button.blog-toc__link:focus-visible) {
+        outline: 2px solid color-mix(in srgb, var(--nav-accent) 50%, transparent);
+        outline-offset: 1px;
+      }
+      #blog-post-toc :global(button.blog-toc__link--active) {
+        color: var(--text);
+        --toc-link-bg: color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%);
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 88%,
+          transparent
+        );
+        border-color: color-mix(in srgb, var(--nav-accent) 42%, var(--toc-card-border) 58%);
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--nav-accent) 22%, transparent),
+          var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(.blog-toc__label) {
+        display: block;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+        text-align: left !important;
+        word-break: break-word;
+      }
+      @media (max-width: 520px) {
+        .blog-toc {
+          --blog-toc-panel-w: min(13.5rem, calc(100vw - 2.35rem));
+          --blog-toc-expanded-max-h: min(17.5rem, 42vh);
+          --toc-toggle-w: 34px;
+          --toc-toggle-h: 2.05rem;
+          --blog-toc-link-font-size: 0.72rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .blog-toc {
+          transition: none;
+        }
+        .blog-toc__panel {
+          transition: none;
+        }
+        .blog-toc__toggle {
+          transition: none;
+        }
+        .blog-toc__toggle-chevron {
+          transition: none;
+        }
+        .blog-toc__toggle-chevron svg {
+          transition: none;
+        }
+        #blog-post-toc :global(button.blog-toc__link) {
+          animation: none;
+          transition:
+            background 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+            color 0.22s ease,
+            border-color 0.22s ease,
+            box-shadow 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+            transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #blog-post-toc :global(button.blog-toc__link:hover) {
+          transform: none;
+        }
+      }
+
       :global(.skiptranslate iframe),
       :global(.goog-te-banner-frame.skiptranslate) {
         display: none !important;
@@ -520,41 +977,51 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         <Content />
       </div>
     </article>
-    <aside class="outline-progress" id="outline-progress" aria-hidden="true"></aside>
+    {
+      !entry.data.hideToc && (
+        <!-- 勿加 notranslate：hl=en|ja 時需與正文一併由 Google Translate 處理目錄標題 -->
+        <aside id="blog-post-toc" class="blog-toc" aria-label={tocAriaLabel} hidden>
+          <div class="blog-toc__shell">
+            <div id="blog-toc-panel" class="blog-toc__panel">
+              <nav class="blog-toc__nav" aria-label={tocAriaLabel} />
+            </div>
+            <button
+              type="button"
+              class="blog-toc__toggle"
+              aria-expanded="false"
+              aria-controls="blog-toc-panel"
+              data-label-collapse={tocToggleUnpin}
+              data-label-expand={tocTogglePin}
+            >
+              <span class="blog-toc__toggle-chevron" aria-hidden="true">
+                <svg width="12" height="18" viewBox="0 0 11 18" fill="none" aria-hidden="true">
+                  <path
+                    d="M9.5 1L2 9l7.5 8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </aside>
+      )
+    }
     <script>
+      import { initBlogPostToc } from '../../scripts/init-blog-post-toc';
       import { initPretextLayout } from '../../scripts/init-pretext-layout';
       import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+      import {
+        consumeLangTransitionPending,
+        finishBlogLangTransitionOverlay,
+        prepareBlogLangTransitionOverlay,
+      } from '../../scripts/lang-transition';
 
       initPortfolioCursor();
       initPretextLayout();
-
-      const progressEl = document.getElementById('outline-progress');
-      const h2s = Array.from(document.querySelectorAll('.prose h2'));
-      if (progressEl && h2s.length > 0) {
-        const dots = h2s.map(() => {
-          const dot = document.createElement('div');
-          dot.className = 'outline-progress__dot';
-          progressEl.appendChild(dot);
-          return dot;
-        });
-
-        const updateActive = () => {
-          const y = window.scrollY + window.innerHeight * 0.32;
-          let activeIdx = 0;
-          for (let i = 0; i < h2s.length; i++) {
-            const el = h2s[i];
-            if (el.offsetTop <= y) activeIdx = i;
-            else break;
-          }
-          dots.forEach((dot, idx) => {
-            dot.classList.toggle('is-active', idx === activeIdx);
-          });
-        };
-
-        updateActive();
-        window.addEventListener('scroll', updateActive, { passive: true });
-        window.addEventListener('resize', updateActive, { passive: true });
-      }
+      initBlogPostToc();
 
       const BLOG_VIEW_LANG_KEY = 'portfolio:blog-view-lang';
       const PREFERRED_LANG_KEY = 'portfolio:preferred-lang';
@@ -584,7 +1051,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         return true;
       }
 
-      function mountTranslateScript(targetLang) {
+      function mountTranslateScript(targetLang, onSettled) {
         const host = document.createElement('div');
         host.id = 'google_translate_element';
         host.style.display = 'none';
@@ -607,6 +1074,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
             retries += 1;
             if (applyGoogleTranslate(targetLang) || retries >= maxRetries) {
               window.clearInterval(timer);
+              onSettled?.();
             }
           }, 250);
         };
@@ -618,10 +1086,15 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
       }
 
       const displayLang = getBlogDisplayLang();
+      const fromLangNav = consumeLangTransitionPending();
+
       if (displayLang === 'zh') {
+        if (fromLangNav) prepareBlogLangTransitionOverlay(true);
         clearGoogleTranslateState();
+        if (fromLangNav) requestAnimationFrame(() => finishBlogLangTransitionOverlay());
       } else if (displayLang === 'en' || displayLang === 'ja') {
-        mountTranslateScript(displayLang);
+        prepareBlogLangTransitionOverlay(fromLangNav);
+        mountTranslateScript(displayLang, () => finishBlogLangTransitionOverlay());
       }
 
     </script>
