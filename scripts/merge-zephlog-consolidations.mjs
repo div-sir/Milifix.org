@@ -18,7 +18,7 @@ const CURATED_JR = path.join(ZEPH, 'curated/jr-passes');
 const CURATED_OVERVIEW = path.join(ZEPH, 'curated/overview/travel-catalog.md');
 const CURATED_CATEGORIES = path.join(ZEPH, 'curated/categories');
 
-const TOKYO_OUT = path.join(TRAVEL, '東京必比登清單-統整.md');
+const TOKYO_OUT = path.join(TRAVEL, '東京必比登餐廳110家統整-米其林筆記.md');
 const JR_OUT = path.join(TRAVEL, 'jr-pass-與參考票價-統整.md');
 
 function walkMd(dir) {
@@ -85,7 +85,7 @@ function mergeTokyo() {
 
   const lines = [
     '---',
-    `title: ${yamlEscape('東京必比登清單')}`,
+    `title: ${yamlEscape('東京必比登餐廳 110 家統整：米其林筆記')}`,
     `description: ${yamlEscape(`共 ${entries.length} 筆餐廳條目，併附原始 CSV 匯出連結；以下由原「東京必比登清單」資料夾合併。`)}`,
     "date: '2026-03-31'",
     'draft: false',

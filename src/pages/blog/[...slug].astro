@@ -32,8 +32,8 @@ function blogPostUrlFromId(id: string) {
 }
 
 const JR_COMPILATION = 'zephlog/筆記/jr-pass-與參考票價-統整';
-const TOKYO_BIB_COMPILATION = 'zephlog/筆記/東京必比登清單-統整';
-const SCENIC_PAGE = 'zephlog/筆記/日本觀光列車';
+const TOKYO_BIB_COMPILATION = 'zephlog/筆記/東京必比登餐廳110家統整-米其林筆記';
+const SCENIC_PAGE = 'zephlog/筆記/日本觀光列車總覽-路線業者官網與分車種錨點';
 /** 舊子路徑檔名 → 合併頁 h2 錨點 id */
 const SCENIC_LEAF_TO_ANCHOR: Record<string, string> = {
   Aoniyoshi: 'aoniyoshi-train',
@@ -796,6 +796,8 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         --toc-slide: 6px;
         --toc-indent: 0rem;
         --toc-link-bg: var(--toc-card-bg);
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
         appearance: none;
         -webkit-appearance: none;
         font-family: var(--sans);
@@ -822,7 +824,9 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         background: color-mix(in srgb, var(--toc-link-bg) 86%, transparent);
         backdrop-filter: blur(14px) saturate(1.16);
         -webkit-backdrop-filter: blur(14px) saturate(1.16);
-        box-shadow: var(--toc-card-shadow);
+        box-shadow:
+          inset var(--toc-inset-bar) 0 0 0 var(--toc-inset-color),
+          var(--toc-card-shadow);
         text-decoration: none;
         transition:
           background 0.22s cubic-bezier(0.4, 0, 0.2, 1),
@@ -870,12 +874,77 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
       #blog-post-toc :global(button.blog-toc__link--depth-3) {
         --toc-indent: 2.16rem;
       }
+      /* 目錄項：h1 唯一完整實線框 + 加粗；h2/h3 無框線，以字重／底色／圓角區分（縮排仍 --depth-*） */
+      #blog-post-toc :global(button.blog-toc__link--h1) {
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        border: 2px solid color-mix(in srgb, var(--nav-accent) 50%, var(--toc-card-border) 50%);
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: calc(var(--blog-toc-link-font-size) * 1.07);
+        letter-spacing: -0.025em;
+        color: var(--text);
+        padding-block: 0.34rem;
+        padding-inline: 0.48rem 0.44rem;
+        background: color-mix(in srgb, var(--nav-accent) 8%, var(--toc-link-bg) 92%);
+        box-shadow: var(--toc-card-shadow);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h2) {
+        border: none;
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        box-shadow: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding-block: 0.3rem;
+        color: color-mix(in srgb, var(--text) 88%, var(--muted) 12%);
+        background: color-mix(in srgb, var(--line2) 10%, var(--toc-link-bg) 90%);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h3) {
+        border: none;
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        box-shadow: none;
+        border-radius: 999px;
+        font-weight: 400;
+        padding-block: 0.26rem;
+        padding-inline: 0.44rem 0.4rem;
+        padding-inline-start: 0.46rem;
+        background: color-mix(in srgb, var(--line2) 6%, var(--toc-link-bg) 94%);
+        color: color-mix(in srgb, var(--muted) 22%, var(--text) 78%);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h4) {
+        border: none;
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        box-shadow: none;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--line2) 12%, var(--toc-link-bg) 88%);
+        padding-inline-start: 0.44rem;
+        font-size: calc(var(--blog-toc-link-font-size) * 0.94);
+        color: color-mix(in srgb, var(--muted) 92%, var(--text) 8%);
+      }
       #blog-post-toc :global(button.blog-toc__link:hover) {
         color: var(--text);
         --toc-link-bg: var(--toc-card-bg-hover);
         background: color-mix(in srgb, var(--toc-card-bg-hover) 88%, transparent);
-        box-shadow: var(--toc-card-shadow-hover);
+        box-shadow:
+          inset var(--toc-inset-bar) 0 0 0 var(--toc-inset-color),
+          var(--toc-card-shadow-hover);
         transform: translateY(-2px) scale(1);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h1:hover) {
+        background: color-mix(in srgb, var(--nav-accent) 12%, var(--toc-card-bg-hover) 88%);
+        border-color: color-mix(in srgb, var(--nav-accent) 58%, var(--toc-card-border) 42%);
+        box-shadow: var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h2:hover) {
+        background: color-mix(in srgb, var(--line2) 14%, var(--toc-card-bg-hover) 86%);
+        box-shadow: var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--h3:hover) {
+        background: color-mix(in srgb, var(--line2) 10%, var(--toc-card-bg-hover) 90%);
+        box-shadow: var(--toc-card-shadow-hover);
       }
       #blog-post-toc :global(button.blog-toc__link:active) {
         transform: translateY(0) scale(1);
@@ -897,7 +966,59 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         );
         border-color: color-mix(in srgb, var(--nav-accent) 42%, var(--toc-card-border) 58%);
         box-shadow:
+          inset var(--toc-inset-bar) 0 0 0 var(--toc-inset-color),
           0 0 0 1px color-mix(in srgb, var(--nav-accent) 22%, transparent),
+          var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h1) {
+        color: var(--text);
+        border: 2px solid color-mix(in srgb, var(--nav-accent) 64%, var(--toc-card-border) 36%);
+        background: color-mix(
+          in srgb,
+          var(--nav-accent) 16%,
+          color-mix(in srgb, var(--toc-card-bg-hover) 72%, var(--line2) 28%) 84%
+        );
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--nav-accent) 28%, transparent),
+          var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h2) {
+        border: none;
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        color: var(--text);
+        background: color-mix(
+          in srgb,
+          var(--nav-accent) 9%,
+          color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 91%
+        );
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--nav-accent) 18%, transparent),
+          var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h3) {
+        border: none;
+        --toc-inset-bar: 0px;
+        --toc-inset-color: transparent;
+        color: var(--text);
+        background: color-mix(
+          in srgb,
+          var(--nav-accent) 8%,
+          color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 92%
+        );
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--nav-accent) 16%, transparent),
+          var(--toc-card-shadow-hover);
+      }
+      #blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h4) {
+        border: none;
+        background: color-mix(
+          in srgb,
+          color-mix(in srgb, var(--nav-accent) 14%, var(--toc-card-bg-hover) 86%) 90%,
+          transparent
+        );
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--nav-accent) 18%, transparent),
           var(--toc-card-shadow-hover);
       }
       #blog-post-toc :global(.blog-toc__label) {

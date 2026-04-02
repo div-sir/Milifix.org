@@ -59,6 +59,8 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     /** 為 true 時不顯示文章側邊浮動目錄 */
     hideToc: z.boolean().optional(),
+    /** 為 true 時仍產生頁面，但不列入 /blog 文章列表 */
+    hideInBlogIndex: z.boolean().optional(),
   }),
 });
 

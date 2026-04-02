@@ -1,6 +1,6 @@
 ---
 title: "Chi Project"
-description: "| **核心人格** | **痛點** |"
+description: 旅遊足跡／集章型產品藍圖草稿（Persona、User Story）。
 date: '2026-03-31'
 draft: true
 ---

@@ -1,20 +1,19 @@
 ---
-title: "歐鐵筆記區"
+title: "歐洲鐵路夜車與 Eurail 筆記整理"
 description: "Tags: 交通, 歐洲"
 date: '2026-03-31'
 draft: false
 ---
-# 歐鐵筆記區
+# 歐洲鐵路夜車與 Eurail 筆記整理
 
 Tags: 交通, 歐洲
 
-https://www.eurail.com/en
-
-夜鋪地圖https://back-on-track.eu/night-train-map/
+- [Eurail 官網（英文）](https://www.eurail.com/en)
+- 夜車路線概覽：[Night Train Map（back-on-track.eu）](https://back-on-track.eu/night-train-map/)
 
 **聖誕老人特快夜行列車**
 
-https://www.eurail.com/en/plan-your-trip/trip-ideas/trains-europe/night-trains/santa-claus-express
+- [Eurail：Santa Claus Express 介紹](https://www.eurail.com/en/plan-your-trip/trip-ideas/trains-europe/night-trains/santa-claus-express)
 
 赫爾辛基-羅瓦涅米
 

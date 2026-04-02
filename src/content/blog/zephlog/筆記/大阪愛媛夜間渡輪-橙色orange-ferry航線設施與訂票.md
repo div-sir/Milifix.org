@@ -1,10 +1,10 @@
 ---
-title: "往返大阪-愛媛的夜間渡輪Orange Ferry"
+title: "大阪愛媛夜間渡輪：橙色 Orange Ferry 航線、設施與訂票"
 description: "[オレンジフェリー | 四国開発フェリー株式会社](https://www.orange-ferry.co.jp/)"
 date: '2026-03-31'
 draft: false
 ---
-# 往返大阪-愛媛的夜間渡輪Orange Ferry
+# 大阪愛媛夜間渡輪：橙色 Orange Ferry 航線、設施與訂票
 
 [オレンジフェリー | 四国開発フェリー株式会社](https://www.orange-ferry.co.jp/)
 

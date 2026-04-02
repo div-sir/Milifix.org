@@ -1,5 +1,5 @@
 /**
- * 將 zephlog/筆記/日本觀光列車/*.md 合併為上一層的 日本觀光列車.md，並刪除子目錄檔案。
+ * 將 zephlog/筆記/日本觀光列車/*.md 合併為上一層的 日本觀光列車總覽-路線業者官網與分車種錨點.md，並刪除子目錄檔案。
  * 錨點 id 與 [...slug].astro 內 SCENIC_LEAF_TO_ANCHOR 需一致。
  */
 import fs from 'fs';
@@ -8,7 +8,10 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SUB = path.join(__dirname, '../src/content/blog/zephlog/筆記/日本觀光列車');
-const OUT = path.join(__dirname, '../src/content/blog/zephlog/筆記/日本觀光列車.md');
+const OUT = path.join(
+  __dirname,
+  '../src/content/blog/zephlog/筆記/日本觀光列車總覽-路線業者官網與分車種錨點.md',
+);
 
 /** 同列車多檔時，統一用此錨點（與舊 train-* slug 對齊） */
 const FILE_TO_ANCHOR = {
