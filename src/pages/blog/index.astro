@@ -5,15 +5,13 @@ import '../../styles/portfolio-atmosphere.css';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
+import { resolveBlogBucket } from '../../data/blog-bucket-rules';
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft && !p.data.hideInBlogIndex)
   .sort((a, b) => b.data.date.localeCompare(a.data.date));
 
 type BlogPost = (typeof posts)[number];
-
-/** zephlog 內容根資料夾（原「旅行紀錄」） */
-const ZEPH_NOTES = '筆記';
 
 type TopCatId =
   | 'journey'
@@ -31,74 +29,6 @@ const topCatOrder: TopCatId[] = [
   'projects',
   'misc',
 ];
-
-/** 歸在「遊記·足跡」的檔名（zephlog/筆記/ 根下） */
-/** 與內容集合 entry id 末段一致（Astro 會自檔名卸除部分標點） */
-const tripLeaves = new Set([
-  '2025瀨戶內海國際藝術祭-春夏秋展期與跳島筆記',
-  '2025-曼谷旅行手冊',
-  '大阪萬博2025-完全攻略',
-  '東京隱藏景點-陽光60瞭望台',
-  '地下神殿-首都圈外郭放水路',
-  '拉麵系流派介紹-一碗風土一系風格六大門派',
-  '金屬工藝聖地打鐵體驗-來燕三条打造自己專屬的刀',
-  '日本經典自行車道路線精選-島波海道筑波霞浦',
-]);
-
-function resolveBucket(post: BlogPost): string {
-  const parts = post.id.split('/');
-  if (parts[0] !== 'zephlog') return '其他 · 未分類';
-
-  if (parts[1] === 'curated') {
-    return '其他 · 未分類';
-  }
-
-  if (parts[1] === ZEPH_NOTES) {
-    const leaf = parts[parts.length - 1] || '';
-
-    if (leaf === '筆記目錄') return '食旅·指南 · 筆記目錄';
-    if (leaf.includes('東京必比登餐廳110家統整')) return '食旅·指南 · 必比登';
-    if (leaf.includes('起司大解密')) return '食旅·指南 · 研食';
-
-    if (leaf === 'jr-pass-與參考票價-統整') return '鐵道·票券 · JR／周遊券';
-    if (parts[2] === '日本觀光列車' || leaf.includes('日本觀光列車總覽')) return '鐵道·票券 · 觀光列車';
-    if (
-      leaf.includes('成田機場') ||
-      leaf.includes('歐洲鐵路夜車與eurail筆記整理') ||
-      leaf.startsWith('orange-ferry') ||
-      leaf.includes('大阪愛媛夜間渡輪')
-    )
-      return '鐵道·票券 · 樞紐與歐鐵';
-
-    if (
-      leaf.includes('地下神殿') ||
-      leaf.includes('拉麵系流派') ||
-      leaf.includes('金屬工藝聖地打鐵體驗')
-    ) {
-      return '遊記·足跡 · 行程';
-    }
-
-    if (tripLeaves.has(leaf)) return '遊記·足跡 · 行程';
-
-    if (
-      leaf.includes('全球三大航空聯盟') ||
-      (leaf.includes('阿拉斯加航空') && leaf.includes('mileage-plan')) ||
-      leaf.includes('機場貴賓室進出四途') ||
-      leaf.startsWith('a320-') ||
-      leaf.startsWith('f35-')
-    ) {
-      return '航空·哩程 · 計畫與手冊';
-    }
-
-    if (leaf.includes('國際酒店集團與品牌筆記')) return '住宿 · 集團筆記';
-
-    if (leaf.startsWith('esp32-') || leaf.startsWith('http-狀態碼')) return '專題·技術 · 實作';
-
-    return '其他 · 筆記未歸類';
-  }
-
-  return `其他 · ${parts[1] || '未分類'}`;
-}
 
 function bucketToTopCat(bucket: string): TopCatId {
   if (
@@ -121,7 +51,7 @@ const postsByTopCat: Record<TopCatId, BlogPost[]> = {
 };
 
 for (const p of posts) {
-  const b = resolveBucket(p);
+  const b = resolveBlogBucket(p.id);
   postsByTopCat[bucketToTopCat(b)].push(p);
 }
 
