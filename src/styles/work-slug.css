@@ -330,10 +330,22 @@ footer {
   user-select: none;
 }
 
+@media (max-width: 1024px) {
+  .work-hero__content { padding-left: 32px; padding-right: 32px; }
+  .work-junction { padding-left: 32px; padding-right: 32px; }
+  footer { padding: 40px 32px; }
+}
+
+@media (max-width: 900px) {
+  .work-article { padding: 72px 32px 56px 52px; }
+  .work-article::before { left: 24px; }
+  .work-article--editorial { padding-left: 52px; }
+  .work-article--editorial::before { left: 24px; }
+}
+
 @media (max-width: 768px) {
   .work-hero__content { padding: 88px 24px 40px; }
-  .work-article { padding: 48px 24px 32px; }
-  .work-article { padding-left: 52px; }
+  .work-article { padding: 48px 24px 32px 52px; }
   .work-article::before { left: 22px; top: 40px; bottom: 32px; }
   .work-junction { padding: 32px 24px; flex-wrap: wrap; }
   footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }

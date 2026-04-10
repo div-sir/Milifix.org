@@ -482,6 +482,21 @@ footer {
   transform: translateY(0);
 }
 
+@media (max-width: 1024px) {
+  .hero { padding: 0 32px 80px; }
+  .works { padding: 100px 32px; }
+  .about { padding: 100px 32px; gap: 56px; }
+  footer { padding: 40px 32px; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .works-grid { grid-template-columns: repeat(2, 1fr); }
+  .work-item--standard { grid-column: span 1; aspect-ratio: 3/4; }
+  .work-item--compact  { grid-column: span 1; aspect-ratio: 1; }
+  .work-item--featured { grid-column: span 2; aspect-ratio: 16/10; }
+  .work-item--cinema   { grid-column: span 2; aspect-ratio: 21/9; }
+}
+
 @media (max-width: 768px) {
   .hero { padding: 0 24px 60px; }
   .works { padding: 80px 24px; }

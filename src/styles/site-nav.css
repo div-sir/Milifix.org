@@ -540,7 +540,7 @@
     z-index: 199;
     top: 0;
     right: 0;
-    width: min(19rem, 88vw);
+    width: min(19rem, 85vw);
     height: 100vh;
     height: 100dvh;
     flex-direction: column;
