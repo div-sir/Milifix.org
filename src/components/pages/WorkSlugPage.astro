@@ -1,0 +1,186 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import PageTransition from '../PageTransition.astro';
+import Quote from '../Quote.astro';
+import WorkMediaGallery from '../WorkMediaGallery.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import SiteNav from '../SiteNav.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/work-slug.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { spacePath, workPath } from '../../i18n/routes';
+import { ui } from '../../i18n/ui';
+import { getLocalizedSpace } from '../../i18n/space-locale';
+import { isSpaceId, type SpaceId } from '../../data/spaces';
+
+interface Props {
+  lang: Lang;
+  entry: CollectionEntry<'works'>;
+  spaceParam: string | undefined;
+}
+
+const { lang, entry, spaceParam } = Astro.props;
+const { Content } = await render(entry);
+const {
+  title,
+  tags,
+  cover,
+  date,
+  description,
+  quote,
+  quoteAttribution,
+  pageVariant,
+  space: workSpace,
+  media = [],
+} = entry.data;
+
+if (!spaceParam || !isSpaceId(spaceParam) || spaceParam !== workSpace) {
+  const fallback = lang === 'en' ? '/' : `/${lang}/`;
+  return Astro.redirect(fallback);
+}
+
+const space = spaceParam as SpaceId;
+const spaceDef = getLocalizedSpace(space, lang);
+const navUi = ui(lang);
+
+const allWorks = (await getCollection('works'))
+  .filter((w) => w.data.space === space)
+  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+const curIdx = allWorks.findIndex((w) => w.id === entry.id);
+const prevWork = curIdx > 0 ? allWorks[curIdx - 1] : null;
+const nextWork = curIdx >= 0 && curIdx < allWorks.length - 1 ? allWorks[curIdx + 1] : null;
+const workNavItems = allWorks.map((w) => ({
+  href: workPath(lang, space, w.id),
+  title: w.data.title,
+  current: w.id === entry.id,
+}));
+const workDockSections = [
+  { id: 'work-hero', label: navUi.work.dockHero },
+  { id: 'main-content', label: navUi.work.dockStory },
+  ...(media.length > 0 ? [{ id: 'work-media', label: navUi.work.dockMedia }] : []),
+];
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
+  <title>{title} — {spaceDef.navLabel}</title>
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
+  <meta name="description" content={description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body class="portfolio-atmo" data-space={space}>
+  <AmbientBackdrop />
+  <PageTransition />
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav
+    variant="space-work"
+    lang={lang}
+    pathname={Astro.url.pathname}
+    spaceId={space}
+    spaceLabel={spaceDef.navLabel}
+    workNavItems={workNavItems}
+  />
+
+  <PortfolioChrome
+    lang={lang}
+    pathname={Astro.url.pathname}
+    dockSections={workDockSections}
+    dockHomeHref={spacePath(lang, space)}
+    dockHomeLabel={navUi.nav.dockBackToCreator}
+    showDockScrollTop={false}
+  />
+
+  <header
+    id="work-hero"
+    class:list={['work-hero', pageVariant !== 'classic' && `work-hero--${pageVariant}`]}
+  >
+    <div class="work-hero__media">
+      <img class="work-hero__img" src={cover} alt="" loading="eager" />
+      <div class="work-hero__gradient"></div>
+    </div>
+    <div class="work-hero__content">
+      <p class="work-hero__meta work-hero-animate">{date}</p>
+      <h1 class="work-hero__title" data-anime-splittext="chars" data-anime-splittext-delay="320">{title}</h1>
+      <div class="work-hero__tags work-hero-animate">
+        {tags.map((tag) => (
+          <span class="work-tag">{tag}</span>
+        ))}
+      </div>
+    </div>
+  </header>
+
+  <article
+    class:list={['work-article', pageVariant !== 'classic' && `work-article--${pageVariant}`]}
+    id="main-content"
+    tabindex="-1"
+  >
+    <p class="work-lead" data-anime-splittext="words-inview">{description}</p>
+    {quote && (
+      <div data-onscroll-reveal>
+        <Quote variant="band" text={quote} attribution={quoteAttribution} />
+      </div>
+    )}
+    <div class="work-body">
+      <Content />
+    </div>
+    <WorkMediaGallery items={media} sectionTitle={navUi.work.dockMedia} />
+  </article>
+
+  <nav class="work-junction" aria-label={navUi.work.junctionAria}>
+    {prevWork ? (
+      <a
+        class="work-junction__link work-junction__link--prev"
+        href={workPath(lang, space, prevWork.id)}
+      >
+        {navUi.work.prev}
+      </a>
+    ) : (
+      <span class="work-junction__spacer" aria-hidden="true"></span>
+    )}
+    {nextWork ? (
+      <a
+        class="work-junction__link work-junction__link--next"
+        href={workPath(lang, space, nextWork.id)}
+      >
+        {navUi.work.next}
+      </a>
+    ) : (
+      <span class="work-junction__spacer" aria-hidden="true"></span>
+    )}
+  </nav>
+
+  <footer>
+    <span class="footer-logo">{spaceDef.navLabel}</span>
+    <p class="footer-copy">
+      <span>{navUi.platform.footer}</span>
+    </p>
+  </footer>
+
+  <script>
+    import { initWorkSlugClient } from '../../scripts/work-slug-client';
+    initWorkSlugClient();
+  </script>
+</body>
+</html>

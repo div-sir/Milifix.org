@@ -31,7 +31,7 @@ const works = defineCollection({
     title: z.string(),
     slug: z.string().optional(),
     /** 所屬創作者空間，對應網址 /{space}/… */
-    space: z.enum(['solilium', 'voidlane', 'lumenlab']),
+    space: z.enum(['solilium', 'voidlane']),
     tags: z.array(z.string()),
     cover: z.string(),
     date: z.string(),

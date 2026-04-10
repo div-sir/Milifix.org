@@ -1,0 +1,217 @@
+---
+import { getCollection } from 'astro:content';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import PageTransition from '../PageTransition.astro';
+import Quote from '../Quote.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import SiteNav from '../SiteNav.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/space-index.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { workPath } from '../../i18n/routes';
+import { ui } from '../../i18n/ui';
+import { getLocalizedSpace } from '../../i18n/space-locale';
+import { isSpaceId, type SpaceId } from '../../data/spaces';
+import { inferWorkType, type WorkType } from '../../data/works';
+
+interface Props {
+  lang: Lang;
+  spaceParam: string | undefined;
+}
+
+const { lang, spaceParam } = Astro.props;
+
+if (!spaceParam || !isSpaceId(spaceParam)) {
+  const fallback = lang === 'en' ? '/' : `/${lang}/`;
+  return Astro.redirect(fallback);
+}
+
+const space = spaceParam as SpaceId;
+const spaceDef = getLocalizedSpace(space, lang);
+
+const works = (await getCollection('works'))
+  .filter((w) => w.data.space === space)
+  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+
+const WORK_TYPES: WorkType[] = ['gallery', 'article', 'project'];
+const worksByType = Object.fromEntries(
+  WORK_TYPES.map((t) => [t, works.filter((w) => inferWorkType(w) === t)])
+) as Record<WorkType, typeof works>;
+
+const navN = ui(lang).nav;
+const platformN = ui(lang).platform;
+const workTypeTitles: Record<WorkType, string> = {
+  gallery: navN.workGalleryTitle,
+  article: navN.workArticleTitle,
+  project: navN.workProjectTitle,
+};
+const spaceDockSections = [
+  { id: 'main-content', label: navN.dockSpaceHero },
+  { id: 'works', label: navN.dockSpaceWorks },
+  { id: 'about', label: navN.dockSpaceAbout },
+];
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
+  <title>{spaceDef.navLabel}</title>
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body class="portfolio-atmo" data-space={space}>
+  <AmbientBackdrop />
+  <PageTransition />
+
+  <div id="magnetic-view-label" class="magnetic-view-label">{spaceDef.magneticLabel}</div>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav
+    variant="space-home"
+    lang={lang}
+    pathname={Astro.url.pathname}
+    spaceId={space}
+    spaceLabel={spaceDef.navLabel}
+    workNavItems={works.map((w) => ({
+      href: workPath(lang, space, w.id),
+      title: w.data.title,
+    }))}
+  />
+
+  <PortfolioChrome
+    lang={lang}
+    pathname={Astro.url.pathname}
+    dockSections={spaceDockSections}
+    showDockScrollTop={false}
+  />
+
+  <section class="hero" id="main-content" tabindex="-1">
+    <p
+      class="hero-kicker"
+      data-anime-splittext="words"
+      data-anime-splittext-delay="120"
+      set:html={spaceDef.heroKicker}
+    />
+    <div class="hero-tag">{spaceDef.heroTag}</div>
+    <h1 class="hero-title" aria-label={spaceDef.navLabel} data-anime-splittext="chars" data-anime-splittext-delay="360">
+      <span class="hero-line">{spaceDef.heroLine1}</span>
+      <span class="hero-line hero-line--outline">{spaceDef.heroLine2}</span>
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-desc" data-anime-splittext="words-inview" set:html={spaceDef.heroDesc} />
+      <div class="hero-scroll" data-anime-scroll-nudge>
+        <span class="hero-scroll__label">Scroll</span>
+        <span class="hero-scroll__line" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="works" id="works">
+    {WORK_TYPES.map((type) => {
+      const list = worksByType[type];
+      if (!list.length) return null;
+      return (
+        <div class="works-category" id={`works-${type}`}>
+          <div class="section-header fade-up">
+            <span class="section-title" data-anime-splittext="chars-inview">{workTypeTitles[type]}</span>
+            <span class="section-count">{String(list.length).padStart(2, '0')}</span>
+          </div>
+          <div class="works-grid">
+            {list.map((work, i) => (
+              <a
+                class:list={[
+                  'work-item work-card-anim',
+                  `work-item--${work.data.cardVariant}`,
+                  (work.data.cardVariant === 'cinema' || work.data.cardVariant === 'featured') && 'work-item--kenburns',
+                ]}
+                href={workPath(lang, space, work.id)}
+                data-work-card
+              >
+                <div class="work-item__inner">
+                  <img class="work-img" src={work.data.cover} alt="" loading="lazy" />
+                  <div class="work-overlay">
+                    <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
+                    <div class="work-title">{work.data.title}</div>
+                    <div class="work-tags">
+                      {work.data.tags.map((tag) => (
+                        <span class="work-tag">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+
+    <div data-onscroll-reveal>
+      <Quote variant="band" text={spaceDef.quoteBand} attribution={spaceDef.quoteBandAttr} />
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="fade-up">
+      <div class="about-label" data-anime-splittext="chars-inview">About</div>
+      <h2 class="about-title" data-anime-splittext="chars-inview">{spaceDef.aboutTitle}</h2>
+      <p class="about-text" data-anime-splittext="words-inview">{spaceDef.aboutLead}</p>
+      <p class="about-text" data-anime-splittext="words-inview">{spaceDef.aboutSecond}</p>
+      <Quote
+        variant="inline"
+        text="留白不是空無，而是留給觀者呼吸的位置。"
+        attribution="Studio ethos"
+      />
+    </div>
+    <div class="about-stats fade-up">
+      <div class="stat">
+        <span class="stat-num">{String(works.length).padStart(2, '0')}</span>
+        <span class="stat-label">Series</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Frames</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">01</span>
+        <span class="stat-label">Perspective</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">↗</span>
+        <span class="stat-label">Always evolving</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">{spaceDef.navLabel}</span>
+    <p class="footer-copy">
+      <span>{platformN.footer}</span>
+    </p>
+  </footer>
+
+  <script>
+    import { initSpaceHomeClient } from '../../scripts/space-home-client';
+    initSpaceHomeClient();
+  </script>
+</body>
+</html>

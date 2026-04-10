@@ -27,17 +27,6 @@ const ZH: Record<SpaceId, PartialSpace> = {
     quoteBand: '畫面不必完美，而是在對的瞬間輕輕顫一下。',
     quoteBandAttr: '訊號筆記',
   },
-  lumenlab: {
-    tagline: '光線研究與柔軟形體',
-    heroKicker: 'LUMEN LAB 相信<strong>光先於形</strong>，形只是光的短暫停留。',
-    heroTag: '光線研究',
-    heroDesc: '柔軟漸層、體積與低對比。<br />極簡畫框，最大呼吸。',
-    aboutLead:
-      '以光與材質為核心，用極簡畫面承載情緒；留白是邀請觀者參與的空間。',
-    aboutSecond: '我們記錄的不是物體本身，而是它被照亮的方式。',
-    quoteBand: '暗部愈深，亮部愈像一句尚未說出口的話。',
-    quoteBandAttr: '光度筆記',
-  },
 };
 
 const JA: Record<SpaceId, PartialSpace> = {
@@ -63,17 +52,6 @@ const JA: Record<SpaceId, PartialSpace> = {
     aboutSecond: 'ノイズの中の秩序と、ドロップアウトの中の感情を探す。',
     quoteBand: '完璧さより、正しい瞬間のわずかな震え。',
     quoteBandAttr: '信号ノート',
-  },
-  lumenlab: {
-    tagline: '光の研究とやわらかいかたち',
-    heroKicker: 'LUMEN LAB は<strong>光が形に先立つ</strong>と考える—形は光の小休止。',
-    heroTag: '光の研究',
-    heroDesc: 'やわらかいグラデーション、ボリューム、静かなコントラスト。<br />極小のフレーム、最大の余白。',
-    aboutLead:
-      '光と素材の研究—ミニマルな画面で情緒の重さを運び、余白で観客を招く。',
-    aboutSecond: '捉えるのは物体ではなく、照らされ方だ。',
-    quoteBand: '影が深いほど、ハイライトは言いかけの一行のようだ。',
-    quoteBandAttr: '光のメモ',
   },
 };
 
