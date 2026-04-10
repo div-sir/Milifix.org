@@ -21,6 +21,8 @@
   "dependencies": {
     "@astrojs/react": "^5.0.2",
     "@chenglou/pretext": "^0.0.3",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "@fontsource/space-mono": "^5.2.9",
     "@tailwindcss/vite": "^4.2.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

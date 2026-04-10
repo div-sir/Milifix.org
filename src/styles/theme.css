@@ -1,3 +1,10 @@
+/* 本地字體（取代 Google Fonts CDN，零網路請求） */
+@import "@fontsource/space-grotesk/300.css";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+
 /* 與 portfolio-atmo 併用：以 html[data-theme] 切換淺／深色 */
 :root {
   color-scheme: dark light;

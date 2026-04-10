@@ -12,6 +12,19 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
+  // 預載入頁內連結，減少頁面切換延遲
+  prefetch: true,
+
+  build: {
+    // 小於 4KB 的 CSS 自動內聯，減少額外請求
+    inlineStylesheets: 'auto',
+  },
+
+  // 允許最佳化外部圖片網域
+  image: {
+    domains: ['images.unsplash.com'],
+  },
+
   markdown: {
     rehypePlugins: [rehypeSlug],
   },

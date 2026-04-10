@@ -43,6 +43,7 @@ export function initSpaceHomeClient() {
   let magLx = 0;
   let magLy = 0;
   let magActive = false;
+  let rafId: number;
 
   function magneticLoop() {
     if (magneticLabel && magActive) {
@@ -50,13 +51,17 @@ export function initSpaceHomeClient() {
       magLy += (magY - magLy) * 0.18;
       magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
     }
-    requestAnimationFrame(magneticLoop);
+    rafId = requestAnimationFrame(magneticLoop);
   }
   magneticLoop();
 
+  // 收集 card 事件 handlers 以便清理
+  type CardCleanup = { card: HTMLElement; enter: () => void; leave: () => void; move: (e: MouseEvent) => void };
+  const cardCleanups: CardCleanup[] = [];
+
   if (magneticLabel) {
     document.querySelectorAll<HTMLElement>('[data-work-card]').forEach((card) => {
-      card.addEventListener('mouseenter', () => {
+      const enter = () => {
         const rect = card.getBoundingClientRect();
         magLx = rect.right - 56;
         magLy = rect.top + 40;
@@ -65,18 +70,22 @@ export function initSpaceHomeClient() {
         magneticLabel.style.transform = `translate3d(${Math.round(magLx)}px, ${Math.round(magLy)}px, 0)`;
         magActive = true;
         magneticLabel.classList.add('is-visible');
-      });
-      card.addEventListener('mouseleave', () => {
+      };
+      const leave = () => {
         magActive = false;
         magneticLabel.classList.remove('is-visible');
-      });
-      card.addEventListener('mousemove', (e) => {
+      };
+      const move = (e: MouseEvent) => {
         const rect = card.getBoundingClientRect();
         const anchorX = rect.right - 56;
         const anchorY = rect.top + 40;
         magX = anchorX + (e.clientX - anchorX) * 0.45;
         magY = anchorY + (e.clientY - anchorY) * 0.45;
-      });
+      };
+      card.addEventListener('mouseenter', enter);
+      card.addEventListener('mouseleave', leave);
+      card.addEventListener('mousemove', move);
+      cardCleanups.push({ card, enter, leave, move });
     });
   }
 
@@ -108,4 +117,20 @@ export function initSpaceHomeClient() {
 
   initAnimeSplitText();
   initAnimeOnScrollReveals();
+
+  // View Transitions cleanup：頁面切換前釋放資源
+  document.addEventListener(
+    'astro:before-swap',
+    () => {
+      cancelAnimationFrame(rafId);
+      cardCleanups.forEach(({ card, enter, leave, move }) => {
+        card.removeEventListener('mouseenter', enter);
+        card.removeEventListener('mouseleave', leave);
+        card.removeEventListener('mousemove', move);
+      });
+      ScrollTrigger.getAll().forEach((st) => st.kill());
+      io.disconnect();
+    },
+    { once: true },
+  );
 }

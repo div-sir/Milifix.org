@@ -1,5 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import Quote from '../Quote.astro';
@@ -83,9 +84,6 @@ const workDockSections = [
     })();
   </script>
   <meta name="description" content={description} />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body class="portfolio-atmo" data-space={space}>
   <AmbientBackdrop />
@@ -117,7 +115,7 @@ const workDockSections = [
     class:list={['work-hero', pageVariant !== 'classic' && `work-hero--${pageVariant}`]}
   >
     <div class="work-hero__media">
-      <img class="work-hero__img" src={cover} alt="" loading="eager" />
+      <Image class="work-hero__img" src={cover} alt="" width={1600} height={900} loading="eager" fetchpriority="high" />
       <div class="work-hero__gradient"></div>
     </div>
     <div class="work-hero__content">
