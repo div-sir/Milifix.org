@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
+import '../../styles/blog.css';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
@@ -83,12 +84,6 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Blog · Milifix</title>
     <meta name="description" content="Milifix 筆記與更新" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
     <script is:inline>
       (function () {
         try {
@@ -111,7 +106,7 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
           d.setAttribute('data-early', '1');
           d.setAttribute('aria-hidden', 'true');
           d.style.cssText =
-            'position:fixed;inset:0;z-index:2147483646;background:' +
+            'position:fixed;inset:0;z-index:999;background:' +
             bg +
             ';opacity:1;pointer-events:auto';
           document.documentElement.appendChild(d);
@@ -131,276 +126,6 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
         } catch (e) {}
       })();
     </script>
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      :root {
-        --mono: 'Space Mono', monospace;
-        --sans: 'Space Grotesk', sans-serif;
-        --accent2: #8fa8e8;
-      }
-      body {
-        font-family: var(--sans);
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        min-height: 100svh;
-        line-height: 1.6;
-        position: relative;
-        overflow-x: hidden;
-        cursor: none;
-      }
-      #cursor {
-        width: 8px;
-        height: 8px;
-        background: var(--accent);
-        border-radius: 50%;
-        position: fixed;
-        pointer-events: none;
-        z-index: 9999;
-        transform: translate(-50%, -50%);
-        transition: width 0.2s, height 0.2s;
-      }
-      #cursor-ring {
-        width: 32px;
-        height: 32px;
-        border: 1px solid var(--cursor-ring);
-        border-radius: 50%;
-        position: fixed;
-        pointer-events: none;
-        z-index: 9998;
-        transform: translate(-50%, -50%);
-        transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
-      }
-      body:has(a:hover) #cursor {
-        width: 12px;
-        height: 12px;
-      }
-      body:has(a:hover) #cursor-ring {
-        width: 48px;
-        height: 48px;
-        border-color: var(--cursor-ring-hover);
-      }
-      body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background-image:
-          linear-gradient(var(--line) 1px, transparent 1px),
-          linear-gradient(90deg, var(--line) 1px, transparent 1px);
-        background-size: 60px 60px;
-        pointer-events: none;
-        z-index: 1;
-        opacity: 0.55;
-        animation: gridBreathe 5s ease-in-out infinite;
-      }
-      @keyframes gridBreathe {
-        0%,
-        100% {
-          opacity: 0.48;
-        }
-        50% {
-          opacity: 0.82;
-        }
-      }
-      html[data-theme='light'] body::before {
-        opacity: 0.32;
-      }
-      html[data-theme='light'] body.portfolio-atmo::before {
-        animation: gridBreatheLight 5s ease-in-out infinite;
-      }
-      @keyframes gridBreatheLight {
-        0%,
-        100% {
-          opacity: 0.28;
-        }
-        50% {
-          opacity: 0.45;
-        }
-      }
-      @media (prefers-reduced-motion: no-preference) {
-        html {
-          scroll-behavior: smooth;
-        }
-      }
-      .wrap {
-        width: min(960px, calc(100vw - 2rem));
-        margin: 0 auto;
-        padding: 4rem 1.5rem calc(7rem + env(safe-area-inset-bottom, 0px));
-        position: relative;
-        z-index: 2;
-      }
-      h1 {
-        font-family: var(--mono);
-        font-size: clamp(1.35rem, 4vw, 1.75rem);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 2rem;
-        color: var(--accent);
-      }
-      ul {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-      }
-      .post-item {
-        position: relative;
-      }
-      .post-title {
-        position: relative;
-      }
-      .group-list .post-item .post-title {
-        color: var(--text);
-      }
-      a {
-        text-decoration: none;
-        color: var(--text);
-        border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-        padding-bottom: 2px;
-        transition: color 0.2s ease, border-color 0.2s ease;
-      }
-      a:hover {
-        color: var(--accent);
-        border-color: var(--accent);
-      }
-      .back {
-        display: inline-block;
-        margin-bottom: 2rem;
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--muted);
-      }
-      #blog-top {
-        scroll-margin-top: 1.25rem;
-      }
-      .blog-page-head {
-        margin-bottom: 1.5rem;
-      }
-      .blog-cat-region {
-        scroll-margin-top: 6.5rem;
-      }
-      .blog-cat-region + .blog-cat-region {
-        margin-top: 2.75rem;
-      }
-      .blog-cat-head {
-        display: flex;
-        align-items: baseline;
-        margin-bottom: 1.1rem;
-        padding-bottom: 0.6rem;
-        border-bottom: 1px solid color-mix(in srgb, var(--line2) 72%, var(--accent) 8%);
-      }
-      .blog-cat-title {
-        font-family: var(--mono);
-        font-size: clamp(0.72rem, 1.5vw, 0.82rem);
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        font-weight: 500;
-        color: color-mix(in srgb, var(--accent) 58%, var(--text));
-        margin: 0;
-      }
-      .group-list {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: start;
-      }
-      .group-list .post-item {
-        width: 100%;
-        border-radius: 14px;
-        background: linear-gradient(
-          90deg,
-          color-mix(in srgb, var(--bg2) 82%, transparent),
-          color-mix(in srgb, var(--bg3) 72%, transparent)
-        );
-        box-shadow:
-          0 10px 24px -20px color-mix(in srgb, var(--shadow-card) 95%, transparent),
-          inset 0 0 0 1px color-mix(in srgb, var(--line2) 78%, transparent);
-        overflow: hidden;
-      }
-      .group-list .post-item a {
-        position: relative;
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        align-items: center;
-        column-gap: 0.85rem;
-        min-height: 100%;
-        border-bottom: none;
-        padding: 0.84rem 0.9rem 0.88rem;
-        margin: 0;
-        border-radius: 14px;
-        transition: transform 0.26s ease, box-shadow 0.26s ease, background 0.26s ease;
-      }
-      .group-list .post-item a::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          115deg,
-          transparent 16%,
-          color-mix(in srgb, var(--accent) 13%, transparent) 45%,
-          transparent 74%
-        );
-        transform: translateX(-115%);
-        transition: transform 0.55s cubic-bezier(0.33, 1, 0.64, 1);
-        pointer-events: none;
-      }
-      .group-list .post-item a:hover {
-        background: color-mix(in srgb, var(--accent) 6%, transparent);
-        transform: translateY(-1px);
-        box-shadow:
-          0 12px 30px -22px color-mix(in srgb, var(--accent) 65%, var(--shadow-card)),
-          inset 0 0 0 1px color-mix(in srgb, var(--accent) 36%, var(--line2));
-      }
-      .group-list .post-item a:hover::before {
-        transform: translateX(115%);
-      }
-      .post-index {
-        font-family: var(--mono);
-        font-size: 0.62rem;
-        letter-spacing: 0.12em;
-        color: color-mix(in srgb, var(--accent) 65%, var(--muted));
-        opacity: 0.88;
-      }
-      .post-arrow {
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        color: color-mix(in srgb, var(--accent) 56%, var(--text));
-        transform: translate(-2px, 1px);
-        transition: transform 0.22s ease, color 0.22s ease;
-      }
-      .group-list .post-item a:hover .post-arrow {
-        transform: translate(1px, -1px);
-        color: var(--accent);
-      }
-      .post-title {
-        font-size: clamp(1rem, 1.7vw, 1.08rem);
-        line-height: 1.45;
-        letter-spacing: 0.01em;
-        text-wrap: balance;
-      }
-      @media (max-width: 640px) {
-        .wrap {
-          width: calc(100vw - 1rem);
-          padding: 3.25rem 0.75rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
-        }
-      }
-      :global(.skiptranslate iframe),
-      :global(.goog-te-banner-frame.skiptranslate) {
-        display: none !important;
-      }
-      :global(body) {
-        top: 0 !important;
-      }
-    </style>
   </head>
   <body class="portfolio-atmo">
     <AmbientBackdrop />
@@ -415,10 +140,10 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
       dockHomeHref="/"
       dockHomeLabel="Milifix"
     />
-    <main class="wrap" id="main-content" tabindex="-1">
+    <main class="blog-wrap" id="main-content" tabindex="-1">
       <div id="blog-top" class="blog-page-head">
         <a class="back" href="/">← Milifix</a>
-        <h1 data-anime-splittext="chars">Blog</h1>
+        <h1 class="blog-page-title" data-anime-splittext="chars">Blog</h1>
       </div>
       {
         activeTopCats.map((k) => (
@@ -435,7 +160,7 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
                 <li class="post-item">
                   <a href={`/blog/${p.id}`}>
                     <span class="post-index" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
-                    <div class="post-title">{p.data.title}</div>
+                    <div class="post-list-title">{p.data.title}</div>
                     <span class="post-arrow" aria-hidden="true">↗</span>
                   </a>
                 </li>
