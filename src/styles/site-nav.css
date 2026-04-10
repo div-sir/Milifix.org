@@ -277,8 +277,8 @@
   margin: -6px -10px -6px 0;
   padding: 0;
   border: 1px solid var(--line2, rgba(255, 255, 255, 0.16));
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+  background: var(--nav-toolbar-bg);
   cursor: pointer;
   color: var(--text, #f2f2f2);
   transition: border-color 0.25s ease, background 0.25s ease;
@@ -514,7 +514,7 @@
     position: fixed;
     inset: 0;
     z-index: 198;
-    background: rgba(0, 0, 0, 0.55);
+    background: color-mix(in srgb, #000 55%, transparent);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -549,7 +549,7 @@
     padding: calc(var(--site-nav-pad-y) + env(safe-area-inset-top, 0px) + 12px) 1.5rem 2rem;
     background: color-mix(in srgb, var(--bg) 96%, #000);
     border-left: 1px solid var(--line, rgba(255, 255, 255, 0.085));
-    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
+    box-shadow: -12px 0 40px var(--shadow-card);
     transform: translateX(100%);
     transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
@@ -617,7 +617,7 @@
   }
 
   .site-nav__links li {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--line);
   }
 
   .site-nav__links a {

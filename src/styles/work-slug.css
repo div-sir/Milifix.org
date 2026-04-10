@@ -130,7 +130,7 @@ body::before {
 .work-hero__meta {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -166,16 +166,18 @@ body::before {
 .work-tag {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.78);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.72);
   border: 1px solid rgba(255,255,255,0.22);
   padding: 5px 11px;
+  border-radius: 2px;
   text-transform: uppercase;
   backdrop-filter: blur(6px);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 .work-tag:hover {
   border-color: color-mix(in srgb, var(--accent) 36%, var(--line));
+  color: rgba(255,255,255,0.9);
   box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
@@ -231,11 +233,11 @@ body::before {
 }
 .work-article--minimal .work-lead {
   font-size: 17px;
-  color: #a8aeae;
+  color: var(--muted);
 }
 .work-body {
   font-size: 17px;
-  color: #9ca4a4;
+  color: var(--muted);
   line-height: 1.92;
 }
 .work-body :global(p) { margin-bottom: 1.25em; }
@@ -246,7 +248,7 @@ body::before {
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
 }
 .work-body :global(a:hover) { border-bottom-color: var(--accent); }
-.work-body :global(strong) { color: #e4e8e8; font-weight: 500; }
+.work-body :global(strong) { color: var(--text); font-weight: 500; }
 .work-body :global(ul), .work-body :global(ol) {
   margin: 1em 0 1em 1.25em;
 }
@@ -275,7 +277,7 @@ body[data-space='voidlane'] {
 .work-junction__link {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--muted-dim);
   text-decoration: none;
   text-transform: uppercase;

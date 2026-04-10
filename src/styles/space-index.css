@@ -84,7 +84,7 @@ body[data-space='voidlane'] {
 .hero-kicker {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted-dim);
   margin-bottom: 20px;
@@ -174,7 +174,7 @@ body[data-space='voidlane'] {
   top: 0;
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--accent);
   pointer-events: none;
   z-index: 120;
@@ -270,7 +270,7 @@ body[data-space='voidlane'] {
   min-height: 220px;
 }
 .work-item:hover {
-  box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: 0 16px 48px var(--shadow-card), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .work-item__inner {
   position: relative;
@@ -343,24 +343,25 @@ body[data-space='voidlane'] {
 .work-title {
   font-size: 17px;
   font-weight: 500;
-  color: #fff;
+  color: var(--work-hero-title);
   margin-bottom: 8px;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.85);
+  text-shadow: 0 2px 16px var(--shadow-card);
 }
 .work-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .work-tag {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.62);
-  border: 1px solid rgba(255,255,255,0.2);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.22);
   padding: 4px 9px;
+  border-radius: 2px;
   text-transform: uppercase;
   transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 .work-item:hover .work-tag {
   border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
 }
 
 .about {
@@ -411,7 +412,7 @@ body[data-space='voidlane'] {
 .stat:hover {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--accent) 18%, var(--line));
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 32px var(--shadow-card);
 }
 .stat-num {
   font-family: var(--mono);
