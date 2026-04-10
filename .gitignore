@@ -17,6 +17,10 @@ pnpm-debug.log*
 .env
 .env.production
 
+# TinaCMS
+.tina/__generated__
+tina/__generated__
+
 # macOS-specific files
 .DS_Store
 
