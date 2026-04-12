@@ -854,11 +854,114 @@ const dockSections = [
         color: color-mix(in srgb, var(--muted) 48%, var(--text));
         border-bottom-color: color-mix(in srgb, var(--line2) 75%, var(--text) 25%);
       }
+
+      /* ── Ambient orbs ─────────────────────────────── */
+      .platform-orb {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: platform-orb-drift 16s ease-in-out infinite alternate;
+      }
+      .platform-orb--1 {
+        width: 680px; height: 680px;
+        background: var(--accent);
+        top: -250px; left: -180px;
+        animation-duration: 18s;
+      }
+      .platform-orb--2 {
+        width: 480px; height: 480px;
+        background: var(--nav-accent);
+        bottom: -150px; right: -100px;
+        animation-duration: 22s;
+        animation-delay: -8s;
+        opacity: 0.07;
+      }
+      @keyframes platform-orb-drift {
+        from { transform: translate(0, 0) scale(1); }
+        to   { transform: translate(50px, 35px) scale(1.06); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .platform-orb { animation: none; }
+      }
+
+      /* ── Particle canvas ──────────────────────────── */
+      #platform-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* ── Creator row: scan line ───────────────────── */
+      .creator-row__scan {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          color-mix(in srgb, var(--accent) 8%, transparent) 50%,
+          transparent 100%
+        );
+        height: 3px;
+        top: -3px;
+        width: 100%;
+        transform: translateY(0);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
+        transition: none;
+      }
+      .creator-row:hover .creator-row__scan {
+        animation: creator-scan 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes creator-scan {
+        from { top: -3px; opacity: 0.9; }
+        to   { top: 100%; opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .creator-row__scan { display: none; }
+      }
+
+      /* ── Hero title glitch ────────────────────────── */
+      @keyframes platform-glitch-clip {
+        0%   { clip-path: inset(40% 0 50% 0); transform: translate(-3px, 0); }
+        20%  { clip-path: inset(10% 0 80% 0); transform: translate(3px, 0); }
+        40%  { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 0); }
+        60%  { clip-path: inset(20% 0 65% 0); transform: translate(2px, 0); }
+        80%  { clip-path: inset(55% 0 30% 0); transform: translate(-1px, 0); }
+        100% { clip-path: inset(0% 0 0% 0);   transform: translate(0, 0); }
+      }
+      .hero-title--glitch::before,
+      .hero-title--glitch::after {
+        content: attr(data-glitch);
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .hero-title--glitch::before {
+        color: color-mix(in srgb, var(--nav-accent) 80%, transparent);
+        animation: platform-glitch-clip 0.18s steps(1) forwards;
+        mix-blend-mode: screen;
+      }
+      .hero-title--glitch::after {
+        color: color-mix(in srgb, var(--accent) 70%, transparent);
+        animation: platform-glitch-clip 0.18s steps(1) 0.04s forwards;
+        mix-blend-mode: screen;
+      }
     </style>
   </head>
   <body class="portfolio-atmo">
     <AmbientBackdrop />
     <PageTransition />
+
+    <!-- Ambient orbs -->
+    <div class="platform-orb platform-orb--1" aria-hidden="true"></div>
+    <div class="platform-orb platform-orb--2" aria-hidden="true"></div>
+    <!-- Particle canvas -->
+    <canvas id="platform-canvas" aria-hidden="true"></canvas>
 
     <div id="cursor"></div>
     <div id="cursor-ring"></div>
@@ -909,6 +1012,7 @@ const dockSections = [
           {creators.map((c) => (
             <a class="creator-row" href={c.href}>
               <span class="creator-row__fill" aria-hidden="true"></span>
+              <span class="creator-row__scan" aria-hidden="true"></span>
               <div class="creator-row__left">
                 <span class="creator-row__idx">
                   /{String(c.idx + 1).padStart(2, '0')} · {String(c.workCount).padStart(2, '0')}{' '}
@@ -942,6 +1046,90 @@ const dockSections = [
       initPlatformHeroScramble();
       initAnimeSplitText();
       initAnimeOnScrollReveals();
+
+      // ── 粒子背景 ────────────────────────────────────
+      const canvas = document.getElementById('platform-canvas') as HTMLCanvasElement | null;
+      if (canvas) {
+        const ctx = canvas.getContext('2d')!;
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function resize() {
+          canvas!.width = window.innerWidth;
+          canvas!.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        interface Particle {
+          x: number; y: number;
+          vx: number; vy: number;
+          size: number;
+          alpha: number;
+          alphaDir: number;
+        }
+
+        const COUNT = 38;
+        const particles: Particle[] = Array.from({ length: COUNT }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          vx: (Math.random() - 0.5) * 0.28,
+          vy: (Math.random() - 0.5) * 0.28,
+          size: Math.random() * 1.5 + 0.3,
+          alpha: Math.random() * 0.28 + 0.06,
+          alphaDir: Math.random() > 0.5 ? 1 : -1,
+        }));
+
+        function getAccentColor() {
+          return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e2b565';
+        }
+
+        let rafId: number;
+        function draw() {
+          ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+          const accent = getAccentColor();
+          for (const p of particles) {
+            if (!prefersReduced) {
+              p.x += p.vx;
+              p.y += p.vy;
+              p.alpha += p.alphaDir * 0.002;
+              if (p.alpha >= 0.34 || p.alpha <= 0.04) p.alphaDir *= -1;
+              if (p.x < 0) p.x = canvas!.width;
+              if (p.x > canvas!.width) p.x = 0;
+              if (p.y < 0) p.y = canvas!.height;
+              if (p.y > canvas!.height) p.y = 0;
+            }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = accent;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          rafId = requestAnimationFrame(draw);
+        }
+        draw();
+
+        document.addEventListener('astro:before-swap', () => {
+          cancelAnimationFrame(rafId);
+        }, { once: true });
+      }
+
+      // ── Hero title 偶發 glitch ───────────────────────
+      const heroTitle = document.querySelector<HTMLElement>('.hero-title');
+      if (heroTitle && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        heroTitle.style.position = 'relative';
+        const glitchText = heroTitle.querySelector('[data-scramble-text]')?.textContent ?? '';
+        heroTitle.dataset.glitch = glitchText;
+
+        function triggerGlitch() {
+          heroTitle!.classList.add('hero-title--glitch');
+          setTimeout(() => heroTitle!.classList.remove('hero-title--glitch'), 220);
+          // 下次隨機觸發：8~22 秒後
+          setTimeout(triggerGlitch, 8000 + Math.random() * 14000);
+        }
+        // 初次等 scramble 完成後再啟動
+        setTimeout(triggerGlitch, 4200);
+      }
     </script>
   </body>
 </html>
