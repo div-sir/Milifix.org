@@ -1,6 +1,4 @@
 ---
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-import { Image } from 'astro:assets';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import Quote from '../Quote.astro';
@@ -16,27 +14,28 @@ import { spacePath, workPath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import { getLocalizedSpace } from '../../i18n/space-locale';
 import { isSpaceId, type SpaceId } from '../../data/spaces';
+import { getWorks, workCoverUrl, type CmsWork } from '../../lib/cms';
+import LexicalContent from '../LexicalContent.astro';
 
 interface Props {
   lang: Lang;
-  entry: CollectionEntry<'works'>;
+  work: CmsWork;
   spaceParam: string | undefined;
 }
 
-const { lang, entry, spaceParam } = Astro.props;
-const { Content } = await render(entry);
+const { lang, work, spaceParam } = Astro.props;
 const {
   title,
   tags,
-  cover,
   date,
   description,
   quote,
   quoteAttribution,
   pageVariant,
   space: workSpace,
-  media = [],
-} = entry.data;
+  mediaGallery = [],
+  content,
+} = work;
 
 if (!spaceParam || !isSpaceId(spaceParam) || spaceParam !== workSpace) {
   const fallback = lang === 'en' ? '/' : `/${lang}/`;
@@ -47,22 +46,29 @@ const space = spaceParam as SpaceId;
 const spaceDef = getLocalizedSpace(space, lang);
 const navUi = ui(lang);
 
-const allWorks = (await getCollection('works'))
-  .filter((w) => w.data.space === space)
-  .sort((a, b) => b.data.date.localeCompare(a.data.date));
-const curIdx = allWorks.findIndex((w) => w.id === entry.id);
+const allWorks = await getWorks(space);
+const curIdx = allWorks.findIndex((w) => w.slug === work.slug);
 const prevWork = curIdx > 0 ? allWorks[curIdx - 1] : null;
 const nextWork = curIdx >= 0 && curIdx < allWorks.length - 1 ? allWorks[curIdx + 1] : null;
 const workNavItems = allWorks.map((w) => ({
-  href: workPath(lang, space, w.id),
-  title: w.data.title,
-  current: w.id === entry.id,
+  href: workPath(lang, space, w.slug),
+  title: w.title,
+  current: w.slug === work.slug,
 }));
 const workDockSections = [
   { id: 'work-hero', label: navUi.work.dockHero },
   { id: 'main-content', label: navUi.work.dockStory },
-  ...(media.length > 0 ? [{ id: 'work-media', label: navUi.work.dockMedia }] : []),
+  ...(mediaGallery.length > 0 ? [{ id: 'work-media', label: navUi.work.dockMedia }] : []),
 ];
+
+const coverUrl = workCoverUrl(work);
+
+// 把 mediaGallery 轉成 WorkMediaGallery 期望的格式
+const mediaItems = mediaGallery.map((m) => ({
+  kind: m.kind as 'image' | 'video' | 'embed',
+  src: m.file?.url ?? m.src ?? '',
+  caption: m.caption,
+}));
 ---
 
 <!DOCTYPE html>
@@ -115,14 +121,16 @@ const workDockSections = [
     class:list={['work-hero', pageVariant !== 'classic' && `work-hero--${pageVariant}`]}
   >
     <div class="work-hero__media">
-      <Image class="work-hero__img" src={cover} alt="" width={1600} height={900} loading="eager" fetchpriority="high" />
+      {coverUrl && (
+        <img class="work-hero__img" src={coverUrl} alt="" width={1600} height={900} loading="eager" fetchpriority="high" />
+      )}
       <div class="work-hero__gradient"></div>
     </div>
     <div class="work-hero__content">
       <p class="work-hero__meta work-hero-animate">{date}</p>
       <h1 class="work-hero__title" data-anime-splittext="chars" data-anime-splittext-delay="320">{title}</h1>
       <div class="work-hero__tags work-hero-animate">
-        {tags.map((tag) => (
+        {tags.map(({ tag }) => (
           <span class="work-tag">{tag}</span>
         ))}
       </div>
@@ -141,16 +149,16 @@ const workDockSections = [
       </div>
     )}
     <div class="work-body">
-      <Content />
+      <LexicalContent content={content} />
     </div>
-    <WorkMediaGallery items={media} sectionTitle={navUi.work.dockMedia} />
+    <WorkMediaGallery items={mediaItems} sectionTitle={navUi.work.dockMedia} />
   </article>
 
   <nav class="work-junction" aria-label={navUi.work.junctionAria}>
     {prevWork ? (
       <a
         class="work-junction__link work-junction__link--prev"
-        href={workPath(lang, space, prevWork.id)}
+        href={workPath(lang, space, prevWork.slug)}
       >
         {navUi.work.prev}
       </a>
@@ -160,7 +168,7 @@ const workDockSections = [
     {nextWork ? (
       <a
         class="work-junction__link work-junction__link--next"
-        href={workPath(lang, space, nextWork.id)}
+        href={workPath(lang, space, nextWork.slug)}
       >
         {navUi.work.next}
       </a>
