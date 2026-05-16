@@ -3,7 +3,7 @@ import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { spacePath } from '../../i18n/routes';
-import { getCollection } from 'astro:content';
+import { getWorks, getPosts } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import PortfolioChrome from '../PortfolioChrome.astro';
@@ -20,8 +20,8 @@ const { lang } = Astro.props;
 const labels = ui(lang);
 const P = labels.platform;
 
-const allWorks = await getCollection('works');
-const allPosts = await getCollection('blog');
+const allWorks = await getWorks();
+const allPosts = await getPosts();
 
 const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
   const def = getLocalizedSpace(id, lang);
@@ -29,7 +29,7 @@ const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
     name: def.platformName,
     tagline: def.tagline,
     href: spacePath(lang, id),
-    workCount: allWorks.filter((w) => w.data.space === id).length,
+    workCount: allWorks.filter((w) => w.space === id).length,
     countUnit: P.worksUnit,
     idx: i,
   };
@@ -45,8 +45,23 @@ creators.push({
   name: 'BLOG',
   tagline: blogTaglineByLang[lang],
   href: '/blog',
-  workCount: allPosts.filter((p) => !p.data.draft).length,
+  workCount: allPosts.filter((p) => !p.draft).length,
   countUnit: lang === 'zh' ? '篇文章' : lang === 'ja' ? '記事' : 'Posts',
+  idx: creators.length,
+});
+
+const lumiveilTaglineByLang: Record<Lang, string> = {
+  zh: '揭開你走過的每一步',
+  en: 'Reveal every step you have ever taken',
+  ja: '歩いてきた道を、光で明かす',
+};
+
+creators.push({
+  name: 'LUMIVEIL',
+  tagline: lumiveilTaglineByLang[lang],
+  href: '/lumiveil',
+  workCount: 0,
+  countUnit: 'iOS App',
   idx: creators.length,
 });
 
@@ -1015,8 +1030,7 @@ const dockSections = [
               <span class="creator-row__scan" aria-hidden="true"></span>
               <div class="creator-row__left">
                 <span class="creator-row__idx">
-                  /{String(c.idx + 1).padStart(2, '0')} · {String(c.workCount).padStart(2, '0')}{' '}
-                  {c.countUnit}
+                  /{String(c.idx + 1).padStart(2, '0')} · {c.workCount > 0 ? String(c.workCount).padStart(2, '0') + ' ' : ''}{c.countUnit}
                 </span>
                 <span class="creator-row__name" data-anime-splittext="chars-inview">{c.name}</span>
               </div>

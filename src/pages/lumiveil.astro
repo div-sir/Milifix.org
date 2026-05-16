@@ -1,0 +1,595 @@
+---
+import '../styles/theme.css';
+import '../styles/portfolio-atmosphere.css';
+import SiteNav from '../components/SiteNav.astro';
+import AmbientBackdrop from '../components/AmbientBackdrop.astro';
+---
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
+  <title>Lumiveil — 揭開你走過的每一步</title>
+  <meta name="description" content="Lumiveil 將你的足跡化為光影。每一次出行，地圖上的迷霧悄悄退去，留下屬於你的探索印記。" />
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sans: 'Space Grotesk', sans-serif;
+      --mono: 'Space Mono', monospace;
+      /* Lumiveil 專屬強調色（cyan），疊在全站 --accent 之上 */
+      --lv-accent: #39C5BB;
+      --lv-accent-dim: rgba(57, 197, 187, 0.12);
+      --lv-accent-border: rgba(57, 197, 187, 0.28);
+      --lv-card: color-mix(in srgb, var(--bg2) 80%, var(--bg3));
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+      cursor: none;
+    }
+
+    #cursor {
+      width: 8px; height: 8px;
+      background: var(--lv-accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s;
+    }
+    #cursor-ring {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(57,197,187,0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease-out, width 0.25s, height 0.25s;
+    }
+    body:has(a:hover) #cursor { width: 12px; height: 12px; }
+    body:has(a:hover) #cursor-ring { width: 48px; height: 48px; }
+
+    @media (max-width: 768px) {
+      body { cursor: auto !important; }
+      #cursor, #cursor-ring { display: none !important; }
+    }
+
+    /* ── Layout ── */
+    .lv-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 0 24px;
+    }
+
+    /* ── Hero ── */
+    .lv-hero {
+      text-align: center;
+      padding: 120px 24px 100px;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, var(--lv-accent-dim) 0%, transparent 70%);
+    }
+
+    .lv-eyebrow {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--lv-accent);
+      border: 1px solid var(--lv-accent-border);
+      padding: 4px 16px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+
+    .lv-hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .lv-hero h1 em {
+      font-style: normal;
+      color: var(--lv-accent);
+    }
+
+    .lv-hero__desc {
+      max-width: 540px;
+      margin: 0 auto 44px;
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .lv-hero__actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--lv-accent);
+      color: #0B0D13;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.82; }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--lv-accent-border);
+      color: var(--lv-accent);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-ghost:hover { background: var(--lv-accent-dim); }
+
+    /* ── Section ── */
+    .lv-section {
+      padding: 96px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .lv-section-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--lv-accent);
+      margin-bottom: 12px;
+    }
+
+    .lv-section-title {
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.18;
+      margin-bottom: 16px;
+    }
+
+    .lv-section-sub {
+      color: var(--muted);
+      max-width: 500px;
+      margin-bottom: 56px;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* ── Feature Grid ── */
+    .lv-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .lv-card {
+      background: var(--lv-card);
+      border: 1px solid var(--line2);
+      border-radius: 20px;
+      padding: 32px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .lv-card:hover {
+      border-color: var(--lv-accent-border);
+      transform: translateY(-2px);
+    }
+
+    .lv-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--lv-accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      border: 1px solid var(--lv-accent-border);
+    }
+
+    .lv-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .lv-card p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.68;
+    }
+
+    /* ── Steps ── */
+    .lv-steps { display: flex; flex-direction: column; gap: 0; }
+
+    .lv-step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 20px;
+      position: relative;
+      padding-bottom: 44px;
+    }
+
+    .lv-step:last-child { padding-bottom: 0; }
+
+    .lv-step__num {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--lv-accent-dim);
+      border: 2px solid var(--lv-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--lv-accent);
+      flex-shrink: 0;
+    }
+
+    .lv-step__line {
+      position: absolute;
+      left: 26px;
+      top: 52px;
+      bottom: 0;
+      width: 2px;
+      background: var(--lv-accent-border);
+    }
+
+    .lv-step:last-child .lv-step__line { display: none; }
+
+    .lv-step__content { padding-top: 10px; }
+
+    .lv-step__content h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .lv-step__content p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.68;
+    }
+
+    /* ── FAQ ── */
+    .lv-faq { display: flex; flex-direction: column; gap: 12px; }
+
+    details {
+      background: var(--lv-card);
+      border: 1px solid var(--line2);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    details[open] { border-color: var(--lv-accent-border); }
+
+    summary {
+      padding: 22px 28px;
+      font-weight: 600;
+      font-size: 0.975rem;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after {
+      content: "+";
+      color: var(--lv-accent);
+      font-size: 1.4rem;
+      font-weight: 300;
+      flex-shrink: 0;
+      line-height: 1;
+      font-family: var(--mono);
+    }
+
+    details[open] summary::after { content: "−"; }
+
+    .lv-faq-body {
+      padding: 0 28px 22px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.72;
+    }
+
+    /* ── Contact Box ── */
+    .lv-contact {
+      background: var(--lv-card);
+      border: 1px solid var(--lv-accent-border);
+      border-radius: 24px;
+      padding: 56px 48px;
+      text-align: center;
+    }
+
+    .lv-contact h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .lv-contact p {
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-size: 1rem;
+    }
+
+    .lv-contact-email {
+      display: inline-block;
+      background: var(--lv-accent-dim);
+      border: 1px solid var(--lv-accent-border);
+      color: var(--lv-accent);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 12px 28px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .lv-contact-email:hover { background: rgba(57,197,187,0.2); }
+
+    /* ── Footer ── */
+    .lv-footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--muted-dim);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      border-top: 1px solid var(--line);
+    }
+
+    /* ── Back link ── */
+    .lv-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-dim);
+      text-decoration: none;
+      padding: 20px 24px 0;
+      transition: color 0.2s;
+    }
+    .lv-back:hover { color: var(--lv-accent); }
+
+    @media (max-width: 640px) {
+      .lv-hero { padding: 80px 24px 72px; }
+      .lv-section { padding: 72px 24px; }
+      .lv-contact { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body class="portfolio-atmo">
+  <AmbientBackdrop />
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav variant="platform" lang="zh" pathname="/lumiveil" />
+
+  <a class="lv-back" href="/">← Milifix</a>
+
+  <!-- Hero -->
+  <div class="lv-hero">
+    <span class="lv-eyebrow">iOS App</span>
+    <h1>揭開你<em>走過</em>的<br>每一步</h1>
+    <p class="lv-hero__desc">
+      Lumiveil 將你的足跡化為光影。每一次出行，地圖上的迷霧悄悄退去，留下屬於你的探索印記。
+    </p>
+    <div class="lv-hero__actions">
+      <a href="#support" class="btn-ghost">取得支援</a>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Features -->
+  <section class="lv-section">
+    <p class="lv-section-label">功能</p>
+    <h2 class="lv-section-title">讓探索變得有意義</h2>
+    <p class="lv-section-sub">從日常散步到跨洲飛行，每一段旅程都被完整記錄。</p>
+
+    <div class="lv-feature-grid">
+      <div class="lv-card">
+        <div class="lv-card__icon">🗺️</div>
+        <h3>霧圖地圖</h3>
+        <p>全球地圖覆蓋一層迷霧，走過的地方自動揭開。支援步行、騎車、駕車、捷運、飛行等所有移動方式。</p>
+      </div>
+      <div class="lv-card">
+        <div class="lv-card__icon">📡</div>
+        <h3>NFC 景點印章</h3>
+        <p>靠近支援 Lumiveil 的 NFC 標籤，解鎖專屬景點章戳，讓收集成為探索的動力。</p>
+      </div>
+      <div class="lv-card">
+        <div class="lv-card__icon">✈️</div>
+        <h3>飛行記錄</h3>
+        <p>匯入 FlightRadar24 KML 飛行紀錄，自動建立航班日誌，讓飛行軌跡也成為地圖的一部分。</p>
+      </div>
+      <div class="lv-card">
+        <div class="lv-card__icon">❤️</div>
+        <h3>健康整合</h3>
+        <p>連結 Apple 健康 App，自動讀取步數、消耗卡路里與運動路線，讓探索統計更完整。</p>
+      </div>
+      <div class="lv-card">
+        <div class="lv-card__icon">🏅</div>
+        <h3>收集系統</h3>
+        <p>收集航空公司、機場、城市、國家、捷運站、地標印章，解鎖成就徽章，與朋友在 Game Center 競比排名。</p>
+      </div>
+      <div class="lv-card">
+        <div class="lv-card__icon">🛂</div>
+        <h3>探索護照</h3>
+        <p>自動生成旅行時間軸與國家章戳護照，完整呈現你走過的世界版圖。</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- How it works -->
+  <section class="lv-section">
+    <p class="lv-section-label">使用方式</p>
+    <h2 class="lv-section-title">三步開始你的探索</h2>
+    <p class="lv-section-sub">不需要帳號，資料存在你的裝置與 iCloud。</p>
+
+    <div class="lv-steps">
+      <div class="lv-step">
+        <div class="lv-step__num">01</div>
+        <div class="lv-step__line"></div>
+        <div class="lv-step__content">
+          <h3>下載並開啟 Lumiveil</h3>
+          <p>授予位置權限，讓 App 開始記錄你的足跡。你的資料只會存在本機與你的 iCloud，不會傳送至任何第三方伺服器。</p>
+        </div>
+      </div>
+      <div class="lv-step">
+        <div class="lv-step__num">02</div>
+        <div class="lv-step__line"></div>
+        <div class="lv-step__content">
+          <h3>點下「開始探索」，出發</h3>
+          <p>回到地圖頁，點擊底部的「開始探索」按鈕。走路、騎車、搭車都會自動揭開迷霧，停止後軌跡立即儲存。</p>
+        </div>
+      </div>
+      <div class="lv-step">
+        <div class="lv-step__num">03</div>
+        <div class="lv-step__line"></div>
+        <div class="lv-step__content">
+          <h3>收集、分享、繼續探索</h3>
+          <p>在收集頁查看你的航空、城市、景點收藏，在統計頁生成分享卡，記錄你每一段旅程的足跡。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- FAQ -->
+  <section class="lv-section" id="support">
+    <p class="lv-section-label">支援</p>
+    <h2 class="lv-section-title">常見問題</h2>
+    <p class="lv-section-sub">找不到解答？歡迎直接寄信給我們。</p>
+
+    <div class="lv-faq">
+      <details>
+        <summary>Lumiveil 會上傳我的位置資料嗎？</summary>
+        <div class="lv-faq-body">
+          不會。你的軌跡資料儲存於裝置本機與你自己的 iCloud（僅你可存取）。Lumiveil 沒有自建伺服器，位置資料不會傳送給任何第三方。
+        </div>
+      </details>
+      <details>
+        <summary>為什麼需要「一直」存取位置？</summary>
+        <div class="lv-faq-body">
+          「一直」權限讓 Lumiveil 在螢幕關閉時繼續記錄探索軌跡，不需要你手動保持 App 在前景。你可以隨時在系統設定中更改授權。授予此權限後，iOS 狀態列會顯示藍色指示器，讓你知道位置正在被使用。
+        </div>
+      </details>
+      <details>
+        <summary>NFC 印章在哪裡可以掃描？</summary>
+        <div class="lv-faq-body">
+          NFC 印章由 Lumiveil 與合作景點設置。在 App 地圖頁點擊右上角的掃描按鈕，靠近已部署的 NFC 標籤即可解鎖。我們持續在台灣各城市擴展合作景點。
+        </div>
+      </details>
+      <details>
+        <summary>如何匯入飛行記錄？</summary>
+        <div class="lv-faq-body">
+          前往 FlightRadar24 App 或網站，匯出你的飛行歷史為 KML 格式。在 Lumiveil 的「飛行日誌」頁面點擊「匯入 KML」，選取下載的檔案即可自動建立航班紀錄。
+        </div>
+      </details>
+      <details>
+        <summary>資料可以備份或匯出嗎？</summary>
+        <div class="lv-faq-body">
+          可以。前往「設定 → 資料匯出」，可將所有探索紀錄匯出為 GeoJSON 格式，方便備份或在其他地圖工具中使用。
+        </div>
+      </details>
+      <details>
+        <summary>支援哪些 iPhone 型號？</summary>
+        <div class="lv-faq-body">
+          Lumiveil 需要 iOS 18.0 以上版本。NFC 印章掃描功能需要支援 NFC 的 iPhone（iPhone 7 以上）。
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- Contact -->
+  <section class="lv-section">
+    <div class="lv-contact">
+      <h2>需要協助？</h2>
+      <p>有任何問題、功能建議或錯誤回報，歡迎來信。</p>
+      <a class="lv-contact-email" href="mailto:steven33152239@gmail.com">
+        steven33152239@gmail.com
+      </a>
+    </div>
+  </section>
+
+  <footer class="lv-footer">
+    © 2025 Lumiveil. All rights reserved.
+  </footer>
+
+  <script>
+    import { initPortfolioCursor } from '../scripts/portfolio-cursor';
+    import { initTheme } from '../scripts/theme-init';
+    initTheme();
+    initPortfolioCursor();
+  </script>
+</body>
+</html>
