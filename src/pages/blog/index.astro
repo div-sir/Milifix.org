@@ -1,18 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/blog.css';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
-import { resolveBlogBucket } from '../../data/blog-bucket-rules';
+import { getPosts, type CmsPost } from '../../lib/cms';
 
-const posts = (await getCollection('blog'))
-  .filter((p) => !p.data.draft && !p.data.hideInBlogIndex)
-  .sort((a, b) => b.data.date.localeCompare(a.data.date));
+const posts = await getPosts();
+const visiblePosts = posts.filter((p) => !p.hideInBlogIndex);
 
-type BlogPost = (typeof posts)[number];
+type BlogPost = CmsPost;
 
 type TopCatId =
   | 'journey'
@@ -51,13 +49,12 @@ const postsByTopCat: Record<TopCatId, BlogPost[]> = {
   misc: [],
 };
 
-for (const p of posts) {
-  const b = resolveBlogBucket(p.id);
-  postsByTopCat[bucketToTopCat(b)].push(p);
+for (const p of visiblePosts) {
+  postsByTopCat[bucketToTopCat(p.bucket ?? '')].push(p);
 }
 
 for (const k of topCatOrder) {
-  postsByTopCat[k].sort((a, b) => b.data.date.localeCompare(a.data.date));
+  postsByTopCat[k].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 const activeTopCats = topCatOrder.filter((k) => postsByTopCat[k].length > 0);
@@ -158,9 +155,9 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
             <ul class="group-list">
               {postsByTopCat[k].map((p, idx) => (
                 <li class="post-item">
-                  <a href={`/blog/${p.id}`}>
+                  <a href={`/blog/${p.slug}`}>
                     <span class="post-index" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
-                    <div class="post-list-title">{p.data.title}</div>
+                    <div class="post-list-title">{p.title}</div>
                     <span class="post-arrow" aria-hidden="true">↗</span>
                   </a>
                 </li>

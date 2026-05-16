@@ -1,67 +1,29 @@
 ---
-import { getCollection, render } from 'astro:content';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/blog.css';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
-import zephlogBlogPathRedirects from '../../data/zephlogBlogPathRedirects.json';
-import { resolveLegacyRedirect } from '../../data/blog-routing-rules';
+import LexicalContent from '../../components/LexicalContent.astro';
+import { getPosts } from '../../lib/cms';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  const published = posts.filter((p) => !p.data.draft);
-  const postPaths = published.map((p) => ({ params: { slug: p.id } }));
-  const ids = new Set(published.map((p) => p.id));
-  const redirectOnly = Object.keys(zephlogBlogPathRedirects as Record<string, string>).filter(
-    (id) => !ids.has(id),
-  );
-  const redirectPaths = redirectOnly.map((slug) => ({ params: { slug } }));
-  return [...postPaths, ...redirectPaths];
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
 }
 
-const slugParam = Astro.params.slug;
-const slug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam;
-
-/** Location 標頭須為 ASCII；內容集合 id 可含中文等字元。支援 `#錨點`（觀光列車合併頁）。 */
-function blogPostUrlFromId(id: string) {
-  const hashIdx = id.indexOf('#');
-  const pathPart = hashIdx === -1 ? id : id.slice(0, hashIdx);
-  const hash = hashIdx === -1 ? '' : id.slice(hashIdx + 1);
-  const base = `/blog/${pathPart.split('/').map((s) => encodeURIComponent(s)).join('/')}`;
-  return hash ? `${base}#${hash}` : base;
-}
-
-if (!slug) {
-  return Astro.redirect('/blog');
-}
-
-const all = await getCollection('blog');
-const entry = all.find((p) => p.id === slug);
-if (!entry || entry.data.draft) {
-  const redirectUrl = resolveLegacyRedirect({
-    slug,
-    blogPathRedirects: zephlogBlogPathRedirects as Record<string, string>,
-    blogPostUrlFromId,
-  });
-  if (redirectUrl) return Astro.redirect(redirectUrl);
-  return Astro.redirect('/blog');
-}
-
-const { Content } = await render(entry);
-const firstContentH1Match = entry.body.match(/^#\s+(.+)$/m);
-const firstContentH1 = firstContentH1Match?.[1]?.trim() || '';
-const displayTitle = firstContentH1 || entry.data.title;
+const { post } = Astro.props;
+const displayTitle = post.title;
 
 const hl = Astro.url.searchParams.get('hl');
 const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
-/** 僅供 aria，畫面上不顯示「目錄」標題 */
 const tocAriaLabel = lang === 'en' ? 'On this page' : lang === 'ja' ? 'このページの見出し' : '本篇章節';
-const tocToggleUnpin =
-  lang === 'en' ? 'Collapse' : lang === 'ja' ? '閉じる' : '收合';
-const tocTogglePin =
-  lang === 'en' ? 'Expand' : lang === 'ja' ? '開く' : '展開';
+const tocToggleUnpin = lang === 'en' ? 'Collapse' : lang === 'ja' ? '閉じる' : '收合';
+const tocTogglePin = lang === 'en' ? 'Expand' : lang === 'ja' ? '開く' : '展開';
 const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
   { id: 'back-to-blog', label: '返回', href: '/blog', icon: 'back' },
 ];
@@ -73,7 +35,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>{displayTitle} · Blog</title>
-    <meta name="description" content={entry.data.description} />
+    <meta name="description" content={post.description} />
     <script is:inline>
       (function () {
         try {
@@ -135,12 +97,11 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
       <a class="back" href="/blog">← Blog</a>
       <h1 class="post-title">{displayTitle}</h1>
       <div class="prose">
-        <Content />
+        <LexicalContent content={post.content} />
       </div>
     </article>
     {
-      !entry.data.hideToc && (
-        <!-- 勿加 notranslate：hl=en|ja 時需與正文一併由 Google Translate 處理目錄標題 -->
+      !post.hideToc && (
         <aside id="blog-post-toc" class="blog-toc" aria-label={tocAriaLabel} hidden>
           <div class="blog-toc__shell">
             <div id="blog-toc-panel" class="blog-toc__panel">
@@ -219,21 +180,14 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         document.body.appendChild(host);
 
         window.googleTranslateElementInit = () => {
-          // eslint-disable-next-line no-undef
           new google.translate.TranslateElement(
-            {
-              pageLanguage: 'zh-TW',
-              includedLanguages: 'zh-TW,ja,en',
-              autoDisplay: false,
-            },
+            { pageLanguage: 'zh-TW', includedLanguages: 'zh-TW,ja,en', autoDisplay: false },
             'google_translate_element'
           );
-
           let retries = 0;
-          const maxRetries = 24;
           const timer = window.setInterval(() => {
-            retries += 1;
-            if (applyGoogleTranslate(targetLang) || retries >= maxRetries) {
+            retries++;
+            if (applyGoogleTranslate(targetLang) || retries >= 24) {
               window.clearInterval(timer);
               onSettled?.();
             }
@@ -257,7 +211,6 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         prepareBlogLangTransitionOverlay(fromLangNav);
         mountTranslateScript(displayLang, () => finishBlogLangTransitionOverlay());
       }
-
     </script>
   </body>
 </html>
