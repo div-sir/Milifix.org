@@ -67,7 +67,7 @@ const t = {
       { id: 'support',     label: 'Support' },
     ],
     back: '← Milifix',
-    footer: '© 2025 Lumiveil. All rights reserved.',
+    footer: '© 2026 Lumiveil. All rights reserved.',
   },
   zh: {
     htmlTitle: 'Lumiveil — 揭開你走過的每一步',
@@ -112,7 +112,7 @@ const t = {
       { id: 'support',     label: '支援' },
     ],
     back: '← Milifix',
-    footer: '© 2025 Lumiveil. All rights reserved.',
+    footer: '© 2026 Lumiveil. All rights reserved.',
   },
   ja: {
     htmlTitle: 'Lumiveil — あなたが歩いた道を、光で明かす',
@@ -157,7 +157,7 @@ const t = {
       { id: 'support',     label: 'サポート' },
     ],
     back: '← Milifix',
-    footer: '© 2025 Lumiveil. All rights reserved.',
+    footer: '© 2026 Lumiveil. All rights reserved.',
   },
 }[lang];
 
@@ -307,8 +307,8 @@ const langUrls = { en: '/lumiveil', zh: '/zh/lumiveil', ja: '/ja/lumiveil' };
 
     .lv-hero h1 {
       font-size: clamp(2.6rem, 7vw, 4.8rem);
-      font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;
-      margin-bottom: 24px;
+      font-weight: 800; letter-spacing: 0.02em; line-height: 1.28;
+      margin-bottom: 28px;
       animation: lv-hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
@@ -358,22 +358,60 @@ const langUrls = { en: '/lumiveil', zh: '/zh/lumiveil', ja: '/ja/lumiveil' };
     }
     .lv-section-sub { color: var(--muted); max-width: 500px; margin-bottom: 56px; font-size: 1rem; line-height: 1.7; }
 
-    /* ── Feature cards ── */
-    .lv-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    /* ── Feature rows ── */
+    .lv-feature-grid { display: flex; flex-direction: column; gap: 2px; }
+
     .lv-card {
-      background: var(--lv-card); border: 1px solid var(--line2);
-      border-radius: 20px; padding: 32px;
-      transition: border-color 0.2s, transform 0.2s;
+      display: grid;
+      grid-template-columns: 64px 220px 1fr;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--line2);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.22s, background 0.22s;
+      background: var(--lv-card);
     }
-    .lv-card:hover { border-color: var(--lv-accent-border); transform: translateY(-2px); }
+
+    .lv-card:first-child { border-radius: 16px 16px 6px 6px; }
+    .lv-card:last-child  { border-radius: 6px 6px 16px 16px; }
+    .lv-card:not(:first-child):not(:last-child) { border-radius: 6px; }
+
+    .lv-card:hover {
+      border-color: var(--lv-accent-border);
+      background: color-mix(in srgb, var(--lv-card) 85%, rgba(57,197,187,0.06));
+    }
+
     .lv-card__icon {
-      width: 48px; height: 48px; border-radius: 14px;
-      background: var(--lv-accent-dim); border: 1px solid var(--lv-accent-border);
+      width: 64px; height: 64px;
       display: flex; align-items: center; justify-content: center;
-      color: var(--lv-accent); margin-bottom: 20px;
+      color: var(--lv-accent);
+      flex-shrink: 0;
+      border-right: 1px solid var(--line2);
     }
-    .lv-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
-    .lv-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.68; }
+
+    .lv-card__title {
+      padding: 20px 24px;
+      font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em;
+      border-right: 1px solid var(--line2);
+      height: 100%;
+      display: flex; align-items: center;
+    }
+
+    .lv-card__body {
+      padding: 16px 28px;
+      color: var(--muted); font-size: 0.9rem; line-height: 1.65;
+    }
+
+    @media (max-width: 680px) {
+      .lv-card {
+        grid-template-columns: 52px 1fr;
+        grid-template-rows: auto auto;
+      }
+      .lv-card__icon { width: 52px; height: 52px; border-right: none; border-bottom: 1px solid var(--line2); }
+      .lv-card__title { padding: 14px 16px; border-right: none; border-bottom: none; height: auto; }
+      .lv-card__body { grid-column: 1 / -1; padding: 0 16px 16px; border-top: 1px solid var(--line2); }
+    }
 
     /* ── Steps ── */
     .lv-steps { display: flex; flex-direction: column; gap: 0; }
@@ -493,8 +531,8 @@ const langUrls = { en: '/lumiveil', zh: '/zh/lumiveil', ja: '/ja/lumiveil' };
       {t.features.map((f) => (
         <div class="lv-card">
           <div class="lv-card__icon" set:html={ICONS[f.icon as keyof typeof ICONS]} />
-          <h3>{f.title}</h3>
-          <p>{f.body}</p>
+          <div class="lv-card__title">{f.title}</div>
+          <div class="lv-card__body">{f.body}</div>
         </div>
       ))}
     </div>
