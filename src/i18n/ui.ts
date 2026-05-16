@@ -107,11 +107,11 @@ const STRINGS: Record<
       workGalleryTitle: 'Gallery',
       workArticleTitle: 'Articles',
       workProjectTitle: 'Projects',
-      langShort: { en: 'EN', zh: 'CN', ja: 'JP' },
+      langShort: { en: 'EN', zh: '中', ja: 'JP' },
       langNames: {
         en: 'English',
-        zh: 'Traditional Chinese',
-        ja: 'Japanese',
+        zh: '繁體中文',
+        ja: '日本語',
       },
     },
     platform: {
@@ -184,8 +184,8 @@ const STRINGS: Record<
       workGalleryTitle: '圖庫',
       workArticleTitle: '文章',
       workProjectTitle: '專案',
-      langShort: { en: '英', zh: '中', ja: '日' },
-      langNames: { en: '英文', zh: '繁體中文', ja: '日文' },
+      langShort: { en: 'EN', zh: '中', ja: 'JP' },
+      langNames: { en: 'English', zh: '繁體中文', ja: '日本語' },
     },
     platform: {
       heroTag: '創作工作室',
@@ -257,8 +257,8 @@ const STRINGS: Record<
       workGalleryTitle: 'ギャラリー',
       workArticleTitle: '記事',
       workProjectTitle: 'プロジェクト',
-      langShort: { en: '英', zh: '中', ja: '日' },
-      langNames: { en: '英語', zh: '繁体字中国語', ja: '日本語' },
+      langShort: { en: 'EN', zh: '中', ja: 'JP' },
+      langNames: { en: 'English', zh: '繁體中文', ja: '日本語' },
     },
     platform: {
       heroTag: 'クリエイティブスタジオ',
