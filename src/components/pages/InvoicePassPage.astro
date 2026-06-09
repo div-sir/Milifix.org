@@ -48,7 +48,7 @@ const t = {
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
     bgImageLabel: '底圖',
-    bgImageHint: '建議尺寸 750 × 1100 px（PNG / JPG）',
+    bgImageHint: '建議尺寸 750 × 196 px（PNG / JPG）',
     bgImageClear: '移除',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
@@ -102,7 +102,7 @@ const t = {
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
     bgImageLabel: 'Background Image',
-    bgImageHint: 'Recommended: 750 × 1100 px (PNG / JPG)',
+    bgImageHint: 'Recommended: 750 × 196 px (PNG / JPG)',
     bgImageClear: 'Remove',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
@@ -156,7 +156,7 @@ const t = {
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
     bgImageLabel: '背景画像',
-    bgImageHint: '推奨サイズ: 750 × 1100 px（PNG / JPG）',
+    bgImageHint: '推奨サイズ: 750 × 196 px（PNG / JPG）',
     bgImageClear: '削除',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
@@ -422,6 +422,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <div class="ip-card-scene" id="card-scene">
         <div class="ip-card" id="wallet-card">
           <div class="ip-card-bg" id="card-bg" style={`background: ${DEFAULT_BG}`} data-bg={DEFAULT_BG} data-gradient=""></div>
+          <div class="ip-card-strip" id="card-strip" hidden></div>
           <div class="ip-card-glare" id="card-glare"></div>
           <div class="ip-card-content" id="card-content">
 
@@ -694,6 +695,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const bgClearBtn       = document.getElementById('bg-clear');
   const gradientField    = document.getElementById('gradient-field');
   const bgColorField     = document.getElementById('bg-color-field');
+  const cardStrip        = document.getElementById('card-strip');
   const cardGlare        = document.getElementById('card-glare');
   const cardContent      = document.getElementById('card-content');
   const cardNumber       = document.getElementById('card-number');
@@ -1024,17 +1026,17 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
   function applyBgImage(dataUrl) {
     currentBgImage = dataUrl;
-    cardBg.style.backgroundImage    = `url(${dataUrl})`;
-    cardBg.style.backgroundSize     = 'cover';
-    cardBg.style.backgroundPosition = 'center';
-    bgPreviewImg.src  = dataUrl;
+    cardStrip.style.backgroundImage = `url(${dataUrl})`;
+    cardStrip.hidden = false;
+    bgPreviewImg.src = dataUrl;
     bgPreviewWrap.hidden = false;
     setBgControlsDisabled(true);
   }
 
   function clearBgImage() {
     currentBgImage = null;
-    cardBg.style.backgroundImage = '';
+    cardStrip.style.backgroundImage = '';
+    cardStrip.hidden = true;
     bgPreviewWrap.hidden = true;
     bgPreviewImg.src = '';
     bgImageInput.value = '';
@@ -1675,6 +1677,14 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     position: absolute;
     inset: 0;
     transition: background 0.4s ease;
+  }
+
+  .ip-card-strip {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 26%;
+    background-size: cover;
+    background-position: center top;
   }
 
   .ip-card-glare {

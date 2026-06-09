@@ -151,11 +151,11 @@ export default async function handler(req, res) {
     pass.addBuffer('logo.png',    iconBuf);
     pass.addBuffer('logo@2x.png', iconBuf);
 
-    // Background image (optional, user-uploaded)
+    // Strip image (optional, user-uploaded) — shown above primary field, no blur
     if (backgroundPng) {
-      const bgBuf = Buffer.from(backgroundPng, 'base64');
-      pass.addBuffer('background.png',    bgBuf);
-      pass.addBuffer('background@2x.png', bgBuf);
+      const stripBuf = Buffer.from(backgroundPng, 'base64');
+      pass.addBuffer('strip.png',    stripBuf);
+      pass.addBuffer('strip@2x.png', stripBuf);
     }
 
     const pkpassBuffer = await pass.getAsBuffer();
