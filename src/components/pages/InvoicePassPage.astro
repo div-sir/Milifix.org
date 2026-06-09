@@ -257,8 +257,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <!-- Icon picker -->
       <div class="ip-field">
         <span class="ip-label">{copy.iconLabel}</span>
-        <div class="ip-icon-grid" id="icon-grid">
-          <!-- icons injected by JS -->
+        <div class="ip-icon-trigger-wrap">
+          <button type="button" class="ip-icon-trigger" id="icon-trigger">
+            <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
+            <span class="ip-icon-trigger-name" id="icon-trigger-name">收據</span>
+            <svg class="ip-icon-trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <!-- Icon panel -->
+          <div class="ip-icon-panel" id="icon-panel" hidden>
+            <div class="ip-icon-search-wrap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="icon-search" type="text" class="ip-icon-search" placeholder="搜尋圖示…" autocomplete="off" />
+            </div>
+            <div class="ip-icon-grid" id="icon-grid"></div>
+          </div>
         </div>
       </div>
 
@@ -268,34 +280,44 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <input id="logo-text-input" type="text" class="ip-input" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
       </div>
 
-      <!-- Secondary field 1 (left) -->
+      <!-- Secondary field 1 -->
       <div class="ip-field">
         <span class="ip-label">{copy.sec1Label}</span>
-        <div class="ip-field-row">
-          <div class="ip-aux-row">
-            <input id="sec1-label-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN} maxlength="20" autocomplete="off" />
-            <input id="sec1-value-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN} maxlength="24" autocomplete="off" />
+        <div class="ip-inline-row">
+          <input id="sec1-label-input" type="text" class="ip-input ip-input--label" value={lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN} maxlength="20" autocomplete="off" />
+          <div class="ip-align-inline" data-field="sec1" data-subfield="label">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
-          <div class="ip-align-btns" data-field="sec1">
-            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
-            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
-            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+        </div>
+        <div class="ip-inline-row">
+          <input id="sec1-value-input" type="text" class="ip-input ip-input--value" value={lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN} maxlength="24" autocomplete="off" />
+          <div class="ip-align-inline" data-field="sec1" data-subfield="value">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
         </div>
       </div>
 
-      <!-- Secondary field 2 (right) -->
+      <!-- Secondary field 2 -->
       <div class="ip-field">
         <span class="ip-label">{copy.sec2Label}</span>
-        <div class="ip-field-row">
-          <div class="ip-aux-row">
-            <input id="sec2-label-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN} maxlength="20" autocomplete="off" />
-            <input id="sec2-value-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN} maxlength="24" autocomplete="off" />
+        <div class="ip-inline-row">
+          <input id="sec2-label-input" type="text" class="ip-input ip-input--label" value={lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN} maxlength="20" autocomplete="off" />
+          <div class="ip-align-inline" data-field="sec2" data-subfield="label">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
-          <div class="ip-align-btns" data-field="sec2">
-            <button type="button" class="ip-align-btn" data-align="left" title="靠左">&#8676;</button>
-            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
-            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="right" title="靠右">&#8677;</button>
+        </div>
+        <div class="ip-inline-row">
+          <input id="sec2-value-input" type="text" class="ip-input ip-input--value" value={lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN} maxlength="24" autocomplete="off" />
+          <div class="ip-align-inline" data-field="sec2" data-subfield="value">
+            <button type="button" class="ip-aln" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln ip-aln--active" data-align="right">&#8677;</button>
           </div>
         </div>
       </div>
@@ -303,15 +325,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <!-- Auxiliary field 1 -->
       <div class="ip-field">
         <span class="ip-label">{copy.aux1Label}</span>
-        <div class="ip-field-row">
-          <div class="ip-aux-row">
-            <input id="aux1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1LabelPH} maxlength="20" autocomplete="off" />
-            <input id="aux1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1ValuePH} maxlength="30" autocomplete="off" />
+        <div class="ip-inline-row">
+          <input id="aux1-label-input" type="text" class="ip-input ip-input--label" placeholder={copy.aux1LabelPH} maxlength="20" autocomplete="off" />
+          <div class="ip-align-inline" data-field="aux1" data-subfield="label">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
-          <div class="ip-align-btns" data-field="aux1">
-            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
-            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
-            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+        </div>
+        <div class="ip-inline-row">
+          <input id="aux1-value-input" type="text" class="ip-input ip-input--value" placeholder={copy.aux1ValuePH} maxlength="30" autocomplete="off" />
+          <div class="ip-align-inline" data-field="aux1" data-subfield="value">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
         </div>
       </div>
@@ -319,15 +346,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <!-- Auxiliary field 2 -->
       <div class="ip-field">
         <span class="ip-label">{copy.aux2Label}</span>
-        <div class="ip-field-row">
-          <div class="ip-aux-row">
-            <input id="aux2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
-            <input id="aux2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
+        <div class="ip-inline-row">
+          <input id="aux2-label-input" type="text" class="ip-input ip-input--label" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
+          <div class="ip-align-inline" data-field="aux2" data-subfield="label">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
-          <div class="ip-align-btns" data-field="aux2">
-            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
-            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
-            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+        </div>
+        <div class="ip-inline-row">
+          <input id="aux2-value-input" type="text" class="ip-input ip-input--value" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
+          <div class="ip-align-inline" data-field="aux2" data-subfield="value">
+            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="center">&#8596;</button>
+            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
           </div>
         </div>
       </div>
@@ -448,9 +480,14 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   let currentFgColor = '#e2b565';
   let carrierId = '';
   let selectedIconId = 'receipt';
-  let currentGradient = '';  // '' = solid colour; else CSS gradient string
-  // alignment per field: 'left' | 'center' | 'right'
-  const fieldAlign = { sec1: 'left', sec2: 'right', aux1: 'left', aux2: 'left' };
+  let currentGradient = '';
+  // alignment per field × subfield (label / value)
+  const fieldAlign = {
+    sec1:  { label: 'left',  value: 'left'  },
+    sec2:  { label: 'left',  value: 'right' },
+    aux1:  { label: 'left',  value: 'left'  },
+    aux2:  { label: 'left',  value: 'left'  },
+  };
 
   // ── Gradient themes ─────────────────────────────────────────────────
   const GRADIENTS = [
@@ -464,32 +501,63 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     { id: 'copper',   label: '銅色',   css: 'linear-gradient(135deg,#1a0e08 0%,#3d1f0d 100%)',              fg: '#d4845a', from: '#1a0e08', to: '#3d1f0d' },
   ];
 
-  // ── Lucide icons (24 selected) — SVG path data only ───────────────
+  // ── Lucide icons — SVG path data only ────────────────────────────
   const ICONS = [
-    { id: 'receipt',       label: '收據',   path: 'M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1zm3 5h10M7 12h10M7 15h5' },
-    { id: 'wallet',        label: '錢包',   path: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M21 12v5H5a2 2 0 0 0 0 4h14v-4M3 5v14' },
-    { id: 'credit-card',   label: '信用卡', path: 'M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20M7 15h.01M11 15h2' },
-    { id: 'star',          label: '星星',   path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z' },
-    { id: 'tag',           label: '標籤',   path: 'M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l9.59-9.59a1 1 0 0 0 0-1.41zM7 7h.01' },
-    { id: 'gift',          label: '禮物',   path: 'M20 12v10H4V12M22 7H2v5h20zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7' },
-    { id: 'shopping-bag',  label: '購物袋', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
-    { id: 'coffee',        label: '咖啡',   path: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2' },
-    { id: 'utensils',      label: '餐具',   path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7' },
-    { id: 'car',           label: '汽車',   path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0m8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0' },
-    { id: 'fuel',          label: '加油',   path: 'M3 22V6l10-3v19M3 10h10M13 22V11l7 4v7M13 14h7' },
-    { id: 'train',         label: '捷運',   path: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 21h1.5l1-1.5h7L16.5 21H18l-1.5-2A3.5 3.5 0 0 0 20 15.5V6c0-3.5-4-4-8-4zM6.5 17A1.5 1.5 0 1 1 8 15.5 1.5 1.5 0 0 1 6.5 17zm11 0A1.5 1.5 0 1 1 19 15.5 1.5 1.5 0 0 1 17.5 17zM4 11V7h16v4' },
-    { id: 'plane',         label: '飛機',   path: 'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z' },
-    { id: 'hotel',         label: '飯店',   path: 'M3 22V11l9-9 9 9v11H3zm6 0v-7h6v7' },
-    { id: 'ticket',        label: '票券',   path: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm11 1-1 2h2l-1.5 3' },
-    { id: 'landmark',      label: '建築',   path: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2 2 7h20z' },
-    { id: 'package',       label: '包裹',   path: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
-    { id: 'zap',           label: '閃電',   path: 'M13 2 3 14h9l-1 8 10-12h-9z' },
-    { id: 'heart',         label: '愛心',   path: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
-    { id: 'music',         label: '音樂',   path: 'M9 18V5l12-2v13M9 9l12-2M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm15-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6' },
-    { id: 'camera',        label: '相機',   path: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8' },
-    { id: 'book',          label: '書本',   path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z' },
-    { id: 'activity',      label: '活動',   path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
-    { id: 'gem',           label: '寶石',   path: 'M12 2L2 7l2 12 8 3 8-3 2-12zM2 7l10 5 10-5M12 12v10' },
+    // 財務
+    { id: 'receipt',       label: '收據',   cat: '財務', path: 'M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1zm3 5h10M7 12h10M7 15h5' },
+    { id: 'wallet',        label: '錢包',   cat: '財務', path: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M21 12v5H5a2 2 0 0 0 0 4h14v-4M3 5v14' },
+    { id: 'credit-card',   label: '信用卡', cat: '財務', path: 'M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20M7 15h.01M11 15h2' },
+    { id: 'banknote',      label: '鈔票',   cat: '財務', path: 'M2 7h20v14H2zM16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M12 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4' },
+    { id: 'coins',         label: '硬幣',   cat: '財務', path: 'M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3M9 14c0-1.657 2.686-3 6-3s6 1.343 6 3M9 14v4c0 1.657 2.686 3 6 3s6-1.343 6-3v-4M3 6c0 1.657 2.686 3 6 3s6-1.343 6-3M3 6c0-1.657 2.686-3 6-3s6 1.343 6 3M3 6v10c0 1.657 2.686 3 6 3a11.955 11.955 0 0 0 2-.166' },
+    { id: 'piggy-bank',    label: '存錢筒', cat: '財務', path: 'M19 5c-1.5 0-2.8.4-3.9 1.1C14.1 4.7 13 4 12 4c-2.2 0-4 2.4-4 5.5V11H6v2h2v1.5C8 17.5 9.8 20 12 20h4c2.8 0 5-2.2 5-5v-4c0-2-1.1-4-2-6zM6 13H4v2h2zM12 9h.01' },
+    { id: 'landmark',      label: '銀行',   cat: '財務', path: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2 2 7h20z' },
+    { id: 'trending-up',   label: '漲',     cat: '財務', path: 'M22 7 13.5 15.5l-5-5L2 17M22 7h-6m6 0v6' },
+    // 購物
+    { id: 'shopping-bag',  label: '購物袋', cat: '購物', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
+    { id: 'shopping-cart', label: '購物車', cat: '購物', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
+    { id: 'tag',           label: '標籤',   cat: '購物', path: 'M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l9.59-9.59a1 1 0 0 0 0-1.41zM7 7h.01' },
+    { id: 'gift',          label: '禮物',   cat: '購物', path: 'M20 12v10H4V12M22 7H2v5h20zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7' },
+    { id: 'package',       label: '包裹',   cat: '購物', path: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
+    { id: 'ticket',        label: '票券',   cat: '購物', path: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm11 1-1 2h2l-1.5 3' },
+    { id: 'barcode',       label: '條碼',   cat: '購物', path: 'M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14M7 5H5M11 5H9M16 5h-2M20 5h-2M7 19H5M11 19H9M16 19h-2M20 19h-2' },
+    // 餐飲
+    { id: 'coffee',        label: '咖啡',   cat: '餐飲', path: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2' },
+    { id: 'utensils',      label: '餐具',   cat: '餐飲', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7' },
+    { id: 'pizza',         label: '披薩',   cat: '餐飲', path: 'M12 2a10 10 0 0 1 10 10M12 2a10 10 0 0 0-10 10M12 2v10m0 0L2 12m10 0 9.899-2.928M8.5 16.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm5-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z' },
+    { id: 'wine',          label: '紅酒',   cat: '餐飲', path: 'M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5z' },
+    { id: 'cake',          label: '蛋糕',   cat: '餐飲', path: 'M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 1.5-1 3-1 2.5 2 4 2 1.5-1 2-1M2 21h20M7 8v2M12 8v2M17 8v2M7 8a5 5 0 0 1 5-5 5 5 0 0 1 5 5' },
+    // 交通
+    { id: 'car',           label: '汽車',   cat: '交通', path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0m8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0' },
+    { id: 'fuel',          label: '加油',   cat: '交通', path: 'M3 22V6l10-3v19M3 10h10M13 22V11l7 4v7M13 14h7' },
+    { id: 'train',         label: '捷運',   cat: '交通', path: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 21h1.5l1-1.5h7L16.5 21H18l-1.5-2A3.5 3.5 0 0 0 20 15.5V6c0-3.5-4-4-8-4zM6.5 17A1.5 1.5 0 1 1 8 15.5 1.5 1.5 0 0 1 6.5 17zm11 0A1.5 1.5 0 1 1 19 15.5 1.5 1.5 0 0 1 17.5 17zM4 11V7h16v4' },
+    { id: 'plane',         label: '飛機',   cat: '交通', path: 'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z' },
+    { id: 'bus',           label: '公車',   cat: '交通', path: 'M8 6v6M15 6v6M2 12h19.6M18 18h2s1 0 1-1V7c0-1-.9-2-2-2H5C3.9 5 3 6 3 7v10c0 1 1 1 1 1h2M9 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z' },
+    { id: 'bike',          label: '自行車', cat: '交通', path: 'M5 19a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 19V9l-2-2H6M12 9l4 2 3-2' },
+    { id: 'ship',          label: '船',     cat: '交通', path: 'M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76M19 13V7l-7-3-7 3v6M12 10v4M12 4V2.5' },
+    // 住宿
+    { id: 'hotel',         label: '飯店',   cat: '住宿', path: 'M3 22V11l9-9 9 9v11H3zm6 0v-7h6v7' },
+    { id: 'bed',           label: '床',     cat: '住宿', path: 'M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9' },
+    { id: 'key',           label: '鑰匙',   cat: '住宿', path: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4' },
+    { id: 'map-pin',       label: '位置',   cat: '住宿', path: 'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    // 娛樂
+    { id: 'music',         label: '音樂',   cat: '娛樂', path: 'M9 18V5l12-2v13M9 9l12-2M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm15-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6' },
+    { id: 'film',          label: '電影',   cat: '娛樂', path: 'M2 2h20v20H2zM7 2v20M17 2v20M2 12h20M2 7h5M2 17h5m10-10h5m-5 10h5' },
+    { id: 'camera',        label: '相機',   cat: '娛樂', path: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8' },
+    { id: 'gamepad',       label: '遊戲',   cat: '娛樂', path: 'M6 12h4m-2-2v4M14.5 13h.01M17.5 11h.01M21 6H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z' },
+    { id: 'book',          label: '書本',   cat: '娛樂', path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z' },
+    { id: 'headphones',    label: '耳機',   cat: '娛樂', path: 'M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3' },
+    { id: 'tv',            label: '電視',   cat: '娛樂', path: 'M33 7h-18a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM8 20v2m8-2v2m-6 0h4' },
+    // 生活
+    { id: 'star',          label: '星星',   cat: '生活', path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z' },
+    { id: 'heart',         label: '愛心',   cat: '生活', path: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
+    { id: 'zap',           label: '閃電',   cat: '生活', path: 'M13 2 3 14h9l-1 8 10-12h-9z' },
+    { id: 'gem',           label: '寶石',   cat: '生活', path: 'M12 2L2 7l2 12 8 3 8-3 2-12zM2 7l10 5 10-5M12 12v10' },
+    { id: 'sun',           label: '太陽',   cat: '生活', path: 'M12 17A5 5 0 1 0 12 7a5 5 0 0 0 0 10zm0-15v2m0 14v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' },
+    { id: 'moon',          label: '月亮',   cat: '生活', path: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' },
+    { id: 'umbrella',      label: '雨傘',   cat: '生活', path: 'M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7' },
+    { id: 'leaf',          label: '葉子',   cat: '生活', path: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12' },
+    { id: 'activity',      label: '脈搏',   cat: '生活', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+    { id: 'award',         label: '獎牌',   cat: '生活', path: 'M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm0 0v6m-3-3h6' },
   ];
 
   // ── Element refs ───────────────────────────────────────────────────
@@ -627,22 +695,50 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${pathData}"/></svg>`;
   }
 
-  function renderIconGrid() {
+  const iconTrigger     = document.getElementById('icon-trigger');
+  const iconTriggerPrev = document.getElementById('icon-trigger-preview');
+  const iconTriggerName = document.getElementById('icon-trigger-name');
+  const iconPanel       = document.getElementById('icon-panel');
+  const iconSearchInput = /** @type {HTMLInputElement} */ (document.getElementById('icon-search'));
+  const iconGrid        = document.getElementById('icon-grid');
+
+  function updateTriggerDisplay() {
+    const icon = ICONS.find(i => i.id === selectedIconId);
+    if (!icon) return;
+    iconTriggerPrev.innerHTML = makeSvg(icon.path, 16);
+    iconTriggerName.textContent = icon.label;
+  }
+
+  function renderIconGrid(filter = '') {
     iconGrid.innerHTML = '';
-    ICONS.forEach(icon => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'ip-icon-btn' + (icon.id === selectedIconId ? ' ip-icon-btn--active' : '');
-      btn.title = icon.label;
-      btn.dataset.id = icon.id;
-      btn.innerHTML = makeSvg(icon.path, 20);
-      btn.addEventListener('click', () => {
-        selectedIconId = icon.id;
-        document.querySelectorAll('.ip-icon-btn').forEach(b => b.classList.remove('ip-icon-btn--active'));
-        btn.classList.add('ip-icon-btn--active');
-        updateCardIcon();
+    const q = filter.toLowerCase();
+    const cats = [...new Set(ICONS.map(i => i.cat))];
+    cats.forEach(cat => {
+      const filtered = ICONS.filter(i => i.cat === cat && (
+        !q || i.label.includes(q) || i.id.includes(q) || i.cat.includes(q)
+      ));
+      if (!filtered.length) return;
+      const catEl = document.createElement('div');
+      catEl.className = 'ip-icon-cat';
+      catEl.textContent = cat;
+      iconGrid.appendChild(catEl);
+      filtered.forEach(icon => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ip-icon-btn' + (icon.id === selectedIconId ? ' ip-icon-btn--active' : '');
+        btn.title = icon.label;
+        btn.dataset.id = icon.id;
+        btn.innerHTML = makeSvg(icon.path, 18) + `<span class="ip-icon-btn-label">${icon.label}</span>`;
+        btn.addEventListener('click', () => {
+          selectedIconId = icon.id;
+          iconGrid.querySelectorAll('.ip-icon-btn').forEach(b => b.classList.remove('ip-icon-btn--active'));
+          btn.classList.add('ip-icon-btn--active');
+          updateCardIcon();
+          updateTriggerDisplay();
+          iconPanel.hidden = true;
+        });
+        iconGrid.appendChild(btn);
       });
-      iconGrid.appendChild(btn);
     });
   }
 
@@ -652,8 +748,29 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     cardIconEl.innerHTML = makeSvg(icon.path, 14, 'currentColor');
   }
 
+  // Toggle panel
+  iconTrigger.addEventListener('click', () => {
+    iconPanel.hidden = !iconPanel.hidden;
+    if (!iconPanel.hidden) {
+      iconSearchInput.value = '';
+      renderIconGrid();
+      iconSearchInput.focus();
+    }
+  });
+
+  // Close panel on outside click
+  document.addEventListener('click', e => {
+    if (!iconTrigger.contains(e.target) && !iconPanel.contains(e.target)) {
+      iconPanel.hidden = true;
+    }
+  });
+
+  // Search filter
+  iconSearchInput.addEventListener('input', () => renderIconGrid(iconSearchInput.value));
+
   renderIconGrid();
   updateCardIcon();
+  updateTriggerDisplay();
 
   // ── Logo text (card title) ─────────────────────────────────────────
   logoTextInput.addEventListener('input', () => {
@@ -663,15 +780,16 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   // ── Secondary / Auxiliary field preview update ─────────────────────
   const ALIGN_CSS = { left: 'flex-start', center: 'center', right: 'flex-end' };
 
+  const LABEL_ELS = { sec1: sec1LabelEl, sec2: sec2LabelEl, aux1: aux1LabelEl, aux2: aux2LabelEl };
+  const VALUE_ELS = { sec1: sec1ValueEl, sec2: sec2ValueEl, aux1: aux1ValueEl, aux2: aux2ValueEl };
+
   function applyFieldAlign(fieldId) {
-    const a = fieldAlign[fieldId];
-    const labelEl = { sec1: sec1LabelEl, sec2: sec2LabelEl, aux1: aux1LabelEl, aux2: aux2LabelEl }[fieldId];
-    const valueEl = { sec1: sec1ValueEl, sec2: sec2ValueEl, aux1: aux1ValueEl, aux2: aux2ValueEl }[fieldId];
-    const wrap = labelEl?.closest('.ip-card-field');
-    if (wrap) {
-      wrap.style.alignItems = ALIGN_CSS[a] ?? 'flex-start';
-      wrap.style.textAlign = a;
-    }
+    const aLabel = fieldAlign[fieldId].label;
+    const aValue = fieldAlign[fieldId].value;
+    const lEl = LABEL_ELS[fieldId];
+    const vEl = VALUE_ELS[fieldId];
+    if (lEl) { lEl.style.alignSelf = ALIGN_CSS[aLabel]; lEl.style.textAlign = aLabel; }
+    if (vEl) { vEl.style.alignSelf = ALIGN_CSS[aValue]; vEl.style.textAlign = aValue; }
   }
 
   function updateSecPreview() {
@@ -704,20 +822,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     el.addEventListener('input', updateAuxPreview);
   });
 
-  // ── Alignment buttons ──────────────────────────────────────────────
-  document.querySelectorAll('.ip-align-btns').forEach(group => {
-    const fieldId = group.dataset.field;
-    group.querySelectorAll('.ip-align-btn').forEach(btn => {
+  // ── Alignment buttons (inline, per subfield) ──────────────────────
+  document.querySelectorAll('.ip-align-inline').forEach(group => {
+    const fieldId   = group.dataset.field;
+    const subfield  = group.dataset.subfield; // 'label' | 'value'
+    group.querySelectorAll('.ip-aln').forEach(btn => {
       btn.addEventListener('click', () => {
-        fieldAlign[fieldId] = btn.dataset.align;
-        group.querySelectorAll('.ip-align-btn').forEach(b => b.classList.remove('ip-align-btn--active'));
-        btn.classList.add('ip-align-btn--active');
+        fieldAlign[fieldId][subfield] = btn.dataset.align;
+        group.querySelectorAll('.ip-aln').forEach(b => b.classList.remove('ip-aln--active'));
+        btn.classList.add('ip-aln--active');
         applyFieldAlign(fieldId);
       });
     });
   });
 
-  // Apply default alignment to sec2 (right-aligned by default)
   applyFieldAlign('sec1');
   applyFieldAlign('sec2');
   applyFieldAlign('aux1');
@@ -892,15 +1010,15 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       const ALIGN_MAP = { left: 'PKTextAlignmentLeft', center: 'PKTextAlignmentCenter', right: 'PKTextAlignmentRight' };
 
       const secFields = [
-        { key: 'sec1', label: sec1LabelInput.value.trim() || ' ', value: sec1ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec1] },
-        { key: 'sec2', label: sec2LabelInput.value.trim() || ' ', value: sec2ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec2] },
+        { key: 'sec1', label: sec1LabelInput.value.trim() || ' ', value: sec1ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec1.value] },
+        { key: 'sec2', label: sec2LabelInput.value.trim() || ' ', value: sec2ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec2.value] },
       ];
 
       const auxFields = [];
       const l1 = aux1LabelInput.value.trim(), v1 = aux1ValueInput.value.trim();
       const l2 = aux2LabelInput.value.trim(), v2 = aux2ValueInput.value.trim();
-      if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux1] });
-      if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux2] });
+      if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux1.value] });
+      if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux2.value] });
 
       const res = await fetch('/api/generate-pass', {
         method: 'POST',
@@ -1076,89 +1194,157 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   .ip-field { display: flex; flex-direction: column; gap: 0.5rem; }
   .ip-field--inline { flex-direction: row; align-items: center; justify-content: space-between; }
 
-  /* Icon grid */
+  /* ── Icon trigger button ──────────────────────────────────────────── */
+  .ip-icon-trigger-wrap { position: relative; }
+
+  .ip-icon-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 0.6rem;
+    padding: 0.65rem 0.9rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s;
+  }
+  .ip-icon-trigger:hover { border-color: var(--accent); }
+  .ip-icon-trigger-preview { display: flex; align-items: center; color: var(--accent); }
+  .ip-icon-trigger-name { flex: 1; }
+  .ip-icon-trigger-chevron { color: var(--muted); flex-shrink: 0; }
+
+  /* ── Icon panel ───────────────────────────────────────────────────── */
+  .ip-icon-panel {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 0.75rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .ip-icon-panel[hidden] { display: none; }
+
+  .ip-icon-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--line2);
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .ip-icon-search {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+  .ip-icon-search::placeholder { color: var(--muted-dim); }
+
+  .ip-icon-cat {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+    padding: 0.1rem 0.2rem;
+    margin-top: 0.2rem;
+  }
+
   .ip-icon-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 0.35rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.3rem;
   }
 
   .ip-icon-btn {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    aspect-ratio: 1;
-    background: var(--bg2);
-    border: 1px solid var(--line2);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    color: var(--muted);
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-    padding: 0;
-  }
-
-  .ip-icon-btn:hover {
-    background: var(--bg3, var(--bg2));
-    border-color: var(--accent);
-    color: var(--text);
-  }
-
-  .ip-icon-btn--active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-accent);
-  }
-
-  /* Field row: inputs + alignment buttons */
-  .ip-field-row {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.45rem 0.2rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.45rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .ip-icon-btn:hover { background: var(--bg3, var(--bg)); border-color: var(--accent); color: var(--text); }
+  .ip-icon-btn--active { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
+  .ip-icon-btn-label { font-size: 0.58rem; letter-spacing: 0.02em; }
+
+  /* ── Inline field rows (input + align toggle) ────────────────────── */
+  .ip-inline-row {
+    display: flex;
+    align-items: center;
     gap: 0.4rem;
   }
 
-  /* Aux / sec field: two inputs side by side */
-  .ip-aux-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .ip-input--half {
+  /* Label input: smaller, lighter */
+  .ip-input--label {
     flex: 1 1 0;
     min-width: 0;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 400;
+    padding: 0.5rem 0.75rem;
+    letter-spacing: 0;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    color: var(--muted);
+  }
+
+  /* Value input: larger, bolder */
+  .ip-input--value {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
     padding: 0.6rem 0.75rem;
     letter-spacing: 0;
     font-family: 'Space Grotesk', system-ui, sans-serif;
   }
 
-  /* Alignment toggle buttons */
-  .ip-align-btns {
+  /* Inline align toggle */
+  .ip-align-inline {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.15rem;
+    flex-shrink: 0;
   }
 
-  .ip-align-btn {
-    flex: 1;
-    padding: 0.3rem 0;
+  .ip-aln {
+    width: 1.8rem;
+    height: 1.8rem;
+    display: grid;
+    place-items: center;
     background: var(--bg2);
     border: 1px solid var(--line2);
-    border-radius: 0.4rem;
+    border-radius: 0.35rem;
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    padding: 0;
   }
-
-  .ip-align-btn:hover {
-    border-color: var(--accent);
-    color: var(--text);
-  }
-
-  .ip-align-btn--active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-accent);
-  }
+  .ip-aln:hover { border-color: var(--accent); color: var(--text); }
+  .ip-aln--active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
   .ip-label {
     font-size: 0.78rem;
