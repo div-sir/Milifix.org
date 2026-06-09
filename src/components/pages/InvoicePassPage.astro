@@ -792,7 +792,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
   const iconTrigger     = document.getElementById('icon-trigger');
   const iconTriggerPrev = document.getElementById('icon-trigger-preview');
-  const iconTriggerName = document.getElementById('icon-trigger-name');
+
   const iconPanel       = document.getElementById('icon-panel');
   const iconSearchInput = /** @type {HTMLInputElement} */ (document.getElementById('icon-search'));
   const iconGrid        = document.getElementById('icon-grid');
@@ -801,7 +801,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     const icon = ICONS.find(i => i.id === selectedIconId);
     if (!icon) return;
     iconTriggerPrev.innerHTML = makeSvg(icon.path, 16);
-    iconTriggerName.textContent = icon.label;
   }
 
   function renderIconGrid(filter = '') {
