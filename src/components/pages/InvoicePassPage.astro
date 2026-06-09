@@ -384,13 +384,13 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       </div>
 
       <!-- Gradient theme picker -->
-      <div class="ip-field ip-field--inline">
+      <div class="ip-field ip-field--inline" id="gradient-field">
         <label for="gradient-select" class="ip-label">{copy.gradientLabel}</label>
         <select id="gradient-select" class="ip-select"></select>
       </div>
 
       <!-- Background color picker -->
-      <div class="ip-field ip-field--inline">
+      <div class="ip-field ip-field--inline" id="bg-color-field">
         <label for="bg-color-input" class="ip-label">{copy.bgLabel}</label>
         <div class="ip-color-wrap">
           <input id="bg-color-input" type="color" class="ip-color" value={DEFAULT_BG} />
@@ -692,6 +692,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const bgPreviewWrap    = document.getElementById('bg-preview-wrap');
   const bgPreviewImg     = /** @type {HTMLImageElement} */ (document.getElementById('bg-preview-img'));
   const bgClearBtn       = document.getElementById('bg-clear');
+  const gradientField    = document.getElementById('gradient-field');
+  const bgColorField     = document.getElementById('bg-color-field');
   const cardGlare        = document.getElementById('card-glare');
   const cardContent      = document.getElementById('card-content');
   const cardNumber       = document.getElementById('card-number');
@@ -1013,13 +1015,21 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   applyGradientTheme(GRADIENTS.find(g => g.id === selectedGradientId));
 
   // ── Background image upload ────────────────────────────────────────
+  function setBgControlsDisabled(disabled) {
+    gradientField.classList.toggle('ip-field--disabled', disabled);
+    bgColorField.classList.toggle('ip-field--disabled', disabled);
+    gradientSelect.disabled = disabled;
+    bgColorInput.disabled   = disabled;
+  }
+
   function applyBgImage(dataUrl) {
     currentBgImage = dataUrl;
-    cardBg.style.backgroundImage = `url(${dataUrl})`;
-    cardBg.style.backgroundSize  = 'cover';
+    cardBg.style.backgroundImage    = `url(${dataUrl})`;
+    cardBg.style.backgroundSize     = 'cover';
     cardBg.style.backgroundPosition = 'center';
-    bgPreviewImg.src = dataUrl;
+    bgPreviewImg.src  = dataUrl;
     bgPreviewWrap.hidden = false;
+    setBgControlsDisabled(true);
   }
 
   function clearBgImage() {
@@ -1028,6 +1038,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     bgPreviewWrap.hidden = true;
     bgPreviewImg.src = '';
     bgImageInput.value = '';
+    setBgControlsDisabled(false);
   }
 
   bgImageInput.addEventListener('change', () => {
@@ -1553,6 +1564,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   }
   .ip-select:focus { border-color: var(--accent); }
   .ip-select option { background: var(--bg2); color: var(--text); }
+
+  /* ── Disabled field state (when bg image is active) ───────────────── */
+  .ip-field--disabled { opacity: 0.35; pointer-events: none; }
 
   /* ── Background image upload ───────────────────────────────────────── */
   .ip-bg-upload {
