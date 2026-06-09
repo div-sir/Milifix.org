@@ -14,8 +14,23 @@ interface Props {
 
 const { lang, pathname } = Astro.props;
 
-// Default solid background color
-const DEFAULT_BG = '#1a1a2e';
+const DEFAULT_BG = '#111318';
+const DEFAULT_FG = '#e2b565';
+const DEFAULT_LOGO_TEXT_ZH = '發票載具';
+const DEFAULT_LOGO_TEXT_EN = 'Invoice Pass';
+const DEFAULT_LOGO_TEXT_JA = '発票キャリア';
+const DEFAULT_SEC1_LABEL_ZH = '發行單位';
+const DEFAULT_SEC1_VALUE_ZH = 'Milifix';
+const DEFAULT_SEC2_LABEL_ZH = '類型';
+const DEFAULT_SEC2_VALUE_ZH = '統一發票';
+const DEFAULT_SEC1_LABEL_EN = 'Issued by';
+const DEFAULT_SEC1_VALUE_EN = 'Milifix';
+const DEFAULT_SEC2_LABEL_EN = 'Type';
+const DEFAULT_SEC2_VALUE_EN = 'Invoice';
+const DEFAULT_SEC1_LABEL_JA = '発行元';
+const DEFAULT_SEC1_VALUE_JA = 'Milifix';
+const DEFAULT_SEC2_LABEL_JA = '種別';
+const DEFAULT_SEC2_VALUE_JA = '統一発票';
 
 const t = {
   zh: {
@@ -34,6 +49,7 @@ const t = {
     inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
+    gradientLabel: '漸層主題',
     iconLabel: '卡片圖示',
     logoTextLabel: '卡片標題',
     logoTextPH: 'Invoice Pass',
@@ -84,6 +100,7 @@ const t = {
     inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
+    gradientLabel: 'Gradient Theme',
     iconLabel: 'Card Icon',
     logoTextLabel: 'Card Title',
     logoTextPH: 'Invoice Pass',
@@ -134,6 +151,7 @@ const t = {
     inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
+    gradientLabel: 'グラデーションテーマ',
     iconLabel: 'カードアイコン',
     logoTextLabel: 'カードタイトル',
     logoTextPH: 'Invoice Pass',
@@ -247,14 +265,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <!-- Card title (logoText) -->
       <div class="ip-field">
         <label for="logo-text-input" class="ip-label">{copy.logoTextLabel}</label>
-        <input
-          id="logo-text-input"
-          type="text"
-          class="ip-input"
-          placeholder={copy.logoTextPH}
-          maxlength="20"
-          autocomplete="off"
-        />
+        <input id="logo-text-input" type="text" class="ip-input" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
       </div>
 
       <!-- Secondary field 1 (left) -->
@@ -262,8 +273,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <span class="ip-label">{copy.sec1Label}</span>
         <div class="ip-field-row">
           <div class="ip-aux-row">
-            <input id="sec1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec1LabelPH} maxlength="20" autocomplete="off" />
-            <input id="sec1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec1ValuePH} maxlength="24" autocomplete="off" />
+            <input id="sec1-label-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN} maxlength="20" autocomplete="off" />
+            <input id="sec1-value-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN} maxlength="24" autocomplete="off" />
           </div>
           <div class="ip-align-btns" data-field="sec1">
             <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
@@ -278,8 +289,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <span class="ip-label">{copy.sec2Label}</span>
         <div class="ip-field-row">
           <div class="ip-aux-row">
-            <input id="sec2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec2LabelPH} maxlength="20" autocomplete="off" />
-            <input id="sec2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec2ValuePH} maxlength="24" autocomplete="off" />
+            <input id="sec2-label-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN} maxlength="20" autocomplete="off" />
+            <input id="sec2-value-input" type="text" class="ip-input ip-input--half" value={lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN} maxlength="24" autocomplete="off" />
           </div>
           <div class="ip-align-btns" data-field="sec2">
             <button type="button" class="ip-align-btn" data-align="left" title="靠左">&#8676;</button>
@@ -321,6 +332,12 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         </div>
       </div>
 
+      <!-- Gradient theme picker -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.gradientLabel}</span>
+        <div class="ip-gradient-grid" id="gradient-grid"></div>
+      </div>
+
       <!-- Background color picker -->
       <div class="ip-field ip-field--inline">
         <label for="bg-color-input" class="ip-label">{copy.bgLabel}</label>
@@ -334,8 +351,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <div class="ip-field ip-field--inline">
         <label for="color-input" class="ip-label">{copy.colorLabel}</label>
         <div class="ip-color-wrap">
-          <input id="color-input" type="color" class="ip-color" value="#ffffff" />
-          <span class="ip-color-hex" id="color-hex">#ffffff</span>
+          <input id="color-input" type="color" class="ip-color" value={DEFAULT_FG} />
+          <span class="ip-color-hex" id="color-hex">{DEFAULT_FG}</span>
         </div>
       </div>
 
@@ -353,7 +370,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <p class="ip-preview-label">{copy.previewLabel}</p>
       <div class="ip-card-scene" id="card-scene">
         <div class="ip-card" id="wallet-card">
-          <div class="ip-card-bg" id="card-bg" style={`background: ${DEFAULT_BG}`}></div>
+          <div class="ip-card-bg" id="card-bg" style={`background: ${DEFAULT_BG}`} data-bg={DEFAULT_BG} data-gradient=""></div>
           <div class="ip-card-glare" id="card-glare"></div>
           <div class="ip-card-content" id="card-content">
 
@@ -361,7 +378,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
             <div class="ip-card-row ip-card-row--header">
               <div class="ip-card-logo-wrap">
                 <div class="ip-card-icon" id="card-icon"></div>
-                <span class="ip-card-logo-text" id="card-logo-text">Invoice Pass</span>
+                <span class="ip-card-logo-text" id="card-logo-text">{lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN}</span>
               </div>
             </div>
 
@@ -376,12 +393,12 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
             <!-- Row 3: secondaryFields (2 cols) -->
             <div class="ip-card-row ip-card-row--secondary" id="secondary-row">
               <div class="ip-card-field">
-                <span class="ip-card-flabel" id="sec1-label">{copy.secOrgLabel}</span>
-                <span class="ip-card-fvalue" id="sec1-value">{copy.secOrgValue}</span>
+                <span class="ip-card-flabel" id="sec1-label">{lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN}</span>
+                <span class="ip-card-fvalue" id="sec1-value">{lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN}</span>
               </div>
               <div class="ip-card-field ip-card-field--right">
-                <span class="ip-card-flabel" id="sec2-label">{copy.secTypeLabel}</span>
-                <span class="ip-card-fvalue" id="sec2-value">{copy.secTypeValue}</span>
+                <span class="ip-card-flabel" id="sec2-label">{lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN}</span>
+                <span class="ip-card-fvalue" id="sec2-value">{lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN}</span>
               </div>
             </div>
 
@@ -427,12 +444,25 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const COPY = JSON.parse(copyJson);
 
   // ── State ──────────────────────────────────────────────────────────
-  let currentBgColor = '#1a1a2e';
-  let currentFgColor = '#ffffff';
+  let currentBgColor = '#111318';
+  let currentFgColor = '#e2b565';
   let carrierId = '';
   let selectedIconId = 'receipt';
+  let currentGradient = '';  // '' = solid colour; else CSS gradient string
   // alignment per field: 'left' | 'center' | 'right'
   const fieldAlign = { sec1: 'left', sec2: 'right', aux1: 'left', aux2: 'left' };
+
+  // ── Gradient themes ─────────────────────────────────────────────────
+  const GRADIENTS = [
+    { id: 'none',     label: '純色',   css: '',                                                              fg: null,      from: null,      to: null },
+    { id: 'midnight', label: '深夜',   css: 'linear-gradient(135deg,#111318 0%,#1e2240 100%)',              fg: '#e2b565', from: '#111318', to: '#1e2240' },
+    { id: 'gold',     label: '黃金',   css: 'linear-gradient(135deg,#2a1a05 0%,#4a2e08 50%,#1a0f02 100%)', fg: '#e2b565', from: '#2a1a05', to: '#1a0f02' },
+    { id: 'ocean',    label: '深海',   css: 'linear-gradient(135deg,#0a1628 0%,#0d3353 100%)',              fg: '#7dd3f0', from: '#0a1628', to: '#0d3353' },
+    { id: 'aurora',   label: '極光',   css: 'linear-gradient(135deg,#0d1f1a 0%,#123d30 50%,#1a2d0f 100%)', fg: '#6ee7b7', from: '#0d1f1a', to: '#1a2d0f' },
+    { id: 'dusk',     label: '黃昏',   css: 'linear-gradient(135deg,#1a0a1e 0%,#2d0d1a 50%,#1a0a0a 100%)', fg: '#f4a7b9', from: '#1a0a1e', to: '#1a0a0a' },
+    { id: 'slate',    label: '石板',   css: 'linear-gradient(135deg,#1c1c1e 0%,#2c2c2e 100%)',              fg: '#ffffff', from: '#1c1c1e', to: '#2c2c2e' },
+    { id: 'copper',   label: '銅色',   css: 'linear-gradient(135deg,#1a0e08 0%,#3d1f0d 100%)',              fg: '#d4845a', from: '#1a0e08', to: '#3d1f0d' },
+  ];
 
   // ── Lucide icons (24 selected) — SVG path data only ───────────────
   const ICONS = [
@@ -709,11 +739,81 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     updateBarcode();
   });
 
+  // ── Gradient theme picker ──────────────────────────────────────────
+  const gradientGrid = document.getElementById('gradient-grid');
+  let selectedGradientId = 'midnight'; // default
+
+  function applyGradientTheme(theme) {
+    selectedGradientId = theme.id;
+    if (theme.css) {
+      cardBg.style.background = theme.css;
+      currentGradient = theme.css;
+      // Use the 'from' colour for the solid pass background
+      if (theme.from) {
+        currentBgColor = theme.from;
+        bgColorInput.value = theme.from;
+        bgColorHex.textContent = theme.from;
+      }
+      if (theme.fg) {
+        currentFgColor = theme.fg;
+        fgColorInput.value = theme.fg;
+        fgColorHex.textContent = theme.fg;
+        cardContent.style.color = theme.fg;
+        updateBarcode();
+      }
+    } else {
+      // 'none' = solid — restore picker value
+      currentGradient = '';
+      cardBg.style.background = currentBgColor;
+    }
+    // Update active state
+    gradientGrid.querySelectorAll('.ip-gradient-btn').forEach(b => {
+      b.classList.toggle('ip-gradient-btn--active', b.dataset.id === theme.id);
+    });
+  }
+
+  function renderGradientGrid() {
+    gradientGrid.innerHTML = '';
+    GRADIENTS.forEach(theme => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ip-gradient-btn' + (theme.id === selectedGradientId ? ' ip-gradient-btn--active' : '');
+      btn.dataset.id = theme.id;
+      btn.title = theme.label;
+      // Swatch: mini preview of the gradient (or solid checker for 'none')
+      const swatch = document.createElement('span');
+      swatch.className = 'ip-gradient-swatch';
+      if (theme.css) {
+        swatch.style.background = theme.css;
+      } else {
+        swatch.style.background = 'var(--bg2)';
+        swatch.style.border = '1px dashed var(--line2)';
+      }
+      const label = document.createElement('span');
+      label.className = 'ip-gradient-label';
+      label.textContent = theme.label;
+      btn.appendChild(swatch);
+      btn.appendChild(label);
+      btn.addEventListener('click', () => applyGradientTheme(theme));
+      gradientGrid.appendChild(btn);
+    });
+    // Apply default theme on init
+    applyGradientTheme(GRADIENTS.find(g => g.id === selectedGradientId));
+  }
+
+  renderGradientGrid();
+
   // ── Background color ───────────────────────────────────────────────
   bgColorInput.addEventListener('input', () => {
     currentBgColor = bgColorInput.value;
     bgColorHex.textContent = currentBgColor;
+    // Switching to custom colour clears gradient
+    currentGradient = '';
+    selectedGradientId = 'none';
     cardBg.style.background = currentBgColor;
+    gradientGrid.querySelectorAll('.ip-gradient-btn').forEach(b => {
+      b.classList.toggle('ip-gradient-btn--active', b.dataset.id === 'none');
+    });
   });
 
   // ── Foreground color ───────────────────────────────────────────────
@@ -1123,6 +1223,52 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     font-size: 0.85rem;
     font-family: 'Space Mono', monospace;
     color: var(--muted);
+  }
+
+  /* ── Gradient theme picker ────────────────────────────────────────── */
+  .ip-gradient-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+
+  .ip-gradient-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--bg2);
+    border: 1.5px solid var(--line2);
+    border-radius: 0.6rem;
+    padding: 0.45rem 0.3rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .ip-gradient-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg3, var(--bg2));
+  }
+
+  .ip-gradient-btn--active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .ip-gradient-swatch {
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    border-radius: 0.35rem;
+    display: block;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .ip-gradient-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    white-space: nowrap;
   }
 
   /* ── CTA ──────────────────────────────────────────────────────────── */
