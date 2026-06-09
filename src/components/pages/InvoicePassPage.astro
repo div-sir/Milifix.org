@@ -576,43 +576,55 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     max-width: 960px;
     margin: 0 auto;
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 280px;
+    display: flex;
+    flex-direction: row;
     gap: 3rem;
-    align-items: start;
+    align-items: flex-start;
   }
 
-  /* Tablet: 兩欄縮小但保留並排 */
-  @media (max-width: 820px) {
-    .ip-workspace {
-      grid-template-columns: 1fr 220px;
-      gap: 2rem;
-    }
-  }
-
-  /* Mobile: 單欄，preview 在上方縮小 */
-  @media (max-width: 600px) {
-    .ip-workspace {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-    .ip-preview-wrap {
-      position: static;
-      order: -1;
-    }
-    .ip-card-scene {
-      max-width: 180px;
-      margin: 0 auto;
-    }
-  }
-
-  /* ── Controls ─────────────────────────────────────────────────────── */
+  /* Controls: 左欄，撐滿剩餘空間，最小寬度保護 */
   .ip-controls {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2rem;
   }
 
+  /* Preview: 右欄，固定 260px，不縮不長 */
+  .ip-preview-wrap {
+    flex: 0 0 260px;
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    position: sticky;
+    top: 7rem;
+  }
+
+  /* Tablet ≤ 760px：preview 縮小 */
+  @media (max-width: 760px) {
+    .ip-workspace { gap: 1.75rem; }
+    .ip-preview-wrap { flex: 0 0 180px; width: 180px; }
+  }
+
+  /* Mobile ≤ 540px：堆疊，preview 在上、縮至 160px 置中 */
+  @media (max-width: 540px) {
+    .ip-workspace {
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+    .ip-preview-wrap {
+      flex: unset;
+      width: 160px;
+      position: static;
+      align-self: center;
+      order: -1;
+    }
+  }
+
+  /* ── Controls ─────────────────────────────────────────────────────── */
   .ip-field { display: flex; flex-direction: column; gap: 0.5rem; }
   .ip-field--inline { flex-direction: row; align-items: center; justify-content: space-between; }
 
@@ -712,15 +724,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   }
 
   /* ── Card preview ─────────────────────────────────────────────────── */
-  .ip-preview-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    position: sticky;
-    top: 7rem;
-  }
-
   .ip-preview-label {
     font-size: 0.75rem;
     letter-spacing: 0.12em;
