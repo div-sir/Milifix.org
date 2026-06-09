@@ -34,6 +34,15 @@ const t = {
     inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
+    iconLabel: '卡片圖示',
+    orgLabel: '發行單位',
+    orgPlaceholder: 'Milifix',
+    aux1Label: '自訂欄位 1',
+    aux1LabelPH: '標籤（如：日期）',
+    aux1ValuePH: '內容（如：2026/06）',
+    aux2Label: '自訂欄位 2',
+    aux2LabelPH: '標籤（如：備註）',
+    aux2ValuePH: '內容',
     previewLabel: '卡片預覽',
     previewCarrier: '載具號碼',
     previewOrg: '台灣統一發票',
@@ -66,6 +75,15 @@ const t = {
     inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
+    iconLabel: 'Card Icon',
+    orgLabel: 'Issuer Name',
+    orgPlaceholder: 'Milifix',
+    aux1Label: 'Custom Field 1',
+    aux1LabelPH: 'Label (e.g. Date)',
+    aux1ValuePH: 'Value (e.g. 2026/06)',
+    aux2Label: 'Custom Field 2',
+    aux2LabelPH: 'Label (e.g. Note)',
+    aux2ValuePH: 'Value',
     previewLabel: 'Card Preview',
     previewCarrier: 'Carrier ID',
     previewOrg: 'Taiwan Invoice',
@@ -98,6 +116,15 @@ const t = {
     inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
+    iconLabel: 'カードアイコン',
+    orgLabel: '発行元名',
+    orgPlaceholder: 'Milifix',
+    aux1Label: 'カスタムフィールド 1',
+    aux1LabelPH: 'ラベル（例：日付）',
+    aux1ValuePH: '内容（例：2026/06）',
+    aux2Label: 'カスタムフィールド 2',
+    aux2LabelPH: 'ラベル（例：メモ）',
+    aux2ValuePH: '内容',
     previewLabel: 'カードプレビュー',
     previewCarrier: 'キャリアID',
     previewOrg: '台湾統一発票',
@@ -118,7 +145,7 @@ const t = {
 
 const copy = t[lang];
 const htmlLang = HTML_LANG[lang];
-const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly });
+const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, orgPlaceholder: copy.orgPlaceholder });
 ---
 
 <!doctype html>
@@ -182,6 +209,45 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
         <span class="ip-error" id="carrier-error" role="alert" aria-live="polite"></span>
       </div>
 
+      <!-- Icon picker -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.iconLabel}</span>
+        <div class="ip-icon-grid" id="icon-grid">
+          <!-- icons injected by JS -->
+        </div>
+      </div>
+
+      <!-- Issuer name -->
+      <div class="ip-field">
+        <label for="org-input" class="ip-label">{copy.orgLabel}</label>
+        <input
+          id="org-input"
+          type="text"
+          class="ip-input"
+          placeholder={copy.orgPlaceholder}
+          maxlength="24"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Auxiliary field 1 -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.aux1Label}</span>
+        <div class="ip-aux-row">
+          <input id="aux1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1LabelPH} maxlength="20" autocomplete="off" />
+          <input id="aux1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1ValuePH} maxlength="30" autocomplete="off" />
+        </div>
+      </div>
+
+      <!-- Auxiliary field 2 -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.aux2Label}</span>
+        <div class="ip-aux-row">
+          <input id="aux2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
+          <input id="aux2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
+        </div>
+      </div>
+
       <!-- Background color picker -->
       <div class="ip-field ip-field--inline">
         <label for="bg-color-input" class="ip-label">{copy.bgLabel}</label>
@@ -218,12 +284,11 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           <div class="ip-card-glare" id="card-glare"></div>
           <div class="ip-card-content" id="card-content">
 
-            <!-- Row 1: header row (logoText left, headerField right) -->
+            <!-- Row 1: header row (icon + logoText left) -->
             <div class="ip-card-row ip-card-row--header">
-              <span class="ip-card-logo-text" id="card-logo-text">Invoice Pass</span>
-              <div class="ip-card-field ip-card-field--right" id="header-field-wrap">
-                <span class="ip-card-flabel" id="header-field-label"></span>
-                <span class="ip-card-fvalue ip-card-fvalue--sm" id="header-field-value"></span>
+              <div class="ip-card-logo-wrap">
+                <div class="ip-card-icon" id="card-icon"></div>
+                <span class="ip-card-logo-text" id="card-logo-text">Invoice Pass</span>
               </div>
             </div>
 
@@ -289,24 +354,70 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   let currentBgColor = '#1a1a2e';
   let currentFgColor = '#ffffff';
   let carrierId = '';
+  let selectedIconId = 'receipt';
+  let currentOrgName = '';
+
+  // ── Lucide icons (24 selected) — SVG path data only ───────────────
+  const ICONS = [
+    { id: 'receipt',       label: '收據',   path: 'M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1zm3 5h10M7 12h10M7 15h5' },
+    { id: 'wallet',        label: '錢包',   path: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M21 12v5H5a2 2 0 0 0 0 4h14v-4M3 5v14' },
+    { id: 'credit-card',   label: '信用卡', path: 'M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20M7 15h.01M11 15h2' },
+    { id: 'star',          label: '星星',   path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z' },
+    { id: 'tag',           label: '標籤',   path: 'M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l9.59-9.59a1 1 0 0 0 0-1.41zM7 7h.01' },
+    { id: 'gift',          label: '禮物',   path: 'M20 12v10H4V12M22 7H2v5h20zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7' },
+    { id: 'shopping-bag',  label: '購物袋', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
+    { id: 'coffee',        label: '咖啡',   path: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2' },
+    { id: 'utensils',      label: '餐具',   path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7' },
+    { id: 'car',           label: '汽車',   path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0m8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0' },
+    { id: 'fuel',          label: '加油',   path: 'M3 22V6l10-3v19M3 10h10M13 22V11l7 4v7M13 14h7' },
+    { id: 'train',         label: '捷運',   path: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 21h1.5l1-1.5h7L16.5 21H18l-1.5-2A3.5 3.5 0 0 0 20 15.5V6c0-3.5-4-4-8-4zM6.5 17A1.5 1.5 0 1 1 8 15.5 1.5 1.5 0 0 1 6.5 17zm11 0A1.5 1.5 0 1 1 19 15.5 1.5 1.5 0 0 1 17.5 17zM4 11V7h16v4' },
+    { id: 'plane',         label: '飛機',   path: 'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z' },
+    { id: 'hotel',         label: '飯店',   path: 'M3 22V11l9-9 9 9v11H3zm6 0v-7h6v7' },
+    { id: 'ticket',        label: '票券',   path: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm11 1-1 2h2l-1.5 3' },
+    { id: 'landmark',      label: '建築',   path: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2 2 7h20z' },
+    { id: 'package',       label: '包裹',   path: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
+    { id: 'zap',           label: '閃電',   path: 'M13 2 3 14h9l-1 8 10-12h-9z' },
+    { id: 'heart',         label: '愛心',   path: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
+    { id: 'music',         label: '音樂',   path: 'M9 18V5l12-2v13M9 9l12-2M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm15-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6' },
+    { id: 'camera',        label: '相機',   path: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8' },
+    { id: 'book',          label: '書本',   path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z' },
+    { id: 'activity',      label: '活動',   path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+    { id: 'gem',           label: '寶石',   path: 'M12 2L2 7l2 12 8 3 8-3 2-12zM2 7l10 5 10-5M12 12v10' },
+  ];
 
   // ── Element refs ───────────────────────────────────────────────────
-  const carrierInput  = /** @type {HTMLInputElement} */ (document.getElementById('carrier-input'));
-  const carrierError  = document.getElementById('carrier-error');
-  const bgColorInput  = /** @type {HTMLInputElement} */ (document.getElementById('bg-color-input'));
-  const bgColorHex    = document.getElementById('bg-color-hex');
-  const fgColorInput  = /** @type {HTMLInputElement} */ (document.getElementById('color-input'));
-  const fgColorHex    = document.getElementById('color-hex');
-  const cta           = /** @type {HTMLButtonElement} */ (document.getElementById('add-to-wallet'));
-  const iosNote       = document.getElementById('ios-note');
-  const cardBg        = document.getElementById('card-bg');
-  const cardGlare     = document.getElementById('card-glare');
-  const cardContent   = document.getElementById('card-content');
-  const cardNumber    = document.getElementById('card-number');
-  const barcodeAlt    = document.getElementById('barcode-alt');
-  const cardScene     = document.getElementById('card-scene');
-  const tiltHint      = document.getElementById('tilt-hint');
-  const barcodeCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById('barcode-canvas'));
+  const carrierInput     = /** @type {HTMLInputElement} */ (document.getElementById('carrier-input'));
+  const carrierError     = document.getElementById('carrier-error');
+  const bgColorInput     = /** @type {HTMLInputElement} */ (document.getElementById('bg-color-input'));
+  const bgColorHex       = document.getElementById('bg-color-hex');
+  const fgColorInput     = /** @type {HTMLInputElement} */ (document.getElementById('color-input'));
+  const fgColorHex       = document.getElementById('color-hex');
+  const cta              = /** @type {HTMLButtonElement} */ (document.getElementById('add-to-wallet'));
+  const iosNote          = document.getElementById('ios-note');
+  const cardBg           = document.getElementById('card-bg');
+  const cardGlare        = document.getElementById('card-glare');
+  const cardContent      = document.getElementById('card-content');
+  const cardNumber       = document.getElementById('card-number');
+  const barcodeAlt       = document.getElementById('barcode-alt');
+  const cardScene        = document.getElementById('card-scene');
+  const tiltHint         = document.getElementById('tilt-hint');
+  const barcodeCanvas    = /** @type {HTMLCanvasElement} */ (document.getElementById('barcode-canvas'));
+  const cardLogoText     = document.getElementById('card-logo-text');
+  const cardIconEl       = document.getElementById('card-icon');
+  const iconGrid         = document.getElementById('icon-grid');
+  const orgInput         = /** @type {HTMLInputElement} */ (document.getElementById('org-input'));
+  const aux1LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-label-input'));
+  const aux1ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-value-input'));
+  const aux2LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux2-label-input'));
+  const aux2ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux2-value-input'));
+  const auxRow           = document.getElementById('aux-row');
+  const aux1Wrap         = document.getElementById('aux1-wrap');
+  const aux2Wrap         = document.getElementById('aux2-wrap');
+  const aux1LabelEl      = document.getElementById('aux1-label');
+  const aux1ValueEl      = document.getElementById('aux1-value');
+  const aux2LabelEl      = document.getElementById('aux2-label');
+  const aux2ValueEl      = document.getElementById('aux2-value');
+  const sec1ValueEl      = document.getElementById('sec1-value');
 
   // ── Code 39 barcode renderer ───────────────────────────────────────
   // Each char encoded as 5 bars + 4 spaces (9 elements), narrow=1 wide=3
@@ -361,9 +472,100 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   }
 
   function updateBarcode() {
-    drawCode39(barcodeCanvas, carrierId || '/XXXXXXX', currentFgColor);
+    drawCode39(barcodeCanvas, carrierId || '/XXXXXXX', '#1a1a1a');
   }
   updateBarcode();
+
+  // ── Icon → PNG (for pkpass logo) ──────────────────────────────────
+  async function renderIconToPng(iconId, bgColor, fgColor) {
+    const icon = ICONS.find(i => i.id === iconId);
+    if (!icon) return null;
+    const size = 58;
+    const c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    const ctx = c.getContext('2d');
+    // filled circle background
+    ctx.fillStyle = bgColor;
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+    ctx.fill();
+    // draw SVG icon via Image + Blob
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${fgColor}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${icon.path}"/></svg>`;
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, 7, 7, size - 14, size - 14); resolve(); };
+      img.onerror = reject;
+      img.src = url;
+    });
+    URL.revokeObjectURL(url);
+    // return base64 PNG without data: prefix
+    return c.toDataURL('image/png').split(',')[1];
+  }
+
+  // ── Icon picker ────────────────────────────────────────────────────
+  function makeSvg(pathData, size = 20, color = 'currentColor') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${pathData}"/></svg>`;
+  }
+
+  function renderIconGrid() {
+    iconGrid.innerHTML = '';
+    ICONS.forEach(icon => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ip-icon-btn' + (icon.id === selectedIconId ? ' ip-icon-btn--active' : '');
+      btn.title = icon.label;
+      btn.dataset.id = icon.id;
+      btn.innerHTML = makeSvg(icon.path, 20);
+      btn.addEventListener('click', () => {
+        selectedIconId = icon.id;
+        document.querySelectorAll('.ip-icon-btn').forEach(b => b.classList.remove('ip-icon-btn--active'));
+        btn.classList.add('ip-icon-btn--active');
+        updateCardIcon();
+      });
+      iconGrid.appendChild(btn);
+    });
+  }
+
+  function updateCardIcon() {
+    const icon = ICONS.find(i => i.id === selectedIconId);
+    if (!icon) return;
+    cardIconEl.innerHTML = makeSvg(icon.path, 14, 'currentColor');
+  }
+
+  renderIconGrid();
+  updateCardIcon();
+
+  // ── Org name ───────────────────────────────────────────────────────
+  orgInput.addEventListener('input', () => {
+    currentOrgName = orgInput.value.trim();
+    sec1ValueEl.textContent = currentOrgName || COPY.orgPlaceholder;
+  });
+
+  // ── Auxiliary fields ───────────────────────────────────────────────
+  function updateAuxPreview() {
+    const l1 = aux1LabelInput.value.trim();
+    const v1 = aux1ValueInput.value.trim();
+    const l2 = aux2LabelInput.value.trim();
+    const v2 = aux2ValueInput.value.trim();
+
+    const has1 = l1 || v1;
+    const has2 = l2 || v2;
+
+    auxRow.style.display = (has1 || has2) ? 'flex' : 'none';
+    aux1Wrap.style.display = has1 ? 'flex' : 'none';
+    aux2Wrap.style.display = has2 ? 'flex' : 'none';
+
+    aux1LabelEl.textContent = l1;
+    aux1ValueEl.textContent = v1;
+    aux2LabelEl.textContent = l2;
+    aux2ValueEl.textContent = v2;
+  }
+
+  [aux1LabelInput, aux1ValueInput, aux2LabelInput, aux2ValueInput].forEach(el => {
+    el.addEventListener('input', updateAuxPreview);
+  });
 
   // ── Carrier validation ─────────────────────────────────────────────
   function isValidCarrier(v) {
@@ -458,6 +660,15 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     cta.disabled = true;
 
     try {
+      // Render selected icon to PNG (58x58 @2x on coloured circle background)
+      const iconPng = await renderIconToPng(selectedIconId, currentBgColor, currentFgColor);
+
+      const auxFields = [];
+      const l1 = aux1LabelInput.value.trim(), v1 = aux1ValueInput.value.trim();
+      const l2 = aux2LabelInput.value.trim(), v2 = aux2ValueInput.value.trim();
+      if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ' });
+      if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ' });
+
       const res = await fetch('/api/generate-pass', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -466,6 +677,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           backgroundColor: currentBgColor,
           foregroundColor: currentFgColor,
           labelColor: currentFgColor,
+          orgName: currentOrgName || COPY.orgPlaceholder,
+          iconPng,
+          auxFields,
         }),
       });
 
@@ -627,6 +841,54 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   /* ── Controls ─────────────────────────────────────────────────────── */
   .ip-field { display: flex; flex-direction: column; gap: 0.5rem; }
   .ip-field--inline { flex-direction: row; align-items: center; justify-content: space-between; }
+
+  /* Icon grid */
+  .ip-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.35rem;
+  }
+
+  .ip-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    padding: 0;
+  }
+
+  .ip-icon-btn:hover {
+    background: var(--bg3, var(--bg2));
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .ip-icon-btn--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* Aux field row: two inputs side by side */
+  .ip-aux-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .ip-input--half {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    letter-spacing: 0;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
 
   .ip-label {
     font-size: 0.78rem;
@@ -793,6 +1055,19 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.6rem;
+  }
+
+  .ip-card-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .ip-card-icon {
+    display: flex;
+    align-items: center;
+    opacity: 0.9;
+    flex-shrink: 0;
   }
 
   .ip-card-logo-text {
