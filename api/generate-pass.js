@@ -83,7 +83,8 @@ export default async function handler(req, res) {
       },
     );
 
-    pass.type = 'generic';
+    // eventTicket supports background.png; generic does not
+    pass.type = 'eventTicket';
 
     pass.primaryFields.push(
       { key: 'carrier', label: '載具號碼', value: carrierId },
