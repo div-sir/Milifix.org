@@ -98,6 +98,20 @@ export default async function handler(req, res) {
       { key: 'invoiceType',  label: '類型',     value: '統一發票' },
     );
 
+    pass.backFields.push(
+      {
+        key: 'mof',
+        label: '財政部電子發票整合服務平台',
+        value: 'https://www.einvoice.nat.gov.tw',
+        attributedValue: '<a href="https://www.einvoice.nat.gov.tw">財政部電子發票整合服務平台</a>',
+      },
+      {
+        key: 'carrier_back',
+        label: '載具號碼',
+        value: carrierId,
+      },
+    );
+
     pass.setBarcodes({
       message: carrierId,
       format: 'PKBarcodeFormatCode128',
