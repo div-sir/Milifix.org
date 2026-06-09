@@ -34,7 +34,10 @@ export default async function handler(req, res) {
     backgroundColor = '#1a1a2e',
     foregroundColor = '#ffffff',
     labelColor = '#aaaacc',
+    logoText = 'Invoice Pass',
     orgName = 'Milifix',
+    typeLabel = '類型',
+    typeValue = '統一發票',
     iconPng = null,           // base64 PNG string from client canvas
     auxFields = [],           // [{ key, label, value }, ...]
   } = req.body ?? {};
@@ -69,7 +72,7 @@ export default async function handler(req, res) {
         serialNumber: `inv-${Date.now()}`,
         description: '台灣統一發票載具',
         organizationName: safeOrg,
-        logoText: 'Invoice Pass',
+        logoText: String(logoText).slice(0, 20) || 'Invoice Pass',
         foregroundColor: hexToRgb(foregroundColor),
         labelColor: hexToRgb(labelColor),
         backgroundColor: hexToRgb(backgroundColor),
@@ -83,7 +86,7 @@ export default async function handler(req, res) {
     );
     pass.secondaryFields.push(
       { key: 'org',         label: '發行單位', value: safeOrg },
-      { key: 'invoiceType', label: '類型',     value: '統一發票' },
+      { key: 'invoiceType', label: String(typeLabel).slice(0, 20) || '類型', value: String(typeValue).slice(0, 20) || '統一發票' },
     );
 
     // User-defined auxiliary fields (max 2, sanitised)

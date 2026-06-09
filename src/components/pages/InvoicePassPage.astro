@@ -35,8 +35,13 @@ const t = {
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
     iconLabel: '卡片圖示',
+    logoTextLabel: '卡片標題',
+    logoTextPH: 'Invoice Pass',
     orgLabel: '發行單位',
     orgPlaceholder: 'Milifix',
+    typeLabel: '類型欄位',
+    typeLabelPH: '標籤（如：類型）',
+    typeValuePH: '內容（如：統一發票）',
     aux1Label: '自訂欄位 1',
     aux1LabelPH: '標籤（如：日期）',
     aux1ValuePH: '內容（如：2026/06）',
@@ -76,8 +81,13 @@ const t = {
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
     iconLabel: 'Card Icon',
+    logoTextLabel: 'Card Title',
+    logoTextPH: 'Invoice Pass',
     orgLabel: 'Issuer Name',
     orgPlaceholder: 'Milifix',
+    typeLabel: 'Type Field',
+    typeLabelPH: 'Label (e.g. Type)',
+    typeValuePH: 'Value (e.g. Invoice)',
     aux1Label: 'Custom Field 1',
     aux1LabelPH: 'Label (e.g. Date)',
     aux1ValuePH: 'Value (e.g. 2026/06)',
@@ -117,8 +127,13 @@ const t = {
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
     iconLabel: 'カードアイコン',
+    logoTextLabel: 'カードタイトル',
+    logoTextPH: 'Invoice Pass',
     orgLabel: '発行元名',
     orgPlaceholder: 'Milifix',
+    typeLabel: '種別フィールド',
+    typeLabelPH: 'ラベル（例：種別）',
+    typeValuePH: '内容（例：統一発票）',
     aux1Label: 'カスタムフィールド 1',
     aux1LabelPH: 'ラベル（例：日付）',
     aux1ValuePH: '内容（例：2026/06）',
@@ -145,7 +160,7 @@ const t = {
 
 const copy = t[lang];
 const htmlLang = HTML_LANG[lang];
-const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, orgPlaceholder: copy.orgPlaceholder });
+const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, orgPlaceholder: copy.orgPlaceholder, logoTextPH: copy.logoTextPH });
 ---
 
 <!doctype html>
@@ -217,6 +232,19 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
         </div>
       </div>
 
+      <!-- Card title (logoText) -->
+      <div class="ip-field">
+        <label for="logo-text-input" class="ip-label">{copy.logoTextLabel}</label>
+        <input
+          id="logo-text-input"
+          type="text"
+          class="ip-input"
+          placeholder={copy.logoTextPH}
+          maxlength="20"
+          autocomplete="off"
+        />
+      </div>
+
       <!-- Issuer name -->
       <div class="ip-field">
         <label for="org-input" class="ip-label">{copy.orgLabel}</label>
@@ -228,6 +256,15 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           maxlength="24"
           autocomplete="off"
         />
+      </div>
+
+      <!-- Type field (sec2: label + value) -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.typeLabel}</span>
+        <div class="ip-aux-row">
+          <input id="type-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.typeLabelPH} maxlength="20" autocomplete="off" />
+          <input id="type-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.typeValuePH} maxlength="20" autocomplete="off" />
+        </div>
       </div>
 
       <!-- Auxiliary field 1 -->
@@ -324,6 +361,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
               </div>
             </div>
 
+            <!-- Spacer: pushes barcode to bottom -->
+            <div class="ip-card-spacer"></div>
+
             <!-- Row 5: barcode (full width, bottom) -->
             <div class="ip-card-row ip-card-row--barcode">
               <div class="ip-barcode-wrap" id="barcode-wrap">
@@ -406,6 +446,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   const cardIconEl       = document.getElementById('card-icon');
   const iconGrid         = document.getElementById('icon-grid');
   const orgInput         = /** @type {HTMLInputElement} */ (document.getElementById('org-input'));
+  const logoTextInput    = /** @type {HTMLInputElement} */ (document.getElementById('logo-text-input'));
+  const typeLabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('type-label-input'));
+  const typeValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('type-value-input'));
   const aux1LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-label-input'));
   const aux1ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-value-input'));
   const aux2LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux2-label-input'));
@@ -418,6 +461,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   const aux2LabelEl      = document.getElementById('aux2-label');
   const aux2ValueEl      = document.getElementById('aux2-value');
   const sec1ValueEl      = document.getElementById('sec1-value');
+  const sec2LabelEl      = document.getElementById('sec2-label');
+  const sec2ValueEl      = document.getElementById('sec2-value');
 
   // ── Code 39 barcode renderer ───────────────────────────────────────
   // Each char encoded as 5 bars + 4 spaces (9 elements), narrow=1 wide=3
@@ -537,11 +582,26 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   renderIconGrid();
   updateCardIcon();
 
+  // ── Logo text (card title) ─────────────────────────────────────────
+  logoTextInput.addEventListener('input', () => {
+    cardLogoText.textContent = logoTextInput.value || COPY.logoTextPH;
+  });
+
   // ── Org name ───────────────────────────────────────────────────────
   orgInput.addEventListener('input', () => {
     currentOrgName = orgInput.value.trim();
     sec1ValueEl.textContent = currentOrgName || COPY.orgPlaceholder;
   });
+
+  // ── Type field (sec2) ──────────────────────────────────────────────
+  function updateTypePreview() {
+    const lbl = typeLabelInput.value.trim();
+    const val = typeValueInput.value.trim();
+    sec2LabelEl.textContent = lbl || COPY.secTypeLabel;
+    sec2ValueEl.textContent = val || COPY.secTypeValue;
+  }
+  typeLabelInput.addEventListener('input', updateTypePreview);
+  typeValueInput.addEventListener('input', updateTypePreview);
 
   // ── Auxiliary fields ───────────────────────────────────────────────
   function updateAuxPreview() {
@@ -669,6 +729,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
       if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ' });
       if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ' });
 
+      const typeLabel = typeLabelInput.value.trim() || COPY.secTypeLabel;
+      const typeValue = typeValueInput.value.trim() || COPY.secTypeValue;
+
       const res = await fetch('/api/generate-pass', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -677,7 +740,10 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           backgroundColor: currentBgColor,
           foregroundColor: currentFgColor,
           labelColor: currentFgColor,
+          logoText: logoTextInput.value.trim() || COPY.logoTextPH,
           orgName: currentOrgName || COPY.orgPlaceholder,
+          typeLabel,
+          typeValue,
           iconPng,
           auxFields,
         }),
@@ -1077,12 +1143,11 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     opacity: 0.9;
   }
 
-  /* Row 2: primary — takes up remaining space */
+  /* Row 2: primary — 固定高度，不撐滿 */
   .ip-card-row--primary {
-    flex: 1;
     flex-direction: column;
     justify-content: flex-start;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.65rem;
   }
 
   /* Row 3: secondary (2 cols) */
@@ -1093,10 +1158,13 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
 
   /* Row 4: auxiliary */
   .ip-card-row--aux {
-    justify-content: flex-start;
-    gap: 1rem;
+    justify-content: space-between;
+    gap: 0.5rem;
     margin-bottom: 0.4rem;
   }
+
+  /* Spacer — pushes barcode to bottom */
+  .ip-card-spacer { flex: 1; }
 
   /* Row 5: barcode — fixed at bottom */
   .ip-card-row--barcode {
