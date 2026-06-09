@@ -5,11 +5,11 @@ const PASS_TYPE_ID = 'pass.com.milifix.invoice';
 const TEAM_ID = process.env.APPLE_TEAM_ID ?? '3DX9A7VF2X';
 
 /**
- * Validate Taiwan invoice carrier format: /[A-Z]{2}[0-9]{14}/
+ * 手機條碼載具：/ 開頭 + 7 個大寫英數或 +-. 等特殊符號，共 8 碼
  * @param {string} id
  */
 function isValidCarrier(id) {
-  return /^[A-Z]{2}[0-9]{14}$/.test(id);
+  return /^\/[A-Z0-9+\-.]{7}$/.test(id);
 }
 
 /**
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   } = req.body ?? {};
 
   if (!carrierId || !isValidCarrier(carrierId)) {
-    res.status(400).json({ error: 'Invalid carrier ID. Expected format: XX00000000000000' });
+    res.status(400).json({ error: 'Invalid carrier ID. Expected format: /XXXXXXX (8 chars starting with /)' });
     return;
   }
 
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
         barcodes: [
           {
             message: carrierId,
-            format: 'PKBarcodeFormatQR',
+            format: 'PKBarcodeFormatCode39',
             messageEncoding: 'iso-8859-1',
             altText: carrierId,
           },

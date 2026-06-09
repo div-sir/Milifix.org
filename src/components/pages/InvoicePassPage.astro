@@ -30,8 +30,8 @@ const t = {
     step2: '選擇外觀',
     step3: '加入錢包',
     inputLabel: '載具號碼',
-    inputPlaceholder: 'AB12345678901234',
-    inputHint: '兩個大寫英文字母 + 14 位數字',
+    inputPlaceholder: '/KPEHNLS',
+    inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
     previewLabel: '卡片預覽',
@@ -39,7 +39,7 @@ const t = {
     previewOrg: '台灣統一發票',
     addToWallet: '加入 Apple Wallet',
     adding: '打包中…',
-    errorInvalid: '請輸入正確的載具號碼格式（兩個大寫英文 + 14 位數字）',
+    errorInvalid: '格式錯誤：需為 / 開頭接 7 個大寫英數字或符號，例如 /KPEHNLS',
     errorServer: '伺服器錯誤，請稍後再試',
     iosOnly: '需要 iPhone 才能加入 Apple Wallet',
     tiltHint: '傾斜裝置看 3D 光影效果',
@@ -58,8 +58,8 @@ const t = {
     step2: 'Design your card',
     step3: 'Add to Wallet',
     inputLabel: 'Carrier ID',
-    inputPlaceholder: 'AB12345678901234',
-    inputHint: 'Two uppercase letters + 14 digits',
+    inputPlaceholder: '/KPEHNLS',
+    inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
     previewLabel: 'Card Preview',
@@ -67,7 +67,7 @@ const t = {
     previewOrg: 'Taiwan Invoice',
     addToWallet: 'Add to Apple Wallet',
     adding: 'Generating…',
-    errorInvalid: 'Please enter a valid carrier ID (two uppercase letters + 14 digits)',
+    errorInvalid: 'Invalid format: must start with / followed by 7 uppercase letters, digits, or symbols (e.g. /KPEHNLS)',
     errorServer: 'Server error — please try again',
     iosOnly: 'Requires iPhone to add to Apple Wallet',
     tiltHint: 'Tilt your device to see the 3D light effect',
@@ -86,8 +86,8 @@ const t = {
     step2: 'デザインを選ぶ',
     step3: 'Walletに追加',
     inputLabel: 'キャリアID',
-    inputPlaceholder: 'AB12345678901234',
-    inputHint: '大文字2字 + 数字14桁',
+    inputPlaceholder: '/KPEHNLS',
+    inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
     previewLabel: 'カードプレビュー',
@@ -95,7 +95,7 @@ const t = {
     previewOrg: '台湾統一発票',
     addToWallet: 'Apple Walletに追加',
     adding: '生成中…',
-    errorInvalid: '正しいキャリアIDを入力してください（大文字2字＋数字14桁）',
+    errorInvalid: '形式エラー：/ で始まり大文字・数字・記号7文字（例：/KPEHNLS）',
     errorServer: 'サーバーエラーが発生しました。しばらくしてからお試しください',
     iosOnly: 'Apple WalletへはiPhoneが必要です',
     tiltHint: 'デバイスを傾けて3Dライトエフェクトを確認',
@@ -160,10 +160,10 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           type="text"
           class="ip-input"
           placeholder={copy.inputPlaceholder}
-          maxlength="16"
+          maxlength="8"
           autocomplete="off"
           autocorrect="off"
-          autocapitalize="characters"
+          autocapitalize="none"
           spellcheck="false"
         />
         <span class="ip-hint">{copy.inputHint}</span>
@@ -273,11 +273,13 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
 
   // ── Carrier validation ─────────────────────────────────────────────
   function isValidCarrier(v) {
-    return /^[A-Z]{2}[0-9]{14}$/.test(v);
+    return /^\/[A-Z0-9+\-.]{7}$/.test(v);
   }
 
   carrierInput.addEventListener('input', () => {
-    carrierId = carrierInput.value.toUpperCase().trim();
+    // 保留 / 開頭，其餘轉大寫
+    const raw = carrierInput.value;
+    carrierId = raw.length > 0 ? (raw[0] === '/' ? '/' + raw.slice(1).toUpperCase() : raw.toUpperCase()) : '';
     carrierInput.value = carrierId;
     cardNumber.textContent = carrierId || '––';
     carrierError.textContent = (carrierId && !isValidCarrier(carrierId)) ? COPY.errorInvalid : '';
