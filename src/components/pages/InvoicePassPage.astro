@@ -1,0 +1,746 @@
+---
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import SiteNav from '../SiteNav.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+
+interface Props {
+  lang: Lang;
+  pathname: string;
+}
+
+const { lang, pathname } = Astro.props;
+
+// Default solid background color
+const DEFAULT_BG = '#1a1a2e';
+
+const t = {
+  zh: {
+    htmlTitle: 'Invoice Pass — 打造你的專屬發票載具卡',
+    metaDesc: '輸入你的發票載具號碼，挑選背景、調整顏色，一鍵生成屬於你的 Apple Wallet 個人化載具卡片。',
+    eyebrow: '台灣發票載具',
+    h1a: '把發票載具',
+    h1b: '變成你的風格',
+    heroDesc: '輸入載具號碼，選一張喜歡的背景，調整顏色——幾秒鐘就能生成一張帥到捨不得刪的 Apple Wallet 卡片。',
+    stepLabel: '使用步驟',
+    step1: '輸入載具號碼',
+    step2: '選擇外觀',
+    step3: '加入錢包',
+    inputLabel: '載具號碼',
+    inputPlaceholder: 'AB12345678901234',
+    inputHint: '兩個大寫英文字母 + 14 位數字',
+    bgLabel: '背景顏色',
+    colorLabel: '字體顏色',
+    previewLabel: '卡片預覽',
+    previewCarrier: '載具號碼',
+    previewOrg: '台灣統一發票',
+    addToWallet: '加入 Apple Wallet',
+    adding: '打包中…',
+    errorInvalid: '請輸入正確的載具號碼格式（兩個大寫英文 + 14 位數字）',
+    errorServer: '伺服器錯誤，請稍後再試',
+    iosOnly: '需要 iPhone 才能加入 Apple Wallet',
+    tiltHint: '傾斜裝置看 3D 光影效果',
+    back: '← Milifix',
+    footer: '© 2026 Milifix. All rights reserved.',
+  },
+  en: {
+    htmlTitle: 'Invoice Pass — Your personalized Taiwan invoice carrier card',
+    metaDesc: 'Enter your Taiwan invoice carrier ID, pick a background and color, and generate your own Apple Wallet card in seconds.',
+    eyebrow: 'Taiwan Invoice Carrier',
+    h1a: 'Make your invoice',
+    h1b: 'carrier actually cool',
+    heroDesc: 'Enter your carrier ID, pick a background, tweak the colors — and get an Apple Wallet card worth showing off.',
+    stepLabel: 'How it works',
+    step1: 'Enter your carrier ID',
+    step2: 'Design your card',
+    step3: 'Add to Wallet',
+    inputLabel: 'Carrier ID',
+    inputPlaceholder: 'AB12345678901234',
+    inputHint: 'Two uppercase letters + 14 digits',
+    bgLabel: 'Background Color',
+    colorLabel: 'Text Color',
+    previewLabel: 'Card Preview',
+    previewCarrier: 'Carrier ID',
+    previewOrg: 'Taiwan Invoice',
+    addToWallet: 'Add to Apple Wallet',
+    adding: 'Generating…',
+    errorInvalid: 'Please enter a valid carrier ID (two uppercase letters + 14 digits)',
+    errorServer: 'Server error — please try again',
+    iosOnly: 'Requires iPhone to add to Apple Wallet',
+    tiltHint: 'Tilt your device to see the 3D light effect',
+    back: '← Milifix',
+    footer: '© 2026 Milifix. All rights reserved.',
+  },
+  ja: {
+    htmlTitle: 'Invoice Pass — あなた専用の発票キャリアカード',
+    metaDesc: '台湾の発票キャリアIDを入力して、背景とカラーを選ぶだけ。数秒でApple Walletカードを生成できます。',
+    eyebrow: '台湾発票キャリア',
+    h1a: '発票キャリアを',
+    h1b: 'あなた色に変える',
+    heroDesc: 'キャリアIDを入力して、背景を選んで、色を調整する——数秒で見せたくなる Apple Wallet カードの完成。',
+    stepLabel: '使い方',
+    step1: 'キャリアIDを入力',
+    step2: 'デザインを選ぶ',
+    step3: 'Walletに追加',
+    inputLabel: 'キャリアID',
+    inputPlaceholder: 'AB12345678901234',
+    inputHint: '大文字2字 + 数字14桁',
+    bgLabel: '背景カラー',
+    colorLabel: 'テキストカラー',
+    previewLabel: 'カードプレビュー',
+    previewCarrier: 'キャリアID',
+    previewOrg: '台湾統一発票',
+    addToWallet: 'Apple Walletに追加',
+    adding: '生成中…',
+    errorInvalid: '正しいキャリアIDを入力してください（大文字2字＋数字14桁）',
+    errorServer: 'サーバーエラーが発生しました。しばらくしてからお試しください',
+    iosOnly: 'Apple WalletへはiPhoneが必要です',
+    tiltHint: 'デバイスを傾けて3Dライトエフェクトを確認',
+    back: '← Milifix',
+    footer: '© 2026 Milifix. All rights reserved.',
+  },
+};
+
+const copy = t[lang];
+const htmlLang = HTML_LANG[lang];
+const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly });
+---
+
+<!doctype html>
+<html lang={htmlLang} data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{copy.htmlTitle}</title>
+  <meta name="description" content={copy.metaDesc} />
+</head>
+<body class="portfolio-atmo">
+
+<AmbientBackdrop />
+<SiteNav lang={lang} pathname={pathname} />
+<PortfolioChrome />
+
+<main class="ip-main">
+
+  <!-- Hero -->
+  <section class="ip-hero">
+    <p class="ip-eyebrow">{copy.eyebrow}</p>
+    <h1 class="ip-h1">
+      <span class="ip-h1-a">{copy.h1a}</span>
+      <span class="ip-h1-b">{copy.h1b}</span>
+    </h1>
+    <p class="ip-hero-desc">{copy.heroDesc}</p>
+
+    <!-- Step pills -->
+    <div class="ip-steps">
+      {[copy.step1, copy.step2, copy.step3].map((s, i) => (
+        <div class="ip-step">
+          <span class="ip-step-num">{i + 1}</span>
+          <span class="ip-step-label">{s}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Editor + Preview -->
+  <section class="ip-workspace">
+
+    <!-- Left: controls -->
+    <div class="ip-controls">
+
+      <!-- Carrier ID input -->
+      <div class="ip-field">
+        <label for="carrier-input" class="ip-label">{copy.inputLabel}</label>
+        <input
+          id="carrier-input"
+          type="text"
+          class="ip-input"
+          placeholder={copy.inputPlaceholder}
+          maxlength="16"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        />
+        <span class="ip-hint">{copy.inputHint}</span>
+        <span class="ip-error" id="carrier-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <!-- Background color picker -->
+      <div class="ip-field ip-field--inline">
+        <label for="bg-color-input" class="ip-label">{copy.bgLabel}</label>
+        <div class="ip-color-wrap">
+          <input id="bg-color-input" type="color" class="ip-color" value={DEFAULT_BG} />
+          <span class="ip-color-hex" id="bg-color-hex">{DEFAULT_BG}</span>
+        </div>
+      </div>
+
+      <!-- Text color picker -->
+      <div class="ip-field ip-field--inline">
+        <label for="color-input" class="ip-label">{copy.colorLabel}</label>
+        <div class="ip-color-wrap">
+          <input id="color-input" type="color" class="ip-color" value="#ffffff" />
+          <span class="ip-color-hex" id="color-hex">#ffffff</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button class="ip-cta" id="add-to-wallet" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        {copy.addToWallet}
+      </button>
+      <p class="ip-ios-note" id="ios-note"></p>
+
+    </div>
+
+    <!-- Right: card preview -->
+    <div class="ip-preview-wrap">
+      <p class="ip-preview-label">{copy.previewLabel}</p>
+      <div class="ip-card-scene" id="card-scene">
+        <div class="ip-card" id="wallet-card">
+          <div class="ip-card-bg" id="card-bg" style={`background: ${DEFAULT_BG}`}></div>
+          <div class="ip-card-glare" id="card-glare"></div>
+          <div class="ip-card-content" id="card-content">
+            <div class="ip-card-header">
+              <span class="ip-card-logo">Milifix</span>
+              <span class="ip-card-type" id="card-type">{copy.previewOrg}</span>
+            </div>
+            <div class="ip-card-body">
+              <span class="ip-card-field-label" id="card-carrier-label">{copy.previewCarrier}</span>
+              <span class="ip-card-number" id="card-number">––</span>
+            </div>
+            <div class="ip-card-footer">
+              <svg class="ip-qr-icon" viewBox="0 0 64 64" fill="none">
+                <!-- simplified QR placeholder -->
+                <rect x="4" y="4" width="24" height="24" rx="2" stroke="currentColor" stroke-width="4"/>
+                <rect x="10" y="10" width="12" height="12" rx="1" fill="currentColor"/>
+                <rect x="36" y="4" width="24" height="24" rx="2" stroke="currentColor" stroke-width="4"/>
+                <rect x="42" y="10" width="12" height="12" rx="1" fill="currentColor"/>
+                <rect x="4" y="36" width="24" height="24" rx="2" stroke="currentColor" stroke-width="4"/>
+                <rect x="10" y="42" width="12" height="12" rx="1" fill="currentColor"/>
+                <rect x="36" y="36" width="4" height="4" fill="currentColor"/>
+                <rect x="44" y="36" width="4" height="4" fill="currentColor"/>
+                <rect x="52" y="36" width="8" height="4" fill="currentColor"/>
+                <rect x="36" y="44" width="8" height="4" fill="currentColor"/>
+                <rect x="48" y="44" width="12" height="4" fill="currentColor"/>
+                <rect x="36" y="52" width="4" height="8" fill="currentColor"/>
+                <rect x="44" y="52" width="8" height="8" fill="currentColor"/>
+                <rect x="56" y="52" width="4" height="8" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="ip-tilt-hint" id="tilt-hint" style="display:none">{copy.tiltHint}</p>
+    </div>
+
+  </section>
+
+  <footer class="ip-footer">
+    <a href="/" class="ip-back">{copy.back}</a>
+    <span>{copy.footer}</span>
+  </footer>
+
+</main>
+
+<script define:vars={{ copyJson }}>
+  const COPY = JSON.parse(copyJson);
+
+  // ── State ──────────────────────────────────────────────────────────
+  let currentBgColor = '#1a1a2e';
+  let currentFgColor = '#ffffff';
+  let carrierId = '';
+
+  // ── Element refs ───────────────────────────────────────────────────
+  const carrierInput  = /** @type {HTMLInputElement} */ (document.getElementById('carrier-input'));
+  const carrierError  = document.getElementById('carrier-error');
+  const bgColorInput  = /** @type {HTMLInputElement} */ (document.getElementById('bg-color-input'));
+  const bgColorHex    = document.getElementById('bg-color-hex');
+  const fgColorInput  = /** @type {HTMLInputElement} */ (document.getElementById('color-input'));
+  const fgColorHex    = document.getElementById('color-hex');
+  const cta           = /** @type {HTMLButtonElement} */ (document.getElementById('add-to-wallet'));
+  const iosNote       = document.getElementById('ios-note');
+  const cardBg        = document.getElementById('card-bg');
+  const cardGlare     = document.getElementById('card-glare');
+  const cardContent   = document.getElementById('card-content');
+  const cardNumber    = document.getElementById('card-number');
+  const cardScene     = document.getElementById('card-scene');
+  const tiltHint      = document.getElementById('tilt-hint');
+
+  // ── Carrier validation ─────────────────────────────────────────────
+  function isValidCarrier(v) {
+    return /^[A-Z]{2}[0-9]{14}$/.test(v);
+  }
+
+  carrierInput.addEventListener('input', () => {
+    carrierId = carrierInput.value.toUpperCase().trim();
+    carrierInput.value = carrierId;
+    cardNumber.textContent = carrierId || '––';
+    carrierError.textContent = (carrierId && !isValidCarrier(carrierId)) ? COPY.errorInvalid : '';
+    cta.disabled = !isValidCarrier(carrierId);
+  });
+
+  // ── Background color ───────────────────────────────────────────────
+  bgColorInput.addEventListener('input', () => {
+    currentBgColor = bgColorInput.value;
+    bgColorHex.textContent = currentBgColor;
+    cardBg.style.background = currentBgColor;
+  });
+
+  // ── Foreground color ───────────────────────────────────────────────
+  fgColorInput.addEventListener('input', () => {
+    currentFgColor = fgColorInput.value;
+    fgColorHex.textContent = currentFgColor;
+    cardContent.style.color = currentFgColor;
+  });
+  cardContent.style.color = currentFgColor;
+
+  // ── 3D tilt (mouse on desktop, gyroscope on mobile) ────────────────
+  const card = document.getElementById('wallet-card');
+  let tiltEnabled = false;
+
+  function applyTilt(rx, ry) {
+    card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+    const glareX = 50 + ry * 2;
+    const glareY = 50 - rx * 2;
+    cardGlare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.22) 0%, transparent 65%)`;
+  }
+
+  function resetTilt() {
+    card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+    cardGlare.style.background = 'none';
+  }
+
+  cardScene.addEventListener('mousemove', e => {
+    const rect = cardScene.getBoundingClientRect();
+    const rx = ((e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)) * -10;
+    const ry = ((e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)) * 10;
+    applyTilt(rx, ry);
+  });
+  cardScene.addEventListener('mouseleave', resetTilt);
+
+  function attachGyro() {
+    tiltEnabled = true;
+    if (tiltHint) tiltHint.style.display = 'block';
+    window.addEventListener('deviceorientation', e => {
+      if (!tiltEnabled) return;
+      const rx = Math.max(-15, Math.min(15, (e.beta ?? 0) - 45)) * 0.5;
+      const ry = Math.max(-15, Math.min(15, e.gamma ?? 0)) * 0.5;
+      applyTilt(rx, ry);
+    });
+  }
+
+  function requestGyro() {
+    if (typeof DeviceOrientationEvent === 'undefined') return;
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(state => { if (state === 'granted') attachGyro(); })
+        .catch(() => {});
+    } else {
+      attachGyro();
+    }
+  }
+
+  const isIOS = /iphone|ipad/i.test(navigator.userAgent);
+  const isMobile = /iphone|ipad|android/i.test(navigator.userAgent);
+
+  if (isMobile) card.addEventListener('click', requestGyro, { once: true });
+  if (!isIOS) iosNote.textContent = COPY.iosOnly;
+
+  // ── Generate pass ──────────────────────────────────────────────────
+  cta.addEventListener('click', async () => {
+    if (!isValidCarrier(carrierId)) return;
+
+    const originalText = cta.textContent;
+    cta.textContent = COPY.adding;
+    cta.disabled = true;
+
+    try {
+      const res = await fetch('/api/generate-pass', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carrierId,
+          backgroundColor: currentBgColor,
+          foregroundColor: currentFgColor,
+          labelColor: currentFgColor,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        carrierError.textContent = err.error ?? COPY.errorServer;
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${carrierId}.pkpass`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      carrierError.textContent = COPY.errorServer;
+    } finally {
+      cta.textContent = originalText;
+      cta.disabled = !isValidCarrier(carrierId);
+    }
+  });
+</script>
+
+<style>
+  /* ── Layout ───────────────────────────────────────────────────────── */
+  .ip-main {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
+    padding-top: 6rem;
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────── */
+  .ip-hero {
+    max-width: 680px;
+    margin: 0 auto 5rem;
+    text-align: center;
+  }
+
+  .ip-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.25rem;
+  }
+
+  .ip-h1 {
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .ip-h1-a { display: block; }
+  .ip-h1-b { display: block; color: var(--accent); }
+
+  .ip-hero-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin: 0 0 2.5rem;
+  }
+
+  /* ── Steps ────────────────────────────────────────────────────────── */
+  .ip-steps {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ip-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .ip-step-num {
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Workspace ────────────────────────────────────────────────────── */
+  .ip-workspace {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+
+  @media (max-width: 720px) {
+    .ip-workspace { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  /* ── Controls ─────────────────────────────────────────────────────── */
+  .ip-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .ip-field { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ip-field--inline { flex-direction: row; align-items: center; justify-content: space-between; }
+
+  .ip-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .ip-input {
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 0.6rem;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ip-input:focus { border-color: var(--accent); }
+  .ip-input::placeholder { color: var(--muted-dim); }
+
+  .ip-hint {
+    font-size: 0.72rem;
+    color: var(--muted-dim);
+  }
+
+  .ip-error {
+    font-size: 0.78rem;
+    color: #f87171;
+    min-height: 1rem;
+  }
+
+  /* ── Color picker ─────────────────────────────────────────────────── */
+  .ip-color-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ip-color {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+  }
+
+  .ip-color::-webkit-color-swatch-wrapper { padding: 0; }
+  .ip-color::-webkit-color-swatch { border-radius: 50%; border: 2px solid var(--line2); }
+
+  .ip-color-hex {
+    font-size: 0.85rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+  }
+
+  /* ── CTA ──────────────────────────────────────────────────────────── */
+  .ip-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: 0.7rem;
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    width: 100%;
+  }
+
+  .ip-cta:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.92; }
+  .ip-cta:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ip-ios-note {
+    font-size: 0.72rem;
+    color: var(--muted-dim);
+    text-align: center;
+    min-height: 1rem;
+    margin: 0;
+  }
+
+  /* ── Card preview ─────────────────────────────────────────────────── */
+  .ip-preview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    position: sticky;
+    top: 7rem;
+  }
+
+  .ip-preview-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .ip-card-scene {
+    width: 100%;
+    max-width: 340px;
+    perspective: 800px;
+    cursor: pointer;
+  }
+
+  .ip-card {
+    width: 100%;
+    aspect-ratio: 375/123;
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+    transform-style: preserve-3d;
+    transition: transform 0.12s ease-out, box-shadow 0.12s;
+    will-change: transform;
+  }
+
+  .ip-card:hover {
+    box-shadow: 0 28px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+  }
+
+  .ip-card-bg {
+    position: absolute;
+    inset: 0;
+    transition: background 0.4s ease;
+  }
+
+  .ip-card-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    transition: background 0.1s;
+  }
+
+  .ip-card-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.9rem 1.1rem;
+    color: #ffffff;
+    transition: color 0.2s;
+  }
+
+  .ip-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .ip-card-logo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+  }
+
+  .ip-card-type {
+    font-size: 0.65rem;
+    opacity: 0.65;
+    letter-spacing: 0.06em;
+  }
+
+  .ip-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .ip-card-field-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .ip-card-number {
+    font-size: 1rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .ip-card-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .ip-qr-icon {
+    width: 2rem;
+    height: 2rem;
+    opacity: 0.6;
+    color: currentColor;
+  }
+
+  .ip-tilt-hint {
+    font-size: 0.72rem;
+    color: var(--muted-dim);
+    text-align: center;
+    margin: 0;
+  }
+
+  /* ── Footer ───────────────────────────────────────────────────────── */
+  .ip-footer {
+    margin-top: auto;
+    padding: 3rem 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--muted-dim);
+    border-top: 1px solid var(--line);
+    max-width: 1100px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ip-back {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .ip-back:hover { color: var(--text); }
+</style>
+
+</body>
+</html>

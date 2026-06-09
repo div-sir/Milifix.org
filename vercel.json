@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/generate-pass.js": {
+      "maxDuration": 30
+    }
+  }
+}
