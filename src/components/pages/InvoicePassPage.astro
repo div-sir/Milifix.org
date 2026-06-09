@@ -53,17 +53,17 @@ const t = {
     iconLabel: '卡片圖示',
     logoTextLabel: '卡片標題',
     logoTextPH: 'Invoice Pass',
-    sec1Label: '欄位 1（左）',
-    sec1LabelPH: '標籤（如：發行單位）',
-    sec1ValuePH: '內容（如：Milifix）',
-    sec2Label: '欄位 2（右）',
-    sec2LabelPH: '標籤（如：類型）',
-    sec2ValuePH: '內容（如：統一發票）',
+    sec1Label: '主要欄位一',
+    sec1LabelPH: '標籤',
+    sec1ValuePH: '內容',
+    sec2Label: '主要欄位二',
+    sec2LabelPH: '標籤',
+    sec2ValuePH: '內容',
     aux1Label: '自訂欄位 1',
-    aux1LabelPH: '標籤（如：日期）',
-    aux1ValuePH: '內容（如：2026/06）',
+    aux1LabelPH: '標籤',
+    aux1ValuePH: '內容',
     aux2Label: '自訂欄位 2',
-    aux2LabelPH: '標籤（如：備註）',
+    aux2LabelPH: '標籤',
     aux2ValuePH: '內容',
     alignLeft: '左',
     alignCenter: '中',
@@ -104,17 +104,17 @@ const t = {
     iconLabel: 'Card Icon',
     logoTextLabel: 'Card Title',
     logoTextPH: 'Invoice Pass',
-    sec1Label: 'Field 1 (Left)',
-    sec1LabelPH: 'Label (e.g. Issued by)',
-    sec1ValuePH: 'Value (e.g. Milifix)',
-    sec2Label: 'Field 2 (Right)',
-    sec2LabelPH: 'Label (e.g. Type)',
-    sec2ValuePH: 'Value (e.g. Invoice)',
+    sec1Label: 'Primary Field 1',
+    sec1LabelPH: 'Label',
+    sec1ValuePH: 'Value',
+    sec2Label: 'Primary Field 2',
+    sec2LabelPH: 'Label',
+    sec2ValuePH: 'Value',
     aux1Label: 'Custom Field 1',
-    aux1LabelPH: 'Label (e.g. Date)',
-    aux1ValuePH: 'Value (e.g. 2026/06)',
+    aux1LabelPH: 'Label',
+    aux1ValuePH: 'Value',
     aux2Label: 'Custom Field 2',
-    aux2LabelPH: 'Label (e.g. Note)',
+    aux2LabelPH: 'Label',
     aux2ValuePH: 'Value',
     alignLeft: 'L',
     alignCenter: 'C',
@@ -155,17 +155,17 @@ const t = {
     iconLabel: 'カードアイコン',
     logoTextLabel: 'カードタイトル',
     logoTextPH: 'Invoice Pass',
-    sec1Label: 'フィールド 1（左）',
-    sec1LabelPH: 'ラベル（例：発行元）',
-    sec1ValuePH: '内容（例：Milifix）',
-    sec2Label: 'フィールド 2（右）',
-    sec2LabelPH: 'ラベル（例：種別）',
-    sec2ValuePH: '内容（例：統一発票）',
+    sec1Label: 'メインフィールド 1',
+    sec1LabelPH: 'ラベル',
+    sec1ValuePH: '内容',
+    sec2Label: 'メインフィールド 2',
+    sec2LabelPH: 'ラベル',
+    sec2ValuePH: '内容',
     aux1Label: 'カスタムフィールド 1',
-    aux1LabelPH: 'ラベル（例：日付）',
-    aux1ValuePH: '内容（例：2026/06）',
+    aux1LabelPH: 'ラベル',
+    aux1ValuePH: '内容',
     aux2Label: 'カスタムフィールド 2',
-    aux2LabelPH: 'ラベル（例：メモ）',
+    aux2LabelPH: 'ラベル',
     aux2ValuePH: '内容',
     alignLeft: '左',
     alignCenter: '中',
@@ -349,25 +349,25 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <div class="ip-inline-row">
           <input id="aux2-label-input" type="text" class="ip-input ip-input--label" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
           <div class="ip-align-inline" data-field="aux2" data-subfield="label">
-            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
-            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
+            <button type="button" class="ip-aln ip-aln--active" data-align="right">&#8677;</button>
           </div>
         </div>
         <div class="ip-inline-row">
           <input id="aux2-value-input" type="text" class="ip-input ip-input--value" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
           <div class="ip-align-inline" data-field="aux2" data-subfield="value">
-            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
-            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
+            <button type="button" class="ip-aln ip-aln--active" data-align="right">&#8677;</button>
           </div>
         </div>
       </div>
 
       <!-- Gradient theme picker -->
-      <div class="ip-field">
-        <span class="ip-label">{copy.gradientLabel}</span>
-        <div class="ip-gradient-grid" id="gradient-grid"></div>
+      <div class="ip-field ip-field--inline">
+        <label for="gradient-select" class="ip-label">{copy.gradientLabel}</label>
+        <select id="gradient-select" class="ip-select"></select>
       </div>
 
       <!-- Background color picker -->
@@ -486,7 +486,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     sec1:  { label: 'left',  value: 'left'  },
     sec2:  { label: 'left',  value: 'right' },
     aux1:  { label: 'left',  value: 'left'  },
-    aux2:  { label: 'left',  value: 'left'  },
+    aux2:  { label: 'right', value: 'right' },
   };
 
   // ── Gradient themes ─────────────────────────────────────────────────
@@ -503,61 +503,99 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
   // ── Lucide icons — SVG path data only ────────────────────────────
   const ICONS = [
-    // 財務
-    { id: 'receipt',       label: '收據',   cat: '財務', path: 'M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1zm3 5h10M7 12h10M7 15h5' },
-    { id: 'wallet',        label: '錢包',   cat: '財務', path: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M21 12v5H5a2 2 0 0 0 0 4h14v-4M3 5v14' },
-    { id: 'credit-card',   label: '信用卡', cat: '財務', path: 'M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20M7 15h.01M11 15h2' },
-    { id: 'banknote',      label: '鈔票',   cat: '財務', path: 'M2 7h20v14H2zM16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M12 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4' },
-    { id: 'coins',         label: '硬幣',   cat: '財務', path: 'M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3M9 14c0-1.657 2.686-3 6-3s6 1.343 6 3M9 14v4c0 1.657 2.686 3 6 3s6-1.343 6-3v-4M3 6c0 1.657 2.686 3 6 3s6-1.343 6-3M3 6c0-1.657 2.686-3 6-3s6 1.343 6 3M3 6v10c0 1.657 2.686 3 6 3a11.955 11.955 0 0 0 2-.166' },
-    { id: 'piggy-bank',    label: '存錢筒', cat: '財務', path: 'M19 5c-1.5 0-2.8.4-3.9 1.1C14.1 4.7 13 4 12 4c-2.2 0-4 2.4-4 5.5V11H6v2h2v1.5C8 17.5 9.8 20 12 20h4c2.8 0 5-2.2 5-5v-4c0-2-1.1-4-2-6zM6 13H4v2h2zM12 9h.01' },
-    { id: 'landmark',      label: '銀行',   cat: '財務', path: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2 2 7h20z' },
-    { id: 'trending-up',   label: '漲',     cat: '財務', path: 'M22 7 13.5 15.5l-5-5L2 17M22 7h-6m6 0v6' },
-    // 購物
-    { id: 'shopping-bag',  label: '購物袋', cat: '購物', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
-    { id: 'shopping-cart', label: '購物車', cat: '購物', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
-    { id: 'tag',           label: '標籤',   cat: '購物', path: 'M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l9.59-9.59a1 1 0 0 0 0-1.41zM7 7h.01' },
-    { id: 'gift',          label: '禮物',   cat: '購物', path: 'M20 12v10H4V12M22 7H2v5h20zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7' },
-    { id: 'package',       label: '包裹',   cat: '購物', path: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
-    { id: 'ticket',        label: '票券',   cat: '購物', path: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm11 1-1 2h2l-1.5 3' },
-    { id: 'barcode',       label: '條碼',   cat: '購物', path: 'M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14M7 5H5M11 5H9M16 5h-2M20 5h-2M7 19H5M11 19H9M16 19h-2M20 19h-2' },
-    // 餐飲
-    { id: 'coffee',        label: '咖啡',   cat: '餐飲', path: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2' },
-    { id: 'utensils',      label: '餐具',   cat: '餐飲', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7' },
-    { id: 'pizza',         label: '披薩',   cat: '餐飲', path: 'M12 2a10 10 0 0 1 10 10M12 2a10 10 0 0 0-10 10M12 2v10m0 0L2 12m10 0 9.899-2.928M8.5 16.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm5-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z' },
-    { id: 'wine',          label: '紅酒',   cat: '餐飲', path: 'M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5z' },
-    { id: 'cake',          label: '蛋糕',   cat: '餐飲', path: 'M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 1.5-1 3-1 2.5 2 4 2 1.5-1 2-1M2 21h20M7 8v2M12 8v2M17 8v2M7 8a5 5 0 0 1 5-5 5 5 0 0 1 5 5' },
-    // 交通
-    { id: 'car',           label: '汽車',   cat: '交通', path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0m8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0' },
-    { id: 'fuel',          label: '加油',   cat: '交通', path: 'M3 22V6l10-3v19M3 10h10M13 22V11l7 4v7M13 14h7' },
-    { id: 'train',         label: '捷運',   cat: '交通', path: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 21h1.5l1-1.5h7L16.5 21H18l-1.5-2A3.5 3.5 0 0 0 20 15.5V6c0-3.5-4-4-8-4zM6.5 17A1.5 1.5 0 1 1 8 15.5 1.5 1.5 0 0 1 6.5 17zm11 0A1.5 1.5 0 1 1 19 15.5 1.5 1.5 0 0 1 17.5 17zM4 11V7h16v4' },
-    { id: 'plane',         label: '飛機',   cat: '交通', path: 'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z' },
-    { id: 'bus',           label: '公車',   cat: '交通', path: 'M8 6v6M15 6v6M2 12h19.6M18 18h2s1 0 1-1V7c0-1-.9-2-2-2H5C3.9 5 3 6 3 7v10c0 1 1 1 1 1h2M9 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z' },
-    { id: 'bike',          label: '自行車', cat: '交通', path: 'M5 19a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 19V9l-2-2H6M12 9l4 2 3-2' },
-    { id: 'ship',          label: '船',     cat: '交通', path: 'M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76M19 13V7l-7-3-7 3v6M12 10v4M12 4V2.5' },
-    // 住宿
-    { id: 'hotel',         label: '飯店',   cat: '住宿', path: 'M3 22V11l9-9 9 9v11H3zm6 0v-7h6v7' },
-    { id: 'bed',           label: '床',     cat: '住宿', path: 'M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9' },
-    { id: 'key',           label: '鑰匙',   cat: '住宿', path: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4' },
-    { id: 'map-pin',       label: '位置',   cat: '住宿', path: 'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
-    // 娛樂
-    { id: 'music',         label: '音樂',   cat: '娛樂', path: 'M9 18V5l12-2v13M9 9l12-2M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm15-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6' },
-    { id: 'film',          label: '電影',   cat: '娛樂', path: 'M2 2h20v20H2zM7 2v20M17 2v20M2 12h20M2 7h5M2 17h5m10-10h5m-5 10h5' },
-    { id: 'camera',        label: '相機',   cat: '娛樂', path: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8' },
-    { id: 'gamepad',       label: '遊戲',   cat: '娛樂', path: 'M6 12h4m-2-2v4M14.5 13h.01M17.5 11h.01M21 6H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z' },
-    { id: 'book',          label: '書本',   cat: '娛樂', path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z' },
-    { id: 'headphones',    label: '耳機',   cat: '娛樂', path: 'M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3' },
-    { id: 'tv',            label: '電視',   cat: '娛樂', path: 'M33 7h-18a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM8 20v2m8-2v2m-6 0h4' },
-    // 生活
-    { id: 'star',          label: '星星',   cat: '生活', path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z' },
-    { id: 'heart',         label: '愛心',   cat: '生活', path: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
-    { id: 'zap',           label: '閃電',   cat: '生活', path: 'M13 2 3 14h9l-1 8 10-12h-9z' },
-    { id: 'gem',           label: '寶石',   cat: '生活', path: 'M12 2L2 7l2 12 8 3 8-3 2-12zM2 7l10 5 10-5M12 12v10' },
-    { id: 'sun',           label: '太陽',   cat: '生活', path: 'M12 17A5 5 0 1 0 12 7a5 5 0 0 0 0 10zm0-15v2m0 14v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' },
-    { id: 'moon',          label: '月亮',   cat: '生活', path: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' },
-    { id: 'umbrella',      label: '雨傘',   cat: '生活', path: 'M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7' },
-    { id: 'leaf',          label: '葉子',   cat: '生活', path: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12' },
-    { id: 'activity',      label: '脈搏',   cat: '生活', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
-    { id: 'award',         label: '獎牌',   cat: '生活', path: 'M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm0 0v6m-3-3h6' },
+    { id: 'receipt',       label: '收據',   path: 'M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1zm3 5h10M7 12h10M7 15h5' },
+    { id: 'wallet',        label: '錢包',   path: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M21 12v5H5a2 2 0 0 0 0 4h14v-4M3 5v14' },
+    { id: 'credit-card',   label: '信用卡', path: 'M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20M7 15h.01M11 15h2' },
+    { id: 'banknote',      label: '鈔票',   path: 'M2 7h20v14H2zM16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M12 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4' },
+    { id: 'coins',         label: '硬幣',   path: 'M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3M9 14c0-1.657 2.686-3 6-3s6 1.343 6 3M9 14v4c0 1.657 2.686 3 6 3s6-1.343 6-3v-4M3 6c0 1.657 2.686 3 6 3s6-1.343 6-3M3 6c0-1.657 2.686-3 6-3s6 1.343 6 3M3 6v10c0 1.657 2.686 3 6 3a11.955 11.955 0 0 0 2-.166' },
+    { id: 'landmark',      label: '銀行',   path: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M12 2 2 7h20z' },
+    { id: 'trending-up',   label: '漲',     path: 'M22 7 13.5 15.5l-5-5L2 17M22 7h-6m6 0v6' },
+    { id: 'bar-chart',     label: '圖表',   path: 'M12 20V10M18 20V4M6 20v-4' },
+    { id: 'shopping-bag',  label: '購物袋', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0' },
+    { id: 'shopping-cart', label: '購物車', path: 'M9 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm11 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6' },
+    { id: 'tag',           label: '標籤',   path: 'M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l9.59-9.59a1 1 0 0 0 0-1.41zM7 7h.01' },
+    { id: 'gift',          label: '禮物',   path: 'M20 12v10H4V12M22 7H2v5h20zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7' },
+    { id: 'package',       label: '包裹',   path: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
+    { id: 'ticket',        label: '票券',   path: 'M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zm11 1-1 2h2l-1.5 3' },
+    { id: 'barcode',       label: '條碼',   path: 'M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14M7 5H5M11 5H9M16 5h-2M20 5h-2M7 19H5M11 19H9M16 19h-2M20 19h-2' },
+    { id: 'percent',       label: '百分比', path: 'M19 5 5 19M6.5 8.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17.5 19.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { id: 'coffee',        label: '咖啡',   path: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM6 2v2M10 2v2M14 2v2' },
+    { id: 'utensils',      label: '餐具',   path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7' },
+    { id: 'pizza',         label: '披薩',   path: 'M12 2a10 10 0 0 1 10 10M12 2a10 10 0 0 0-10 10M12 2v10m0 0L2 12m10 0 9.899-2.928M8.5 16.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm5-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z' },
+    { id: 'wine',          label: '紅酒',   path: 'M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5z' },
+    { id: 'cake',          label: '蛋糕',   path: 'M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 1.5-1 3-1 2.5 2 4 2 1.5-1 2-1M2 21h20M7 8v2M12 8v2M17 8v2M7 8a5 5 0 0 1 5-5 5 5 0 0 1 5 5' },
+    { id: 'apple',         label: '蘋果',   path: 'M12 20.94c1.5 0 4.11-1.32 5.31-6.94C18.65 8.75 18 7.5 16 7c-2 .5-3.5.5-4 .5S8 7.5 6 7c-2 .5-2.65 1.75-1.31 7 1.2 5.62 3.81 6.94 5.31 6.94zM12 7c0-1-.5-4-2-5.5S7 1 7 1M12 7c0-1 .5-4 2-5.5S17 1 17 1' },
+    { id: 'cookie',        label: '餅乾',   path: 'M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5M8.5 8.5v.01M16 15.5v.01M12 12v.01' },
+    { id: 'car',           label: '汽車',   path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0m8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0' },
+    { id: 'fuel',          label: '加油',   path: 'M3 22V6l10-3v19M3 10h10M13 22V11l7 4v7M13 14h7' },
+    { id: 'train',         label: '捷運',   path: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 21h1.5l1-1.5h7L16.5 21H18l-1.5-2A3.5 3.5 0 0 0 20 15.5V6c0-3.5-4-4-8-4zM6.5 17A1.5 1.5 0 1 1 8 15.5 1.5 1.5 0 0 1 6.5 17zm11 0A1.5 1.5 0 1 1 19 15.5 1.5 1.5 0 0 1 17.5 17zM4 11V7h16v4' },
+    { id: 'plane',         label: '飛機',   path: 'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z' },
+    { id: 'bus',           label: '公車',   path: 'M8 6v6M15 6v6M2 12h19.6M18 18h2s1 0 1-1V7c0-1-.9-2-2-2H5C3.9 5 3 6 3 7v10c0 1 1 1 1 1h2M9 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm8 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z' },
+    { id: 'bike',          label: '自行車', path: 'M5 19a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 19V9l-2-2H6M12 9l4 2 3-2' },
+    { id: 'ship',          label: '船',     path: 'M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76M19 13V7l-7-3-7 3v6M12 10v4M12 4V2.5' },
+    { id: 'taxi',          label: '計程車', path: 'M14 11V7m0 0h2a2 2 0 0 1 2 2v2M14 7h-4a2 2 0 0 0-2 2v2m0 0h8m-8 0H8m8 0h2M5 17H3a2 2 0 0 1-2-2v-3h18v3a2 2 0 0 1-2 2h-2m-8 0a2 2 0 1 0 4 0m-4 0a2 2 0 1 0 4 0' },
+    { id: 'navigation',    label: '導航',   path: 'M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z' },
+    { id: 'hotel',         label: '飯店',   path: 'M3 22V11l9-9 9 9v11H3zm6 0v-7h6v7' },
+    { id: 'bed',           label: '床',     path: 'M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9' },
+    { id: 'key',           label: '鑰匙',   path: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4' },
+    { id: 'map-pin',       label: '位置',   path: 'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { id: 'building',      label: '建築',   path: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18zM6 12H4a2 2 0 0 0-2 2v8h4M18 9h2a2 2 0 0 1 2 2v11h-4M10 6h4M10 10h4M10 14h4M10 18h4' },
+    { id: 'music',         label: '音樂',   path: 'M9 18V5l12-2v13M9 9l12-2M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm15-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6' },
+    { id: 'film',          label: '電影',   path: 'M2 2h20v20H2zM7 2v20M17 2v20M2 12h20M2 7h5M2 17h5m10-10h5m-5 10h5' },
+    { id: 'camera',        label: '相機',   path: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8' },
+    { id: 'gamepad',       label: '遊戲',   path: 'M6 12h4m-2-2v4M14.5 13h.01M17.5 11h.01M21 6H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z' },
+    { id: 'book',          label: '書本',   path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z' },
+    { id: 'headphones',    label: '耳機',   path: 'M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3' },
+    { id: 'mic',           label: '麥克風', path: 'M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8' },
+    { id: 'radio',         label: '廣播',   path: 'M4.9 19.1C1 15.2 1 8.8 4.9 4.9M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 0h.01M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5M19.1 4.9C23 8.8 23 15.1 19.1 19' },
+    { id: 'star',          label: '星星',   path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z' },
+    { id: 'heart',         label: '愛心',   path: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
+    { id: 'zap',           label: '閃電',   path: 'M13 2 3 14h9l-1 8 10-12h-9z' },
+    { id: 'gem',           label: '寶石',   path: 'M12 2L2 7l2 12 8 3 8-3 2-12zM2 7l10 5 10-5M12 12v10' },
+    { id: 'sun',           label: '太陽',   path: 'M12 17A5 5 0 1 0 12 7a5 5 0 0 0 0 10zm0-15v2m0 14v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M2 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' },
+    { id: 'moon',          label: '月亮',   path: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' },
+    { id: 'cloud',         label: '雲',     path: 'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z' },
+    { id: 'umbrella',      label: '雨傘',   path: 'M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7' },
+    { id: 'leaf',          label: '葉子',   path: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12' },
+    { id: 'flower',        label: '花',     path: 'M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V3m0 0a4.5 4.5 0 0 1 4.5 4.5M12 3a4.5 4.5 0 0 0-4.5 4.5m9 4.5a4.5 4.5 0 1 1-4.5 4.5m4.5-4.5H21m-4.5 4.5A4.5 4.5 0 0 1 12 21m0-4.5V21m0-4.5a4.5 4.5 0 0 0-4.5-4.5M12 21a4.5 4.5 0 0 1-4.5-4.5m0 0H3' },
+    { id: 'activity',      label: '脈搏',   path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+    { id: 'award',         label: '獎牌',   path: 'M12 15a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm0 0v6m-3-3h6' },
+    { id: 'trophy',        label: '獎盃',   path: 'M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2z' },
+    { id: 'flame',         label: '火焰',   path: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z' },
+    { id: 'crown',         label: '皇冠',   path: 'M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zM2 20h20' },
+    { id: 'diamond',       label: '鑽石',   path: 'M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.57a2.41 2.41 0 0 0 3.41 0l7.59-7.57a2.41 2.41 0 0 0 0-3.41L13.7 2.73a2.41 2.41 0 0 0-3.41 0z' },
+    { id: 'target',        label: '目標',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-6a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { id: 'flag',          label: '旗幟',   path: 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7' },
+    { id: 'smile',         label: '笑臉',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01' },
+    { id: 'user',          label: '用戶',   path: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
+    { id: 'users',         label: '用戶群', path: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 8v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75' },
+    { id: 'bell',          label: '鈴鐺',   path: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0' },
+    { id: 'mail',          label: '郵件',   path: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6' },
+    { id: 'phone',         label: '電話',   path: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.58 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z' },
+    { id: 'home',          label: '家',     path: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10' },
+    { id: 'briefcase',     label: '公事包', path: 'M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-5-3H9a2 2 0 0 0-2 2v1h10V6a2 2 0 0 0-2-2z' },
+    { id: 'scissors',      label: '剪刀',   path: 'M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 0l10.36 10.36M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 0L20 2' },
+    { id: 'tool',          label: '工具',   path: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z' },
+    { id: 'settings',      label: '設定',   path: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' },
+    { id: 'globe',         label: '地球',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' },
+    { id: 'lock',          label: '鎖',     path: 'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4' },
+    { id: 'shield',        label: '盾牌',   path: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+    { id: 'printer',       label: '印表機', path: 'M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z' },
+    { id: 'monitor',       label: '螢幕',   path: 'M20 3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM8 21h8M12 17v4' },
+    { id: 'battery',       label: '電池',   path: 'M17 7H7a5 5 0 0 0 0 10h10a5 5 0 0 0 0-10zm5 7h-2M10 12h4' },
+    { id: 'wifi',          label: 'Wi-Fi',  path: 'M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01' },
+    { id: 'dumbbell',      label: '啞鈴',   path: 'M14.4 14.4 9.6 9.6M18 6 6 18M20 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM4 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { id: 'stethoscope',   label: '聽診器', path: 'M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4' },
+    { id: 'pill',          label: '藥丸',   path: 'M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7M10.76 10.76a4 4 0 1 0 5.48 5.48M21 21l-4.5-4.5' },
+    { id: 'scissors-2',    label: '美髮',   path: 'M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12M7 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z' },
+    { id: 'graduation',    label: '畢業',   path: 'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c3 3 9 3 12 0v-5' },
+    { id: 'palette',       label: '調色盤', path: 'M12 2a10 10 0 0 1 6.32 17.74A10 10 0 1 1 12 2zM8.5 8.5h.01M15.5 8.5h.01M8.5 15.5h.01M15.5 15.5h.01M12 8.5h.01' },
+    { id: 'brush',         label: '畫筆',   path: 'M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1 1 2.48 1 3.51 1 1.67 0 3.02-1.35 3.02-3.02a3.02 3.02 0 0 0-1.53-2.62z' },
+    { id: 'image',         label: '圖片',   path: 'M20 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-8.5 9.5-3 3.75L6 13l-4 5h16z' },
+    { id: 'map',           label: '地圖',   path: 'M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4zM8 2v16M16 6v16' },
+    { id: 'compass',       label: '指南針', path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
+    { id: 'baby',          label: '嬰兒',   path: 'M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1' },
+    { id: 'paw',           label: '腳印',   path: 'M11 20a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM5 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM8 13a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM14 13a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM17 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM9 17c0-2.8 1.1-4 3-4s3 1.2 3 4' },
   ];
 
   // ── Element refs ───────────────────────────────────────────────────
@@ -711,33 +749,25 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   function renderIconGrid(filter = '') {
     iconGrid.innerHTML = '';
     const q = filter.toLowerCase();
-    const cats = [...new Set(ICONS.map(i => i.cat))];
-    cats.forEach(cat => {
-      const filtered = ICONS.filter(i => i.cat === cat && (
-        !q || i.label.includes(q) || i.id.includes(q) || i.cat.includes(q)
-      ));
-      if (!filtered.length) return;
-      const catEl = document.createElement('div');
-      catEl.className = 'ip-icon-cat';
-      catEl.textContent = cat;
-      iconGrid.appendChild(catEl);
-      filtered.forEach(icon => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'ip-icon-btn' + (icon.id === selectedIconId ? ' ip-icon-btn--active' : '');
-        btn.title = icon.label;
-        btn.dataset.id = icon.id;
-        btn.innerHTML = makeSvg(icon.path, 18) + `<span class="ip-icon-btn-label">${icon.label}</span>`;
-        btn.addEventListener('click', () => {
-          selectedIconId = icon.id;
-          iconGrid.querySelectorAll('.ip-icon-btn').forEach(b => b.classList.remove('ip-icon-btn--active'));
-          btn.classList.add('ip-icon-btn--active');
-          updateCardIcon();
-          updateTriggerDisplay();
-          iconPanel.hidden = true;
-        });
-        iconGrid.appendChild(btn);
+    const filtered = ICONS.filter(i =>
+      !q || i.label.includes(q) || i.id.includes(q)
+    );
+    filtered.forEach(icon => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ip-icon-btn' + (icon.id === selectedIconId ? ' ip-icon-btn--active' : '');
+      btn.title = icon.label;
+      btn.dataset.id = icon.id;
+      btn.innerHTML = makeSvg(icon.path, 20);
+      btn.addEventListener('click', () => {
+        selectedIconId = icon.id;
+        iconGrid.querySelectorAll('.ip-icon-btn').forEach(b => b.classList.remove('ip-icon-btn--active'));
+        btn.classList.add('ip-icon-btn--active');
+        updateCardIcon();
+        updateTriggerDisplay();
+        iconPanel.hidden = true;
       });
+      iconGrid.appendChild(btn);
     });
   }
 
@@ -856,16 +886,15 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     updateBarcode();
   });
 
-  // ── Gradient theme picker ──────────────────────────────────────────
-  const gradientGrid = document.getElementById('gradient-grid');
-  let selectedGradientId = 'midnight'; // default
+  // ── Gradient theme picker (select) ────────────────────────────────
+  const gradientSelect = /** @type {HTMLSelectElement} */ (document.getElementById('gradient-select'));
+  let selectedGradientId = 'midnight';
 
   function applyGradientTheme(theme) {
     selectedGradientId = theme.id;
     if (theme.css) {
       cardBg.style.background = theme.css;
       currentGradient = theme.css;
-      // Use the 'from' colour for the solid pass background
       if (theme.from) {
         currentBgColor = theme.from;
         bgColorInput.value = theme.from;
@@ -879,58 +908,35 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         updateBarcode();
       }
     } else {
-      // 'none' = solid — restore picker value
       currentGradient = '';
       cardBg.style.background = currentBgColor;
     }
-    // Update active state
-    gradientGrid.querySelectorAll('.ip-gradient-btn').forEach(b => {
-      b.classList.toggle('ip-gradient-btn--active', b.dataset.id === theme.id);
-    });
+    gradientSelect.value = theme.id;
   }
 
-  function renderGradientGrid() {
-    gradientGrid.innerHTML = '';
-    GRADIENTS.forEach(theme => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'ip-gradient-btn' + (theme.id === selectedGradientId ? ' ip-gradient-btn--active' : '');
-      btn.dataset.id = theme.id;
-      btn.title = theme.label;
-      // Swatch: mini preview of the gradient (or solid checker for 'none')
-      const swatch = document.createElement('span');
-      swatch.className = 'ip-gradient-swatch';
-      if (theme.css) {
-        swatch.style.background = theme.css;
-      } else {
-        swatch.style.background = 'var(--bg2)';
-        swatch.style.border = '1px dashed var(--line2)';
-      }
-      const label = document.createElement('span');
-      label.className = 'ip-gradient-label';
-      label.textContent = theme.label;
-      btn.appendChild(swatch);
-      btn.appendChild(label);
-      btn.addEventListener('click', () => applyGradientTheme(theme));
-      gradientGrid.appendChild(btn);
-    });
-    // Apply default theme on init
-    applyGradientTheme(GRADIENTS.find(g => g.id === selectedGradientId));
-  }
-
-  renderGradientGrid();
+  // Populate select options
+  GRADIENTS.forEach(theme => {
+    const opt = document.createElement('option');
+    opt.value = theme.id;
+    opt.textContent = theme.label;
+    gradientSelect.appendChild(opt);
+  });
+  gradientSelect.value = selectedGradientId;
+  gradientSelect.addEventListener('change', () => {
+    const theme = GRADIENTS.find(g => g.id === gradientSelect.value);
+    if (theme) applyGradientTheme(theme);
+  });
+  // Apply default on init
+  applyGradientTheme(GRADIENTS.find(g => g.id === selectedGradientId));
 
   // ── Background color ───────────────────────────────────────────────
   bgColorInput.addEventListener('input', () => {
     currentBgColor = bgColorInput.value;
     bgColorHex.textContent = currentBgColor;
-    // Switching to custom colour clears gradient
     currentGradient = '';
     selectedGradientId = 'none';
     cardBg.style.background = currentBgColor;
-    gradientGrid.querySelectorAll('.ip-gradient-btn').forEach(b => {
-      b.classList.toggle('ip-gradient-btn--active', b.dataset.id === 'none');
-    });
+    gradientSelect.value = 'none';
   });
 
   // ── Foreground color ───────────────────────────────────────────────
@@ -1259,37 +1265,26 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   }
   .ip-icon-search::placeholder { color: var(--muted-dim); }
 
-  .ip-icon-cat {
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted-dim);
-    padding: 0.1rem 0.2rem;
-    margin-top: 0.2rem;
-  }
-
   .ip-icon-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.3rem;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.25rem;
   }
 
   .ip-icon-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.45rem 0.2rem;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    padding: 0.3rem;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 0.45rem;
+    border-radius: 0.4rem;
     cursor: pointer;
     color: var(--muted);
     transition: background 0.12s, border-color 0.12s, color 0.12s;
   }
   .ip-icon-btn:hover { background: var(--bg3, var(--bg)); border-color: var(--accent); color: var(--text); }
   .ip-icon-btn--active { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
-  .ip-icon-btn-label { font-size: 0.58rem; letter-spacing: 0.02em; }
 
   /* ── Inline field rows (input + align toggle) ────────────────────── */
   .ip-inline-row {
@@ -1410,51 +1405,22 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     color: var(--muted);
   }
 
-  /* ── Gradient theme picker ────────────────────────────────────────── */
-  .ip-gradient-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.4rem;
-  }
-
-  .ip-gradient-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
+  /* ── Select (gradient picker) ─────────────────────────────────────── */
+  .ip-select {
     background: var(--bg2);
-    border: 1.5px solid var(--line2);
+    border: 1px solid var(--line2);
     border-radius: 0.6rem;
-    padding: 0.45rem 0.3rem;
+    padding: 0.55rem 0.9rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+    transition: border-color 0.15s;
+    min-width: 140px;
   }
-
-  .ip-gradient-btn:hover {
-    border-color: var(--accent);
-    background: var(--bg3, var(--bg2));
-  }
-
-  .ip-gradient-btn--active {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-
-  .ip-gradient-swatch {
-    width: 100%;
-    aspect-ratio: 2 / 1;
-    border-radius: 0.35rem;
-    display: block;
-    flex-shrink: 0;
-    box-sizing: border-box;
-  }
-
-  .ip-gradient-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-    white-space: nowrap;
-  }
+  .ip-select:focus { border-color: var(--accent); }
+  .ip-select option { background: var(--bg2); color: var(--text); }
 
   /* ── CTA ──────────────────────────────────────────────────────────── */
   .ip-cta {
