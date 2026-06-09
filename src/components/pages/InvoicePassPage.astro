@@ -47,6 +47,9 @@ const t = {
     inputLabel: '載具號碼',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
+    bgImageLabel: '底圖',
+    bgImageHint: '建議尺寸 750 × 1100 px（PNG / JPG）',
+    bgImageClear: '移除',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
     gradientLabel: '漸層主題',
@@ -98,6 +101,9 @@ const t = {
     inputLabel: 'Carrier ID',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
+    bgImageLabel: 'Background Image',
+    bgImageHint: 'Recommended: 750 × 1100 px (PNG / JPG)',
+    bgImageClear: 'Remove',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
     gradientLabel: 'Gradient Theme',
@@ -149,6 +155,9 @@ const t = {
     inputLabel: 'キャリアID',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
+    bgImageLabel: '背景画像',
+    bgImageHint: '推奨サイズ: 750 × 1100 px（PNG / JPG）',
+    bgImageClear: '削除',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
     gradientLabel: 'グラデーションテーマ',
@@ -360,6 +369,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         </div>
       </div>
 
+      <!-- Background image upload -->
+      <div class="ip-field">
+        <span class="ip-label">{copy.bgImageLabel}</span>
+        <label class="ip-bg-upload" id="bg-upload-label" for="bg-image-input">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <span id="bg-upload-text">{copy.bgImageHint}</span>
+          <input id="bg-image-input" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+        </label>
+        <div class="ip-bg-preview-wrap" id="bg-preview-wrap" hidden>
+          <img id="bg-preview-img" class="ip-bg-preview-img" src="" alt="" />
+          <button type="button" class="ip-bg-clear" id="bg-clear">{copy.bgImageClear}</button>
+        </div>
+      </div>
+
       <!-- Gradient theme picker -->
       <div class="ip-field ip-field--inline">
         <label for="gradient-select" class="ip-label">{copy.gradientLabel}</label>
@@ -477,6 +500,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   let carrierId = '';
   let selectedIconId = 'receipt';
   let currentGradient = '';
+  let currentBgImage = null; // base64 dataURL string or null
   // alignment per field × subfield (label / value)
   const fieldAlign = {
     sec1:  { label: 'left',  value: 'left'  },
@@ -664,6 +688,10 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const cta              = /** @type {HTMLButtonElement} */ (document.getElementById('add-to-wallet'));
   const iosNote          = document.getElementById('ios-note');
   const cardBg           = document.getElementById('card-bg');
+  const bgImageInput     = /** @type {HTMLInputElement} */ (document.getElementById('bg-image-input'));
+  const bgPreviewWrap    = document.getElementById('bg-preview-wrap');
+  const bgPreviewImg     = /** @type {HTMLImageElement} */ (document.getElementById('bg-preview-img'));
+  const bgClearBtn       = document.getElementById('bg-clear');
   const cardGlare        = document.getElementById('card-glare');
   const cardContent      = document.getElementById('card-content');
   const cardNumber       = document.getElementById('card-number');
@@ -984,6 +1012,34 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   // Apply default on init
   applyGradientTheme(GRADIENTS.find(g => g.id === selectedGradientId));
 
+  // ── Background image upload ────────────────────────────────────────
+  function applyBgImage(dataUrl) {
+    currentBgImage = dataUrl;
+    cardBg.style.backgroundImage = `url(${dataUrl})`;
+    cardBg.style.backgroundSize  = 'cover';
+    cardBg.style.backgroundPosition = 'center';
+    bgPreviewImg.src = dataUrl;
+    bgPreviewWrap.hidden = false;
+  }
+
+  function clearBgImage() {
+    currentBgImage = null;
+    cardBg.style.backgroundImage = '';
+    bgPreviewWrap.hidden = true;
+    bgPreviewImg.src = '';
+    bgImageInput.value = '';
+  }
+
+  bgImageInput.addEventListener('change', () => {
+    const file = bgImageInput.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => applyBgImage(/** @type {string} */ (e.target.result));
+    reader.readAsDataURL(file);
+  });
+
+  bgClearBtn.addEventListener('click', clearBgImage);
+
   // ── Background color ───────────────────────────────────────────────
   bgColorInput.addEventListener('input', () => {
     currentBgColor = bgColorInput.value;
@@ -1092,6 +1148,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           secFields,
           iconPng,
           auxFields,
+          backgroundPng: currentBgImage
+            ? currentBgImage.replace(/^data:[^;]+;base64,/, '')
+            : null,
         }),
       });
 
@@ -1494,6 +1553,46 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   }
   .ip-select:focus { border-color: var(--accent); }
   .ip-select option { background: var(--bg2); color: var(--text); }
+
+  /* ── Background image upload ───────────────────────────────────────── */
+  .ip-bg-upload {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--bg2);
+    border: 1.5px dashed var(--line2);
+    border-radius: 0.6rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .ip-bg-upload:hover { border-color: var(--accent); color: var(--accent); }
+  .ip-bg-preview-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .ip-bg-preview-img {
+    width: 3rem;
+    height: 4.4rem;
+    object-fit: cover;
+    border-radius: 0.4rem;
+    border: 1px solid var(--line2);
+  }
+  .ip-bg-clear {
+    background: none;
+    border: 1px solid var(--line2);
+    border-radius: 0.5rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .ip-bg-clear:hover { border-color: var(--accent); color: var(--accent); }
 
   /* ── CTA ──────────────────────────────────────────────────────────── */
   .ip-cta {

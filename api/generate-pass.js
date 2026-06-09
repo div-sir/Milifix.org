@@ -38,6 +38,7 @@ export default async function handler(req, res) {
     secFields = [],           // [{ key, label, value, textAlignment }, ...]
     iconPng = null,
     auxFields = [],
+    backgroundPng = null,
   } = req.body ?? {};
 
   if (!carrierId || !isValidCarrier(carrierId)) {
@@ -148,6 +149,13 @@ export default async function handler(req, res) {
     pass.addBuffer('icon@2x.png', iconBuf);
     pass.addBuffer('logo.png',    iconBuf);
     pass.addBuffer('logo@2x.png', iconBuf);
+
+    // Background image (optional, user-uploaded)
+    if (backgroundPng) {
+      const bgBuf = Buffer.from(backgroundPng, 'base64');
+      pass.addBuffer('background.png',    bgBuf);
+      pass.addBuffer('background@2x.png', bgBuf);
+    }
 
     const pkpassBuffer = await pass.getAsBuffer();
 
