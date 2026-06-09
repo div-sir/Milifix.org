@@ -1,6 +1,12 @@
 // @ts-check
 import { PKPass } from 'passkit-generator';
 
+// Minimal 1x1 PNG embedded — no filesystem dependency on Vercel
+const PLACEHOLDER_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12NgYGAAAAAEAAFmJ72TAAAAAElFTkSuQmCC',
+  'base64'
+);
+
 const PASS_TYPE_ID = 'pass.com.milifix.invoice';
 const TEAM_ID = process.env.APPLE_TEAM_ID ?? '3DX9A7VF2X';
 
@@ -60,18 +66,6 @@ export default async function handler(req, res) {
     const signerKey  = Buffer.from(keyBase64,  'base64');
     const wwdr       = Buffer.from(wwdrBase64,  'base64');
 
-    const { readFileSync } = await import('node:fs');
-    const { fileURLToPath } = await import('node:url');
-    const { join, dirname } = await import('node:path');
-
-    const __dir = dirname(fileURLToPath(import.meta.url));
-    const assetsDir = join(__dir, '../pass-assets');
-
-    const icon   = readFileSync(join(assetsDir, 'icon.png'));
-    const icon2x = readFileSync(join(assetsDir, 'icon@2x.png'));
-    const logo   = readFileSync(join(assetsDir, 'logo.png'));
-    const logo2x = readFileSync(join(assetsDir, 'logo@2x.png'));
-
     const pass = new PKPass(
       {},
       { wwdr, signerCert, signerKey, signerKeyPassphrase: '' },
@@ -105,10 +99,10 @@ export default async function handler(req, res) {
       },
     );
 
-    pass.addBuffer('icon.png', icon);
-    pass.addBuffer('icon@2x.png', icon2x);
-    pass.addBuffer('logo.png', logo);
-    pass.addBuffer('logo@2x.png', logo2x);
+    pass.addBuffer('icon.png',    PLACEHOLDER_PNG);
+    pass.addBuffer('icon@2x.png', PLACEHOLDER_PNG);
+    pass.addBuffer('logo.png',    PLACEHOLDER_PNG);
+    pass.addBuffer('logo@2x.png', PLACEHOLDER_PNG);
 
     const pkpassBuffer = await pass.getAsBuffer();
 
