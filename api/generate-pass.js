@@ -8,7 +8,7 @@ const PLACEHOLDER_PNG = Buffer.from(
 );
 
 const PASS_TYPE_ID = 'pass.com.milifix.invoice';
-const TEAM_ID = process.env.APPLE_TEAM_ID ?? '3DX9A7VF2X';
+const TEAM_ID = process.env.APPLE_TEAM_ID ?? 'UZJ42KP5ND';
 
 /**
  * 手機條碼載具：/ 開頭 + 7 個大寫英數或 +-. 等特殊符號，共 8 碼
