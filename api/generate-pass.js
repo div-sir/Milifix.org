@@ -79,25 +79,26 @@ export default async function handler(req, res) {
         foregroundColor: hexToRgb(foregroundColor),
         labelColor: hexToRgb(labelColor),
         backgroundColor: hexToRgb(backgroundColor),
-        generic: {
-          primaryFields: [
-            { key: 'carrier', label: '載具號碼', value: carrierId },
-          ],
-          secondaryFields: [
-            { key: 'org',  label: '發行單位', value: 'Milifix' },
-            { key: 'type', label: '類型',     value: '統一發票' },
-          ],
-        },
-        barcodes: [
-          {
-            message: carrierId,
-            format: 'PKBarcodeFormatCode39',
-            messageEncoding: 'iso-8859-1',
-            altText: carrierId,
-          },
-        ],
       },
     );
+
+    // passkit-generator v5: type must be set via setter, then fields via methods
+    pass.type = 'generic';
+
+    pass.primaryFields.push(
+      { key: 'carrier', label: '載具號碼', value: carrierId },
+    );
+    pass.secondaryFields.push(
+      { key: 'org',          label: '發行單位', value: 'Milifix' },
+      { key: 'invoiceType',  label: '類型',     value: '統一發票' },
+    );
+
+    pass.setBarcodes({
+      message: carrierId,
+      format: 'PKBarcodeFormatCode39',
+      messageEncoding: 'iso-8859-1',
+      altText: carrierId,
+    });
 
     pass.addBuffer('icon.png',    PLACEHOLDER_PNG);
     pass.addBuffer('icon@2x.png', PLACEHOLDER_PNG);
