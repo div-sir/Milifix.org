@@ -1,6 +1,5 @@
 // @ts-check
 import { PKPass } from 'passkit-generator';
-import forge from 'node-forge';
 
 const PASS_TYPE_ID = 'pass.com.milifix.invoice';
 const TEAM_ID = process.env.APPLE_TEAM_ID ?? '3DX9A7VF2X';
@@ -24,38 +23,6 @@ function hexToRgb(hex) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-/**
- * Extract PEM cert and PEM key from a P12 Buffer
- * @param {Buffer} p12Buf
- * @param {string} password
- * @returns {{ certPem: string, keyPem: string }}
- */
-function extractFromP12(p12Buf, password) {
-  const p12Der = forge.util.createBuffer(p12Buf.toString('binary'));
-  const p12Asn1 = forge.asn1.fromDer(p12Der);
-  const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, false, password);
-
-  let certPem = '';
-  let keyPem = '';
-
-  for (const safeContent of p12.safeContents) {
-    for (const safeBag of safeContent.safeBags) {
-      if (safeBag.type === forge.pki.oids.certBag && safeBag.cert) {
-        certPem = forge.pki.certificateToPem(safeBag.cert);
-      }
-      if (safeBag.type === forge.pki.oids.pkcs8ShroudedKeyBag && safeBag.key) {
-        keyPem = forge.pki.privateKeyToPem(safeBag.key);
-      }
-    }
-  }
-
-  if (!certPem || !keyPem) {
-    throw new Error('Could not extract certificate or private key from P12');
-  }
-
-  return { certPem, keyPem };
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -74,21 +41,24 @@ export default async function handler(req, res) {
     return;
   }
 
-  const p12Base64 = process.env.PASS_P12_BASE64;
-  const p12Password = process.env.PASS_P12_PASSWORD ?? '';
+  // Cert and key are PEM, stored as base64 in ENV
+  // Generate with:
+  //   openssl pkcs12 -in Cert.p12 -clcerts -nokeys -passin pass:PW | base64  → PASS_CERT_BASE64
+  //   openssl pkcs12 -in Cert.p12 -nocerts -nodes  -passin pass:PW | base64  → PASS_KEY_BASE64
+  //   base64 AppleWWDRCAG4.cer → APPLE_WWDR_BASE64
+  const certBase64 = process.env.PASS_CERT_BASE64;
+  const keyBase64  = process.env.PASS_KEY_BASE64;
   const wwdrBase64 = process.env.APPLE_WWDR_BASE64;
 
-  if (!p12Base64 || !wwdrBase64) {
+  if (!certBase64 || !keyBase64 || !wwdrBase64) {
     res.status(500).json({ error: 'Server not configured: missing signing certificates' });
     return;
   }
 
   try {
-    const p12Buf = Buffer.from(p12Base64, 'base64');
-    const wwdrBuf = Buffer.from(wwdrBase64, 'base64');
-
-    // Extract PEM cert + key from P12
-    const { certPem, keyPem } = extractFromP12(p12Buf, p12Password);
+    const signerCert = Buffer.from(certBase64, 'base64');
+    const signerKey  = Buffer.from(keyBase64,  'base64');
+    const wwdr       = Buffer.from(wwdrBase64,  'base64');
 
     const { readFileSync } = await import('node:fs');
     const { fileURLToPath } = await import('node:url');
@@ -104,12 +74,7 @@ export default async function handler(req, res) {
 
     const pass = new PKPass(
       {},
-      {
-        wwdr: wwdrBuf,
-        signerCert: Buffer.from(certPem),
-        signerKey: Buffer.from(keyPem),
-        signerKeyPassphrase: '',
-      },
+      { wwdr, signerCert, signerKey, signerKeyPassphrase: '' },
       {
         passTypeIdentifier: PASS_TYPE_ID,
         teamIdentifier: TEAM_ID,
@@ -148,7 +113,7 @@ export default async function handler(req, res) {
     const pkpassBuffer = await pass.getAsBuffer();
 
     res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
-    res.setHeader('Content-Disposition', `attachment; filename="invoice-pass.pkpass"`);
+    res.setHeader('Content-Disposition', 'attachment; filename="invoice-pass.pkpass"');
     res.setHeader('Content-Length', pkpassBuffer.length);
     res.status(200).send(pkpassBuffer);
   } catch (err) {
