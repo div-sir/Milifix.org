@@ -66,11 +66,6 @@ export default async function handler(req, res) {
     const signerKey  = Buffer.from(keyBase64,  'base64');
     const wwdr       = Buffer.from(wwdrBase64,  'base64');
 
-    // Debug: log first 60 chars of each PEM to verify format
-    console.log('[cert start]', signerCert.slice(0, 60).toString());
-    console.log('[key  start]', signerKey.slice(0, 60).toString());
-    console.log('[wwdr bytes]', wwdr.length);
-
     const pass = new PKPass(
       {},
       { wwdr, signerCert, signerKey },

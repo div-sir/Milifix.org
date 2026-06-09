@@ -37,6 +37,10 @@ const t = {
     previewLabel: '卡片預覽',
     previewCarrier: '載具號碼',
     previewOrg: '台灣統一發票',
+    secOrgLabel: '發行單位',
+    secOrgValue: 'Milifix',
+    secTypeLabel: '類型',
+    secTypeValue: '統一發票',
     addToWallet: '加入 Apple Wallet',
     adding: '打包中…',
     errorInvalid: '格式錯誤：需為 / 開頭接 7 個大寫英數字或符號，例如 /KPEHNLS',
@@ -65,6 +69,10 @@ const t = {
     previewLabel: 'Card Preview',
     previewCarrier: 'Carrier ID',
     previewOrg: 'Taiwan Invoice',
+    secOrgLabel: 'Issued by',
+    secOrgValue: 'Milifix',
+    secTypeLabel: 'Type',
+    secTypeValue: 'Invoice',
     addToWallet: 'Add to Apple Wallet',
     adding: 'Generating…',
     errorInvalid: 'Invalid format: must start with / followed by 7 uppercase letters, digits, or symbols (e.g. /KPEHNLS)',
@@ -93,6 +101,10 @@ const t = {
     previewLabel: 'カードプレビュー',
     previewCarrier: 'キャリアID',
     previewOrg: '台湾統一発票',
+    secOrgLabel: '発行元',
+    secOrgValue: 'Milifix',
+    secTypeLabel: '種別',
+    secTypeValue: '統一発票',
     addToWallet: 'Apple Walletに追加',
     adding: '生成中…',
     errorInvalid: '形式エラー：/ で始まり大文字・数字・記号7文字（例：/KPEHNLS）',
@@ -106,7 +118,7 @@ const t = {
 
 const copy = t[lang];
 const htmlLang = HTML_LANG[lang];
-const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly });
+const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly });
 ---
 
 <!doctype html>
@@ -205,18 +217,56 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           <div class="ip-card-bg" id="card-bg" style={`background: ${DEFAULT_BG}`}></div>
           <div class="ip-card-glare" id="card-glare"></div>
           <div class="ip-card-content" id="card-content">
-            <div class="ip-card-header">
-              <span class="ip-card-logo">Milifix</span>
-              <span class="ip-card-type" id="card-type">{copy.previewOrg}</span>
+
+            <!-- Row 1: header row (logoText left, headerField right) -->
+            <div class="ip-card-row ip-card-row--header">
+              <span class="ip-card-logo-text" id="card-logo-text">Invoice Pass</span>
+              <div class="ip-card-field ip-card-field--right" id="header-field-wrap">
+                <span class="ip-card-flabel" id="header-field-label"></span>
+                <span class="ip-card-fvalue ip-card-fvalue--sm" id="header-field-value"></span>
+              </div>
             </div>
-            <div class="ip-card-body">
-              <span class="ip-card-field-label" id="card-carrier-label">{copy.previewCarrier}</span>
-              <span class="ip-card-number" id="card-number">––</span>
+
+            <!-- Row 2: primaryField (full width) -->
+            <div class="ip-card-row ip-card-row--primary">
+              <div class="ip-card-field">
+                <span class="ip-card-flabel" id="primary-label">{copy.previewCarrier}</span>
+                <span class="ip-card-fvalue ip-card-fvalue--lg" id="card-number">––</span>
+              </div>
             </div>
-            <div class="ip-card-footer">
-              <!-- Code 39 barcode preview — rendered by JS into this canvas -->
-              <canvas id="barcode-canvas" class="ip-barcode" width="200" height="36"></canvas>
+
+            <!-- Row 3: secondaryFields (2 cols) -->
+            <div class="ip-card-row ip-card-row--secondary" id="secondary-row">
+              <div class="ip-card-field">
+                <span class="ip-card-flabel" id="sec1-label">{copy.secOrgLabel}</span>
+                <span class="ip-card-fvalue" id="sec1-value">{copy.secOrgValue}</span>
+              </div>
+              <div class="ip-card-field ip-card-field--right">
+                <span class="ip-card-flabel" id="sec2-label">{copy.secTypeLabel}</span>
+                <span class="ip-card-fvalue" id="sec2-value">{copy.secTypeValue}</span>
+              </div>
             </div>
+
+            <!-- Row 4: auxiliaryFields (up to 3 cols) -->
+            <div class="ip-card-row ip-card-row--aux" id="aux-row" style="display:none">
+              <div class="ip-card-field" id="aux1-wrap">
+                <span class="ip-card-flabel" id="aux1-label"></span>
+                <span class="ip-card-fvalue ip-card-fvalue--sm" id="aux1-value"></span>
+              </div>
+              <div class="ip-card-field" id="aux2-wrap" style="display:none">
+                <span class="ip-card-flabel" id="aux2-label"></span>
+                <span class="ip-card-fvalue ip-card-fvalue--sm" id="aux2-value"></span>
+              </div>
+            </div>
+
+            <!-- Row 5: barcode (full width, bottom) -->
+            <div class="ip-card-row ip-card-row--barcode">
+              <div class="ip-barcode-wrap" id="barcode-wrap">
+                <canvas id="barcode-canvas" class="ip-barcode" width="320" height="48"></canvas>
+                <span class="ip-barcode-alt" id="barcode-alt">––</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -253,6 +303,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   const cardGlare     = document.getElementById('card-glare');
   const cardContent   = document.getElementById('card-content');
   const cardNumber    = document.getElementById('card-number');
+  const barcodeAlt    = document.getElementById('barcode-alt');
   const cardScene     = document.getElementById('card-scene');
   const tiltHint      = document.getElementById('tilt-hint');
   const barcodeCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById('barcode-canvas'));
@@ -324,6 +375,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     carrierId = raw.length > 0 ? (raw[0] === '/' ? '/' + raw.slice(1).toUpperCase() : raw.toUpperCase()) : '';
     carrierInput.value = carrierId;
     cardNumber.textContent = carrierId || '––';
+    barcodeAlt.textContent = carrierId || '––';
     carrierError.textContent = (carrierId && !isValidCarrier(carrierId)) ? COPY.errorInvalid : '';
     cta.disabled = !isValidCarrier(carrierId);
     updateBarcode();
@@ -525,13 +577,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     margin: 0 auto;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
     gap: 3.5rem;
     align-items: start;
   }
 
-  @media (max-width: 720px) {
-    .ip-workspace { grid-template-columns: 1fr; gap: 2rem; }
+  @media (max-width: 820px) {
+    .ip-workspace {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .ip-preview-wrap {
+      position: static;
+      order: -1;
+    }
   }
 
   /* ── Controls ─────────────────────────────────────────────────────── */
@@ -657,27 +716,29 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     margin: 0;
   }
 
+  /* Card scene: perspective container */
   .ip-card-scene {
     width: 100%;
-    max-width: 340px;
-    perspective: 800px;
+    max-width: 290px;
+    perspective: 1000px;
     cursor: pointer;
   }
 
+  /* Generic pass: width ≈ 375pt, height ≈ 550pt → ratio ~375:550 ≈ 15:22 */
   .ip-card {
     width: 100%;
-    aspect-ratio: 375/123;
-    border-radius: 1rem;
+    aspect-ratio: 375 / 550;
+    border-radius: 1.25rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
     transform-style: preserve-3d;
     transition: transform 0.12s ease-out, box-shadow 0.12s;
     will-change: transform;
   }
 
   .ip-card:hover {
-    box-shadow: 0 28px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.12);
   }
 
   .ip-card-bg {
@@ -694,66 +755,129 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     transition: background 0.1s;
   }
 
+  /* Content: column layout matching real Wallet generic pass */
   .ip-card-content {
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 0.9rem 1.1rem;
+    padding: 1rem 1.1rem 0.8rem;
     color: #ffffff;
     transition: color 0.2s;
+    gap: 0;
   }
 
-  .ip-card-header {
+  /* Row: shared row styles */
+  .ip-card-row {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
   }
 
-  .ip-card-logo {
-    font-size: 0.75rem;
+  /* Row 1: logoText + headerField */
+  .ip-card-row--header {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .ip-card-logo-text {
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     opacity: 0.9;
   }
 
-  .ip-card-type {
-    font-size: 0.65rem;
-    opacity: 0.65;
-    letter-spacing: 0.06em;
+  /* Row 2: primary — takes up remaining space */
+  .ip-card-row--primary {
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 0.5rem;
   }
 
-  .ip-card-body {
+  /* Row 3: secondary (2 cols) */
+  .ip-card-row--secondary {
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Row 4: auxiliary */
+  .ip-card-row--aux {
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Row 5: barcode — fixed at bottom */
+  .ip-card-row--barcode {
+    margin-top: auto;
+  }
+
+  /* Field: label + value stacked */
+  .ip-card-field {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.1rem;
   }
 
-  .ip-card-field-label {
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.6;
+  .ip-card-field--right {
+    align-items: flex-end;
+    text-align: right;
   }
 
-  .ip-card-number {
-    font-size: 1rem;
-    font-family: 'Space Mono', monospace;
+  .ip-card-flabel {
+    font-size: 0.52rem;
     letter-spacing: 0.1em;
-    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.55;
+    font-weight: 500;
   }
 
-  .ip-card-footer {
+  .ip-card-fvalue {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    opacity: 0.9;
+  }
+
+  .ip-card-fvalue--lg {
+    font-size: 1.35rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    opacity: 1;
+  }
+
+  .ip-card-fvalue--sm {
+    font-size: 0.65rem;
+    opacity: 0.85;
+  }
+
+  /* Barcode area */
+  .ip-barcode-wrap {
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.6rem 0.3rem;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
   }
 
   .ip-barcode {
     width: 100%;
-    height: 2rem;
+    height: auto;
     image-rendering: pixelated;
-    opacity: 0.85;
+    display: block;
+  }
+
+  .ip-barcode-alt {
+    font-size: 0.55rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+    color: #222;
+    opacity: 0.8;
   }
 
   .ip-tilt-hint {
