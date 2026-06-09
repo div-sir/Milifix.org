@@ -261,20 +261,18 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           <label for="logo-text-input" class="ip-label">{copy.logoTextLabel}</label>
         </div>
         <div class="ip-icon-title-row">
-          <div class="ip-icon-trigger-wrap">
-            <button type="button" class="ip-icon-trigger" id="icon-trigger" title={copy.iconLabel}>
-              <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
-            </button>
-            <!-- Icon panel -->
-            <div class="ip-icon-panel" id="icon-panel" hidden>
-              <div class="ip-icon-search-wrap">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <input id="icon-search" type="text" class="ip-icon-search" placeholder="搜尋圖示…" autocomplete="off" />
-              </div>
-              <div class="ip-icon-grid" id="icon-grid"></div>
-            </div>
-          </div>
+          <button type="button" class="ip-icon-trigger" id="icon-trigger" title={copy.iconLabel}>
+            <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
+          </button>
           <input id="logo-text-input" type="text" class="ip-input ip-input--title" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
+          <!-- Icon panel anchored to title-row -->
+          <div class="ip-icon-panel" id="icon-panel" hidden>
+            <div class="ip-icon-search-wrap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="icon-search" type="text" class="ip-icon-search" placeholder="搜尋圖示…" autocomplete="off" />
+            </div>
+            <div class="ip-icon-grid" id="icon-grid"></div>
+          </div>
         </div>
       </div>
 
@@ -1271,6 +1269,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     display: flex;
     align-items: stretch;
     gap: 0.4rem;
+    position: relative;
   }
 
   .ip-input--title {
@@ -1279,7 +1278,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   }
 
   /* ── Icon trigger button ──────────────────────────────────────────── */
-  .ip-icon-trigger-wrap { position: relative; flex-shrink: 0; }
 
   .ip-icon-trigger {
     display: grid;
