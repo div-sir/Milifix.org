@@ -254,30 +254,29 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <span class="ip-error" id="carrier-error" role="alert" aria-live="polite"></span>
       </div>
 
-      <!-- Icon picker -->
+      <!-- Icon + Card title (same row) -->
       <div class="ip-field">
-        <span class="ip-label">{copy.iconLabel}</span>
-        <div class="ip-icon-trigger-wrap">
-          <button type="button" class="ip-icon-trigger" id="icon-trigger">
-            <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
-            <span class="ip-icon-trigger-name" id="icon-trigger-name">收據</span>
-            <svg class="ip-icon-trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <!-- Icon panel -->
-          <div class="ip-icon-panel" id="icon-panel" hidden>
-            <div class="ip-icon-search-wrap">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input id="icon-search" type="text" class="ip-icon-search" placeholder="搜尋圖示…" autocomplete="off" />
-            </div>
-            <div class="ip-icon-grid" id="icon-grid"></div>
-          </div>
+        <div class="ip-icon-title-labels">
+          <span class="ip-label">{copy.iconLabel}</span>
+          <label for="logo-text-input" class="ip-label">{copy.logoTextLabel}</label>
         </div>
-      </div>
-
-      <!-- Card title (logoText) -->
-      <div class="ip-field">
-        <label for="logo-text-input" class="ip-label">{copy.logoTextLabel}</label>
-        <input id="logo-text-input" type="text" class="ip-input" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
+        <div class="ip-icon-title-row">
+          <div class="ip-icon-trigger-wrap">
+            <button type="button" class="ip-icon-trigger" id="icon-trigger" title={copy.iconLabel}>
+              <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
+              <svg class="ip-icon-trigger-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <!-- Icon panel -->
+            <div class="ip-icon-panel" id="icon-panel" hidden>
+              <div class="ip-icon-search-wrap">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="icon-search" type="text" class="ip-icon-search" placeholder="搜尋圖示…" autocomplete="off" />
+              </div>
+              <div class="ip-icon-grid" id="icon-grid"></div>
+            </div>
+          </div>
+          <input id="logo-text-input" type="text" class="ip-input ip-input--title" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
+        </div>
       </div>
 
       <!-- Secondary field 1 -->
@@ -307,9 +306,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         <div class="ip-inline-row">
           <input id="sec2-label-input" type="text" class="ip-input ip-input--label" value={lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN} maxlength="20" autocomplete="off" />
           <div class="ip-align-inline" data-field="sec2" data-subfield="label">
-            <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
+            <button type="button" class="ip-aln" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
-            <button type="button" class="ip-aln" data-align="right">&#8677;</button>
+            <button type="button" class="ip-aln ip-aln--active" data-align="right">&#8677;</button>
           </div>
         </div>
         <div class="ip-inline-row">
@@ -484,7 +483,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   // alignment per field × subfield (label / value)
   const fieldAlign = {
     sec1:  { label: 'left',  value: 'left'  },
-    sec2:  { label: 'left',  value: 'right' },
+    sec2:  { label: 'right', value: 'right' },
     aux1:  { label: 'left',  value: 'left'  },
     aux2:  { label: 'right', value: 'right' },
   };
@@ -596,6 +595,66 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     { id: 'compass',       label: '指南針', path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
     { id: 'baby',          label: '嬰兒',   path: 'M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1' },
     { id: 'paw',           label: '腳印',   path: 'M11 20a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM5 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM8 13a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM14 13a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM17 10a1 1 0 1 0 2 0 1 1 0 0 0-2 0zM9 17c0-2.8 1.1-4 3-4s3 1.2 3 4' },
+    { id: 'anchor',        label: '錨',     path: 'M12 22V12M12 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 12H2a10 10 0 0 0 20 0h-3' },
+    { id: 'aperture',      label: '光圈',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0 0L8.56 2.25M12 22l3.44-19.75M2.25 8.56L21.75 15M21.75 9 2.25 15M22 12H2' },
+    { id: 'archive',       label: '存檔',   path: 'M21 8v13H3V8M23 3H1v5h22zM10 12h4' },
+    { id: 'at-sign',       label: 'At',     path: 'M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm4-8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm0 0v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-9 9 4 4 0 0 0 0-8' },
+    { id: 'bluetooth',     label: '藍牙',   path: 'M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11' },
+    { id: 'box',           label: '盒子',   path: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12' },
+    { id: 'calendar',      label: '日曆',   path: 'M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18' },
+    { id: 'check-circle',  label: '完成',   path: 'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3' },
+    { id: 'clock',         label: '時鐘',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2' },
+    { id: 'cloud-rain',    label: '下雨',   path: 'M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25' },
+    { id: 'code',          label: '程式碼', path: 'M16 18l6-6-6-6M8 6l-6 6 6 6' },
+    { id: 'columns',       label: '欄位',   path: 'M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8zM12 3v18' },
+    { id: 'cpu',           label: '處理器', path: 'M18 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-5 12H9V8h4zm2-8h2v2h-2zM7 8H5M7 12H5M7 16H5M17 8h2M17 12h2M17 16h2M8 5V3m4 2V3m4 2V3M8 19v2m4-2v2m4-2v2' },
+    { id: 'crosshair',     label: '準星',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM22 12h-4M6 12H2M12 6V2M12 20v-4' },
+    { id: 'database',      label: '資料庫', path: 'M12 8c4.418 0 8-1.343 8-3S16.418 2 12 2 4 3.343 4 5s3.582 3 8 3zM4 5v6c0 1.657 3.582 3 8 3s8-1.343 8-3V5M4 11v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6' },
+    { id: 'delete',        label: '刪除',   path: 'M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM18 9l-6 6M12 9l6 6' },
+    { id: 'disc',          label: '光碟',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-6a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { id: 'download',      label: '下載',   path: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3' },
+    { id: 'edit',          label: '編輯',   path: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' },
+    { id: 'eye',           label: '眼睛',   path: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' },
+    { id: 'fast-forward',  label: '快進',   path: 'M13 19l9-7-9-7v14zM2 19l9-7-9-7v14z' },
+    { id: 'feather',       label: '羽毛',   path: 'M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5zM16 8 2 22M17.5 15H9' },
+    { id: 'filter',        label: '篩選',   path: 'M22 3H2l8 9.46V19l4 2v-8.54L22 3z' },
+    { id: 'hash',          label: '標籤#',  path: 'M4 9h16M4 15h16M10 3 8 21M16 3l-2 18' },
+    { id: 'inbox',         label: '收件',   path: 'M22 12h-6l-2 3H10L8 12H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z' },
+    { id: 'layers',        label: '圖層',   path: 'M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
+    { id: 'layout',        label: '版面',   path: 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM3 9h18M9 21V9' },
+    { id: 'link',          label: '連結',   path: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' },
+    { id: 'list',          label: '清單',   path: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01' },
+    { id: 'loader',        label: '載入',   path: 'M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83' },
+    { id: 'maximize',      label: '最大化', path: 'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3' },
+    { id: 'minus-circle',  label: '減少',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8 12h8' },
+    { id: 'more-horiz',    label: '更多',   path: 'M17 12h.01M12 12h.01M7 12h.01' },
+    { id: 'move',          label: '移動',   path: 'M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20' },
+    { id: 'paperclip',     label: '迴紋針', path: 'M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48' },
+    { id: 'pin',           label: '釘選',   path: 'M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1V5H8v2h1v3.76z' },
+    { id: 'plus-circle',   label: '新增',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 8v8M8 12h8' },
+    { id: 'power',         label: '電源',   path: 'M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10' },
+    { id: 'refresh-cw',    label: '重新整理', path: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15' },
+    { id: 'repeat',        label: '重複',   path: 'M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3' },
+    { id: 'rss',           label: 'RSS',    path: 'M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M5 19h.01' },
+    { id: 'save',          label: '儲存',   path: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8' },
+    { id: 'search',        label: '搜尋',   path: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm10 2-4.35-4.35' },
+    { id: 'send',          label: '發送',   path: 'M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z' },
+    { id: 'share',         label: '分享',   path: 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13' },
+    { id: 'sliders',       label: '調整',   path: 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6' },
+    { id: 'speaker',       label: '喇叭',   path: 'M11 5 6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07' },
+    { id: 'sunrise',       label: '日出',   path: 'M17 18a5 5 0 0 0-10 0M12 2v9M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M16 5l-4 4-4-4' },
+    { id: 'sunset',        label: '日落',   path: 'M17 18a5 5 0 0 0-10 0M12 9V2M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M8 5l4 4 4-4' },
+    { id: 'thermometer',   label: '溫度計', path: 'M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z' },
+    { id: 'thumbs-up',     label: '讚',     path: 'M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3' },
+    { id: 'toggle-right',  label: '開關',   path: 'M8 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4M8 12h8M9 7l3-3 3 3M9 17l3 3 3-3' },
+    { id: 'truck',         label: '卡車',   path: 'M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M14 3v5h5' },
+    { id: 'upload',        label: '上傳',   path: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12' },
+    { id: 'video',         label: '視訊',   path: 'M23 7l-7 5 7 5V7zM1 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2z' },
+    { id: 'voicemail',     label: '語音信箱', path: 'M5.5 7a4 4 0 1 0 0 8h13a4 4 0 1 0 0-8h-13M2 15h2M20 15h2' },
+    { id: 'volume-2',      label: '音量',   path: 'M11 5 6 9H2v6h4l5 4V5zm9.07-.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07' },
+    { id: 'watch',         label: '手錶',   path: 'M12 22a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM12 9v3l1.5 1.5M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83' },
+    { id: 'x-circle',      label: '取消',   path: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM15 9l-6 6M9 9l6 6' },
+    { id: 'zoom-in',       label: '放大',   path: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm10 2-4.35-4.35M11 8v6M8 11h6' },
   ];
 
   // ── Element refs ───────────────────────────────────────────────────
@@ -1199,28 +1258,49 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   .ip-field { display: flex; flex-direction: column; gap: 0.5rem; }
   .ip-field--inline { flex-direction: row; align-items: center; justify-content: space-between; }
 
+  /* ── Icon + title row ─────────────────────────────────────────────── */
+  .ip-icon-title-labels {
+    display: flex;
+    gap: 0;
+  }
+  .ip-icon-title-labels .ip-label:first-child {
+    width: 3.2rem;
+    flex-shrink: 0;
+  }
+  .ip-icon-title-labels .ip-label:last-child { flex: 1; }
+
+  .ip-icon-title-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .ip-input--title {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   /* ── Icon trigger button ──────────────────────────────────────────── */
-  .ip-icon-trigger-wrap { position: relative; }
+  .ip-icon-trigger-wrap { position: relative; flex-shrink: 0; }
 
   .ip-icon-trigger {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    width: 100%;
+    justify-content: center;
+    gap: 0.2rem;
+    width: 3.2rem;
+    height: 100%;
+    min-height: 2.75rem;
     background: var(--bg2);
     border: 1px solid var(--line2);
     border-radius: 0.6rem;
-    padding: 0.65rem 0.9rem;
-    color: var(--text);
-    font-size: 0.9rem;
-    font-family: inherit;
+    color: var(--accent);
     cursor: pointer;
-    text-align: left;
     transition: border-color 0.15s;
+    padding: 0 0.3rem;
   }
   .ip-icon-trigger:hover { border-color: var(--accent); }
-  .ip-icon-trigger-preview { display: flex; align-items: center; color: var(--accent); }
-  .ip-icon-trigger-name { flex: 1; }
+  .ip-icon-trigger-preview { display: flex; align-items: center; }
   .ip-icon-trigger-chevron { color: var(--muted); flex-shrink: 0; }
 
   /* ── Icon panel ───────────────────────────────────────────────────── */
@@ -1275,16 +1355,16 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     display: grid;
     place-items: center;
     aspect-ratio: 1;
-    padding: 0.3rem;
-    background: transparent;
+    padding: 0.25rem;
+    background: none;
     border: 1px solid transparent;
-    border-radius: 0.4rem;
+    border-radius: 0.35rem;
     cursor: pointer;
     color: var(--muted);
-    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    transition: border-color 0.12s, color 0.12s;
   }
-  .ip-icon-btn:hover { background: var(--bg3, var(--bg)); border-color: var(--accent); color: var(--text); }
-  .ip-icon-btn--active { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
+  .ip-icon-btn:hover { border-color: var(--accent); color: var(--text); }
+  .ip-icon-btn--active { border-color: var(--accent); color: var(--accent); }
 
   /* ── Inline field rows (input + align toggle) ────────────────────── */
   .ip-inline-row {
