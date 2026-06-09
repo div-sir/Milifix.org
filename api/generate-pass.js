@@ -1,5 +1,6 @@
 // @ts-check
 import { PKPass } from 'passkit-generator';
+import forge from 'node-forge';
 
 const PASS_TYPE_ID = 'pass.com.milifix.invoice';
 const TEAM_ID = process.env.APPLE_TEAM_ID ?? '3DX9A7VF2X';
@@ -21,6 +22,38 @@ function hexToRgb(hex) {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgb(${r}, ${g}, ${b})`;
+}
+
+/**
+ * Extract PEM cert and PEM key from a P12 Buffer
+ * @param {Buffer} p12Buf
+ * @param {string} password
+ * @returns {{ certPem: string, keyPem: string }}
+ */
+function extractFromP12(p12Buf, password) {
+  const p12Der = forge.util.createBuffer(p12Buf.toString('binary'));
+  const p12Asn1 = forge.asn1.fromDer(p12Der);
+  const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, false, password);
+
+  let certPem = '';
+  let keyPem = '';
+
+  for (const safeContent of p12.safeContents) {
+    for (const safeBag of safeContent.safeBags) {
+      if (safeBag.type === forge.pki.oids.certBag && safeBag.cert) {
+        certPem = forge.pki.certificateToPem(safeBag.cert);
+      }
+      if (safeBag.type === forge.pki.oids.pkcs8ShroudedKeyBag && safeBag.key) {
+        keyPem = forge.pki.privateKeyToPem(safeBag.key);
+      }
+    }
+  }
+
+  if (!certPem || !keyPem) {
+    throw new Error('Could not extract certificate or private key from P12');
+  }
+
+  return { certPem, keyPem };
 }
 
 export default async function handler(req, res) {
@@ -51,8 +84,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const signerCert = Buffer.from(p12Base64, 'base64');
-    const wwdrCert = Buffer.from(wwdrBase64, 'base64');
+    const p12Buf = Buffer.from(p12Base64, 'base64');
+    const wwdrBuf = Buffer.from(wwdrBase64, 'base64');
+
+    // Extract PEM cert + key from P12
+    const { certPem, keyPem } = extractFromP12(p12Buf, p12Password);
 
     const { readFileSync } = await import('node:fs');
     const { fileURLToPath } = await import('node:url');
@@ -66,19 +102,18 @@ export default async function handler(req, res) {
     const logo   = readFileSync(join(assetsDir, 'logo.png'));
     const logo2x = readFileSync(join(assetsDir, 'logo@2x.png'));
 
-    const pass = await PKPass.from(
+    const pass = new PKPass(
+      {},
       {
-        certificates: {
-          wwdr: wwdrCert,
-          signerCert,
-          signerKey: signerCert,
-          signerKeyPassphrase: p12Password,
-        },
+        wwdr: wwdrBuf,
+        signerCert: Buffer.from(certPem),
+        signerKey: Buffer.from(keyPem),
+        signerKeyPassphrase: '',
       },
       {
         passTypeIdentifier: PASS_TYPE_ID,
         teamIdentifier: TEAM_ID,
-        serialNumber: `inv-${carrierId}-${Date.now()}`,
+        serialNumber: `inv-${Date.now()}`,
         description: '台灣統一發票載具',
         organizationName: 'Milifix',
         logoText: 'Invoice Pass',
@@ -87,23 +122,11 @@ export default async function handler(req, res) {
         backgroundColor: hexToRgb(backgroundColor),
         generic: {
           primaryFields: [
-            {
-              key: 'carrier',
-              label: '載具號碼',
-              value: carrierId,
-            },
+            { key: 'carrier', label: '載具號碼', value: carrierId },
           ],
           secondaryFields: [
-            {
-              key: 'org',
-              label: '發行單位',
-              value: 'Milifix',
-            },
-            {
-              key: 'type',
-              label: '類型',
-              value: '統一發票',
-            },
+            { key: 'org',  label: '發行單位', value: 'Milifix' },
+            { key: 'type', label: '類型',     value: '統一發票' },
           ],
         },
         barcodes: [
@@ -125,7 +148,7 @@ export default async function handler(req, res) {
     const pkpassBuffer = await pass.getAsBuffer();
 
     res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
-    res.setHeader('Content-Disposition', `attachment; filename="invoice-${carrierId}.pkpass"`);
+    res.setHeader('Content-Disposition', `attachment; filename="invoice-pass.pkpass"`);
     res.setHeader('Content-Length', pkpassBuffer.length);
     res.status(200).send(pkpassBuffer);
   } catch (err) {
