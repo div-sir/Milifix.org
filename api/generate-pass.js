@@ -35,11 +35,9 @@ export default async function handler(req, res) {
     foregroundColor = '#ffffff',
     labelColor = '#aaaacc',
     logoText = 'Invoice Pass',
-    orgName = 'Milifix',
-    typeLabel = '類型',
-    typeValue = '統一發票',
-    iconPng = null,           // base64 PNG string from client canvas
-    auxFields = [],           // [{ key, label, value }, ...]
+    secFields = [],           // [{ key, label, value, textAlignment }, ...]
+    iconPng = null,
+    auxFields = [],
   } = req.body ?? {};
 
   if (!carrierId || !isValidCarrier(carrierId)) {
@@ -61,7 +59,12 @@ export default async function handler(req, res) {
     const signerKey  = Buffer.from(keyBase64,  'base64');
     const wwdr       = Buffer.from(wwdrBase64,  'base64');
 
-    const safeOrg = String(orgName).slice(0, 24) || 'Milifix';
+    const safeLogoText = String(logoText).slice(0, 20) || 'Invoice Pass';
+    // Derive organizationName from sec1 value if provided
+    const sec1Val = Array.isArray(secFields) && secFields[0]?.value ? String(secFields[0].value).trim() : '';
+    const safeOrg = sec1Val.slice(0, 24) || 'Milifix';
+
+    const VALID_ALIGN = new Set(['PKTextAlignmentLeft', 'PKTextAlignmentCenter', 'PKTextAlignmentRight', 'PKTextAlignmentNatural']);
 
     const pass = new PKPass(
       {},
@@ -72,7 +75,7 @@ export default async function handler(req, res) {
         serialNumber: `inv-${Date.now()}`,
         description: '台灣統一發票載具',
         organizationName: safeOrg,
-        logoText: String(logoText).slice(0, 20) || 'Invoice Pass',
+        logoText: safeLogoText,
         foregroundColor: hexToRgb(foregroundColor),
         labelColor: hexToRgb(labelColor),
         backgroundColor: hexToRgb(backgroundColor),
@@ -84,20 +87,38 @@ export default async function handler(req, res) {
     pass.primaryFields.push(
       { key: 'carrier', label: '載具號碼', value: carrierId },
     );
-    pass.secondaryFields.push(
-      { key: 'org',         label: '發行單位', value: safeOrg },
-      { key: 'invoiceType', label: String(typeLabel).slice(0, 20) || '類型', value: String(typeValue).slice(0, 20) || '統一發票' },
-    );
+
+    // Secondary fields — fully user-defined (max 2)
+    const safeSec = Array.isArray(secFields) ? secFields.slice(0, 2) : [];
+    for (const f of safeSec) {
+      if (!f?.key) continue;
+      const field = {
+        key: String(f.key),
+        label: String(f.label ?? '').slice(0, 20),
+        value: String(f.value ?? '').slice(0, 24),
+      };
+      if (VALID_ALIGN.has(f.textAlignment)) field.textAlignment = f.textAlignment;
+      pass.secondaryFields.push(field);
+    }
+    // Fallback if no sec fields provided
+    if (safeSec.length === 0) {
+      pass.secondaryFields.push(
+        { key: 'org', label: '發行單位', value: 'Milifix' },
+        { key: 'invoiceType', label: '類型', value: '統一發票' },
+      );
+    }
 
     // User-defined auxiliary fields (max 2, sanitised)
     const safeAux = Array.isArray(auxFields) ? auxFields.slice(0, 2) : [];
     for (const f of safeAux) {
       if (!f?.key) continue;
-      pass.auxiliaryFields.push({
+      const field = {
         key: String(f.key),
         label: String(f.label ?? '').slice(0, 20),
         value: String(f.value ?? '').slice(0, 30),
-      });
+      };
+      if (VALID_ALIGN.has(f.textAlignment)) field.textAlignment = f.textAlignment;
+      pass.auxiliaryFields.push(field);
     }
 
     pass.backFields.push(

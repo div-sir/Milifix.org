@@ -37,17 +37,21 @@ const t = {
     iconLabel: '卡片圖示',
     logoTextLabel: '卡片標題',
     logoTextPH: 'Invoice Pass',
-    orgLabel: '發行單位',
-    orgPlaceholder: 'Milifix',
-    typeLabel: '類型欄位',
-    typeLabelPH: '標籤（如：類型）',
-    typeValuePH: '內容（如：統一發票）',
+    sec1Label: '欄位 1（左）',
+    sec1LabelPH: '標籤（如：發行單位）',
+    sec1ValuePH: '內容（如：Milifix）',
+    sec2Label: '欄位 2（右）',
+    sec2LabelPH: '標籤（如：類型）',
+    sec2ValuePH: '內容（如：統一發票）',
     aux1Label: '自訂欄位 1',
     aux1LabelPH: '標籤（如：日期）',
     aux1ValuePH: '內容（如：2026/06）',
     aux2Label: '自訂欄位 2',
     aux2LabelPH: '標籤（如：備註）',
     aux2ValuePH: '內容',
+    alignLeft: '左',
+    alignCenter: '中',
+    alignRight: '右',
     previewLabel: '卡片預覽',
     previewCarrier: '載具號碼',
     previewOrg: '台灣統一發票',
@@ -83,17 +87,21 @@ const t = {
     iconLabel: 'Card Icon',
     logoTextLabel: 'Card Title',
     logoTextPH: 'Invoice Pass',
-    orgLabel: 'Issuer Name',
-    orgPlaceholder: 'Milifix',
-    typeLabel: 'Type Field',
-    typeLabelPH: 'Label (e.g. Type)',
-    typeValuePH: 'Value (e.g. Invoice)',
+    sec1Label: 'Field 1 (Left)',
+    sec1LabelPH: 'Label (e.g. Issued by)',
+    sec1ValuePH: 'Value (e.g. Milifix)',
+    sec2Label: 'Field 2 (Right)',
+    sec2LabelPH: 'Label (e.g. Type)',
+    sec2ValuePH: 'Value (e.g. Invoice)',
     aux1Label: 'Custom Field 1',
     aux1LabelPH: 'Label (e.g. Date)',
     aux1ValuePH: 'Value (e.g. 2026/06)',
     aux2Label: 'Custom Field 2',
     aux2LabelPH: 'Label (e.g. Note)',
     aux2ValuePH: 'Value',
+    alignLeft: 'L',
+    alignCenter: 'C',
+    alignRight: 'R',
     previewLabel: 'Card Preview',
     previewCarrier: 'Carrier ID',
     previewOrg: 'Taiwan Invoice',
@@ -129,17 +137,21 @@ const t = {
     iconLabel: 'カードアイコン',
     logoTextLabel: 'カードタイトル',
     logoTextPH: 'Invoice Pass',
-    orgLabel: '発行元名',
-    orgPlaceholder: 'Milifix',
-    typeLabel: '種別フィールド',
-    typeLabelPH: 'ラベル（例：種別）',
-    typeValuePH: '内容（例：統一発票）',
+    sec1Label: 'フィールド 1（左）',
+    sec1LabelPH: 'ラベル（例：発行元）',
+    sec1ValuePH: '内容（例：Milifix）',
+    sec2Label: 'フィールド 2（右）',
+    sec2LabelPH: 'ラベル（例：種別）',
+    sec2ValuePH: '内容（例：統一発票）',
     aux1Label: 'カスタムフィールド 1',
     aux1LabelPH: 'ラベル（例：日付）',
     aux1ValuePH: '内容（例：2026/06）',
     aux2Label: 'カスタムフィールド 2',
     aux2LabelPH: 'ラベル（例：メモ）',
     aux2ValuePH: '内容',
+    alignLeft: '左',
+    alignCenter: '中',
+    alignRight: '右',
     previewLabel: 'カードプレビュー',
     previewCarrier: 'キャリアID',
     previewOrg: '台湾統一発票',
@@ -160,7 +172,7 @@ const t = {
 
 const copy = t[lang];
 const htmlLang = HTML_LANG[lang];
-const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOrg: copy.previewOrg, secOrgLabel: copy.secOrgLabel, secOrgValue: copy.secOrgValue, secTypeLabel: copy.secTypeLabel, secTypeValue: copy.secTypeValue, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, orgPlaceholder: copy.orgPlaceholder, logoTextPH: copy.logoTextPH });
+const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1LabelPH: copy.sec1LabelPH, sec1ValuePH: copy.sec1ValuePH, sec2LabelPH: copy.sec2LabelPH, sec2ValuePH: copy.sec2ValuePH, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, logoTextPH: copy.logoTextPH });
 ---
 
 <!doctype html>
@@ -245,43 +257,67 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
         />
       </div>
 
-      <!-- Issuer name -->
+      <!-- Secondary field 1 (left) -->
       <div class="ip-field">
-        <label for="org-input" class="ip-label">{copy.orgLabel}</label>
-        <input
-          id="org-input"
-          type="text"
-          class="ip-input"
-          placeholder={copy.orgPlaceholder}
-          maxlength="24"
-          autocomplete="off"
-        />
+        <span class="ip-label">{copy.sec1Label}</span>
+        <div class="ip-field-row">
+          <div class="ip-aux-row">
+            <input id="sec1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec1LabelPH} maxlength="20" autocomplete="off" />
+            <input id="sec1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec1ValuePH} maxlength="24" autocomplete="off" />
+          </div>
+          <div class="ip-align-btns" data-field="sec1">
+            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
+            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
+            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Type field (sec2: label + value) -->
+      <!-- Secondary field 2 (right) -->
       <div class="ip-field">
-        <span class="ip-label">{copy.typeLabel}</span>
-        <div class="ip-aux-row">
-          <input id="type-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.typeLabelPH} maxlength="20" autocomplete="off" />
-          <input id="type-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.typeValuePH} maxlength="20" autocomplete="off" />
+        <span class="ip-label">{copy.sec2Label}</span>
+        <div class="ip-field-row">
+          <div class="ip-aux-row">
+            <input id="sec2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec2LabelPH} maxlength="20" autocomplete="off" />
+            <input id="sec2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.sec2ValuePH} maxlength="24" autocomplete="off" />
+          </div>
+          <div class="ip-align-btns" data-field="sec2">
+            <button type="button" class="ip-align-btn" data-align="left" title="靠左">&#8676;</button>
+            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
+            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="right" title="靠右">&#8677;</button>
+          </div>
         </div>
       </div>
 
       <!-- Auxiliary field 1 -->
       <div class="ip-field">
         <span class="ip-label">{copy.aux1Label}</span>
-        <div class="ip-aux-row">
-          <input id="aux1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1LabelPH} maxlength="20" autocomplete="off" />
-          <input id="aux1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1ValuePH} maxlength="30" autocomplete="off" />
+        <div class="ip-field-row">
+          <div class="ip-aux-row">
+            <input id="aux1-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1LabelPH} maxlength="20" autocomplete="off" />
+            <input id="aux1-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux1ValuePH} maxlength="30" autocomplete="off" />
+          </div>
+          <div class="ip-align-btns" data-field="aux1">
+            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
+            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
+            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+          </div>
         </div>
       </div>
 
       <!-- Auxiliary field 2 -->
       <div class="ip-field">
         <span class="ip-label">{copy.aux2Label}</span>
-        <div class="ip-aux-row">
-          <input id="aux2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
-          <input id="aux2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
+        <div class="ip-field-row">
+          <div class="ip-aux-row">
+            <input id="aux2-label-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2LabelPH} maxlength="20" autocomplete="off" />
+            <input id="aux2-value-input" type="text" class="ip-input ip-input--half" placeholder={copy.aux2ValuePH} maxlength="30" autocomplete="off" />
+          </div>
+          <div class="ip-align-btns" data-field="aux2">
+            <button type="button" class="ip-align-btn ip-align-btn--active" data-align="left" title="靠左">&#8676;</button>
+            <button type="button" class="ip-align-btn" data-align="center" title="置中">&#8596;</button>
+            <button type="button" class="ip-align-btn" data-align="right" title="靠右">&#8677;</button>
+          </div>
         </div>
       </div>
 
@@ -395,7 +431,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   let currentFgColor = '#ffffff';
   let carrierId = '';
   let selectedIconId = 'receipt';
-  let currentOrgName = '';
+  // alignment per field: 'left' | 'center' | 'right'
+  const fieldAlign = { sec1: 'left', sec2: 'right', aux1: 'left', aux2: 'left' };
 
   // ── Lucide icons (24 selected) — SVG path data only ───────────────
   const ICONS = [
@@ -445,24 +482,30 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   const cardLogoText     = document.getElementById('card-logo-text');
   const cardIconEl       = document.getElementById('card-icon');
   const iconGrid         = document.getElementById('icon-grid');
-  const orgInput         = /** @type {HTMLInputElement} */ (document.getElementById('org-input'));
   const logoTextInput    = /** @type {HTMLInputElement} */ (document.getElementById('logo-text-input'));
-  const typeLabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('type-label-input'));
-  const typeValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('type-value-input'));
+  // sec1
+  const sec1LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('sec1-label-input'));
+  const sec1ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('sec1-value-input'));
+  const sec1LabelEl      = document.getElementById('sec1-label');
+  const sec1ValueEl      = document.getElementById('sec1-value');
+  // sec2
+  const sec2LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('sec2-label-input'));
+  const sec2ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('sec2-value-input'));
+  const sec2LabelEl      = document.getElementById('sec2-label');
+  const sec2ValueEl      = document.getElementById('sec2-value');
+  // aux1
   const aux1LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-label-input'));
   const aux1ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux1-value-input'));
+  const aux1LabelEl      = document.getElementById('aux1-label');
+  const aux1ValueEl      = document.getElementById('aux1-value');
+  // aux2
   const aux2LabelInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux2-label-input'));
   const aux2ValueInput   = /** @type {HTMLInputElement} */ (document.getElementById('aux2-value-input'));
+  const aux2LabelEl      = document.getElementById('aux2-label');
+  const aux2ValueEl      = document.getElementById('aux2-value');
   const auxRow           = document.getElementById('aux-row');
   const aux1Wrap         = document.getElementById('aux1-wrap');
   const aux2Wrap         = document.getElementById('aux2-wrap');
-  const aux1LabelEl      = document.getElementById('aux1-label');
-  const aux1ValueEl      = document.getElementById('aux1-value');
-  const aux2LabelEl      = document.getElementById('aux2-label');
-  const aux2ValueEl      = document.getElementById('aux2-value');
-  const sec1ValueEl      = document.getElementById('sec1-value');
-  const sec2LabelEl      = document.getElementById('sec2-label');
-  const sec2ValueEl      = document.getElementById('sec2-value');
 
   // ── Code 39 barcode renderer ───────────────────────────────────────
   // Each char encoded as 5 bars + 4 spaces (9 elements), narrow=1 wide=3
@@ -587,36 +630,40 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     cardLogoText.textContent = logoTextInput.value || COPY.logoTextPH;
   });
 
-  // ── Org name ───────────────────────────────────────────────────────
-  orgInput.addEventListener('input', () => {
-    currentOrgName = orgInput.value.trim();
-    sec1ValueEl.textContent = currentOrgName || COPY.orgPlaceholder;
-  });
+  // ── Secondary / Auxiliary field preview update ─────────────────────
+  const ALIGN_CSS = { left: 'flex-start', center: 'center', right: 'flex-end' };
 
-  // ── Type field (sec2) ──────────────────────────────────────────────
-  function updateTypePreview() {
-    const lbl = typeLabelInput.value.trim();
-    const val = typeValueInput.value.trim();
-    sec2LabelEl.textContent = lbl || COPY.secTypeLabel;
-    sec2ValueEl.textContent = val || COPY.secTypeValue;
+  function applyFieldAlign(fieldId) {
+    const a = fieldAlign[fieldId];
+    const labelEl = { sec1: sec1LabelEl, sec2: sec2LabelEl, aux1: aux1LabelEl, aux2: aux2LabelEl }[fieldId];
+    const valueEl = { sec1: sec1ValueEl, sec2: sec2ValueEl, aux1: aux1ValueEl, aux2: aux2ValueEl }[fieldId];
+    const wrap = labelEl?.closest('.ip-card-field');
+    if (wrap) {
+      wrap.style.alignItems = ALIGN_CSS[a] ?? 'flex-start';
+      wrap.style.textAlign = a;
+    }
   }
-  typeLabelInput.addEventListener('input', updateTypePreview);
-  typeValueInput.addEventListener('input', updateTypePreview);
 
-  // ── Auxiliary fields ───────────────────────────────────────────────
+  function updateSecPreview() {
+    sec1LabelEl.textContent = sec1LabelInput.value.trim() || COPY.sec1LabelPH.split('（')[0].trim();
+    sec1ValueEl.textContent = sec1ValueInput.value.trim() || COPY.sec1ValuePH.split('（')[0].trim();
+    sec2LabelEl.textContent = sec2LabelInput.value.trim() || COPY.sec2LabelPH.split('（')[0].trim();
+    sec2ValueEl.textContent = sec2ValueInput.value.trim() || COPY.sec2ValuePH.split('（')[0].trim();
+  }
+
+  [sec1LabelInput, sec1ValueInput].forEach(el => el.addEventListener('input', updateSecPreview));
+  [sec2LabelInput, sec2ValueInput].forEach(el => el.addEventListener('input', updateSecPreview));
+
   function updateAuxPreview() {
     const l1 = aux1LabelInput.value.trim();
     const v1 = aux1ValueInput.value.trim();
     const l2 = aux2LabelInput.value.trim();
     const v2 = aux2ValueInput.value.trim();
-
     const has1 = l1 || v1;
     const has2 = l2 || v2;
-
     auxRow.style.display = (has1 || has2) ? 'flex' : 'none';
     aux1Wrap.style.display = has1 ? 'flex' : 'none';
     aux2Wrap.style.display = has2 ? 'flex' : 'none';
-
     aux1LabelEl.textContent = l1;
     aux1ValueEl.textContent = v1;
     aux2LabelEl.textContent = l2;
@@ -626,6 +673,25 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
   [aux1LabelInput, aux1ValueInput, aux2LabelInput, aux2ValueInput].forEach(el => {
     el.addEventListener('input', updateAuxPreview);
   });
+
+  // ── Alignment buttons ──────────────────────────────────────────────
+  document.querySelectorAll('.ip-align-btns').forEach(group => {
+    const fieldId = group.dataset.field;
+    group.querySelectorAll('.ip-align-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fieldAlign[fieldId] = btn.dataset.align;
+        group.querySelectorAll('.ip-align-btn').forEach(b => b.classList.remove('ip-align-btn--active'));
+        btn.classList.add('ip-align-btn--active');
+        applyFieldAlign(fieldId);
+      });
+    });
+  });
+
+  // Apply default alignment to sec2 (right-aligned by default)
+  applyFieldAlign('sec1');
+  applyFieldAlign('sec2');
+  applyFieldAlign('aux1');
+  applyFieldAlign('aux2');
 
   // ── Carrier validation ─────────────────────────────────────────────
   function isValidCarrier(v) {
@@ -723,14 +789,18 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
       // Render selected icon to PNG (58x58 @2x on coloured circle background)
       const iconPng = await renderIconToPng(selectedIconId, currentBgColor, currentFgColor);
 
+      const ALIGN_MAP = { left: 'PKTextAlignmentLeft', center: 'PKTextAlignmentCenter', right: 'PKTextAlignmentRight' };
+
+      const secFields = [
+        { key: 'sec1', label: sec1LabelInput.value.trim() || ' ', value: sec1ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec1] },
+        { key: 'sec2', label: sec2LabelInput.value.trim() || ' ', value: sec2ValueInput.value.trim() || ' ', textAlignment: ALIGN_MAP[fieldAlign.sec2] },
+      ];
+
       const auxFields = [];
       const l1 = aux1LabelInput.value.trim(), v1 = aux1ValueInput.value.trim();
       const l2 = aux2LabelInput.value.trim(), v2 = aux2ValueInput.value.trim();
-      if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ' });
-      if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ' });
-
-      const typeLabel = typeLabelInput.value.trim() || COPY.secTypeLabel;
-      const typeValue = typeValueInput.value.trim() || COPY.secTypeValue;
+      if (l1 || v1) auxFields.push({ key: 'aux1', label: l1 || ' ', value: v1 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux1] });
+      if (l2 || v2) auxFields.push({ key: 'aux2', label: l2 || ' ', value: v2 || ' ', textAlignment: ALIGN_MAP[fieldAlign.aux2] });
 
       const res = await fetch('/api/generate-pass', {
         method: 'POST',
@@ -741,9 +811,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
           foregroundColor: currentFgColor,
           labelColor: currentFgColor,
           logoText: logoTextInput.value.trim() || COPY.logoTextPH,
-          orgName: currentOrgName || COPY.orgPlaceholder,
-          typeLabel,
-          typeValue,
+          secFields,
           iconPng,
           auxFields,
         }),
@@ -941,7 +1009,14 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     color: var(--on-accent);
   }
 
-  /* Aux field row: two inputs side by side */
+  /* Field row: inputs + alignment buttons */
+  .ip-field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  /* Aux / sec field: two inputs side by side */
   .ip-aux-row {
     display: flex;
     gap: 0.5rem;
@@ -954,6 +1029,35 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, previewOr
     padding: 0.6rem 0.75rem;
     letter-spacing: 0;
     font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  /* Alignment toggle buttons */
+  .ip-align-btns {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .ip-align-btn {
+    flex: 1;
+    padding: 0.3rem 0;
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: 0.4rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .ip-align-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .ip-align-btn--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
   }
 
   .ip-label {
