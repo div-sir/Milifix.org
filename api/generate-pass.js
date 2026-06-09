@@ -68,7 +68,7 @@ export default async function handler(req, res) {
 
     const pass = new PKPass(
       {},
-      { wwdr, signerCert, signerKey, signerKeyPassphrase: '' },
+      { wwdr, signerCert, signerKey },
       {
         passTypeIdentifier: PASS_TYPE_ID,
         teamIdentifier: TEAM_ID,
