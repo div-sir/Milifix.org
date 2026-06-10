@@ -1656,10 +1656,10 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     cursor: pointer;
   }
 
-  /* Generic pass: width ≈ 375pt, height ≈ 550pt → ratio ~375:550 ≈ 15:22 */
+  /* Event ticket pass: width ≈ 375pt, height ≈ 460pt (strip 98pt + fields) */
   .ip-card {
     width: 100%;
-    aspect-ratio: 375 / 550;
+    aspect-ratio: 375 / 460;
     border-radius: 1.25rem;
     position: relative;
     overflow: hidden;
@@ -1679,10 +1679,12 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     transition: background 0.4s ease;
   }
 
+  /* Strip image is fixed at 375:98 pt regardless of card's overall ratio */
   .ip-card-strip {
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 26%;
+    aspect-ratio: 375 / 98;
+    height: auto;
     background-size: cover;
     background-position: center top;
   }
