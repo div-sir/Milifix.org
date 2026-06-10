@@ -47,9 +47,14 @@ const t = {
     inputLabel: '載具號碼',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ 開頭，後接 7 個大寫英數字或符號，共 8 碼',
+    passStyleLabel: '卡片樣式',
+    passStyleEventTicket: '票券',
+    passStyleStoreCard: '會員卡',
+    passStyleGeneric: '一般卡片',
     bgImageLabel: '底圖',
     bgImageHint: '建議尺寸 750 × 196 px（PNG / JPG）',
     bgImageClear: '移除',
+    bgImageDisabledHint: '一般卡片樣式不支援底圖',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
     gradientLabel: '漸層主題',
@@ -101,9 +106,14 @@ const t = {
     inputLabel: 'Carrier ID',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ followed by 7 uppercase letters, digits, or symbols (8 chars total)',
+    passStyleLabel: 'Pass Style',
+    passStyleEventTicket: 'Ticket',
+    passStyleStoreCard: 'Membership',
+    passStyleGeneric: 'Generic',
     bgImageLabel: 'Background Image',
     bgImageHint: 'Recommended: 750 × 196 px (PNG / JPG)',
     bgImageClear: 'Remove',
+    bgImageDisabledHint: 'Generic style does not support a background image',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
     gradientLabel: 'Gradient Theme',
@@ -155,9 +165,14 @@ const t = {
     inputLabel: 'キャリアID',
     inputPlaceholder: '/KPEHNLS',
     inputHint: '/ で始まり、大文字・数字・記号7文字、計8文字',
+    passStyleLabel: 'カードスタイル',
+    passStyleEventTicket: 'チケット',
+    passStyleStoreCard: '会員カード',
+    passStyleGeneric: '一般カード',
     bgImageLabel: '背景画像',
     bgImageHint: '推奨サイズ: 750 × 196 px（PNG / JPG）',
     bgImageClear: '削除',
+    bgImageDisabledHint: '一般カードスタイルは背景画像に対応していません',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
     gradientLabel: 'グラデーションテーマ',
@@ -369,8 +384,18 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         </div>
       </div>
 
+      <!-- Pass style picker -->
+      <div class="ip-field ip-field--inline">
+        <label for="pass-style-select" class="ip-label">{copy.passStyleLabel}</label>
+        <select id="pass-style-select" class="ip-select">
+          <option value="eventTicket">{copy.passStyleEventTicket}</option>
+          <option value="storeCard">{copy.passStyleStoreCard}</option>
+          <option value="generic">{copy.passStyleGeneric}</option>
+        </select>
+      </div>
+
       <!-- Background image upload -->
-      <div class="ip-field">
+      <div class="ip-field" id="bg-image-field">
         <span class="ip-label">{copy.bgImageLabel}</span>
         <label class="ip-bg-upload" id="bg-upload-label" for="bg-image-input">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
@@ -502,6 +527,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   let selectedIconId = 'receipt';
   let currentGradient = '';
   let currentBgImage = null; // base64 dataURL string or null
+  let currentPassStyle = 'eventTicket'; // 'eventTicket' | 'storeCard' | 'generic'
   // alignment per field × subfield (label / value)
   const fieldAlign = {
     sec1:  { label: 'left',  value: 'left'  },
@@ -696,6 +722,8 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const gradientField    = document.getElementById('gradient-field');
   const bgColorField     = document.getElementById('bg-color-field');
   const cardStrip        = document.getElementById('card-strip');
+  const passStyleSelect  = /** @type {HTMLSelectElement} */ (document.getElementById('pass-style-select'));
+  const bgImageField     = document.getElementById('bg-image-field');
   const cardGlare        = document.getElementById('card-glare');
   const cardContent      = document.getElementById('card-content');
   const cardNumber       = document.getElementById('card-number');
@@ -1053,6 +1081,21 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
   bgClearBtn.addEventListener('click', clearBgImage);
 
+  // ── Pass style ──────────────────────────────────────────────────────
+  function applyPassStyle(style) {
+    currentPassStyle = style;
+    const supportsStrip = style !== 'generic';
+    bgImageField.classList.toggle('ip-field--disabled', !supportsStrip);
+    bgImageInput.disabled = !supportsStrip;
+    if (!supportsStrip) clearBgImage();
+    card.classList.toggle('ip-card--no-strip', !supportsStrip);
+  }
+
+  passStyleSelect.value = currentPassStyle;
+  passStyleSelect.addEventListener('change', () => {
+    applyPassStyle(passStyleSelect.value);
+  });
+
   // ── Background color ───────────────────────────────────────────────
   bgColorInput.addEventListener('input', () => {
     currentBgColor = bgColorInput.value;
@@ -1154,6 +1197,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           carrierId,
+          passStyle: currentPassStyle,
           backgroundColor: currentBgColor,
           foregroundColor: currentFgColor,
           labelColor: currentFgColor,
@@ -1656,7 +1700,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     cursor: pointer;
   }
 
-  /* Event ticket pass: width ≈ 375pt, height ≈ 460pt (strip 98pt + fields) */
+  /* Event ticket / store card: width ≈ 375pt, height ≈ 460pt (strip 98pt + fields) */
   .ip-card {
     width: 100%;
     aspect-ratio: 375 / 460;
@@ -1665,8 +1709,13 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     overflow: hidden;
     box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
     transform-style: preserve-3d;
-    transition: transform 0.12s ease-out, box-shadow 0.12s;
+    transition: transform 0.12s ease-out, box-shadow 0.12s, aspect-ratio 0.2s;
     will-change: transform;
+  }
+
+  /* Generic pass: no strip, taller card ratio ≈ 375:550 */
+  .ip-card.ip-card--no-strip {
+    aspect-ratio: 375 / 550;
   }
 
   .ip-card:hover {

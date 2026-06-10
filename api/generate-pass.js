@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 
   const {
     carrierId,
+    passStyle = 'eventTicket',
     backgroundColor = '#1a1a2e',
     foregroundColor = '#ffffff',
     labelColor = '#aaaacc',
@@ -40,6 +41,9 @@ export default async function handler(req, res) {
     auxFields = [],
     backgroundPng = null,
   } = req.body ?? {};
+
+  const VALID_PASS_STYLES = new Set(['eventTicket', 'storeCard', 'generic']);
+  const safePassStyle = VALID_PASS_STYLES.has(passStyle) ? passStyle : 'eventTicket';
 
   if (!carrierId || !isValidCarrier(carrierId)) {
     res.status(400).json({ error: 'Invalid carrier ID. Expected format: /XXXXXXX (8 chars starting with /)' });
@@ -83,8 +87,8 @@ export default async function handler(req, res) {
       },
     );
 
-    // eventTicket supports background.png; generic does not
-    pass.type = 'eventTicket';
+    // eventTicket / storeCard support strip.png; generic does not
+    pass.type = safePassStyle;
 
     pass.primaryFields.push(
       { key: 'carrier', label: '載具號碼', value: carrierId },
@@ -152,7 +156,8 @@ export default async function handler(req, res) {
     pass.addBuffer('logo@2x.png', iconBuf);
 
     // Strip image (optional, user-uploaded) — shown above primary field, no blur
-    if (backgroundPng) {
+    // Not supported on generic passes
+    if (backgroundPng && safePassStyle !== 'generic') {
       const stripBuf = Buffer.from(backgroundPng, 'base64');
       pass.addBuffer('strip.png',    stripBuf);
       pass.addBuffer('strip@2x.png', stripBuf);
