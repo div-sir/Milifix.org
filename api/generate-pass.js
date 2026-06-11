@@ -40,6 +40,7 @@ export default async function handler(req, res) {
     iconPng = null,
     auxFields = [],
     backgroundPng = null,
+    thumbnailPng = null,
   } = req.body ?? {};
 
   const VALID_PASS_STYLES = new Set(['eventTicket', 'storeCard', 'generic']);
@@ -164,6 +165,15 @@ export default async function handler(req, res) {
       pass.addBuffer('background.png',    bgBuf);
       pass.addBuffer('background@2x.png', bgBuf);
       pass.addBuffer('background@3x.png', bgBuf);
+    }
+
+    // Thumbnail image (optional, user-uploaded) — shown on the right side
+    // Supported on generic and storeCard passes
+    if (thumbnailPng && safePassStyle !== 'eventTicket') {
+      const thumbBuf = Buffer.from(thumbnailPng, 'base64');
+      pass.addBuffer('thumbnail.png',    thumbBuf);
+      pass.addBuffer('thumbnail@2x.png', thumbBuf);
+      pass.addBuffer('thumbnail@3x.png', thumbBuf);
     }
 
     const pkpassBuffer = await pass.getAsBuffer();

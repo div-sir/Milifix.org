@@ -54,7 +54,7 @@ const t = {
     bgImageLabel: '底圖',
     bgImageHint: '建議尺寸 1125 × 432 px（PNG / JPG）',
     bgImageClear: '移除',
-    bgImageDisabledHint: '一般卡片樣式不支援底圖',
+    bgImageDisabledHint: '一般卡片樣式將以縮圖顯示，建議尺寸 270 × 270 px（PNG / JPG）',
     bgLabel: '背景顏色',
     colorLabel: '字體顏色',
     gradientLabel: '漸層主題',
@@ -113,7 +113,7 @@ const t = {
     bgImageLabel: 'Background Image',
     bgImageHint: 'Recommended: 1125 × 432 px (PNG / JPG)',
     bgImageClear: 'Remove',
-    bgImageDisabledHint: 'Generic style does not support a background image',
+    bgImageDisabledHint: 'Generic style shows this as a thumbnail — recommended size 270 × 270 px (PNG / JPG)',
     bgLabel: 'Background Color',
     colorLabel: 'Text Color',
     gradientLabel: 'Gradient Theme',
@@ -172,7 +172,7 @@ const t = {
     bgImageLabel: '背景画像',
     bgImageHint: '推奨サイズ: 1125 × 432 px（PNG / JPG）',
     bgImageClear: '削除',
-    bgImageDisabledHint: '一般カードスタイルは背景画像に対応していません',
+    bgImageDisabledHint: '一般カードスタイルではサムネイルとして表示されます。推奨サイズ: 270 × 270 px（PNG / JPG）',
     bgLabel: '背景カラー',
     colorLabel: 'テキストカラー',
     gradientLabel: 'グラデーションテーマ',
@@ -723,7 +723,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   const bgColorField     = document.getElementById('bg-color-field');
   const cardStrip        = document.getElementById('card-strip');
   const passStyleSelect  = /** @type {HTMLSelectElement} */ (document.getElementById('pass-style-select'));
-  const bgImageField     = document.getElementById('bg-image-field');
+  const bgUploadText     = document.getElementById('bg-upload-text');
   const cardGlare        = document.getElementById('card-glare');
   const cardContent      = document.getElementById('card-content');
   const cardNumber       = document.getElementById('card-number');
@@ -1085,10 +1085,9 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   function applyPassStyle(style) {
     currentPassStyle = style;
     const supportsStrip = style !== 'generic';
-    bgImageField.classList.toggle('ip-field--disabled', !supportsStrip);
-    bgImageInput.disabled = !supportsStrip;
-    if (!supportsStrip) clearBgImage();
     card.classList.toggle('ip-card--no-strip', !supportsStrip);
+    // generic passes use thumbnail.png instead of background.png — image upload stays enabled
+    bgUploadText.textContent = supportsStrip ? COPY.bgImageHint : COPY.bgImageDisabledHint;
   }
 
   passStyleSelect.value = currentPassStyle;
@@ -1205,7 +1204,10 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           secFields,
           iconPng,
           auxFields,
-          backgroundPng: currentBgImage
+          backgroundPng: currentBgImage && currentPassStyle !== 'generic'
+            ? currentBgImage.replace(/^data:[^;]+;base64,/, '')
+            : null,
+          thumbnailPng: currentBgImage && currentPassStyle === 'generic'
             ? currentBgImage.replace(/^data:[^;]+;base64,/, '')
             : null,
         }),
