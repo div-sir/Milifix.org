@@ -94,8 +94,8 @@ export default async function handler(req, res) {
       { key: 'carrier', label: '載具號碼', value: carrierId },
     );
 
-    // Secondary fields — fully user-defined (max 2)
-    const safeSec = Array.isArray(secFields) ? secFields.slice(0, 2) : [];
+    // Secondary fields — fully user-defined (max 4)
+    const safeSec = Array.isArray(secFields) ? secFields.slice(0, 4) : [];
     for (const f of safeSec) {
       if (!f?.key) continue;
       const field = {
@@ -114,8 +114,8 @@ export default async function handler(req, res) {
       );
     }
 
-    // User-defined auxiliary fields (max 2, sanitised)
-    const safeAux = Array.isArray(auxFields) ? auxFields.slice(0, 2) : [];
+    // User-defined auxiliary fields (max 4, sanitised)
+    const safeAux = Array.isArray(auxFields) ? auxFields.slice(0, 4) : [];
     for (const f of safeAux) {
       if (!f?.key) continue;
       const field = {
@@ -152,15 +152,18 @@ export default async function handler(req, res) {
     const iconBuf = iconPng ? Buffer.from(iconPng, 'base64') : PLACEHOLDER_PNG;
     pass.addBuffer('icon.png',    iconBuf);
     pass.addBuffer('icon@2x.png', iconBuf);
+    pass.addBuffer('icon@3x.png', iconBuf);
     pass.addBuffer('logo.png',    iconBuf);
     pass.addBuffer('logo@2x.png', iconBuf);
+    pass.addBuffer('logo@3x.png', iconBuf);
 
-    // Strip image (optional, user-uploaded) — shown above primary field, no blur
+    // Background image (optional, user-uploaded) — covers the whole card
     // Not supported on generic passes
     if (backgroundPng && safePassStyle !== 'generic') {
-      const stripBuf = Buffer.from(backgroundPng, 'base64');
-      pass.addBuffer('strip.png',    stripBuf);
-      pass.addBuffer('strip@2x.png', stripBuf);
+      const bgBuf = Buffer.from(backgroundPng, 'base64');
+      pass.addBuffer('background.png',    bgBuf);
+      pass.addBuffer('background@2x.png', bgBuf);
+      pass.addBuffer('background@3x.png', bgBuf);
     }
 
     const pkpassBuffer = await pass.getAsBuffer();

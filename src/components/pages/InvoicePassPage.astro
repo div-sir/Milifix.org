@@ -52,7 +52,7 @@ const t = {
     passStyleStoreCard: '會員卡',
     passStyleGeneric: '一般卡片',
     bgImageLabel: '底圖',
-    bgImageHint: '建議尺寸 750 × 196 px（PNG / JPG）',
+    bgImageHint: '建議尺寸 1125 × 432 px（PNG / JPG）',
     bgImageClear: '移除',
     bgImageDisabledHint: '一般卡片樣式不支援底圖',
     bgLabel: '背景顏色',
@@ -111,7 +111,7 @@ const t = {
     passStyleStoreCard: 'Membership',
     passStyleGeneric: 'Generic',
     bgImageLabel: 'Background Image',
-    bgImageHint: 'Recommended: 750 × 196 px (PNG / JPG)',
+    bgImageHint: 'Recommended: 1125 × 432 px (PNG / JPG)',
     bgImageClear: 'Remove',
     bgImageDisabledHint: 'Generic style does not support a background image',
     bgLabel: 'Background Color',
@@ -170,7 +170,7 @@ const t = {
     passStyleStoreCard: '会員カード',
     passStyleGeneric: '一般カード',
     bgImageLabel: '背景画像',
-    bgImageHint: '推奨サイズ: 750 × 196 px（PNG / JPG）',
+    bgImageHint: '推奨サイズ: 1125 × 432 px（PNG / JPG）',
     bgImageClear: '削除',
     bgImageDisabledHint: '一般カードスタイルは背景画像に対応していません',
     bgLabel: '背景カラー',
@@ -1636,7 +1636,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     margin-top: 0.4rem;
   }
   .ip-bg-preview-img {
-    width: 3rem;
+    width: 3.6rem;
     height: 4.4rem;
     object-fit: cover;
     border-radius: 0.4rem;
@@ -1728,14 +1728,20 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     transition: background 0.4s ease;
   }
 
-  /* Strip image is fixed at 375:98 pt regardless of card's overall ratio */
+  /* Background image covers the entire card, same as Apple Wallet's background.png */
   .ip-card-strip {
     position: absolute;
-    top: 0; left: 0; right: 0;
-    aspect-ratio: 375 / 98;
-    height: auto;
+    inset: 0;
     background-size: cover;
-    background-position: center top;
+    background-position: center;
+  }
+
+  /* Subtle dim overlay so text stays legible over a bright background image */
+  .ip-card-strip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
   }
 
   .ip-card-glare {
