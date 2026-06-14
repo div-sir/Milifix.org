@@ -16,6 +16,25 @@ function isValidCarrier(id) {
 }
 
 /** @param {string} hex */
+function isValidHexColor(hex) {
+  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
+}
+
+const MAX_IMAGE_BASE64_LENGTH = 1_500_000; // ~1.1MB decoded, well under Vercel's 4.5MB body limit
+
+/**
+ * 驗證並解碼使用者上傳的 base64 圖片，超出大小限制或非法 base64 時回傳 null。
+ * @param {unknown} value
+ * @returns {Buffer | null}
+ */
+function decodeImage(value) {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  if (value.length > MAX_IMAGE_BASE64_LENGTH) return null;
+  if (!/^[A-Za-z0-9+/]+=*$/.test(value)) return null;
+  return Buffer.from(value, 'base64');
+}
+
+/** @param {string} hex */
 function hexToRgb(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -49,6 +68,18 @@ export default async function handler(req, res) {
   if (!carrierId || !isValidCarrier(carrierId)) {
     res.status(400).json({ error: 'Invalid carrier ID. Expected format: /XXXXXXX (8 chars starting with /)' });
     return;
+  }
+
+  if (![backgroundColor, foregroundColor, labelColor].every(isValidHexColor)) {
+    res.status(400).json({ error: 'Invalid color. Expected format: #RRGGBB' });
+    return;
+  }
+
+  for (const [name, value] of [['iconPng', iconPng], ['backgroundPng', backgroundPng], ['thumbnailPng', thumbnailPng]]) {
+    if (value !== null && decodeImage(value) === null) {
+      res.status(400).json({ error: `Invalid or oversized ${name}` });
+      return;
+    }
   }
 
   const certBase64 = process.env.PASS_CERT_BASE64;
@@ -150,7 +181,7 @@ export default async function handler(req, res) {
     });
 
     // Use client-rendered icon PNG if provided, else placeholder
-    const iconBuf = iconPng ? Buffer.from(iconPng, 'base64') : PLACEHOLDER_PNG;
+    const iconBuf = iconPng ? decodeImage(iconPng) : PLACEHOLDER_PNG;
     pass.addBuffer('icon.png',    iconBuf);
     pass.addBuffer('icon@2x.png', iconBuf);
     pass.addBuffer('icon@3x.png', iconBuf);
@@ -161,7 +192,7 @@ export default async function handler(req, res) {
     // Background image (optional, user-uploaded) — covers the whole card
     // Not supported on generic passes
     if (backgroundPng && safePassStyle !== 'generic') {
-      const bgBuf = Buffer.from(backgroundPng, 'base64');
+      const bgBuf = decodeImage(backgroundPng);
       pass.addBuffer('background.png',    bgBuf);
       pass.addBuffer('background@2x.png', bgBuf);
       pass.addBuffer('background@3x.png', bgBuf);
@@ -170,7 +201,7 @@ export default async function handler(req, res) {
     // Thumbnail image (optional, user-uploaded) — shown on the right side
     // Supported on generic and storeCard passes
     if (thumbnailPng && safePassStyle !== 'eventTicket') {
-      const thumbBuf = Buffer.from(thumbnailPng, 'base64');
+      const thumbBuf = decodeImage(thumbnailPng);
       pass.addBuffer('thumbnail.png',    thumbBuf);
       pass.addBuffer('thumbnail@2x.png', thumbBuf);
       pass.addBuffer('thumbnail@3x.png', thumbBuf);
