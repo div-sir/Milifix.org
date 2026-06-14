@@ -93,6 +93,7 @@ const page  = await getPage('home')        // 頁面文案
 | `/blog/[slug]` | 文章頁，含側邊浮動目錄 |
 | `/lumiveil` | Lumiveil iOS App 介紹頁 |
 | `/linktree` | 連結樹 |
+| `/invoice-pass` | Apple Wallet 發票卡片產生器 |
 
 ---
 
@@ -116,20 +117,42 @@ const page  = await getPage('home')        // 頁面文案
 
 ---
 
+## Apple Wallet 發票卡片（`/invoice-pass`）
+
+`/invoice-pass` 頁面提供前端表單，讓使用者產生並下載 `.pkpass` 檔案，由 `api/generate-pass.js`（Vercel serverless function）使用 [passkit-generator](https://github.com/alexandercerutti/passkit-generator) 簽署產出。
+
+**靜態資源：** `pass-assets/`（icon、logo、背景圖，見其內 README；此目錄不進 git）
+
+**環境變數（簽署憑證，僅伺服器端）：**
+
+| 變數 | 說明 |
+|---|---|
+| `PASS_CERT_BASE64` | Pass 簽署憑證（base64） |
+| `PASS_KEY_BASE64` | 簽署私鑰（base64） |
+| `APPLE_WWDR_BASE64` | Apple WWDR 中繼憑證（base64） |
+| `APPLE_TEAM_ID` | Apple Team ID（選填，預設見 `api/generate-pass.js`） |
+
+---
+
 ## 目錄結構
 
 ```
 src/
 ├── components/         Astro 版面元件（SiteNav、PortfolioChrome、LexicalContent…）
-│   ├── pages/          頁面級複合元件（SpaceIndexPage、WorkSlugPage…）
+│   ├── pages/          頁面級複合元件（SpaceIndexPage、WorkSlugPage、InvoicePassPage…）
 │   └── react-bits/     React island（ShinyText、SpotlightCard）
-├── data/               blog 規則模組（保留供參考）
+├── data/               空間定義、作品型別輔助函式
 ├── i18n/               多語文案、路由 helpers
 ├── lib/
 │   └── cms.ts          Payload REST API 資料層
-├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil）
+├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil、invoice-pass）
 ├── scripts/            client 動效、目錄、游標、語言轉場
 └── styles/             全域與區塊 CSS
+
+api/
+└── generate-pass.js    Apple Wallet pkpass 產生（Vercel serverless function）
+
+pass-assets/            Wallet pass 靜態圖片資源（不進 git）
 ```
 
 ---
