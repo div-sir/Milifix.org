@@ -135,82 +135,13 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
       import { initBlogPostToc } from '../../scripts/init-blog-post-toc';
       import { initPretextLayout } from '../../scripts/init-pretext-layout';
       import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
-      import {
-        consumeLangTransitionPending,
-        finishBlogLangTransitionOverlay,
-        prepareBlogLangTransitionOverlay,
-      } from '../../scripts/lang-transition';
+      import { initBlogTranslate } from '../../scripts/blog-translate';
 
       initPortfolioCursor();
       initPretextLayout();
       initBlogPostToc();
 
-      const BLOG_VIEW_LANG_KEY = 'portfolio:blog-view-lang';
-      const PREFERRED_LANG_KEY = 'portfolio:preferred-lang';
-
-      function clearGoogleTranslateState() {
-        const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = `googtrans=; expires=${expire}; path=/`;
-        document.cookie = `googtrans=; expires=${expire}; path=/; domain=${window.location.hostname}`;
-      }
-
-      function getBlogDisplayLang() {
-        const qsLang = (new URL(window.location.href).searchParams.get('hl') || '').toLowerCase();
-        if (qsLang === 'en' || qsLang === 'ja' || qsLang === 'zh') return qsLang;
-        const savedBlog = (localStorage.getItem(BLOG_VIEW_LANG_KEY) || '').toLowerCase();
-        if (savedBlog === 'en' || savedBlog === 'ja' || savedBlog === 'zh') return savedBlog;
-        const preferred = (localStorage.getItem(PREFERRED_LANG_KEY) || '').toLowerCase();
-        if (preferred === 'en' || preferred === 'ja' || preferred === 'zh') return preferred;
-        return 'zh';
-      }
-
-      function applyGoogleTranslate(targetLang) {
-        const combo = document.querySelector('.goog-te-combo');
-        if (!combo) return false;
-        if (combo.value === targetLang) return true;
-        combo.value = targetLang;
-        combo.dispatchEvent(new Event('change'));
-        return true;
-      }
-
-      function mountTranslateScript(targetLang, onSettled) {
-        const host = document.createElement('div');
-        host.id = 'google_translate_element';
-        host.style.display = 'none';
-        document.body.appendChild(host);
-
-        window.googleTranslateElementInit = () => {
-          new google.translate.TranslateElement(
-            { pageLanguage: 'zh-TW', includedLanguages: 'zh-TW,ja,en', autoDisplay: false },
-            'google_translate_element'
-          );
-          let retries = 0;
-          const timer = window.setInterval(() => {
-            retries++;
-            if (applyGoogleTranslate(targetLang) || retries >= 24) {
-              window.clearInterval(timer);
-              onSettled?.();
-            }
-          }, 250);
-        };
-
-        const script = document.createElement('script');
-        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-        script.defer = true;
-        document.body.appendChild(script);
-      }
-
-      const displayLang = getBlogDisplayLang();
-      const fromLangNav = consumeLangTransitionPending();
-
-      if (displayLang === 'zh') {
-        if (fromLangNav) prepareBlogLangTransitionOverlay(true);
-        clearGoogleTranslateState();
-        if (fromLangNav) requestAnimationFrame(() => finishBlogLangTransitionOverlay());
-      } else if (displayLang === 'en' || displayLang === 'ja') {
-        prepareBlogLangTransitionOverlay(fromLangNav);
-        mountTranslateScript(displayLang, () => finishBlogLangTransitionOverlay());
-      }
+      initBlogTranslate();
     </script>
   </body>
 </html>

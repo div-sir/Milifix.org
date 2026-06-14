@@ -9,8 +9,9 @@ export function initPlatformHeroScramble() {
   if (typeof window === 'undefined') return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const el = document.querySelector<HTMLElement>('[data-scramble-text]');
-  if (!el) return;
+  const found = document.querySelector<HTMLElement>('[data-scramble-text]');
+  if (!found) return;
+  const el: HTMLElement = found;
 
   const target = el.dataset.scrambleText?.trim() ?? '';
   if (!target) return;

@@ -9,16 +9,17 @@ function prefersReducedMotion(): boolean {
 function mountOverlayShell(): HTMLDivElement {
   let el = document.getElementById('portfolio-lang-transition') as HTMLDivElement | null;
   if (el && el.hasAttribute('data-early')) {
-    el.removeAttribute('data-early');
-    el.className = 'portfolio-lang-transition is-visible';
-    el.innerHTML =
+    const early = el;
+    early.removeAttribute('data-early');
+    early.className = 'portfolio-lang-transition is-visible';
+    early.innerHTML =
       '<div class="portfolio-lang-transition__bar" aria-hidden="true"></div>';
-    el.style.setProperty('transition', 'none');
-    el.style.setProperty('opacity', '1');
+    early.style.setProperty('transition', 'none');
+    early.style.setProperty('opacity', '1');
     requestAnimationFrame(() => {
-      el.removeAttribute('style');
+      early.removeAttribute('style');
     });
-    return el;
+    return early;
   }
   if (!el) {
     el = document.createElement('div');
