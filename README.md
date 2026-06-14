@@ -76,7 +76,7 @@ const page  = await getPage('home')        // 頁面文案
 
 ### 部落格分類
 
-文章 bucket 分類由 Payload `Posts` collection 的 `bucket` 欄位管理（後台選擇），不再依賴 `blog-bucket-rules.ts` 推算。
+文章 bucket 分類由 Payload `Posts` collection 的 `bucket` 欄位管理（後台選擇）。
 
 ---
 
