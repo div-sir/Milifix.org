@@ -70,6 +70,48 @@ const STRINGS: Record<
       dockStory: string;
       dockMedia: string;
     };
+    travel: {
+      navLabel: string;
+      metaTitle: string;
+      heroTag: string;
+      heroTitle: string;
+      heroDesc: string;
+      sectionCards: string;
+      sectionLounges: string;
+      sectionAirlines: string;
+      viewAll: string;
+      cardListTitle: string;
+      cardListDesc: string;
+      loungeListTitle: string;
+      loungeListDesc: string;
+      airlineListTitle: string;
+      airlineListDesc: string;
+      annualFee: string;
+      annualFeeWaived: string;
+      bank: string;
+      benefits: string;
+      conditions: string;
+      airport: string;
+      terminal: string;
+      openingHours: string;
+      network: string;
+      alliance: string;
+      iataCode: string;
+      relatedCards: string;
+      relatedLounges: string;
+      relatedAirlines: string;
+      noResults: string;
+      filterByBank: string;
+      filterByAirport: string;
+      filterByAlliance: string;
+      allBanks: string;
+      allAirports: string;
+      allAlliances: string;
+      benefitTypes: Record<string, string>;
+      allianceNames: Record<string, string>;
+      backToTravel: string;
+      matrix: string;
+    };
   }
 > = {
   en: {
@@ -148,6 +190,61 @@ const STRINGS: Record<
       dockStory: 'Case',
       dockMedia: 'Gallery',
     },
+    travel: {
+      navLabel: 'Travel',
+      metaTitle: 'Travel — Credit Card Benefits',
+      heroTag: 'Travel Benefits',
+      heroTitle: 'Card × Travel',
+      heroDesc: 'Compare Taiwan credit card benefits for airlines and airport lounges.',
+      sectionCards: 'Credit Cards',
+      sectionLounges: 'Lounges',
+      sectionAirlines: 'Airlines',
+      viewAll: 'View all →',
+      cardListTitle: 'Credit Cards',
+      cardListDesc: 'Browse all credit cards and their travel benefits.',
+      loungeListTitle: 'Airport Lounges',
+      loungeListDesc: 'Airport lounges accessible with credit cards.',
+      airlineListTitle: 'Airlines',
+      airlineListDesc: 'Airlines with credit card partnership benefits.',
+      annualFee: 'Annual fee',
+      annualFeeWaived: 'Waived',
+      bank: 'Bank',
+      benefits: 'Benefits',
+      conditions: 'Conditions',
+      airport: 'Airport',
+      terminal: 'Terminal',
+      openingHours: 'Hours',
+      network: 'Network',
+      alliance: 'Alliance',
+      iataCode: 'IATA',
+      relatedCards: 'Cards with this benefit',
+      relatedLounges: 'Available lounges',
+      relatedAirlines: 'Airline benefits',
+      noResults: 'No results found.',
+      filterByBank: 'Filter by bank',
+      filterByAirport: 'Filter by airport',
+      filterByAlliance: 'Filter by alliance',
+      allBanks: 'All banks',
+      allAirports: 'All airports',
+      allAlliances: 'All alliances',
+      benefitTypes: {
+        lounge: 'Lounge',
+        miles: 'Miles',
+        'priority-boarding': 'Priority boarding',
+        upgrade: 'Upgrade',
+        baggage: 'Extra baggage',
+        insurance: 'Travel insurance',
+        other: 'Other',
+      },
+      allianceNames: {
+        'star-alliance': 'Star Alliance',
+        oneworld: 'oneworld',
+        skyteam: 'SkyTeam',
+        none: 'Independent',
+      },
+      backToTravel: '← Travel',
+      matrix: 'Matrix',
+    },
   },
   zh: {
     metaTitlePlatform: 'Milifix — 工作室與創作空間',
@@ -221,6 +318,61 @@ const STRINGS: Record<
       dockStory: '案例',
       dockMedia: '圖庫',
     },
+    travel: {
+      navLabel: '旅遊',
+      metaTitle: '旅遊 — 信用卡權益比較',
+      heroTag: '旅遊權益',
+      heroTitle: '卡片 × 旅遊',
+      heroDesc: '比較台灣信用卡的航空與機場貴賓室權益。',
+      sectionCards: '信用卡',
+      sectionLounges: '貴賓室',
+      sectionAirlines: '航空公司',
+      viewAll: '查看全部 →',
+      cardListTitle: '信用卡一覽',
+      cardListDesc: '瀏覽所有信用卡及其旅遊權益。',
+      loungeListTitle: '機場貴賓室',
+      loungeListDesc: '可用信用卡進入的機場貴賓室。',
+      airlineListTitle: '航空公司',
+      airlineListDesc: '與信用卡合作的航空公司權益。',
+      annualFee: '年費',
+      annualFeeWaived: '免年費',
+      bank: '發卡銀行',
+      benefits: '權益',
+      conditions: '使用條件',
+      airport: '機場',
+      terminal: '航廈',
+      openingHours: '營業時間',
+      network: '聯盟網路',
+      alliance: '航空聯盟',
+      iataCode: 'IATA 代碼',
+      relatedCards: '可使用的信用卡',
+      relatedLounges: '可進入的貴賓室',
+      relatedAirlines: '航空公司權益',
+      noResults: '查無結果。',
+      filterByBank: '依銀行篩選',
+      filterByAirport: '依機場篩選',
+      filterByAlliance: '依聯盟篩選',
+      allBanks: '所有銀行',
+      allAirports: '所有機場',
+      allAlliances: '所有聯盟',
+      benefitTypes: {
+        lounge: '貴賓室',
+        miles: '哩程',
+        'priority-boarding': '優先登機',
+        upgrade: '艙等升等',
+        baggage: '額外行李',
+        insurance: '旅遊保險',
+        other: '其他',
+      },
+      allianceNames: {
+        'star-alliance': '星空聯盟',
+        oneworld: '寰宇一家',
+        skyteam: '天合聯盟',
+        none: '非聯盟',
+      },
+      backToTravel: '← 旅遊',
+      matrix: '對照表',
+    },
   },
   ja: {
     metaTitlePlatform: 'Milifix — スタジオとクリエイタースペース',
@@ -293,6 +445,61 @@ const STRINGS: Record<
       dockHero: 'カバー',
       dockStory: 'ケース',
       dockMedia: 'ギャラリー',
+    },
+    travel: {
+      navLabel: 'Travel',
+      metaTitle: 'Travel — Credit Card Benefits',
+      heroTag: 'Travel Benefits',
+      heroTitle: 'Card × Travel',
+      heroDesc: 'Compare Taiwan credit card benefits for airlines and airport lounges.',
+      sectionCards: 'Credit Cards',
+      sectionLounges: 'Lounges',
+      sectionAirlines: 'Airlines',
+      viewAll: 'View all →',
+      cardListTitle: 'Credit Cards',
+      cardListDesc: 'Browse all credit cards and their travel benefits.',
+      loungeListTitle: 'Airport Lounges',
+      loungeListDesc: 'Airport lounges accessible with credit cards.',
+      airlineListTitle: 'Airlines',
+      airlineListDesc: 'Airlines with credit card partnership benefits.',
+      annualFee: 'Annual fee',
+      annualFeeWaived: 'Waived',
+      bank: 'Bank',
+      benefits: 'Benefits',
+      conditions: 'Conditions',
+      airport: 'Airport',
+      terminal: 'Terminal',
+      openingHours: 'Hours',
+      network: 'Network',
+      alliance: 'Alliance',
+      iataCode: 'IATA',
+      relatedCards: 'Cards with this benefit',
+      relatedLounges: 'Available lounges',
+      relatedAirlines: 'Airline benefits',
+      noResults: 'No results found.',
+      filterByBank: 'Filter by bank',
+      filterByAirport: 'Filter by airport',
+      filterByAlliance: 'Filter by alliance',
+      allBanks: 'All banks',
+      allAirports: 'All airports',
+      allAlliances: 'All alliances',
+      benefitTypes: {
+        lounge: 'Lounge',
+        miles: 'Miles',
+        'priority-boarding': 'Priority boarding',
+        upgrade: 'Upgrade',
+        baggage: 'Extra baggage',
+        insurance: 'Travel insurance',
+        other: 'Other',
+      },
+      allianceNames: {
+        'star-alliance': 'Star Alliance',
+        oneworld: 'oneworld',
+        skyteam: 'SkyTeam',
+        none: 'Independent',
+      },
+      backToTravel: '← Travel',
+      matrix: 'Matrix',
     },
   },
 };

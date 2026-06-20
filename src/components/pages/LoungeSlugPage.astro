@@ -1,0 +1,126 @@
+---
+import { getCardsByLounge } from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import CreditCardCard from '../travel/CreditCardCard.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import { loungeListPath } from '../../i18n/routes';
+import type { CmsLounge } from '../../lib/cms';
+
+interface Props {
+  lang: Lang;
+  lounge: CmsLounge;
+}
+
+const { lang, lounge } = Astro.props;
+const t = ui(lang).travel;
+
+const relatedCards = await getCardsByLounge(lounge.id);
+const heroImage = lounge.images?.[0]?.image?.url;
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{lounge.name} — {t.sectionLounges} — Milifix</title>
+  <meta name="description" content={lounge.description ?? ''} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <article class="travel-detail">
+      <a class="travel-detail__back" href={loungeListPath(lang)}>{t.backToTravel}</a>
+
+      <header class="travel-detail__header">
+        <p class="travel-detail__overline">{lounge.airportCode}</p>
+        <h1 class="travel-detail__title">{lounge.name}</h1>
+        {lounge.description && (
+          <p class="travel-detail__desc">{lounge.description}</p>
+        )}
+      </header>
+
+      {heroImage && (
+        <img
+          class="travel-detail__image"
+          src={heroImage}
+          alt={lounge.name}
+        />
+      )}
+
+      <div class="travel-info">
+        <span class="travel-info__label">{t.airport}</span>
+        <span class="travel-info__value">{lounge.airport} ({lounge.airportCode})</span>
+
+        {lounge.terminal && (
+          <>
+            <span class="travel-info__label">{t.terminal}</span>
+            <span class="travel-info__value">{lounge.terminal}</span>
+          </>
+        )}
+
+        {lounge.location && (
+          <>
+            <span class="travel-info__label">Location</span>
+            <span class="travel-info__value">{lounge.location}</span>
+          </>
+        )}
+
+        {lounge.openingHours && (
+          <>
+            <span class="travel-info__label">{t.openingHours}</span>
+            <span class="travel-info__value">{lounge.openingHours}</span>
+          </>
+        )}
+
+        {lounge.network && (
+          <>
+            <span class="travel-info__label">{t.network}</span>
+            <span class="travel-info__value">{lounge.network}</span>
+          </>
+        )}
+      </div>
+
+      {lounge.images && lounge.images.length > 1 && (
+        <div class="travel-grid" style="margin-bottom: 2.5rem;">
+          {lounge.images.slice(1).map((img) => (
+            <img
+              class="travel-card__image"
+              src={img.image.url}
+              alt={img.image.alt ?? lounge.name}
+              loading="lazy"
+              style="border-radius: 10px;"
+            />
+          ))}
+        </div>
+      )}
+
+      {relatedCards.length > 0 && (
+        <section class="travel-related">
+          <h2 class="travel-related__title">{t.relatedCards}</h2>
+          <div class="travel-grid">
+            {relatedCards.map((card) => (
+              <CreditCardCard lang={lang} card={card} />
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+</body>
+</html>

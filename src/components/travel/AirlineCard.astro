@@ -1,0 +1,35 @@
+---
+import type { Lang } from '../../i18n/types';
+import type { CmsAirline } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { airlineSlugPath } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  airline: CmsAirline;
+}
+
+const { lang, airline } = Astro.props;
+const t = ui(lang).travel;
+const href = airlineSlugPath(lang, airline.slug);
+---
+
+<a class="travel-card" href={href}>
+  {airline.logo?.url && (
+    <img
+      class="travel-card__image travel-card__image--logo"
+      src={airline.logo.url}
+      alt={airline.name}
+      loading="lazy"
+    />
+  )}
+  <span class="travel-card__overline">{airline.iataCode}</span>
+  <span class="travel-card__title">{airline.name}</span>
+  <span class="travel-card__tags">
+    {airline.alliance !== 'none' && (
+      <span class="travel-tag travel-tag--alliance">
+        {t.allianceNames[airline.alliance] ?? airline.alliance}
+      </span>
+    )}
+  </span>
+</a>

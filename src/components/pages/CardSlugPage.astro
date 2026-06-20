@@ -1,0 +1,146 @@
+---
+import type { CmsAirline, CmsLounge } from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import {
+  cardListPath,
+  airlineSlugPath,
+  loungeSlugPath,
+} from '../../i18n/routes';
+import type { CmsCreditCard } from '../../lib/cms';
+
+interface Props {
+  lang: Lang;
+  card: CmsCreditCard;
+}
+
+const { lang, card } = Astro.props;
+const t = ui(lang).travel;
+
+const feeDisplay =
+  card.annualFee === 0
+    ? t.annualFeeWaived
+    : `NT$ ${card.annualFee.toLocaleString()}`;
+
+function isPopulatedAirline(v: unknown): v is CmsAirline {
+  return typeof v === 'object' && v !== null && 'slug' in v;
+}
+
+function isPopulatedLounge(v: unknown): v is CmsLounge {
+  return typeof v === 'object' && v !== null && 'slug' in v;
+}
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{card.name} — {t.sectionCards} — Milifix</title>
+  <meta name="description" content={card.description ?? ''} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <article class="travel-detail">
+      <a class="travel-detail__back" href={cardListPath(lang)}>{t.backToTravel}</a>
+
+      <header class="travel-detail__header">
+        <p class="travel-detail__overline">{card.bank}</p>
+        <h1 class="travel-detail__title">{card.name}</h1>
+        {card.description && (
+          <p class="travel-detail__desc">{card.description}</p>
+        )}
+      </header>
+
+      {card.image?.url && (
+        <img
+          class="travel-detail__image"
+          src={card.image.url}
+          alt={card.image.alt ?? card.name}
+        />
+      )}
+
+      <div class="travel-info">
+        <span class="travel-info__label">{t.bank}</span>
+        <span class="travel-info__value">{card.bank}</span>
+
+        <span class="travel-info__label">{t.annualFee}</span>
+        <span class="travel-info__value">
+          {feeDisplay}
+          {card.annualFeeNote && ` (${card.annualFeeNote})`}
+        </span>
+
+        <span class="travel-info__label">Network</span>
+        <span class="travel-info__value">{card.cardNetwork.toUpperCase()}</span>
+      </div>
+
+      {card.benefits.length > 0 && (
+        <section class="travel-benefits">
+          <h2 class="travel-benefits__title">{t.benefits}</h2>
+          {card.benefits.map((b) => {
+            const airline = isPopulatedAirline(b.airline) ? b.airline : null;
+            const lounge = isPopulatedLounge(b.lounge) ? b.lounge : null;
+
+            return (
+              <div class="travel-benefit">
+                <div class="travel-benefit__header">
+                  <span class="travel-tag">
+                    {t.benefitTypes[b.benefitType] ?? b.benefitType}
+                  </span>
+                  <span class="travel-benefit__name">{b.title}</span>
+                </div>
+                {b.description && (
+                  <p class="travel-benefit__desc">{b.description}</p>
+                )}
+                {b.conditions && (
+                  <p class="travel-benefit__cond">{t.conditions}: {b.conditions}</p>
+                )}
+                {airline && (
+                  <a
+                    class="travel-benefit__link"
+                    href={airlineSlugPath(lang, airline.slug)}
+                  >
+                    {airline.name} ({airline.iataCode}) →
+                  </a>
+                )}
+                {lounge && (
+                  <a
+                    class="travel-benefit__link"
+                    href={loungeSlugPath(lang, lounge.slug)}
+                  >
+                    {lounge.name} ({lounge.airportCode}) →
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      {card.tags.length > 0 && (
+        <div class="travel-card__tags" style="margin-bottom: 2rem;">
+          {card.tags.map((tag) => (
+            <span class="travel-tag">{tag.tag}</span>
+          ))}
+        </div>
+      )}
+    </article>
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+</body>
+</html>

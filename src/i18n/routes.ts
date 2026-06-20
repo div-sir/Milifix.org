@@ -45,3 +45,38 @@ export function equivalentUrl(targetLang: Lang, pathname: string): string {
   const p = langPrefix(targetLang);
   return p ? `${p}${logicalPath}` : logicalPath;
 }
+
+// ── Travel routes ─────────────────────────────────────────
+
+export function travelPath(lang: Lang): string {
+  const p = langPrefix(lang);
+  return p ? `${p}/travel` : '/travel';
+}
+
+export function cardListPath(lang: Lang): string {
+  return `${travelPath(lang)}/cards`;
+}
+
+export function cardSlugPath(lang: Lang, slug: string): string {
+  return `${travelPath(lang)}/cards/${slug}`;
+}
+
+export function loungeListPath(lang: Lang): string {
+  return `${travelPath(lang)}/lounges`;
+}
+
+export function loungeSlugPath(lang: Lang, slug: string): string {
+  return `${travelPath(lang)}/lounges/${slug}`;
+}
+
+export function airlineListPath(lang: Lang): string {
+  return `${travelPath(lang)}/airlines`;
+}
+
+export function airlineSlugPath(lang: Lang, slug: string): string {
+  return `${travelPath(lang)}/airlines/${slug}`;
+}
+
+export function matrixPath(lang: Lang): string {
+  return `${travelPath(lang)}/matrix`;
+}

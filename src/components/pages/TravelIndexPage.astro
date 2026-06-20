@@ -1,0 +1,118 @@
+---
+import { getCreditCards, getAirlines, getLounges } from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import TravelSubnav from '../travel/TravelSubnav.astro';
+import CreditCardCard from '../travel/CreditCardCard.astro';
+import LoungeCard from '../travel/LoungeCard.astro';
+import AirlineCard from '../travel/AirlineCard.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import { cardListPath, loungeListPath, airlineListPath } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui(lang).travel;
+
+const [cards, lounges, airlines] = await Promise.all([
+  getCreditCards(),
+  getLounges(),
+  getAirlines(),
+]);
+
+const previewCards = cards.slice(0, 3);
+const previewLounges = lounges.slice(0, 3);
+const previewAirlines = airlines.slice(0, 3);
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{t.metaTitle} — Milifix</title>
+  <meta name="description" content={t.heroDesc} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <header class="travel-hero">
+      <span class="travel-hero__tag">{t.heroTag}</span>
+      <h1 class="travel-hero__title">{t.heroTitle}</h1>
+      <p class="travel-hero__desc">{t.heroDesc}</p>
+    </header>
+
+    <TravelSubnav lang={lang} current="index" />
+
+    {cards.length > 0 && (
+      <section class="travel-section">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.sectionCards}</h2>
+          <a class="travel-section__link" href={cardListPath(lang)}>
+            {t.viewAll}
+          </a>
+        </div>
+        <div class="travel-grid">
+          {previewCards.map((card) => (
+            <CreditCardCard lang={lang} card={card} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    {lounges.length > 0 && (
+      <section class="travel-section">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.sectionLounges}</h2>
+          <a class="travel-section__link" href={loungeListPath(lang)}>
+            {t.viewAll}
+          </a>
+        </div>
+        <div class="travel-grid">
+          {previewLounges.map((lounge) => (
+            <LoungeCard lang={lang} lounge={lounge} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    {airlines.length > 0 && (
+      <section class="travel-section">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.sectionAirlines}</h2>
+          <a class="travel-section__link" href={airlineListPath(lang)}>
+            {t.viewAll}
+          </a>
+        </div>
+        <div class="travel-grid">
+          {previewAirlines.map((airline) => (
+            <AirlineCard lang={lang} airline={airline} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
+      <div class="travel-empty">
+        <p>{t.noResults}</p>
+      </div>
+    )}
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+</body>
+</html>

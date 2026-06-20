@@ -1,0 +1,98 @@
+---
+import { getAirlines } from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import TravelSubnav from '../travel/TravelSubnav.astro';
+import AirlineCard from '../travel/AirlineCard.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui(lang).travel;
+
+const airlines = await getAirlines();
+const alliances = [...new Set(airlines.map((a) => a.alliance))].sort();
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{t.airlineListTitle} — Milifix</title>
+  <meta name="description" content={t.airlineListDesc} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <header class="travel-hero">
+      <span class="travel-hero__tag">{t.sectionAirlines}</span>
+      <h1 class="travel-hero__title">{t.airlineListTitle}</h1>
+      <p class="travel-hero__desc">{t.airlineListDesc}</p>
+    </header>
+
+    <TravelSubnav lang={lang} current="airlines" />
+
+    <section class="travel-section">
+      {alliances.length > 1 && (
+        <div class="travel-filter">
+          <select
+            class="travel-filter__select"
+            id="alliance-filter"
+            aria-label={t.filterByAlliance}
+          >
+            <option value="">{t.allAlliances}</option>
+            {alliances.map((a) => (
+              <option value={a}>{t.allianceNames[a] ?? a}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {airlines.length > 0 ? (
+        <div class="travel-grid" id="airline-grid">
+          {airlines.map((airline) => (
+            <div data-alliance={airline.alliance}>
+              <AirlineCard lang={lang} airline={airline} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="travel-empty"><p>{t.noResults}</p></div>
+      )}
+    </section>
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+
+  <script>
+    const select = document.getElementById('alliance-filter') as HTMLSelectElement | null;
+    const grid = document.getElementById('airline-grid');
+    if (select && grid) {
+      select.addEventListener('change', () => {
+        const alliance = select.value;
+        for (const el of grid.children) {
+          const item = el as HTMLElement;
+          item.style.display =
+            !alliance || item.dataset.alliance === alliance ? '' : 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

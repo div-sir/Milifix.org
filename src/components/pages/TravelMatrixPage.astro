@@ -1,0 +1,200 @@
+---
+import {
+  getCreditCards,
+  getAirlines,
+  getLounges,
+  type CmsCreditCard,
+  type CmsAirline,
+  type CmsLounge,
+} from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import TravelSubnav from '../travel/TravelSubnav.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import {
+  cardSlugPath,
+  loungeSlugPath,
+  airlineSlugPath,
+} from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui(lang).travel;
+
+const [cards, lounges, airlines] = await Promise.all([
+  getCreditCards(),
+  getLounges(),
+  getAirlines(),
+]);
+
+function isPopulated(v: unknown): v is { id: string; slug: string } {
+  return typeof v === 'object' && v !== null && 'slug' in v;
+}
+
+type MatrixRow = {
+  card: CmsCreditCard;
+  loungeIds: Set<string>;
+  airlineIds: Set<string>;
+};
+
+const matrix: MatrixRow[] = cards.map((card) => {
+  const loungeIds = new Set<string>();
+  const airlineIds = new Set<string>();
+  for (const b of card.benefits) {
+    if (isPopulated(b.lounge)) loungeIds.add(b.lounge.id);
+    else if (typeof b.lounge === 'string') loungeIds.add(b.lounge);
+    if (isPopulated(b.airline)) airlineIds.add(b.airline.id);
+    else if (typeof b.airline === 'string') airlineIds.add(b.airline);
+  }
+  return { card, loungeIds, airlineIds };
+});
+
+const usedLounges = lounges.filter((l) =>
+  matrix.some((m) => m.loungeIds.has(l.id)),
+);
+const usedAirlines = airlines.filter((a) =>
+  matrix.some((m) => m.airlineIds.has(a.id)),
+);
+
+const matrixTitle = lang === 'zh' ? '權益對照表' : 'Benefits Matrix';
+const matrixDesc =
+  lang === 'zh'
+    ? '信用卡與貴賓室、航空公司的交叉對照。'
+    : 'Cross-reference of credit cards with lounges and airlines.';
+const checkMark = '✓';
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{matrixTitle} — Milifix</title>
+  <meta name="description" content={matrixDesc} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <header class="travel-hero">
+      <span class="travel-hero__tag">{t.heroTag}</span>
+      <h1 class="travel-hero__title">{matrixTitle}</h1>
+      <p class="travel-hero__desc">{matrixDesc}</p>
+    </header>
+
+    <TravelSubnav lang={lang} />
+
+    {usedLounges.length > 0 && matrix.length > 0 && (
+      <section class="travel-section">
+        <h2 class="travel-section__title" style="margin-bottom: 1.25rem;">
+          {t.sectionCards} × {t.sectionLounges}
+        </h2>
+        <div class="travel-matrix-wrap">
+          <table class="travel-matrix">
+            <thead>
+              <tr>
+                <th class="travel-matrix__corner">
+                  {t.sectionCards}
+                </th>
+                {usedLounges.map((l) => (
+                  <th class="travel-matrix__col-head">
+                    <a href={loungeSlugPath(lang, l.slug)}>
+                      <span class="travel-matrix__col-code">{l.airportCode}</span>
+                      <span class="travel-matrix__col-name">{l.name}</span>
+                    </a>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {matrix
+                .filter((m) => m.loungeIds.size > 0)
+                .map((m) => (
+                  <tr>
+                    <td class="travel-matrix__row-head">
+                      <a href={cardSlugPath(lang, m.card.slug)}>
+                        <span class="travel-matrix__row-bank">{m.card.bank}</span>
+                        <span class="travel-matrix__row-name">{m.card.name}</span>
+                      </a>
+                    </td>
+                    {usedLounges.map((l) => (
+                      <td class={m.loungeIds.has(l.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
+                        {m.loungeIds.has(l.id) ? checkMark : ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    {usedAirlines.length > 0 && matrix.length > 0 && (
+      <section class="travel-section">
+        <h2 class="travel-section__title" style="margin-bottom: 1.25rem;">
+          {t.sectionCards} × {t.sectionAirlines}
+        </h2>
+        <div class="travel-matrix-wrap">
+          <table class="travel-matrix">
+            <thead>
+              <tr>
+                <th class="travel-matrix__corner">
+                  {t.sectionCards}
+                </th>
+                {usedAirlines.map((a) => (
+                  <th class="travel-matrix__col-head">
+                    <a href={airlineSlugPath(lang, a.slug)}>
+                      <span class="travel-matrix__col-code">{a.iataCode}</span>
+                      <span class="travel-matrix__col-name">{a.name}</span>
+                    </a>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {matrix
+                .filter((m) => m.airlineIds.size > 0)
+                .map((m) => (
+                  <tr>
+                    <td class="travel-matrix__row-head">
+                      <a href={cardSlugPath(lang, m.card.slug)}>
+                        <span class="travel-matrix__row-bank">{m.card.bank}</span>
+                        <span class="travel-matrix__row-name">{m.card.name}</span>
+                      </a>
+                    </td>
+                    {usedAirlines.map((a) => (
+                      <td class={m.airlineIds.has(a.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
+                        {m.airlineIds.has(a.id) ? checkMark : ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    {matrix.length === 0 && (
+      <div class="travel-empty"><p>{t.noResults}</p></div>
+    )}
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+</body>
+</html>

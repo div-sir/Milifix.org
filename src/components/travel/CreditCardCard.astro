@@ -1,0 +1,47 @@
+---
+import type { Lang } from '../../i18n/types';
+import type { CmsCreditCard } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { cardSlugPath } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  card: CmsCreditCard;
+}
+
+const { lang, card } = Astro.props;
+const t = ui(lang).travel;
+const href = cardSlugPath(lang, card.slug);
+
+const feeDisplay =
+  card.annualFee === 0
+    ? t.annualFeeWaived
+    : `NT$ ${card.annualFee.toLocaleString()}`;
+
+const benefitTypes = [
+  ...new Set(card.benefits.map((b) => b.benefitType)),
+];
+---
+
+<a class="travel-card" href={href}>
+  {card.image?.url && (
+    <img
+      class="travel-card__image"
+      src={card.image.url}
+      alt={card.image.alt ?? card.name}
+      loading="lazy"
+    />
+  )}
+  <span class="travel-card__overline">{card.bank}</span>
+  <span class="travel-card__title">{card.name}</span>
+  <span class="travel-card__subtitle">
+    {t.annualFee}: {feeDisplay}
+    {card.annualFeeNote && ` · ${card.annualFeeNote}`}
+  </span>
+  <span class="travel-card__tags">
+    <span class="travel-tag">{card.cardNetwork.toUpperCase()}</span>
+    {benefitTypes.map((bt) => (
+      <span class="travel-tag">{t.benefitTypes[bt] ?? bt}</span>
+    ))}
+  </span>
+</a>

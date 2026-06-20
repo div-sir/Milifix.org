@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "api"
+    "api",
+    "payload-reference"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",

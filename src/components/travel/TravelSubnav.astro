@@ -1,0 +1,39 @@
+---
+import type { Lang } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import {
+  travelPath,
+  cardListPath,
+  loungeListPath,
+  airlineListPath,
+  matrixPath,
+} from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  current?: 'index' | 'cards' | 'lounges' | 'airlines' | 'matrix';
+}
+
+const { lang, current } = Astro.props;
+const t = ui(lang).travel;
+
+const links = [
+  { href: travelPath(lang), label: t.heroTitle, key: 'index' as const },
+  { href: cardListPath(lang), label: t.sectionCards, key: 'cards' as const },
+  { href: loungeListPath(lang), label: t.sectionLounges, key: 'lounges' as const },
+  { href: airlineListPath(lang), label: t.sectionAirlines, key: 'airlines' as const },
+  { href: matrixPath(lang), label: t.matrix, key: 'matrix' as const },
+];
+---
+
+<nav class="travel-subnav" aria-label="Travel navigation">
+  {links.map((l) => (
+    <a
+      class="travel-subnav__link"
+      href={l.href}
+      aria-current={current === l.key ? 'page' : undefined}
+    >
+      {l.label}
+    </a>
+  ))}
+</nav>

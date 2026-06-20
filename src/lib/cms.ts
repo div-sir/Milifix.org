@@ -107,3 +107,113 @@ export type CmsPage = {
 }
 
 export const getPage = (key: CmsPage['pageKey']) => fetchDoc<CmsPage>('pages', key)
+
+// ── Travel: Credit Cards ──────────────────────────────────
+
+export type CmsCardNetwork = 'visa' | 'mastercard' | 'jcb' | 'amex'
+export type CmsBenefitType =
+  | 'lounge'
+  | 'miles'
+  | 'priority-boarding'
+  | 'upgrade'
+  | 'baggage'
+  | 'insurance'
+  | 'other'
+
+export type CmsCardBenefit = {
+  id: string
+  benefitType: CmsBenefitType
+  title: string
+  description?: string
+  conditions?: string
+  airline?: CmsAirline | string
+  lounge?: CmsLounge | string
+}
+
+export type CmsCreditCard = {
+  id: string
+  name: string
+  slug: string
+  bank: string
+  image?: { url: string; alt?: string }
+  annualFee: number
+  annualFeeNote?: string
+  cardNetwork: CmsCardNetwork
+  tags: { id: string; tag: string }[]
+  benefits: CmsCardBenefit[]
+  description?: string
+}
+
+export const getCreditCards = (opts?: { bank?: string }) =>
+  fetchCollection<CmsCreditCard>('credit-cards', {
+    where: opts?.bank ? { bank: { equals: opts.bank } } : undefined,
+    sort: 'bank,name',
+    depth: 2,
+  })
+
+export const getCreditCard = (slug: string) =>
+  fetchDoc<CmsCreditCard>('credit-cards', slug)
+
+// ── Travel: Airlines ──────────────────────────────────────
+
+export type CmsAlliance = 'star-alliance' | 'oneworld' | 'skyteam' | 'none'
+
+export type CmsAirline = {
+  id: string
+  name: string
+  slug: string
+  iataCode: string
+  alliance: CmsAlliance
+  logo?: { url: string; alt?: string }
+  description?: string
+}
+
+export const getAirlines = () =>
+  fetchCollection<CmsAirline>('airlines', { sort: 'name', depth: 1 })
+
+export const getAirline = (slug: string) =>
+  fetchDoc<CmsAirline>('airlines', slug)
+
+// ── Travel: Lounges ───────────────────────────────────────
+
+export type CmsLounge = {
+  id: string
+  name: string
+  slug: string
+  airport: string
+  airportCode: string
+  terminal?: string
+  location?: string
+  openingHours?: string
+  network?: string
+  images?: { id: string; image: { url: string; alt?: string } }[]
+  description?: string
+}
+
+export const getLounges = (opts?: { airportCode?: string }) =>
+  fetchCollection<CmsLounge>('lounges', {
+    where: opts?.airportCode
+      ? { airportCode: { equals: opts.airportCode } }
+      : undefined,
+    sort: 'airportCode,name',
+    depth: 1,
+  })
+
+export const getLounge = (slug: string) =>
+  fetchDoc<CmsLounge>('lounges', slug)
+
+// ── Travel: Cross-references ──────────────────────────────
+
+export const getCardsByAirline = (airlineId: string) =>
+  fetchCollection<CmsCreditCard>('credit-cards', {
+    where: { 'benefits.airline': { equals: airlineId } },
+    sort: 'bank,name',
+    depth: 2,
+  })
+
+export const getCardsByLounge = (loungeId: string) =>
+  fetchCollection<CmsCreditCard>('credit-cards', {
+    where: { 'benefits.lounge': { equals: loungeId } },
+    sort: 'bank,name',
+    depth: 2,
+  })

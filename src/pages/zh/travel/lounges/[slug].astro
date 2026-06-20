@@ -1,0 +1,14 @@
+---
+import LoungeSlugPage from '../../../../components/pages/LoungeSlugPage.astro';
+import { getLounges } from '../../../../lib/cms';
+
+export async function getStaticPaths() {
+  const lounges = await getLounges();
+  return lounges.map((lounge) => ({
+    params: { slug: lounge.slug },
+    props: { lounge },
+  }));
+}
+---
+
+<LoungeSlugPage lang="zh" lounge={Astro.props.lounge} />

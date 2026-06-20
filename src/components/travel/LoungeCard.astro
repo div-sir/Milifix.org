@@ -1,0 +1,38 @@
+---
+import type { Lang } from '../../i18n/types';
+import type { CmsLounge } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { loungeSlugPath } from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  lounge: CmsLounge;
+}
+
+const { lang, lounge } = Astro.props;
+const t = ui(lang).travel;
+const href = loungeSlugPath(lang, lounge.slug);
+const thumb = lounge.images?.[0]?.image?.url;
+---
+
+<a class="travel-card" href={href}>
+  {thumb && (
+    <img
+      class="travel-card__image"
+      src={thumb}
+      alt={lounge.name}
+      loading="lazy"
+    />
+  )}
+  <span class="travel-card__overline">{lounge.airportCode}</span>
+  <span class="travel-card__title">{lounge.name}</span>
+  <span class="travel-card__subtitle">
+    {lounge.airport}
+    {lounge.terminal && ` · ${t.terminal} ${lounge.terminal}`}
+  </span>
+  <span class="travel-card__tags">
+    {lounge.network && (
+      <span class="travel-tag travel-tag--network">{lounge.network}</span>
+    )}
+  </span>
+</a>

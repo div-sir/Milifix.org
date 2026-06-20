@@ -1,0 +1,14 @@
+---
+import CardSlugPage from '../../../../components/pages/CardSlugPage.astro';
+import { getCreditCards } from '../../../../lib/cms';
+
+export async function getStaticPaths() {
+  const cards = await getCreditCards();
+  return cards.map((card) => ({
+    params: { slug: card.slug },
+    props: { card },
+  }));
+}
+---
+
+<CardSlugPage lang="zh" card={Astro.props.card} />

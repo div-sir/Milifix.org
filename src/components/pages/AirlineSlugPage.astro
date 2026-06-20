@@ -1,0 +1,88 @@
+---
+import { getCardsByAirline } from '../../lib/cms';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import CreditCardCard from '../travel/CreditCardCard.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import { airlineListPath } from '../../i18n/routes';
+import type { CmsAirline } from '../../lib/cms';
+
+interface Props {
+  lang: Lang;
+  airline: CmsAirline;
+}
+
+const { lang, airline } = Astro.props;
+const t = ui(lang).travel;
+
+const relatedCards = await getCardsByAirline(airline.id);
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{airline.name} — {t.sectionAirlines} — Milifix</title>
+  <meta name="description" content={airline.description ?? ''} />
+  <script is:inline src="/scripts/theme-init.js"></script>
+</head>
+<body class="portfolio-atmo">
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main id="main-content">
+    <article class="travel-detail">
+      <a class="travel-detail__back" href={airlineListPath(lang)}>{t.backToTravel}</a>
+
+      <header class="travel-detail__header">
+        <p class="travel-detail__overline">{airline.iataCode}</p>
+        <h1 class="travel-detail__title">{airline.name}</h1>
+        {airline.description && (
+          <p class="travel-detail__desc">{airline.description}</p>
+        )}
+      </header>
+
+      {airline.logo?.url && (
+        <img
+          class="travel-detail__image travel-detail__image--contain"
+          src={airline.logo.url}
+          alt={airline.name}
+        />
+      )}
+
+      <div class="travel-info">
+        <span class="travel-info__label">{t.iataCode}</span>
+        <span class="travel-info__value">{airline.iataCode}</span>
+
+        <span class="travel-info__label">{t.alliance}</span>
+        <span class="travel-info__value">
+          {t.allianceNames[airline.alliance] ?? airline.alliance}
+        </span>
+      </div>
+
+      {relatedCards.length > 0 && (
+        <section class="travel-related">
+          <h2 class="travel-related__title">{t.relatedCards}</h2>
+          <div class="travel-grid">
+            {relatedCards.map((card) => (
+              <CreditCardCard lang={lang} card={card} />
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+</body>
+</html>

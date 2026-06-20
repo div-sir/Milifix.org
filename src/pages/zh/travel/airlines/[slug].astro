@@ -1,0 +1,14 @@
+---
+import AirlineSlugPage from '../../../../components/pages/AirlineSlugPage.astro';
+import { getAirlines } from '../../../../lib/cms';
+
+export async function getStaticPaths() {
+  const airlines = await getAirlines();
+  return airlines.map((airline) => ({
+    params: { slug: airline.slug },
+    props: { airline },
+  }));
+}
+---
+
+<AirlineSlugPage lang="zh" airline={Astro.props.airline} />

@@ -8,6 +8,7 @@ import {
   homePath,
   parseLocalizedPath,
   spacePath,
+  travelPath,
 } from '../i18n/routes';
 
 export interface NavLink {
@@ -74,6 +75,7 @@ const logoCurrent = variant === 'platform' ? onPlatform : onSpaceHome;
 const navBlocks: NavBlock[] = [];
 
 if (variant === 'platform') {
+  navBlocks.push({ type: 'link', href: travelPath(lang), label: labels.travel.navLabel });
 } else if (variant === 'space-home' && spaceId) {
   navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
   if (workNavItems.length > 0) {
