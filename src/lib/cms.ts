@@ -15,10 +15,15 @@ async function fetchCollection<T>(collection: string, opts: FetchOptions = {}): 
   if (opts.depth !== undefined) params.set('depth', String(opts.depth))
   if (opts.where) params.set('where', JSON.stringify(opts.where))
 
-  const res = await fetch(`${CMS_API}/${collection}?${params}`)
-  if (!res.ok) throw new Error(`CMS fetch failed: ${collection} (${res.status})`)
-  const data = await res.json()
-  return data.docs as T[]
+  try {
+    const res = await fetch(`${CMS_API}/${collection}?${params}`)
+    if (!res.ok) throw new Error(`CMS fetch failed: ${collection} (${res.status})`)
+    const data = await res.json()
+    return data.docs as T[]
+  } catch {
+    console.warn(`[cms] fetchCollection("${collection}") failed — returning []`)
+    return []
+  }
 }
 
 async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> {
@@ -27,10 +32,15 @@ async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> 
     limit: '1',
     depth: '1',
   })
-  const res = await fetch(`${CMS_API}/${collection}?${params}`)
-  if (!res.ok) return null
-  const data = await res.json()
-  return (data.docs[0] ?? null) as T | null
+  try {
+    const res = await fetch(`${CMS_API}/${collection}?${params}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return (data.docs[0] ?? null) as T | null
+  } catch {
+    console.warn(`[cms] fetchDoc("${collection}", "${slug}") failed — returning null`)
+    return null
+  }
 }
 
 // ── Works ──────────────────────────────────────────────────
