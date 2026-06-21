@@ -2,6 +2,7 @@
 import type { CmsAirline, CmsLounge } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
@@ -43,16 +44,29 @@ function isPopulatedLounge(v: unknown): v is CmsLounge {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f7" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" href="/favicon.ico" />
   <title>{card.name} — {t.sectionCards} — Milifix</title>
   <meta name="description" content={card.description ?? ''} />
-  <script is:inline src="/scripts/theme-init.js"></script>
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
 </head>
 <body class="portfolio-atmo">
-  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <AmbientBackdrop />
   <PageTransition />
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
 
   <main id="main-content">
     <article class="travel-detail">
@@ -142,5 +156,10 @@ function isPopulatedLounge(v: unknown): v is CmsLounge {
   </main>
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+
+  <script>
+    import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    initPortfolioCursor();
+  </script>
 </body>
 </html>
