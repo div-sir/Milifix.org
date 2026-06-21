@@ -35,9 +35,12 @@ function isPopulated(v: unknown): v is { id: string; slug: string; name: string;
   return typeof v === 'object' && v !== null && 'slug' in v;
 }
 
-const allPrograms = await getPrograms();
+function isPopulatedProgram(v: unknown): v is CmsProgram {
+  return typeof v === 'object' && v !== null && 'slug' in v;
+}
 
-// Auto-detect program slugs mentioned in benefit titles
+// Fallback: auto-detect programs from text when CMS relationship isn't set yet
+const allPrograms = await getPrograms();
 const programKeywords: Record<string, string[]> = {
   'priority-pass': ['Priority Pass'],
   'loungekey': ['LoungeKey'],
@@ -51,16 +54,21 @@ const programKeywords: Record<string, string[]> = {
   'oneworld': ['oneworld', '寰宇一家'],
   'skyteam': ['SkyTeam', '天合聯盟'],
 };
-
-function findPrograms(text: string): CmsProgram[] {
+function autoDetectPrograms(text: string): CmsProgram[] {
   const found: CmsProgram[] = [];
-  for (const [slug, keywords] of Object.entries(programKeywords)) {
-    if (keywords.some((kw) => text.includes(kw))) {
+  for (const [slug, kws] of Object.entries(programKeywords)) {
+    if (kws.some((kw) => text.includes(kw))) {
       const p = allPrograms.find((pr) => pr.slug === slug);
       if (p) found.push(p);
     }
   }
   return found;
+}
+
+function getBenefitPrograms(b: typeof card.benefits[number]): CmsProgram[] {
+  const explicit = (b.program ?? []).filter(isPopulatedProgram);
+  if (explicit.length > 0) return explicit;
+  return autoDetectPrograms(b.title + ' ' + (b.description ?? ''));
 }
 
 // Group benefits by type
@@ -148,7 +156,7 @@ const benefitsByType = typeOrder
                 {group.items.map((b) => {
                   const airline = isPopulated(b.airline) ? b.airline : null;
                   const lounge = isPopulated(b.lounge) ? b.lounge : null;
-                  const programs = findPrograms(b.title + ' ' + (b.description ?? ''));
+                  const programs = getBenefitPrograms(b);
 
                   return (
                     <li class="card-benefit-item">

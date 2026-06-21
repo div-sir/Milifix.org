@@ -138,6 +138,7 @@ export type CmsCardBenefit = {
   conditions?: string
   airline?: CmsAirline | string
   lounge?: CmsLounge | string
+  program?: (CmsProgram | string)[]
 }
 
 export type CmsCreditCard = {
