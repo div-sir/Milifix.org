@@ -1,5 +1,6 @@
 ---
-import type { CmsAirline, CmsLounge } from '../../lib/cms';
+import type { CmsAirline, CmsLounge, CmsProgram } from '../../lib/cms';
+import { getPrograms } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
@@ -13,8 +14,9 @@ import {
   cardListPath,
   airlineSlugPath,
   loungeSlugPath,
+  programSlugPath,
 } from '../../i18n/routes';
-import type { CmsCreditCard } from '../../lib/cms';
+import type { CmsCreditCard, CmsBenefitType } from '../../lib/cms';
 
 interface Props {
   lang: Lang;
@@ -29,13 +31,47 @@ const feeDisplay =
     ? t.annualFeeWaived
     : `NT$ ${card.annualFee.toLocaleString()}`;
 
-function isPopulatedAirline(v: unknown): v is CmsAirline {
+function isPopulated(v: unknown): v is { id: string; slug: string; name: string; iataCode?: string; airportCode?: string } {
   return typeof v === 'object' && v !== null && 'slug' in v;
 }
 
-function isPopulatedLounge(v: unknown): v is CmsLounge {
-  return typeof v === 'object' && v !== null && 'slug' in v;
+const allPrograms = await getPrograms();
+
+// Auto-detect program slugs mentioned in benefit titles
+const programKeywords: Record<string, string[]> = {
+  'priority-pass': ['Priority Pass'],
+  'loungekey': ['LoungeKey'],
+  'dragon-pass': ['Dragon Pass', '龍騰'],
+  'plaza-premium': ['Plaza Premium', '環亞'],
+  'amex-centurion-network': ['Centurion Network', 'Centurion Lounge', 'AMEX Centurion'],
+  'amex-fhr': ['FHR', 'Fine Hotels'],
+  'marriott-bonvoy-gold': ['萬豪金卡', '萬豪旅享家', 'Marriott'],
+  'hilton-honors-gold': ['希爾頓金卡', '希爾頓榮譽', 'Hilton'],
+  'star-alliance': ['Star Alliance', '星空聯盟'],
+  'oneworld': ['oneworld', '寰宇一家'],
+  'skyteam': ['SkyTeam', '天合聯盟'],
+};
+
+function findPrograms(text: string): CmsProgram[] {
+  const found: CmsProgram[] = [];
+  for (const [slug, keywords] of Object.entries(programKeywords)) {
+    if (keywords.some((kw) => text.includes(kw))) {
+      const p = allPrograms.find((pr) => pr.slug === slug);
+      if (p) found.push(p);
+    }
+  }
+  return found;
 }
+
+// Group benefits by type
+const typeOrder: CmsBenefitType[] = ['miles', 'lounge', 'upgrade', 'priority-boarding', 'baggage', 'insurance', 'other'];
+const benefitsByType = typeOrder
+  .map((type) => ({
+    type,
+    label: t.benefitTypes[type] ?? type,
+    items: card.benefits.filter((b) => b.benefitType === type),
+  }))
+  .filter((g) => g.items.length > 0);
 ---
 
 <!DOCTYPE html>
@@ -73,84 +109,80 @@ function isPopulatedLounge(v: unknown): v is CmsLounge {
       <a class="travel-detail__back" href={cardListPath(lang)}>{t.backToTravel}</a>
 
       <header class="travel-detail__header">
-        <p class="travel-detail__overline">{card.bank}</p>
+        <p class="travel-detail__overline">{card.bank} · {card.cardNetwork.toUpperCase()}</p>
         <h1 class="travel-detail__title">{card.name}</h1>
-        {card.description && (
-          <p class="travel-detail__desc">{card.description}</p>
-        )}
+        <p class="travel-detail__desc">
+          {t.annualFee}：{feeDisplay}
+          {card.annualFeeNote && <span class="travel-detail__fee-note">（{card.annualFeeNote}）</span>}
+        </p>
       </header>
 
       {card.image?.url && (
-        <img
-          class="travel-detail__image"
-          src={card.image.url}
-          alt={card.image.alt ?? card.name}
-        />
-      )}
-
-      <div class="travel-info">
-        <span class="travel-info__label">{t.bank}</span>
-        <span class="travel-info__value">{card.bank}</span>
-
-        <span class="travel-info__label">{t.annualFee}</span>
-        <span class="travel-info__value">
-          {feeDisplay}
-          {card.annualFeeNote && ` (${card.annualFeeNote})`}
-        </span>
-
-        <span class="travel-info__label">Network</span>
-        <span class="travel-info__value">{card.cardNetwork.toUpperCase()}</span>
-      </div>
-
-      {card.benefits.length > 0 && (
-        <section class="travel-benefits">
-          <h2 class="travel-benefits__title">{t.benefits}</h2>
-          {card.benefits.map((b) => {
-            const airline = isPopulatedAirline(b.airline) ? b.airline : null;
-            const lounge = isPopulatedLounge(b.lounge) ? b.lounge : null;
-
-            return (
-              <div class="travel-benefit">
-                <div class="travel-benefit__header">
-                  <span class="travel-tag">
-                    {t.benefitTypes[b.benefitType] ?? b.benefitType}
-                  </span>
-                  <span class="travel-benefit__name">{b.title}</span>
-                </div>
-                {b.description && (
-                  <p class="travel-benefit__desc">{b.description}</p>
-                )}
-                {b.conditions && (
-                  <p class="travel-benefit__cond">{t.conditions}: {b.conditions}</p>
-                )}
-                {airline && (
-                  <a
-                    class="travel-benefit__link"
-                    href={airlineSlugPath(lang, airline.slug)}
-                  >
-                    {airline.name} ({airline.iataCode}) →
-                  </a>
-                )}
-                {lounge && (
-                  <a
-                    class="travel-benefit__link"
-                    href={loungeSlugPath(lang, lounge.slug)}
-                  >
-                    {lounge.name} ({lounge.airportCode}) →
-                  </a>
-                )}
-              </div>
-            );
-          })}
-        </section>
+        <img class="travel-detail__image" src={card.image.url} alt={card.image.alt ?? card.name} />
       )}
 
       {card.tags.length > 0 && (
         <div class="travel-card__tags" style="margin-bottom: 2rem;">
           {card.tags.map((tag) => (
-            <span class="travel-tag">{tag.tag}</span>
+            <a class="travel-tag travel-tag--clickable" href={`${cardListPath(lang)}#tag:${encodeURIComponent(tag.tag)}`}>
+              {tag.tag}
+            </a>
           ))}
         </div>
+      )}
+
+      {card.description && (
+        <p class="travel-detail__summary">{card.description}</p>
+      )}
+
+      {benefitsByType.length > 0 && (
+        <section class="travel-benefits">
+          <h2 class="travel-benefits__title">{t.benefits}</h2>
+
+          {benefitsByType.map((group) => (
+            <div class="card-benefit-group">
+              <h3 class="card-benefit-group__title">
+                <span class="travel-tag">{group.label}</span>
+              </h3>
+              <ul class="card-benefit-list">
+                {group.items.map((b) => {
+                  const airline = isPopulated(b.airline) ? b.airline : null;
+                  const lounge = isPopulated(b.lounge) ? b.lounge : null;
+                  const programs = findPrograms(b.title + ' ' + (b.description ?? ''));
+
+                  return (
+                    <li class="card-benefit-item">
+                      <span class="card-benefit-item__title">{b.title}</span>
+                      {b.conditions && (
+                        <span class="card-benefit-item__cond">條件：{b.conditions}</span>
+                      )}
+
+                      {(airline || lounge || programs.length > 0) && (
+                        <div class="card-benefit-item__links">
+                          {airline && (
+                            <a class="travel-tag travel-tag--clickable" href={airlineSlugPath(lang, airline.slug)}>
+                              {airline.name} ({(airline as CmsAirline).iataCode})
+                            </a>
+                          )}
+                          {lounge && (
+                            <a class="travel-tag travel-tag--clickable travel-tag--network" href={loungeSlugPath(lang, lounge.slug)}>
+                              {lounge.name}
+                            </a>
+                          )}
+                          {programs.map((p) => (
+                            <a class="travel-tag travel-tag--clickable travel-tag--alliance" href={programSlugPath(lang, p.slug)}>
+                              {p.name}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </section>
       )}
     </article>
   </main>

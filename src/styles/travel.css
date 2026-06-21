@@ -493,6 +493,81 @@ html[data-theme='light'] body::before {
   color: color-mix(in srgb, var(--text) 35%, transparent);
 }
 
+/* ── Clickable tags ────────────────────────────────────── */
+
+.travel-tag--clickable {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.travel-tag--clickable:hover {
+  background: color-mix(in srgb, var(--travel-tag-text) 25%, transparent);
+  transform: translateY(-1px);
+}
+
+/* ── Card detail: benefit groups ──────────────────────── */
+
+.travel-detail__summary {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+  margin-bottom: 2rem;
+}
+
+.travel-detail__fee-note {
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+  font-size: 0.9em;
+}
+
+.card-benefit-group {
+  margin-bottom: 1.5rem;
+}
+
+.card-benefit-group__title {
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.card-benefit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-benefit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--travel-card-border);
+  background: var(--travel-card-bg);
+}
+
+.card-benefit-item__title {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.card-benefit-item__cond {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text) 42%, transparent);
+}
+
+.card-benefit-item__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+}
+
 /* ── Empty state ──────────────────────────────────────── */
 
 .travel-empty {
