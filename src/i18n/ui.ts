@@ -111,6 +111,11 @@ const STRINGS: Record<
       allianceNames: Record<string, string>;
       backToTravel: string;
       matrix: string;
+      programs: string;
+      programsDesc: string;
+      programTypeNames: Record<string, string>;
+      highlights: string;
+      website: string;
     };
   }
 > = {
@@ -244,6 +249,15 @@ const STRINGS: Record<
       },
       backToTravel: '← Travel',
       matrix: 'Matrix',
+      programs: 'Programs',
+      programsDesc: 'Lounge networks, hotel programs, and airline alliances.',
+      programTypeNames: {
+        'lounge-network': 'Lounge Networks',
+        'hotel-program': 'Hotel Programs',
+        'airline-alliance': 'Airline Alliances',
+      },
+      highlights: 'Highlights',
+      website: 'Official website',
     },
   },
   zh: {
@@ -372,6 +386,15 @@ const STRINGS: Record<
       },
       backToTravel: '← 旅遊',
       matrix: '對照表',
+      programs: '計畫與網路',
+      programsDesc: '貴賓室網路、飯店計畫、航空聯盟的完整介紹。',
+      programTypeNames: {
+        'lounge-network': '貴賓室網路',
+        'hotel-program': '飯店計畫',
+        'airline-alliance': '航空聯盟',
+      },
+      highlights: '重點特色',
+      website: '官方網站',
     },
   },
   ja: {
@@ -500,6 +523,15 @@ const STRINGS: Record<
       },
       backToTravel: '← Travel',
       matrix: 'Matrix',
+      programs: 'Programs',
+      programsDesc: 'Lounge networks, hotel programs, and airline alliances.',
+      programTypeNames: {
+        'lounge-network': 'Lounge Networks',
+        'hotel-program': 'Hotel Programs',
+        'airline-alliance': 'Airline Alliances',
+      },
+      highlights: 'Highlights',
+      website: 'Official website',
     },
   },
 };

@@ -80,3 +80,11 @@ export function airlineSlugPath(lang: Lang, slug: string): string {
 export function matrixPath(lang: Lang): string {
   return `${travelPath(lang)}/matrix`;
 }
+
+export function programListPath(lang: Lang): string {
+  return `${travelPath(lang)}/programs`;
+}
+
+export function programSlugPath(lang: Lang, slug: string): string {
+  return `${travelPath(lang)}/programs/${slug}`;
+}

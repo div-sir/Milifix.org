@@ -227,3 +227,31 @@ export const getCardsByLounge = (loungeId: string) =>
     sort: 'bank,name',
     depth: 2,
   })
+
+// ── Travel: Programs / Networks ───────────────────────
+
+export type CmsProgramType = 'lounge-network' | 'hotel-program' | 'airline-alliance'
+
+export type CmsProgram = {
+  id: string
+  name: string
+  slug: string
+  programType: CmsProgramType
+  logo?: { url: string; alt?: string }
+  website?: string
+  summary: string
+  content?: unknown
+  highlights: { id: string; text: string }[]
+}
+
+export const getPrograms = (opts?: { programType?: CmsProgramType }) =>
+  fetchCollection<CmsProgram>('programs', {
+    where: opts?.programType
+      ? { programType: { equals: opts.programType } }
+      : undefined,
+    sort: 'programType,name',
+    depth: 1,
+  })
+
+export const getProgram = (slug: string) =>
+  fetchDoc<CmsProgram>('programs', slug)

@@ -1,0 +1,102 @@
+---
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import type { Lang } from '../../i18n/types';
+import { HTML_LANG } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import { programListPath } from '../../i18n/routes';
+import type { CmsProgram } from '../../lib/cms';
+
+interface Props { lang: Lang; program: CmsProgram; }
+const { lang, program } = Astro.props;
+const t = ui(lang).travel;
+---
+
+<!DOCTYPE html>
+<html lang={HTML_LANG[lang]}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>{program.name} — {t.programs} — Milifix</title>
+  <meta name="description" content={program.summary} />
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('portfolio-theme');
+        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    })();
+  </script>
+</head>
+<body class="portfolio-atmo">
+  <AmbientBackdrop />
+  <PageTransition />
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+
+  <main id="main-content">
+    <article class="travel-detail">
+      <a class="travel-detail__back" href={programListPath(lang)}>{t.backToTravel}</a>
+
+      <header class="travel-detail__header">
+        <p class="travel-detail__overline">
+          {t.programTypeNames[program.programType]}
+        </p>
+        <h1 class="travel-detail__title">{program.name}</h1>
+        <p class="travel-detail__desc">{program.summary}</p>
+      </header>
+
+      {program.logo?.url && (
+        <img
+          class="travel-detail__image travel-detail__image--contain"
+          src={program.logo.url}
+          alt={program.name}
+        />
+      )}
+
+      {program.website && (
+        <div class="travel-info" style="margin-bottom: 2rem;">
+          <span class="travel-info__label">{t.website}</span>
+          <span class="travel-info__value">
+            <a href={program.website} target="_blank" rel="noopener noreferrer" style="color: var(--travel-accent); text-decoration: none;">
+              {program.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗
+            </a>
+          </span>
+        </div>
+      )}
+
+      {program.highlights.length > 0 && (
+        <section class="travel-benefits">
+          <h2 class="travel-benefits__title">{t.highlights}</h2>
+          {program.highlights.map((h) => (
+            <div class="travel-benefit">
+              <div class="travel-benefit__header">
+                <span class="travel-tag" style="font-size: 0.85rem;">✓</span>
+                <span class="travel-benefit__name">{h.text}</span>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+    </article>
+  </main>
+
+  <footer class="travel-footer">{ui(lang).platform.footer}</footer>
+  <script>
+    import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    initPortfolioCursor();
+  </script>
+</body>
+</html>

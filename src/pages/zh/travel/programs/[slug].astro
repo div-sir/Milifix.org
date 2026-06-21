@@ -1,0 +1,14 @@
+---
+import ProgramSlugPage from '../../../../components/pages/ProgramSlugPage.astro';
+import { getPrograms } from '../../../../lib/cms';
+
+export async function getStaticPaths() {
+  const programs = await getPrograms();
+  return programs.map((program) => ({
+    params: { slug: program.slug },
+    props: { program },
+  }));
+}
+---
+
+<ProgramSlugPage lang="zh" program={Astro.props.program} />
