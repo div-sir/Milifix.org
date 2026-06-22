@@ -150,6 +150,7 @@ export type CmsCreditCard = {
   annualFee: number
   annualFeeNote?: string
   cardNetwork: CmsCardNetwork
+  officialUrl?: string
   tags: { id: string; tag: string }[]
   benefits: CmsCardBenefit[]
   description?: string

@@ -139,6 +139,17 @@ const benefitsByType = typeOrder
         </div>
       )}
 
+      {card.officialUrl && (
+        <div class="travel-info" style="margin-bottom: 1.5rem;">
+          <span class="travel-info__label">{t.website}</span>
+          <span class="travel-info__value">
+            <a href={card.officialUrl} target="_blank" rel="noopener noreferrer" style="color: var(--travel-accent); text-decoration: none;">
+              {card.bank}官方卡片介紹 ↗
+            </a>
+          </span>
+        </div>
+      )}
+
       {card.description && (
         <p class="travel-detail__summary">{card.description}</p>
       )}
