@@ -121,19 +121,6 @@ const relatedCards = allCards.filter((card) =>
         </div>
       )}
 
-      {program.highlights.length > 0 && (
-        <section class="travel-benefits">
-          <h2 class="travel-benefits__title">{t.highlights}</h2>
-          <ul class="card-benefit-list">
-            {program.highlights.map((h) => (
-              <li class="card-benefit-item">
-                <span class="card-benefit-item__title">✓ {h.text}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {loungesByAirport.size > 0 && (
         <section class="travel-related" style="margin-top: 2.5rem;">
           <h2 class="travel-related__title">{t.sectionLounges}</h2>
