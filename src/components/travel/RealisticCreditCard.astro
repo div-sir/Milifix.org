@@ -1,0 +1,84 @@
+---
+import type { Lang } from '../../i18n/types';
+import type { CmsCreditCard } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { cardSlugPath } from '../../i18n/routes';
+import CardNetworkLogo from './CardNetworkLogo.astro';
+
+interface Props {
+  lang: Lang;
+  card: CmsCreditCard;
+  link?: boolean;
+}
+
+const { lang, card, link = true } = Astro.props;
+const t = ui(lang).travel;
+const href = cardSlugPath(lang, card.slug);
+const Wrapper = link ? 'a' : 'div';
+
+const feeDisplay =
+  card.annualFee === 0 ? t.annualFeeWaived : `NT$ ${card.annualFee.toLocaleString()}`;
+
+// 視覺主題：依銀行配色
+const bankTheme: Record<string, string> = {
+  中國信託: 'ctbc',
+  國泰世華: 'cathay',
+  台新銀行: 'taishin',
+  美國運通: 'amex',
+  玉山銀行: 'esun',
+  匯豐銀行: 'hsbc',
+  星展銀行: 'dbs',
+  聯邦銀行: 'union',
+};
+const theme = bankTheme[card.bank] ?? 'default';
+const tier = card.annualFee >= 20000 ? 'premium' : card.annualFee >= 5000 ? 'mid' : 'base';
+
+// 假末四碼：由 slug 推導，純視覺用途
+let seed = 0;
+for (const ch of card.slug) seed = (seed * 31 + ch.charCodeAt(0)) % 10000;
+const last4 = String(seed).padStart(4, '0');
+
+// 背面權益：取實際權益標題（最多 4 條）
+const backBenefits = card.benefits.slice(0, 4).map((b) => b.title);
+
+const flipLabel = lang === 'zh' ? '翻面' : lang === 'ja' ? '裏返す' : 'Flip';
+const backCta = lang === 'zh' ? '查看詳情 →' : lang === 'ja' ? '詳細を見る →' : 'View details →';
+---
+
+<div class="cc3d" data-cc-tilt data-theme={theme} data-tier={tier}>
+  <Wrapper class="cc3d__link" href={link ? href : undefined} aria-label={card.name}>
+    <div class="cc3d__tilt">
+      <div class="cc3d__flipper">
+        <!-- 正面 -->
+        <div class="cc3d__face cc3d__front">
+          <div class="cc3d__glare" aria-hidden="true"></div>
+          <div class="cc3d__top">
+            <span class="cc3d__bank">{card.bank}</span>
+            <CardNetworkLogo network={card.cardNetwork} />
+          </div>
+          <span class="cc3d__chip" aria-hidden="true"></span>
+          <span class="cc3d__name">{card.name}</span>
+          <span class="cc3d__number">
+            <span>••••</span><span>••••</span><span>••••</span><span>{last4}</span>
+          </span>
+          <div class="cc3d__bottom">
+            <span class="cc3d__fee-label">{t.annualFee}</span>
+            <span class="cc3d__fee">{feeDisplay}</span>
+          </div>
+        </div>
+        <!-- 背面 -->
+        <div class="cc3d__face cc3d__back">
+          <div class="cc3d__magstripe" aria-hidden="true"></div>
+          <span class="cc3d__back-title">{card.name}</span>
+          {backBenefits.length > 0 && (
+            <ul class="cc3d__benefits">
+              {backBenefits.map((b) => <li>{b}</li>)}
+            </ul>
+          )}
+          <span class="cc3d__back-cta">{backCta}</span>
+        </div>
+      </div>
+    </div>
+  </Wrapper>
+  <button class="cc3d__flip" type="button" aria-label={flipLabel} data-cc-flip>↻</button>
+</div>

@@ -4,6 +4,7 @@ import { getPrograms } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
+import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
@@ -125,9 +126,9 @@ const benefitsByType = typeOrder
         </p>
       </header>
 
-      {card.image?.url && (
-        <img class="travel-detail__image" src={card.image.url} alt={card.image.alt ?? card.name} />
-      )}
+      <div class="travel-detail__card3d">
+        <RealisticCreditCard lang={lang} card={card} link={false} />
+      </div>
 
       {card.tags.length > 0 && (
         <div class="travel-card__tags" style="margin-bottom: 2rem;">
@@ -210,7 +211,9 @@ const benefitsByType = typeOrder
 
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    import { initCardTilt } from '../../scripts/card-tilt';
     initPortfolioCursor();
+    initCardTilt();
   </script>
 </body>
 </html>

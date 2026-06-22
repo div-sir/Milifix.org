@@ -1,0 +1,21 @@
+---
+interface Props {
+  network: string;
+}
+const { network } = Astro.props;
+---
+
+{network === 'mastercard' ? (
+  <svg class="cc-net cc-net--mc" viewBox="0 0 48 30" width="40" height="25" role="img" aria-label="Mastercard">
+    <circle cx="19" cy="15" r="11" fill="#eb001b" />
+    <circle cx="29" cy="15" r="11" fill="#f79e1b" fill-opacity="0.85" />
+  </svg>
+) : network === 'visa' ? (
+  <span class="cc-net cc-net--visa">VISA</span>
+) : network === 'jcb' ? (
+  <span class="cc-net cc-net--jcb">JCB</span>
+) : network === 'amex' ? (
+  <span class="cc-net cc-net--amex">AMEX</span>
+) : (
+  <span class="cc-net">{network.toUpperCase()}</span>
+)}

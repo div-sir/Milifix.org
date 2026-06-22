@@ -4,7 +4,7 @@ import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import TravelSubnav from '../travel/TravelSubnav.astro';
-import CreditCardCard from '../travel/CreditCardCard.astro';
+import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
@@ -109,14 +109,14 @@ const networks = [...new Set(cards.map((c) => c.cardNetwork))].sort();
       </div>
 
       {cards.length > 0 ? (
-        <div class="travel-grid" id="card-grid">
+        <div class="travel-grid travel-grid--wallet" id="card-grid">
           {cards.map((card) => (
             <div
               data-bank={card.bank}
               data-network={card.cardNetwork}
               data-benefits={card.benefits.map((b) => b.benefitType).join(',')}
             >
-              <CreditCardCard lang={lang} card={card} />
+              <RealisticCreditCard lang={lang} card={card} />
             </div>
           ))}
         </div>
@@ -156,7 +156,9 @@ const networks = [...new Set(cards.map((c) => c.cardNetwork))].sort();
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    import { initCardTilt } from '../../scripts/card-tilt';
     initPortfolioCursor();
+    initCardTilt();
   </script>
 </body>
 </html>

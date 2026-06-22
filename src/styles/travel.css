@@ -273,6 +273,22 @@ html[data-theme='light'] body::before {
   }
 }
 
+/* 擬真卡專用：較寬欄距，留白給傾斜／反光 */
+.travel-grid--wallet {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.4rem;
+  align-items: start;
+}
+.travel-grid--wallet > * { height: auto; }
+
+@media (max-width: 640px) {
+  .travel-grid--wallet {
+    grid-template-columns: minmax(0, 360px);
+    justify-content: center;
+    gap: 1.1rem;
+  }
+}
+
 /* ── Generic card ─────────────────────────────────────── */
 
 .travel-card {
@@ -807,6 +823,332 @@ html[data-theme='light'] body::before {
 
 .travel-matrix tbody tr:hover .travel-matrix__cell--yes {
   background: color-mix(in srgb, var(--travel-accent) 14%, var(--bg));
+}
+
+/* ── Realistic 3D credit card ─────────────────────────── */
+
+.cc3d {
+  position: relative;
+  perspective: 1100px;
+  width: 100%;
+}
+
+/* 詳情頁的大型互動卡 */
+.travel-detail__card3d {
+  max-width: 400px;
+  margin: 0 auto 1.25rem;
+}
+
+.cc3d__link {
+  display: block;
+  text-decoration: none;
+  color: #fff;
+  outline: none;
+}
+
+.cc3d__link:focus-visible .cc3d__front {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--travel-accent);
+}
+
+.cc3d__tilt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.586 / 1;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--cc-scale, 1));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.32, 1);
+  will-change: transform;
+}
+
+.cc3d.is-tilting .cc3d__tilt {
+  transition: none;
+  --cc-scale: 1.035;
+}
+
+.cc3d__flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.32, 1);
+}
+
+.cc3d.is-flipped .cc3d__flipper {
+  transform: rotateY(180deg);
+}
+
+.cc3d__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  padding: clamp(0.75rem, 2.4vw, 1.1rem);
+  display: flex;
+  flex-direction: column;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow:
+    0 10px 30px color-mix(in srgb, var(--shadow-card) 65%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* 預設主題（暖金） */
+.cc3d__front {
+  background: linear-gradient(135deg, #3a3526 0%, #1c1a14 60%, #2a2519 100%);
+}
+
+.cc3d__back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #26241e 0%, #15140f 100%);
+  gap: 0.35rem;
+}
+
+/* 反光 */
+.cc3d__glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    420px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0.08) 35%,
+    transparent 60%
+  );
+  transition: opacity 0.3s ease;
+  mix-blend-mode: soft-light;
+}
+
+.cc3d.is-tilting .cc3d__glare {
+  opacity: 1;
+}
+
+/* 正面排版 */
+.cc3d__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cc3d__bank {
+  font-family: var(--sans);
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.cc3d__chip {
+  width: clamp(34px, 9%, 44px);
+  aspect-ratio: 4 / 3;
+  margin: clamp(0.5rem, 1.8vw, 0.85rem) 0 auto;
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, #e6c878, #b8923f 45%, #f0d98c 70%, #a87f30);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.cc3d__chip::after {
+  content: '';
+  position: absolute;
+  inset: 18% 28%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(0, 0, 0, 0.25) 47% 53%, transparent 53%),
+    linear-gradient(0deg, transparent 47%, rgba(0, 0, 0, 0.25) 47% 53%, transparent 53%);
+}
+
+.cc3d__name {
+  font-family: var(--sans);
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  margin-bottom: 0.3rem;
+}
+
+.cc3d__number {
+  display: flex;
+  gap: 0.55em;
+  font-family: var(--mono);
+  font-size: clamp(0.7rem, 2.1vw, 0.92rem);
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  margin-bottom: 0.4rem;
+}
+
+.cc3d__bottom {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-top: auto;
+}
+
+.cc3d__fee-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cc3d__fee {
+  font-family: var(--mono);
+  font-size: clamp(0.72rem, 2vw, 0.9rem);
+  font-weight: 700;
+  color: #fff;
+}
+
+/* 卡片網路 logo */
+.cc-net {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.cc-net--visa {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.cc-net--jcb,
+.cc-net--amex {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+/* 背面 */
+.cc3d__magstripe {
+  height: clamp(28px, 9%, 40px);
+  margin: 0.2rem calc(-1 * clamp(0.75rem, 2.4vw, 1.1rem)) 0.5rem;
+  background: #0c0c0e;
+}
+
+.cc3d__back-title {
+  font-size: clamp(0.82rem, 2.2vw, 1rem);
+  font-weight: 500;
+  color: #fff;
+}
+
+.cc3d__benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.cc3d__benefits li {
+  position: relative;
+  padding-left: 0.85rem;
+  font-size: clamp(0.66rem, 1.8vw, 0.78rem);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cc3d__benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--travel-accent);
+  font-size: 0.7em;
+}
+
+.cc3d__back-cta {
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+/* 翻面按鈕 */
+.cc3d__flip {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease, transform 0.3s ease;
+}
+
+.cc3d__flip:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.cc3d.is-flipped .cc3d__flip {
+  transform: rotate(180deg);
+}
+
+/* ── 銀行配色主題 ─────────────────────────────────────── */
+
+.cc3d[data-theme='ctbc'] .cc3d__front {
+  background: linear-gradient(135deg, #0c7a6b 0%, #064b43 55%, #0a6256 100%);
+}
+.cc3d[data-theme='cathay'] .cc3d__front {
+  background: linear-gradient(135deg, #0e8a86 0%, #084a4f 55%, #0c6d6e 100%);
+}
+.cc3d[data-theme='taishin'] .cc3d__front {
+  background: linear-gradient(135deg, #c0306a 0%, #6e1338 55%, #9c2452 100%);
+}
+.cc3d[data-theme='amex'] .cc3d__front {
+  background: linear-gradient(135deg, #8b9097 0%, #4a4f57 50%, #6f747c 100%);
+}
+.cc3d[data-theme='esun'] .cc3d__front {
+  background: linear-gradient(135deg, #1f7a4d 0%, #0e3f2a 55%, #186b43 100%);
+}
+.cc3d[data-theme='hsbc'] .cc3d__front {
+  background: linear-gradient(135deg, #c8102e 0%, #7a0a1d 55%, #a50d26 100%);
+}
+.cc3d[data-theme='dbs'] .cc3d__front {
+  background: linear-gradient(135deg, #b81f2d 0%, #3a1620 55%, #7a1620 100%);
+}
+.cc3d[data-theme='union'] .cc3d__front {
+  background: linear-gradient(135deg, #2a5c9c 0%, #143458 55%, #1f4880 100%);
+}
+
+/* 頂級卡：加上金色細邊與更深的金屬光澤 */
+.cc3d[data-tier='premium'] .cc3d__front {
+  box-shadow:
+    0 10px 30px color-mix(in srgb, var(--shadow-card) 70%, transparent),
+    inset 0 0 0 1.5px rgba(226, 181, 101, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.cc3d[data-tier='premium'] .cc3d__front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc3d__tilt,
+  .cc3d__flipper { transition: none; }
 }
 
 /* ── Responsive ───────────────────────────────────────── */
