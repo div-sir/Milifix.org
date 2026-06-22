@@ -21,27 +21,26 @@
 
 .ambient-backdrop__mesh {
   opacity: 0.42;
+  /* 靜態漸層：位置不再綁定游標變數，避免每幀重繪整片全螢幕漸層。
+     游標視差改由 __blob（transform，僅合成）呈現。 */
   background:
     radial-gradient(
-      ellipse 90% 70% at calc(12% + (var(--amb-x) - 0.5) * 26%) calc(18% + (var(--amb-y) - 0.5) * 20% - var(--amb-scroll) * 8%),
+      ellipse 90% 70% at 12% 18%,
       color-mix(in srgb, var(--accent) 38%, transparent),
       transparent 58%
     ),
     radial-gradient(
-      ellipse 80% 65% at calc(88% + (var(--amb-x) - 0.5) * -18%) calc(72% + (var(--amb-y) - 0.5) * 14% - var(--amb-scroll) * 5%),
+      ellipse 80% 65% at 88% 72%,
       color-mix(in srgb, var(--accent2, var(--accent)) 28%, transparent),
       transparent 55%
     ),
     radial-gradient(
-      circle at calc(50% + (var(--amb-x) - 0.5) * 58%) calc(42% + (var(--amb-y) - 0.5) * 48% + var(--amb-scroll) * 6%),
+      circle at 50% 42%,
       color-mix(in srgb, var(--accent) 12%, transparent),
       transparent 42%
-    ),
-    radial-gradient(
-      circle 42vmin at calc(var(--amb-pulse-x) * 100%) calc(var(--amb-pulse-y) * 100%),
-      color-mix(in srgb, var(--accent) 0%, transparent),
-      transparent 70%
     );
+  /* 緩慢 drift（transform 由合成器處理，不重繪）；游標視差交給 __blob */
+  will-change: transform;
   animation: ambient-mesh-drift 22s ease-in-out infinite;
 }
 
@@ -67,6 +66,7 @@ html[data-theme='light'] .ambient-backdrop__mesh {
     radial-gradient(circle at 78% 64%, color-mix(in srgb, var(--accent2, var(--accent)) 36%, transparent), transparent 52%);
   animation: ambient-blob-pulse 14s ease-in-out infinite;
   transition: transform 0.35s ease-out;
+  will-change: transform;
 }
 
 @keyframes ambient-pulse-flash {

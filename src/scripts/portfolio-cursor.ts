@@ -16,15 +16,14 @@ export function initPortfolioCursor() {
   function onMove(e: MouseEvent) {
     mx = e.clientX;
     my = e.clientY;
-    cursorEl.style.left = `${mx}px`;
-    cursorEl.style.top = `${my}px`;
+    // transform 平移（合成器處理）取代 left/top（會觸發 layout）
+    cursorEl.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
   }
 
   function animateRing() {
     rx += (mx - rx) * 0.12;
     ry += (my - ry) * 0.12;
-    ringEl.style.left = `${rx}px`;
-    ringEl.style.top = `${ry}px`;
+    ringEl.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
     rafId = requestAnimationFrame(animateRing);
   }
 

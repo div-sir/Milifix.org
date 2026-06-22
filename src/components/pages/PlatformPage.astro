@@ -141,6 +141,7 @@ const dockSections = [
         z-index: 9999;
         transform: translate(-50%, -50%);
         transition: width 0.2s, height 0.2s;
+        will-change: transform;
       }
       #cursor-ring {
         width: 32px; height: 32px;
@@ -150,7 +151,8 @@ const dockSections = [
         pointer-events: none;
         z-index: 9998;
         transform: translate(-50%, -50%);
-        transition: transform 0.12s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+        transition: width 0.25s, height 0.25s, border-color 0.2s;
+        will-change: transform;
       }
       body:has(a:hover) #cursor { width: 12px; height: 12px; }
       body:has(a:hover) #cursor-ring {
@@ -1088,7 +1090,7 @@ const dockSections = [
           canvas!.height = window.innerHeight;
         }
         resize();
-        window.addEventListener('resize', resize);
+        window.addEventListener('resize', resize, { passive: true });
 
         interface Particle {
           x: number; y: number;
@@ -1098,7 +1100,9 @@ const dockSections = [
           alphaDir: number;
         }
 
-        const COUNT = 38;
+        // 依螢幕大小與裝置核心數縮放粒子數，避免低階裝置卡頓
+        const cores = (navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency ?? 4;
+        const COUNT = Math.min(38, Math.round((window.innerWidth < 768 ? 16 : 30) * Math.min(1, cores / 4)));
         const particles: Particle[] = Array.from({ length: COUNT }, () => ({
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
@@ -1109,14 +1113,17 @@ const dockSections = [
           alphaDir: Math.random() > 0.5 ? 1 : -1,
         }));
 
-        function getAccentColor() {
-          return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e2b565';
-        }
+        // 快取主題色，只在主題切換時更新（避免每幀 getComputedStyle 觸發 style 重算）
+        let accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e2b565';
+        const themeObserver = new MutationObserver(() => {
+          accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e2b565';
+        });
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-        let rafId: number;
+        let rafId = 0;
         function draw() {
           ctx.clearRect(0, 0, canvas!.width, canvas!.height);
-          const accent = getAccentColor();
+          ctx.fillStyle = accent;
           for (const p of particles) {
             if (!prefersReduced) {
               p.x += p.vx;
@@ -1130,17 +1137,28 @@ const dockSections = [
             }
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fillStyle = accent;
             ctx.globalAlpha = p.alpha;
             ctx.fill();
           }
           ctx.globalAlpha = 1;
-          rafId = requestAnimationFrame(draw);
+          // 靜態偏好：畫一次即停，不持續 rAF
+          if (!prefersReduced) rafId = requestAnimationFrame(draw);
         }
+
+        function start() { if (!rafId && !prefersReduced) rafId = requestAnimationFrame(draw); }
+        function stop() { cancelAnimationFrame(rafId); rafId = 0; }
+
+        // 分頁切到背景時暫停，省 CPU/GPU
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) stop();
+          else start();
+        });
+
         draw();
 
         document.addEventListener('astro:before-swap', () => {
-          cancelAnimationFrame(rafId);
+          stop();
+          themeObserver.disconnect();
         }, { once: true });
       }
 

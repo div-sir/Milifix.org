@@ -45,11 +45,18 @@ export function initAmbientBackdrop() {
   let targetY = 0.5;
   let curX = 0.5;
   let curY = 0.5;
-  let t0 = performance.now();
+  let rafId = 0;
+  let idleSince = 0;
+
+  function wake() {
+    idleSince = 0;
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
 
   function onMove(e: MouseEvent) {
     targetX = e.clientX / Math.max(1, window.innerWidth);
     targetY = e.clientY / Math.max(1, window.innerHeight);
+    wake();
   }
 
   function onTouch(e: TouchEvent) {
@@ -57,6 +64,7 @@ export function initAmbientBackdrop() {
     if (!t) return;
     targetX = t.clientX / Math.max(1, window.innerWidth);
     targetY = t.clientY / Math.max(1, window.innerHeight);
+    wake();
   }
 
   function onPointerDown(e: PointerEvent) {
@@ -74,22 +82,31 @@ export function initAmbientBackdrop() {
   }
 
   function tick(now: number) {
-    const elapsed = (now - t0) / 1000;
     curX += (targetX - curX) * 0.072;
     curY += (targetY - curY) * 0.072;
-    curX += Math.sin(elapsed * 0.22) * 0.0008;
-    curY += Math.cos(elapsed * 0.17) * 0.0008;
     curX = Math.max(0, Math.min(1, curX));
     curY = Math.max(0, Math.min(1, curY));
     backdropEl.style.setProperty('--amb-x', curX.toFixed(4));
     backdropEl.style.setProperty('--amb-y', curY.toFixed(4));
-    requestAnimationFrame(tick);
+
+    // 接近目標即視為靜止，停止 rAF 省電；游標／捲動事件會再喚醒
+    const settled = Math.abs(targetX - curX) < 0.0008 && Math.abs(targetY - curY) < 0.0008;
+    if (settled) {
+      if (!idleSince) idleSince = now;
+      if (now - idleSince > 250) {
+        rafId = 0;
+        return;
+      }
+    } else {
+      idleSince = 0;
+    }
+    rafId = requestAnimationFrame(tick);
   }
 
   window.addEventListener('mousemove', onMove, { passive: true });
   window.addEventListener('touchmove', onTouch, { passive: true });
-  window.addEventListener('scroll', syncScroll, { passive: true });
+  window.addEventListener('scroll', () => { syncScroll(); wake(); }, { passive: true });
   document.addEventListener('pointerdown', onPointerDown, true);
   syncScroll();
-  requestAnimationFrame(tick);
+  wake();
 }
