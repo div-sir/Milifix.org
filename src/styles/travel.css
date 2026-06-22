@@ -308,6 +308,37 @@ html[data-theme='light'] body::before {
   margin-top: auto;
 }
 
+/* ── Airline card with inline logo ─────────────────────── */
+
+.travel-card--airline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: auto;
+  padding: 0.6rem 0.85rem;
+}
+
+.travel-card__airline-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--text) 4%, var(--bg));
+  flex-shrink: 0;
+}
+
+.travel-card__airline-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.travel-card--airline .travel-card__tags {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
 /* ── Tags / badges ────────────────────────────────────── */
 
 .travel-tag {

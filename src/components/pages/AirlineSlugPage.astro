@@ -66,13 +66,11 @@ const relatedCards = await getCardsByAirline(airline.id);
         )}
       </header>
 
-      {airline.logo?.url && (
-        <img
-          class="travel-detail__image travel-detail__image--contain"
-          src={airline.logo.url}
-          alt={airline.name}
-        />
-      )}
+      <img
+        class="travel-detail__image travel-detail__image--contain"
+        src={airline.logo?.url ?? `https://pics.avs.io/400/400/${airline.iataCode}.png`}
+        alt={airline.name}
+      />
 
       <div class="travel-info">
         <span class="travel-info__label">{t.iataCode}</span>
