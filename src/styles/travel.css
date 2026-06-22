@@ -93,36 +93,36 @@ html[data-theme='light'] body::before {
 .travel-hero {
   position: relative;
   z-index: 2;
-  min-height: 40vh;
+  min-height: 25vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 4rem) clamp(1rem, 2vw, 1.5rem);
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .travel-hero__tag {
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--travel-accent);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .travel-hero__title {
   font-family: var(--sans);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 1rem;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
 }
 
 .travel-hero__desc {
-  font-size: clamp(1rem, 1.8vw, 1.25rem);
-  line-height: 1.6;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  line-height: 1.5;
   color: color-mix(in srgb, var(--text) 70%, transparent);
   max-width: 600px;
 }
@@ -131,20 +131,21 @@ html[data-theme='light'] body::before {
 
 .travel-subnav {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  flex-wrap: wrap;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
   max-width: 1200px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.25rem;
   position: relative;
   z-index: 2;
 }
 
 .travel-subnav__link {
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 6px;
   text-decoration: none;
   color: color-mix(in srgb, var(--text) 60%, transparent);
@@ -166,7 +167,7 @@ html[data-theme='light'] body::before {
 .travel-section {
   position: relative;
   z-index: 2;
-  padding: 0 clamp(1.5rem, 5vw, 4rem) 3rem;
+  padding: 0 clamp(1.5rem, 5vw, 4rem) 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -226,8 +227,8 @@ html[data-theme='light'] body::before {
 
 .travel-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
   align-items: stretch;
 }
 
@@ -251,14 +252,14 @@ html[data-theme='light'] body::before {
 .travel-card {
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
-  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
   text-decoration: none;
   color: var(--text);
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
-  min-height: 140px;
+  min-height: 110px;
 }
 
 .travel-card:hover {
@@ -271,43 +272,42 @@ html[data-theme='light'] body::before {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
   background: color-mix(in srgb, var(--text) 4%, var(--bg));
 }
 
 .travel-card__image--logo {
   aspect-ratio: 3 / 2;
   object-fit: contain;
-  padding: 1rem;
+  padding: 0.6rem;
 }
 
 .travel-card__overline {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text) 50%, transparent);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
 .travel-card__title {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
 .travel-card__subtitle {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: color-mix(in srgb, var(--text) 60%, transparent);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
 .travel-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: auto;
+  gap: 0.25rem;
   margin-top: auto;
 }
 
@@ -316,10 +316,10 @@ html[data-theme='light'] body::before {
 .travel-tag {
   display: inline-block;
   font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  padding: 0.2rem 0.55rem;
-  border-radius: 4px;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
   background: var(--travel-tag-bg);
   color: var(--travel-tag-text);
 }
@@ -341,17 +341,17 @@ html[data-theme='light'] body::before {
   z-index: 2;
   max-width: 860px;
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 5vw, 4rem) 4rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 5vw, 4rem) 2.5rem;
 }
 
 .travel-detail__back {
   display: inline-block;
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   color: var(--travel-accent);
   text-decoration: none;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   transition: opacity 0.2s;
 }
 
@@ -360,43 +360,43 @@ html[data-theme='light'] body::before {
 }
 
 .travel-detail__header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .travel-detail__overline {
   font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text) 50%, transparent);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .travel-detail__title {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 500;
   letter-spacing: -0.01em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
 .travel-detail__desc {
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-size: 0.9rem;
+  line-height: 1.6;
   color: color-mix(in srgb, var(--text) 70%, transparent);
 }
 
 .travel-detail__image {
   width: 100%;
-  max-height: 400px;
+  max-height: 300px;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
   background: color-mix(in srgb, var(--text) 4%, var(--bg));
 }
 
 .travel-detail__image--contain {
   object-fit: contain;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 /* ── Info table ────────────────────────────────────────── */
@@ -404,11 +404,11 @@ html[data-theme='light'] body::before {
 .travel-info {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.5rem 1.5rem;
-  font-size: 0.9rem;
-  margin-bottom: 2.5rem;
-  padding: 1.25rem;
-  border-radius: 10px;
+  gap: 0.35rem 1rem;
+  font-size: 0.82rem;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
 }
@@ -429,40 +429,40 @@ html[data-theme='light'] body::before {
 /* ── Benefits list ────────────────────────────────────── */
 
 .travel-benefits {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .travel-benefits__title {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .travel-benefit {
-  padding: 1rem 1.25rem;
-  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .travel-benefit__header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 
 .travel-benefit__name {
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .travel-benefit__desc {
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: 0.78rem;
+  line-height: 1.5;
   color: color-mix(in srgb, var(--text) 70%, transparent);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
 .travel-benefit__cond {
@@ -486,13 +486,13 @@ html[data-theme='light'] body::before {
 /* ── Related section ──────────────────────────────────── */
 
 .travel-related {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .travel-related__title {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 /* ── Footer ───────────────────────────────────────────── */
@@ -501,7 +501,7 @@ html[data-theme='light'] body::before {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 1.5rem 1rem;
   font-family: var(--mono);
   font-size: 0.75rem;
   color: color-mix(in srgb, var(--text) 35%, transparent);
@@ -521,8 +521,8 @@ html[data-theme='light'] body::before {
 .travel-card__tags--outside {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0.5rem 0.75rem 0;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem 0;
 }
 
 /* ── Clickable tags ────────────────────────────────────── */
@@ -553,12 +553,12 @@ html[data-theme='light'] body::before {
 }
 
 .card-benefit-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .card-benefit-group__title {
-  margin-bottom: 0.6rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
   font-weight: 500;
 }
 
@@ -568,36 +568,36 @@ html[data-theme='light'] body::before {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .card-benefit-item {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
 }
 
 .card-benefit-item__title {
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--text);
 }
 
 .card-benefit-item__cond {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   color: color-mix(in srgb, var(--text) 42%, transparent);
 }
 
 .card-benefit-item__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.15rem;
+  gap: 0.25rem;
+  margin-top: 0.1rem;
 }
 
 /* ── Empty state ──────────────────────────────────────── */
