@@ -1,6 +1,6 @@
 # Milifix.org
 
-獨立創作者空間策展站台：多語系（en / zh / ja）、作品集、部落格與 App 頁面。以 [Astro](https://astro.build) 建置，靜態輸出至 `dist/`，內容由 [Payload CMS](https://payloadcms.com) 管理。
+獨立創作者空間策展站台：多語系（en / zh / ja）、作品集、部落格、App 頁面與台灣信用卡旅遊權益（`/travel`）。以 [Astro](https://astro.build) 建置，靜態輸出至 `dist/`，內容由 [Payload CMS](https://payloadcms.com) 管理。
 
 **前端原始碼：** [github.com/div-sir/Milifix.org](https://github.com/div-sir/Milifix.org)  
 **CMS 原始碼：** [github.com/div-sir/milifix-cms](https://github.com/div-sir/milifix-cms)  
@@ -12,11 +12,16 @@
 
 ```
 Payload CMS（Render）
-  ├── Works collection      作品集
-  ├── Posts collection      部落格文章
-  ├── Pages collection      頁面文案
-  ├── Media collection      媒體庫（UploadThing）
-  └── Users collection      後台帳號管理
+  ├── Works collection         作品集
+  ├── Posts collection         部落格文章
+  ├── Pages collection         頁面文案
+  ├── Media collection         媒體庫（UploadThing）
+  ├── Users collection         後台帳號管理
+  ├── ✈ 旅遊權益
+  │   ├── CreditCards          信用卡與權益（benefits 陣列）
+  │   ├── Airlines             航空公司（IATA、聯盟）
+  │   ├── Lounges              機場貴賓室（航廈、位置）
+  │   └── Programs             貴賓室／飯店／聯盟網路（可被卡片關聯）
           ↓ REST API
 Astro build（Vercel）
   ├── /                     首頁（Creator spaces）
@@ -24,7 +29,8 @@ Astro build（Vercel）
   ├── /voidlane             實驗動態作品集
   ├── /lumiveil             Lumiveil iOS App 介紹頁
   ├── /blog                 部落格列表
-  └── /blog/[slug]          部落格文章頁
+  ├── /blog/[slug]          部落格文章頁
+  └── /travel               台灣信用卡旅遊權益（卡片／航空／貴賓室／網路／比較表）
 ```
 
 **內容更新流程：**
@@ -94,6 +100,14 @@ const page  = await getPage('home')        // 頁面文案
 | `/lumiveil` | Lumiveil iOS App 介紹頁 |
 | `/linktree` | 連結樹 |
 | `/invoice-pass` | Apple Wallet 發票卡片產生器 |
+| `/travel` | 台灣信用卡旅遊權益首頁（卡片／航空／貴賓室精選） |
+| `/travel/cards` · `/travel/cards/[slug]` | 信用卡列表與內頁（依權益分組、可點擊關聯標籤） |
+| `/travel/airlines` · `/travel/airlines/[slug]` | 航空公司列表與內頁（尾翼 logo、所屬聯盟、關聯卡片） |
+| `/travel/lounges` · `/travel/lounges/[slug]` | 貴賓室列表與內頁（航廈位置、可進入的卡片） |
+| `/travel/programs` · `/travel/programs/[slug]` | 貴賓室／飯店／航空聯盟網路內頁（彙整各分點與關聯卡片） |
+| `/travel/matrix` | 信用卡 × 航空／貴賓室權益比較表 |
+
+> `/travel` 系列為 en / zh 雙語（不含 ja）。
 
 ---
 
@@ -114,6 +128,29 @@ const page  = await getPage('home')        // 頁面文案
 | **AmbientBackdrop** | 背景漸層 + 游標跟隨氛圍 |
 | **自訂游標** | `portfolio-cursor.ts`，桌面版啟用 |
 | **LexicalContent** | `src/components/LexicalContent.astro`，渲染 Payload Lexical JSON |
+
+---
+
+## 旅遊權益（`/travel`）
+
+結合台灣信用卡權益的策展頁面，著重航空哩程與機場貴賓室。所有資料皆為 Payload 結構化內容，可互相 tag 與關聯。
+
+**資料模型（CMS `✈ 旅遊權益` 群組）：**
+
+| Collection | 重點欄位 | 關聯 |
+|---|---|---|
+| `CreditCards` | bank、annualFee、cardNetwork、`benefits[]`（benefitType、條件、幾元/哩） | benefit 可關聯 airline／lounge／program |
+| `Airlines` | IATA code、alliance | 反向被卡片權益關聯 |
+| `Lounges` | airportCode、航廈、位置 | 反向被卡片權益關聯 |
+| `Programs` | programType（lounge-network／hotel-program／airline-alliance） | 貴賓室／飯店／聯盟網路，被卡片以 hasMany 關聯 |
+
+**前端組成：**
+
+- 資料層：[`src/lib/cms.ts`](src/lib/cms.ts) 的 `getCreditCards` / `getAirlines` / `getLounges` / `getPrograms` / `getCardsByAirline` / `getCardsByLounge`（CMS 無法連線時回傳空陣列，不中斷 build）。
+- 頁面元件：[`src/components/pages/`](src/components/pages/) 下的 `TravelIndexPage`、`CardListPage`、`CardSlugPage`、`AirlineSlugPage`、`LoungeSlugPage`、`ProgramSlugPage`、`TravelMatrixPage` 等。
+- 卡片元件：[`src/components/travel/`](src/components/travel/)（`CreditCardCard`、`AirlineCard`、`LoungeCard`、`TravelSubnav`）。
+- 樣式：[`src/styles/travel.css`](src/styles/travel.css)，配色沿用全站暖金主色（`--accent`），貴賓室／航空聯盟標籤為隨深淺色主題切換的語意色。
+- 航空 logo：優先用 CMS 上傳圖；未上傳則回退 Aviasales 免費 API（`pics.avs.io/{w}/{h}/{IATA}.png`）。
 
 ---
 
@@ -139,13 +176,14 @@ const page  = await getPage('home')        // 頁面文案
 ```
 src/
 ├── components/         Astro 版面元件（SiteNav、PortfolioChrome、LexicalContent…）
-│   ├── pages/          頁面級複合元件（SpaceIndexPage、WorkSlugPage、InvoicePassPage…）
+│   ├── pages/          頁面級複合元件（SpaceIndexPage、WorkSlugPage、CardSlugPage…）
+│   ├── travel/         /travel 卡片元件（CreditCardCard、AirlineCard、LoungeCard…）
 │   └── react-bits/     React island（ShinyText、SpotlightCard）
 ├── data/               空間定義、作品型別輔助函式
 ├── i18n/               多語文案、路由 helpers
 ├── lib/
 │   └── cms.ts          Payload REST API 資料層
-├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil、invoice-pass）
+├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil、invoice-pass、travel/）
 ├── scripts/            client 動效、目錄、游標、語言轉場
 └── styles/             全域與區塊 CSS
 

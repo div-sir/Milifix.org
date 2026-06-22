@@ -3,12 +3,31 @@
 :root {
   --mono: 'Space Mono', monospace;
   --sans: 'Space Grotesk', sans-serif;
-  --travel-accent: #5ca3ff;
-  --travel-card-bg: color-mix(in srgb, var(--text) 6%, var(--bg));
-  --travel-card-border: color-mix(in srgb, var(--text) 12%, transparent);
-  --travel-card-hover: color-mix(in srgb, var(--text) 10%, var(--bg));
-  --travel-tag-bg: color-mix(in srgb, var(--travel-accent) 15%, transparent);
+
+  /* 主色：沿用全站暖金，讓 /travel 與其他頁面視覺一致 */
+  --travel-accent: var(--accent);
+
+  /* 卡片表面：以主題 token 疊加，深淺自動適應 */
+  --travel-card-bg: color-mix(in srgb, var(--text) 4.5%, var(--bg));
+  --travel-card-border: color-mix(in srgb, var(--text) 10%, transparent);
+  --travel-card-hover: color-mix(in srgb, var(--text) 7%, var(--bg2));
+  --travel-card-shadow: 0 1px 2px color-mix(in srgb, var(--shadow-card) 60%, transparent);
+  --travel-card-shadow-hover:
+    0 8px 24px color-mix(in srgb, var(--shadow-card) 55%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--travel-accent) 22%, transparent);
+
+  --travel-tag-bg: color-mix(in srgb, var(--travel-accent) 14%, transparent);
   --travel-tag-text: var(--travel-accent);
+
+  /* 語意標籤色（深色預設）— 與暖金主色形成和諧的暖／冷對比 */
+  --travel-network: #e0a36b;   /* 貴賓室／飯店：暖銅 */
+  --travel-alliance: #79c4ae;  /* 航空聯盟：沉穩青 */
+}
+
+html[data-theme='light'] {
+  /* 淺底須加深語意色以維持對比 */
+  --travel-network: #9a6322;
+  --travel-alliance: #2f7d68;
 }
 
 html {
@@ -216,10 +235,20 @@ html[data-theme='light'] body::before {
   color: var(--text);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%238fa8e8' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.65rem center;
   padding-right: 2rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.travel-filter__select:hover {
+  border-color: color-mix(in srgb, var(--travel-accent) 35%, var(--travel-card-border));
+}
+
+.travel-filter__select:focus-visible {
+  outline: none;
+  border-color: var(--travel-accent);
 }
 
 /* ── Card grid ────────────────────────────────────────── */
@@ -253,16 +282,32 @@ html[data-theme='light'] body::before {
   border-radius: 10px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
+  box-shadow: var(--travel-card-shadow);
   text-decoration: none;
   color: var(--text);
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: background 0.22s ease, border-color 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.32, 1), box-shadow 0.22s ease;
   min-height: 100px;
 }
 
 .travel-card:hover {
   background: var(--travel-card-hover);
-  border-color: color-mix(in srgb, var(--travel-accent) 30%, transparent);
-  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--travel-accent) 32%, transparent);
+  box-shadow: var(--travel-card-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.travel-card__title {
+  transition: color 0.2s ease;
+}
+
+.travel-card:hover .travel-card__title {
+  color: var(--travel-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-card { transition: border-color 0.2s ease, background 0.2s ease; }
+  .travel-card:hover { transform: none; }
 }
 
 .travel-card__image {
@@ -349,17 +394,18 @@ html[data-theme='light'] body::before {
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
   background: var(--travel-tag-bg);
+  border: 1px solid color-mix(in srgb, var(--travel-tag-text) 22%, transparent);
   color: var(--travel-tag-text);
 }
 
 .travel-tag--network {
-  --travel-tag-bg: color-mix(in srgb, #e8a85f 15%, transparent);
-  --travel-tag-text: #e8a85f;
+  --travel-tag-bg: color-mix(in srgb, var(--travel-network) 15%, transparent);
+  --travel-tag-text: var(--travel-network);
 }
 
 .travel-tag--alliance {
-  --travel-tag-bg: color-mix(in srgb, #6ce89d 15%, transparent);
-  --travel-tag-text: #6ce89d;
+  --travel-tag-bg: color-mix(in srgb, var(--travel-alliance) 16%, transparent);
+  --travel-tag-text: var(--travel-alliance);
 }
 
 /* ── Detail page ──────────────────────────────────────── */
