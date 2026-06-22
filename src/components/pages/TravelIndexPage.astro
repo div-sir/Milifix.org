@@ -1,5 +1,5 @@
 ---
-import { getCreditCards, getAirlines, getLounges } from '../../lib/cms';
+import { getCreditCards, getAirlines, getLounges, getPrograms } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
@@ -22,10 +22,11 @@ interface Props {
 const { lang } = Astro.props;
 const t = ui(lang).travel;
 
-const [cards, lounges, airlines] = await Promise.all([
+const [cards, lounges, airlines, allPrograms] = await Promise.all([
   getCreditCards(),
   getLounges(),
   getAirlines(),
+  getPrograms(),
 ]);
 
 const previewCards = cards.slice(0, 3);
@@ -98,7 +99,7 @@ const previewAirlines = airlines.slice(0, 3);
         </div>
         <div class="travel-grid">
           {previewLounges.map((lounge) => (
-            <LoungeCard lang={lang} lounge={lounge} />
+            <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
           ))}
         </div>
       </section>

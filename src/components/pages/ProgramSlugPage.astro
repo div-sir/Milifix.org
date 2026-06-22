@@ -1,5 +1,5 @@
 ---
-import { getLounges, getAirlines, getCreditCards } from '../../lib/cms';
+import { getLounges, getAirlines, getCreditCards, getPrograms } from '../../lib/cms';
 import type { CmsLounge, CmsAirline, CmsCreditCard, CmsProgram } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
@@ -19,8 +19,7 @@ interface Props { lang: Lang; program: CmsProgram; }
 const { lang, program } = Astro.props;
 const t = ui(lang).travel;
 
-// Find lounges belonging to this program's network (match by name keywords in lounge.network)
-const allLounges = await getLounges();
+const [allLounges, allPrograms] = await Promise.all([getLounges(), getPrograms()]);
 const programNameKeywords = program.name
   .replace(/（.*?）/g, '')
   .replace(/\(.*?\)/g, '')
@@ -131,7 +130,7 @@ const relatedCards = allCards.filter((card) =>
               </h3>
               <div class="travel-grid">
                 {lounges.map((l) => (
-                  <LoungeCard lang={lang} lounge={l} />
+                  <LoungeCard lang={lang} lounge={l} programs={allPrograms} />
                 ))}
               </div>
             </div>

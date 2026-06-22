@@ -1,38 +1,71 @@
 ---
 import type { Lang } from '../../i18n/types';
-import type { CmsLounge } from '../../lib/cms';
+import type { CmsLounge, CmsProgram } from '../../lib/cms';
 import { ui } from '../../i18n/ui';
-import { loungeSlugPath } from '../../i18n/routes';
+import { loungeSlugPath, programSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
   lounge: CmsLounge;
+  programs?: CmsProgram[];
 }
 
-const { lang, lounge } = Astro.props;
+const { lang, lounge, programs = [] } = Astro.props;
 const t = ui(lang).travel;
 const href = loungeSlugPath(lang, lounge.slug);
 const thumb = lounge.images?.[0]?.image?.url;
+
+const networkKeywords: Record<string, string[]> = {
+  'priority-pass': ['Priority Pass'],
+  'loungekey': ['LoungeKey'],
+  'dragon-pass': ['Dragon Pass', '龍騰'],
+  'plaza-premium': ['Plaza Premium', '環亞'],
+  'amex-centurion-network': ['Centurion Network', 'Centurion Lounge', 'AMEX Centurion'],
+};
+
+const networkText = lounge.network ?? '';
+const matchedPrograms = programs.length > 0
+  ? programs.filter((p) => {
+      const kws = networkKeywords[p.slug];
+      return kws?.some((kw) => networkText.includes(kw));
+    })
+  : [];
+
+const unmatchedParts = matchedPrograms.length > 0
+  ? networkText
+      .split('/')
+      .map((s) => s.trim())
+      .filter((part) =>
+        !matchedPrograms.some((p) => {
+          const kws = networkKeywords[p.slug];
+          return kws?.some((kw) => part.includes(kw));
+        }),
+      )
+  : networkText.split('/').map((s) => s.trim()).filter(Boolean);
 ---
 
-<a class="travel-card" href={href}>
-  {thumb && (
-    <img
-      class="travel-card__image"
-      src={thumb}
-      alt={lounge.name}
-      loading="lazy"
-    />
-  )}
-  <span class="travel-card__overline">{lounge.airportCode}</span>
-  <span class="travel-card__title">{lounge.name}</span>
-  <span class="travel-card__subtitle">
-    {lounge.airport}
-    {lounge.terminal && ` · ${t.terminal} ${lounge.terminal}`}
-  </span>
-  <span class="travel-card__tags">
-    {lounge.network && (
-      <span class="travel-tag travel-tag--network">{lounge.network}</span>
+<div class="travel-card-wrap">
+  <a class="travel-card" href={href}>
+    {thumb && (
+      <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" />
     )}
-  </span>
-</a>
+    <span class="travel-card__overline">{lounge.airportCode}</span>
+    <span class="travel-card__title">{lounge.name}</span>
+    <span class="travel-card__subtitle">
+      {lounge.airport}
+      {lounge.terminal && ` · ${t.terminal} ${lounge.terminal}`}
+    </span>
+  </a>
+  {(matchedPrograms.length > 0 || unmatchedParts.length > 0) && (
+    <div class="travel-card__tags travel-card__tags--outside">
+      {matchedPrograms.map((p) => (
+        <a class="travel-tag travel-tag--network travel-tag--clickable" href={programSlugPath(lang, p.slug)}>
+          {p.name}
+        </a>
+      ))}
+      {unmatchedParts.map((part) => (
+        <span class="travel-tag travel-tag--network">{part}</span>
+      ))}
+    </div>
+  )}
+</div>

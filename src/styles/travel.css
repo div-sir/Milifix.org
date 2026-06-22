@@ -495,6 +495,24 @@ html[data-theme='light'] body::before {
   color: color-mix(in srgb, var(--text) 35%, transparent);
 }
 
+/* ── Card wrap (for tags outside the <a>) ─────────────── */
+
+.travel-card-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-card-wrap .travel-card {
+  flex: 1;
+}
+
+.travel-card__tags--outside {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem 0;
+}
+
 /* ── Clickable tags ────────────────────────────────────── */
 
 .travel-tag--clickable {

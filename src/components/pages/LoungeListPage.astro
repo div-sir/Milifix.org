@@ -1,5 +1,5 @@
 ---
-import { getLounges } from '../../lib/cms';
+import { getLounges, getPrograms } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
@@ -19,7 +19,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = ui(lang).travel;
 
-const lounges = await getLounges();
+const [lounges, allPrograms] = await Promise.all([getLounges(), getPrograms()]);
 const airports = [...new Set(lounges.map((l) => l.airportCode))].sort();
 ---
 
@@ -82,7 +82,7 @@ const airports = [...new Set(lounges.map((l) => l.airportCode))].sort();
         <div class="travel-grid" id="lounge-grid">
           {lounges.map((lounge) => (
             <div data-airport={lounge.airportCode}>
-              <LoungeCard lang={lang} lounge={lounge} />
+              <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
             </div>
           ))}
         </div>
