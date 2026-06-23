@@ -42,30 +42,28 @@ const unmatchedParts = matchedPrograms.length > 0
         }),
       )
   : networkText.split('/').map((s) => s.trim()).filter(Boolean);
+
+const hasTags = matchedPrograms.length > 0 || unmatchedParts.length > 0;
 ---
 
-<div class="travel-card-wrap">
-  <a class="travel-card" href={href}>
-    {thumb && (
-      <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" />
-    )}
-    <span class="travel-card__overline">{lounge.airportCode}</span>
-    <span class="travel-card__title">{lounge.name}</span>
-    <span class="travel-card__subtitle">
-      {lounge.airport}
-      {lounge.terminal && ` · ${t.terminal} ${lounge.terminal}`}
-    </span>
-  </a>
-  {(matchedPrograms.length > 0 || unmatchedParts.length > 0) && (
-    <div class="travel-card__tags travel-card__tags--outside">
+<a class="travel-card" href={href}>
+  {thumb && (
+    <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" />
+  )}
+  <span class="travel-card__overline">{lounge.airportCode}</span>
+  <span class="travel-card__title">{lounge.name}</span>
+  <span class="travel-card__subtitle">
+    {lounge.airport}
+    {lounge.terminal && ` · ${t.terminal} ${lounge.terminal}`}
+  </span>
+  {hasTags && (
+    <span class="travel-card__tags">
       {matchedPrograms.map((p) => (
-        <a class="travel-tag travel-tag--network travel-tag--clickable" href={programSlugPath(lang, p.slug)}>
-          {p.name}
-        </a>
+        <span class="travel-tag travel-tag--network">{p.name}</span>
       ))}
       {unmatchedParts.map((part) => (
         <span class="travel-tag travel-tag--network">{part}</span>
       ))}
-    </div>
+    </span>
   )}
-</div>
+</a>

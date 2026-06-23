@@ -341,8 +341,7 @@ html[data-theme='light'] body::before {
 }
 
 .travel-grid > *,
-.travel-grid > .travel-card,
-.travel-grid > .travel-card-wrap {
+.travel-grid > .travel-card {
   height: 100%;
 }
 
@@ -677,24 +676,6 @@ html[data-theme='light'] body::before {
   font-family: var(--mono);
   font-size: 0.75rem;
   color: color-mix(in srgb, var(--text) 35%, transparent);
-}
-
-/* ── Card wrap (for tags outside the <a>) ─────────────── */
-
-.travel-card-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.travel-card-wrap .travel-card {
-  flex: 1;
-}
-
-.travel-card__tags--outside {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.3rem 0.5rem 0;
 }
 
 /* ── Clickable tags ────────────────────────────────────── */
