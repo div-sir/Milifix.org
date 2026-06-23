@@ -663,15 +663,35 @@ html[data-theme='light'] body::before {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 200;
   display: flex;
   justify-content: space-around;
   align-items: stretch;
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  border-top: 1px solid var(--travel-card-border);
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  border-top: 1px solid var(--line);
   padding: 0.25rem 0 calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  transition: background 0.35s ease, border-color 0.35s ease;
+}
+
+.travel-bottomnav::before {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--nav-accent) 55%, transparent) 35%,
+    color-mix(in srgb, var(--nav-accent) 75%, transparent) 50%,
+    color-mix(in srgb, var(--nav-accent) 55%, transparent) 65%,
+    transparent
+  );
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 .travel-bottomnav__item {
@@ -682,14 +702,17 @@ html[data-theme='light'] body::before {
   gap: 0.15rem;
   padding: 0.35rem 0.15rem;
   text-decoration: none;
-  color: color-mix(in srgb, var(--text) 50%, transparent);
+  color: var(--muted-dim);
   transition: color 0.2s ease;
   min-width: 0;
 }
 
-.travel-bottomnav__item:hover,
+.travel-bottomnav__item:hover {
+  color: var(--text);
+}
+
 .travel-bottomnav__item.is-active {
-  color: var(--travel-accent);
+  color: var(--nav-accent);
 }
 
 .travel-bottomnav__icon {
@@ -715,9 +738,15 @@ html[data-theme='light'] body::before {
     bottom: 1rem;
     max-width: 520px;
     border-radius: 14px;
-    border: 1px solid var(--travel-card-border);
+    border: 1px solid var(--line);
     box-shadow: 0 8px 32px color-mix(in srgb, var(--shadow-card) 50%, transparent);
     padding: 0.3rem 0.5rem calc(0.3rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .travel-bottomnav::before {
+    left: 8%;
+    right: 8%;
+    border-radius: 14px;
   }
 }
 
