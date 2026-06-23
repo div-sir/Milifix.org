@@ -1151,34 +1151,6 @@ html[data-theme='light'] body::before {
   color: #fff;
 }
 
-/* 翻面按鈕（在 flipper 內，跟著卡片一起 3D 變形） */
-.cc3d__flip {
-  position: absolute;
-  right: 0.6rem;
-  bottom: 0.6rem;
-  z-index: 3;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  font-size: 1.15rem;
-  line-height: 1;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: background 0.2s ease, border-color 0.2s ease;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.cc3d__flip:hover {
-  background: rgba(0, 0, 0, 0.65);
-  border-color: rgba(255, 255, 255, 0.55);
-}
 
 /* ── 銀行配色主題 ─────────────────────────────────────── */
 

@@ -8,21 +8,22 @@ export function initCardTilt(): void {
   const coarse = window.matchMedia('(pointer: coarse)').matches;
 
   cards.forEach((card) => {
-    // 翻面（攔截點擊，避免觸發連結導頁）
-    const flipBtn = card.querySelector<HTMLElement>('[data-cc-flip]');
-    flipBtn?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      card.classList.toggle('is-flipped');
+    // hover 進入翻面、離開復原
+    card.addEventListener('pointerenter', () => {
+      card.classList.add('is-flipped');
+      if (!prefersReduced && !coarse) card.classList.add('is-tilting');
+    });
+    card.addEventListener('pointerleave', () => {
+      card.classList.remove('is-flipped');
+      card.classList.remove('is-tilting');
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
     });
 
     // 觸控／省動效裝置不啟用傾斜
     if (prefersReduced || coarse) return;
 
-    const tilt = card.querySelector<HTMLElement>('.cc3d__tilt');
-    if (!tilt) return;
-
-    const MAX = 10; // 最大傾斜角度
+    const MAX = 10;
     let raf = 0;
     let rx = 0;
     let ry = 0;
@@ -33,27 +34,15 @@ export function initCardTilt(): void {
       card.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
     };
 
-    const onMove = (e: PointerEvent) => {
+    card.addEventListener('pointermove', (e: PointerEvent) => {
       const r = card.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width; // 0..1
-      const py = (e.clientY - r.top) / r.height; // 0..1
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
       ry = (px - 0.5) * 2 * MAX;
       rx = -(py - 0.5) * 2 * MAX;
       card.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`);
       card.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`);
       if (!raf) raf = requestAnimationFrame(apply);
-    };
-
-    card.addEventListener('pointerenter', () => card.classList.add('is-tilting'));
-    card.addEventListener('pointermove', onMove);
-    card.addEventListener('pointerleave', () => {
-      card.classList.remove('is-tilting');
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      rx = 0;
-      ry = 0;
-      card.style.setProperty('--rx', '0deg');
-      card.style.setProperty('--ry', '0deg');
     });
   });
 }
