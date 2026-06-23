@@ -1136,6 +1136,12 @@ html[data-theme='light'] body::before {
 .cc3d[data-theme='sinopac'] .cc3d__front {
   background: linear-gradient(135deg, #c85a32 0%, #6e2d18 55%, #a8472a 100%);
 }
+.cc3d[data-theme='sc'] .cc3d__front {
+  background: linear-gradient(135deg, #1a6b3c 0%, #0b3a20 55%, #15572f 100%);
+}
+.cc3d[data-theme='yuanta'] .cc3d__front {
+  background: linear-gradient(135deg, #1a3a6e 0%, #0c1e3e 55%, #16305c 100%);
+}
 
 /* 頂級卡：加上金色細邊與更深的金屬光澤 */
 .cc3d[data-tier='premium'] .cc3d__front {

@@ -31,6 +31,8 @@ const bankTheme: Record<string, string> = {
   聯邦銀行: 'union',
   台北富邦: 'fubon',
   永豐銀行: 'sinopac',
+  渣打銀行: 'sc',
+  元大銀行: 'yuanta',
 };
 const theme = bankTheme[card.bank] ?? 'default';
 const tier = card.annualFee >= 20000 ? 'premium' : card.annualFee >= 5000 ? 'mid' : 'base';
