@@ -1,20 +1,32 @@
 ---
-import { getCreditCards, getAirlines, getLounges, getPrograms } from '../../lib/cms';
+import {
+  getCreditCards,
+  getAirlines,
+  getLounges,
+  getPrograms,
+  type CmsCreditCard,
+  type CmsAirline,
+  type CmsLounge,
+} from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
-import TravelSubnav from '../travel/TravelSubnav.astro';
 import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import LoungeCard from '../travel/LoungeCard.astro';
 import AirlineCard from '../travel/AirlineCard.astro';
+import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
-import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { cardListPath, loungeListPath, airlineListPath } from '../../i18n/routes';
+import {
+  cardSlugPath,
+  loungeSlugPath,
+  airlineSlugPath,
+  programSlugPath,
+} from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -30,19 +42,52 @@ const [cards, lounges, airlines, allPrograms] = await Promise.all([
   getPrograms(),
 ]);
 
-const previewCards = cards.slice(0, 6);
-const previewLounges = lounges.slice(0, 6);
-const previewAirlines = airlines.slice(0, 8);
-
+// ── Stats ──
 const bankCount = new Set(cards.map((c) => c.bank)).size;
-const loungeNetworks = new Set(allPrograms.filter((p) => p.programType === 'lounge-network').map((p) => p.name));
-
 const stats = [
   { value: String(cards.length), label: lang === 'zh' ? '張信用卡' : 'Cards' },
   { value: String(bankCount), label: lang === 'zh' ? '家銀行' : 'Banks' },
   { value: String(airlines.length), label: lang === 'zh' ? '家航空' : 'Airlines' },
   { value: String(lounges.length), label: lang === 'zh' ? '間貴賓室' : 'Lounges' },
 ];
+
+// ── Card filters data ──
+const banks = [...new Set(cards.map((c) => c.bank))].sort();
+const benefitTypes = [...new Set(cards.flatMap((c) => c.benefits.map((b) => b.benefitType)))].sort();
+const networks = [...new Set(cards.map((c) => c.cardNetwork))].sort();
+
+// ── Programs grouped by type ──
+const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as const;
+const programsByType = Object.fromEntries(
+  programTypes.map((type) => [type, allPrograms.filter((p) => p.programType === type)])
+);
+
+// ── Matrix data ──
+function isPopulated(v: unknown): v is { id: string; slug: string } {
+  return typeof v === 'object' && v !== null && 'slug' in v;
+}
+
+type MatrixRow = {
+  card: CmsCreditCard;
+  loungeIds: Set<string>;
+  airlineIds: Set<string>;
+};
+
+const matrix: MatrixRow[] = cards.map((card) => {
+  const loungeIds = new Set<string>();
+  const airlineIds = new Set<string>();
+  for (const b of card.benefits) {
+    if (isPopulated(b.lounge)) loungeIds.add(b.lounge.id);
+    else if (typeof b.lounge === 'string') loungeIds.add(b.lounge);
+    if (isPopulated(b.airline)) airlineIds.add(b.airline.id);
+    else if (typeof b.airline === 'string') airlineIds.add(b.airline);
+  }
+  return { card, loungeIds, airlineIds };
+});
+
+const usedLounges = lounges.filter((l) => matrix.some((m) => m.loungeIds.has(l.id)));
+const usedAirlines = airlines.filter((a) => matrix.some((m) => m.airlineIds.has(a.id)));
+const checkMark = '✓';
 ---
 
 <!DOCTYPE html>
@@ -76,11 +121,11 @@ const stats = [
   <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
 
   <main id="main-content">
+    <!-- ── Hero ── -->
     <header class="travel-hero travel-hero--index">
       <span class="travel-hero__tag">{t.heroTag}</span>
       <h1 class="travel-hero__title">{t.heroTitle}</h1>
       <p class="travel-hero__desc">{t.heroDesc}</p>
-
       <div class="travel-stats">
         {stats.map((s) => (
           <div class="travel-stats__item">
@@ -91,71 +136,231 @@ const stats = [
       </div>
     </header>
 
-    <TravelSubnav lang={lang} current="index" />
-
+    <!-- ── 信用卡 ── -->
     {cards.length > 0 && (
-      <section class="travel-section">
+      <section class="travel-section" id="cards">
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionCards}</h2>
-          <a class="travel-section__link" href={cardListPath(lang)}>
-            {t.viewAll}
-          </a>
         </div>
-        <div class="travel-grid travel-grid--wallet">
-          {previewCards.map((card) => (
-            <RealisticCreditCard lang={lang} card={card} />
+        <div class="travel-filter">
+          {banks.length > 1 && (
+            <select class="travel-filter__select" id="bank-filter" aria-label={t.filterByBank}>
+              <option value="">{t.allBanks}</option>
+              {banks.map((b) => <option value={b}>{b}</option>)}
+            </select>
+          )}
+          {benefitTypes.length > 1 && (
+            <select class="travel-filter__select" id="benefit-filter" aria-label={t.benefits}>
+              <option value="">{t.benefits}</option>
+              {benefitTypes.map((bt) => <option value={bt}>{t.benefitTypes[bt] ?? bt}</option>)}
+            </select>
+          )}
+          {networks.length > 1 && (
+            <select class="travel-filter__select" id="network-filter" aria-label="Network">
+              <option value="">Network</option>
+              {networks.map((n) => <option value={n}>{n.toUpperCase()}</option>)}
+            </select>
+          )}
+        </div>
+        <div class="travel-grid travel-grid--wallet" id="card-grid">
+          {cards.map((card) => (
+            <div
+              data-bank={card.bank}
+              data-network={card.cardNetwork}
+              data-benefits={card.benefits.map((b) => b.benefitType).join(',')}
+            >
+              <RealisticCreditCard lang={lang} card={card} />
+            </div>
           ))}
         </div>
       </section>
     )}
 
-    {lounges.length > 0 && (
-      <section class="travel-section">
-        <div class="travel-section__header">
-          <h2 class="travel-section__title">{t.sectionLounges}</h2>
-          <a class="travel-section__link" href={loungeListPath(lang)}>
-            {t.viewAll}
-          </a>
-        </div>
-        <div class="travel-grid">
-          {previewLounges.map((lounge) => (
-            <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
-          ))}
-        </div>
-      </section>
-    )}
-
+    <!-- ── 航空公司 ── -->
     {airlines.length > 0 && (
-      <section class="travel-section">
+      <section class="travel-section" id="airlines">
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionAirlines}</h2>
-          <a class="travel-section__link" href={airlineListPath(lang)}>
-            {t.viewAll}
-          </a>
         </div>
         <div class="travel-grid">
-          {previewAirlines.map((airline) => (
+          {airlines.map((airline) => (
             <AirlineCard lang={lang} airline={airline} />
           ))}
         </div>
       </section>
     )}
 
+    <!-- ── 貴賓室 ── -->
+    {lounges.length > 0 && (
+      <section class="travel-section" id="lounges">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.sectionLounges}</h2>
+        </div>
+        <div class="travel-grid">
+          {lounges.map((lounge) => (
+            <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- ── 網路／計畫 ── -->
+    {allPrograms.length > 0 && (
+      <section class="travel-section" id="programs">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.programs}</h2>
+        </div>
+        {programTypes.map((type) => {
+          const items = programsByType[type];
+          if (!items?.length) return null;
+          return (
+            <div style="margin-bottom: 0.75rem;">
+              <h3 class="travel-section__subtitle">{t.programTypeNames[type]}</h3>
+              <div class="travel-grid">
+                {items.map((p) => (
+                  <a class="travel-card" href={programSlugPath(lang, p.slug)}>
+                    {p.logo?.url && (
+                      <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} loading="lazy" />
+                    )}
+                    <span class="travel-card__overline">{t.programTypeNames[p.programType]}</span>
+                    <span class="travel-card__title">{p.name}</span>
+                    <span class="travel-card__subtitle">{p.summary?.slice(0, 80)}…</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    )}
+
+    <!-- ── 對照表 ── -->
+    {matrix.length > 0 && (usedLounges.length > 0 || usedAirlines.length > 0) && (
+      <section class="travel-section" id="matrix">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.matrix}</h2>
+        </div>
+
+        {usedLounges.length > 0 && (
+          <div style="margin-bottom: 1.25rem;">
+            <h3 class="travel-section__subtitle">{t.sectionCards} × {t.sectionLounges}</h3>
+            <div class="travel-matrix-wrap">
+              <table class="travel-matrix">
+                <thead>
+                  <tr>
+                    <th class="travel-matrix__corner">{t.sectionCards}</th>
+                    {usedLounges.map((l) => (
+                      <th class="travel-matrix__col-head">
+                        <a href={loungeSlugPath(lang, l.slug)}>
+                          <span class="travel-matrix__col-code">{l.airportCode}</span>
+                          <span class="travel-matrix__col-name">{l.name}</span>
+                        </a>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {matrix.filter((m) => m.loungeIds.size > 0).map((m) => (
+                    <tr>
+                      <td class="travel-matrix__row-head">
+                        <a href={cardSlugPath(lang, m.card.slug)}>
+                          <span class="travel-matrix__row-bank">{m.card.bank}</span>
+                          <span class="travel-matrix__row-name">{m.card.name}</span>
+                        </a>
+                      </td>
+                      {usedLounges.map((l) => (
+                        <td class={m.loungeIds.has(l.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
+                          {m.loungeIds.has(l.id) ? checkMark : ''}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {usedAirlines.length > 0 && (
+          <div>
+            <h3 class="travel-section__subtitle">{t.sectionCards} × {t.sectionAirlines}</h3>
+            <div class="travel-matrix-wrap">
+              <table class="travel-matrix">
+                <thead>
+                  <tr>
+                    <th class="travel-matrix__corner">{t.sectionCards}</th>
+                    {usedAirlines.map((a) => (
+                      <th class="travel-matrix__col-head">
+                        <a href={airlineSlugPath(lang, a.slug)}>
+                          <span class="travel-matrix__col-code">{a.iataCode}</span>
+                          <span class="travel-matrix__col-name">{a.name}</span>
+                        </a>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {matrix.filter((m) => m.airlineIds.size > 0).map((m) => (
+                    <tr>
+                      <td class="travel-matrix__row-head">
+                        <a href={cardSlugPath(lang, m.card.slug)}>
+                          <span class="travel-matrix__row-bank">{m.card.bank}</span>
+                          <span class="travel-matrix__row-name">{m.card.name}</span>
+                        </a>
+                      </td>
+                      {usedAirlines.map((a) => (
+                        <td class={m.airlineIds.has(a.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
+                          {m.airlineIds.has(a.id) ? checkMark : ''}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </section>
+    )}
+
     {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
-      <div class="travel-empty">
-        <p>{t.noResults}</p>
-      </div>
+      <div class="travel-empty"><p>{t.noResults}</p></div>
     )}
   </main>
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
   <script>
+    // Card filters
+    const bankFilter = document.getElementById('bank-filter') as HTMLSelectElement | null;
+    const benefitFilter = document.getElementById('benefit-filter') as HTMLSelectElement | null;
+    const networkFilter = document.getElementById('network-filter') as HTMLSelectElement | null;
+    const grid = document.getElementById('card-grid');
+
+    function applyFilters() {
+      if (!grid) return;
+      const bank = bankFilter?.value ?? '';
+      const benefit = benefitFilter?.value ?? '';
+      const network = networkFilter?.value ?? '';
+      for (const el of grid.children) {
+        const item = el as HTMLElement;
+        const matchBank = !bank || item.dataset.bank === bank;
+        const matchBenefit = !benefit || (item.dataset.benefits ?? '').split(',').includes(benefit);
+        const matchNetwork = !network || item.dataset.network === network;
+        item.style.display = matchBank && matchBenefit && matchNetwork ? '' : 'none';
+      }
+    }
+
+    bankFilter?.addEventListener('change', applyFilters);
+    benefitFilter?.addEventListener('change', applyFilters);
+    networkFilter?.addEventListener('change', applyFilters);
+  </script>
+  <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
     import { initCardTilt } from '../../scripts/card-tilt';
     initPortfolioCursor();
     initCardTilt();
   </script>
-  <TravelBottomNav lang={lang} current="index" />
+  <TravelBottomNav lang={lang} />
 </body>
 </html>

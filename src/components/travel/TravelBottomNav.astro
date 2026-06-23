@@ -3,29 +3,22 @@ import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import DockNav from '../DockNav.astro';
 import type { DockSection } from '../DockNav.astro';
-import {
-  travelPath,
-  cardListPath,
-  loungeListPath,
-  airlineListPath,
-  programListPath,
-  matrixPath,
-} from '../../i18n/routes';
+import { travelPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
-  current?: 'index' | 'cards' | 'lounges' | 'airlines' | 'programs' | 'matrix';
+  current?: string;
 }
 
-const { lang, current } = Astro.props;
+const { lang } = Astro.props;
 const t = ui(lang).travel;
 
 const sections: DockSection[] = [
-  { id: 'cards', label: t.sectionCards, href: cardListPath(lang) },
-  { id: 'airlines', label: t.sectionAirlines, href: airlineListPath(lang) },
-  { id: 'lounges', label: t.sectionLounges, href: loungeListPath(lang) },
-  { id: 'programs', label: t.programs, href: programListPath(lang) },
-  { id: 'matrix', label: t.matrix, href: matrixPath(lang) },
+  { id: 'cards', label: t.sectionCards },
+  { id: 'airlines', label: t.sectionAirlines },
+  { id: 'lounges', label: t.sectionLounges },
+  { id: 'programs', label: t.programs },
+  { id: 'matrix', label: t.matrix },
 ];
 ---
 
@@ -33,9 +26,10 @@ const sections: DockSection[] = [
   lang={lang}
   pathname={Astro.url.pathname}
   dockSections={sections}
-  dockSectionLinkMode="hash"
+  dockSectionLinkMode="scroll"
   dockHomeHref={travelPath(lang)}
-  dockHomeLabel={t.heroTitle}
-  dockHomeIcon="back"
-  dockOrder="sections-first"
+  dockHomeLabel="Travel"
+  dockHomeIcon="home"
+  dockOrder="home-first"
+  showScrollTop={true}
 />

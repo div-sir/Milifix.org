@@ -274,6 +274,15 @@ html[data-theme='light'] body::before {
   border-radius: 2px;
 }
 
+.travel-section__subtitle {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  margin-bottom: 0.5rem;
+}
+
 .travel-section__link {
   font-family: var(--mono);
   font-size: 0.8rem;
