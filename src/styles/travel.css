@@ -301,38 +301,44 @@ html[data-theme='light'] body::before {
   opacity: 0.7;
 }
 
-/* ── Filter bar ───────────────────────────────────────── */
+/* ── Tag filter pills ─────────────────────────────────── */
 
-.travel-filter {
+.card-filters {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-filters__group {
+  display: flex;
   flex-wrap: wrap;
-  margin-bottom: 0.75rem;
+  gap: 0.3rem;
 }
 
-.travel-filter__select {
+.card-filters__tag {
   font-family: var(--mono);
-  font-size: 0.8rem;
-  padding: 0.4rem 0.85rem;
-  border-radius: 6px;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
   border: 1px solid var(--travel-card-border);
-  background: var(--travel-card-bg);
-  color: var(--text);
+  background: transparent;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
   cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.65rem center;
-  padding-right: 2rem;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.travel-filter__select:hover {
-  border-color: color-mix(in srgb, var(--travel-accent) 35%, var(--travel-card-border));
+.card-filters__tag:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--text) 30%, transparent);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 
-.travel-filter__select:focus-visible {
-  outline: none;
+.card-filters__tag.is-active {
+  color: var(--on-accent);
+  background: var(--travel-accent);
   border-color: var(--travel-accent);
 }
 
@@ -1230,8 +1236,5 @@ html[data-theme='light'] body::before {
   }
   .travel-detail {
     padding: 1rem 1rem 1.5rem;
-  }
-  .travel-filter {
-    gap: 0.35rem;
   }
 }

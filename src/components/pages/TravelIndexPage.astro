@@ -142,25 +142,22 @@ const checkMark = '✓';
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionCards}</h2>
         </div>
-        <div class="travel-filter">
-          {banks.length > 1 && (
-            <select class="travel-filter__select" id="bank-filter" aria-label={t.filterByBank}>
-              <option value="">{t.allBanks}</option>
-              {banks.map((b) => <option value={b}>{b}</option>)}
-            </select>
-          )}
-          {benefitTypes.length > 1 && (
-            <select class="travel-filter__select" id="benefit-filter" aria-label={t.benefits}>
-              <option value="">{t.benefits}</option>
-              {benefitTypes.map((bt) => <option value={bt}>{t.benefitTypes[bt] ?? bt}</option>)}
-            </select>
-          )}
-          {networks.length > 1 && (
-            <select class="travel-filter__select" id="network-filter" aria-label="Network">
-              <option value="">Network</option>
-              {networks.map((n) => <option value={n}>{n.toUpperCase()}</option>)}
-            </select>
-          )}
+        <div class="card-filters" id="card-filters">
+          <div class="card-filters__group">
+            {banks.map((b) => (
+              <button type="button" class="card-filters__tag" data-filter="bank" data-value={b}>{b}</button>
+            ))}
+          </div>
+          <div class="card-filters__group">
+            {benefitTypes.map((bt) => (
+              <button type="button" class="card-filters__tag" data-filter="benefit" data-value={bt}>{t.benefitTypes[bt] ?? bt}</button>
+            ))}
+          </div>
+          <div class="card-filters__group">
+            {networks.map((n) => (
+              <button type="button" class="card-filters__tag" data-filter="network" data-value={n}>{n.toUpperCase()}</button>
+            ))}
+          </div>
         </div>
         <div class="travel-grid travel-grid--wallet" id="card-grid">
           {cards.map((card) => (
@@ -331,29 +328,36 @@ const checkMark = '✓';
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
   <script>
-    // Card filters
-    const bankFilter = document.getElementById('bank-filter') as HTMLSelectElement | null;
-    const benefitFilter = document.getElementById('benefit-filter') as HTMLSelectElement | null;
-    const networkFilter = document.getElementById('network-filter') as HTMLSelectElement | null;
+    // Tag-based card filters
     const grid = document.getElementById('card-grid');
+    const tags = document.querySelectorAll<HTMLButtonElement>('.card-filters__tag');
+    const active: Record<string, Set<string>> = { bank: new Set(), benefit: new Set(), network: new Set() };
 
     function applyFilters() {
       if (!grid) return;
-      const bank = bankFilter?.value ?? '';
-      const benefit = benefitFilter?.value ?? '';
-      const network = networkFilter?.value ?? '';
       for (const el of grid.children) {
         const item = el as HTMLElement;
-        const matchBank = !bank || item.dataset.bank === bank;
-        const matchBenefit = !benefit || (item.dataset.benefits ?? '').split(',').includes(benefit);
-        const matchNetwork = !network || item.dataset.network === network;
+        const matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank ?? '');
+        const matchBenefit = active.benefit.size === 0 || (item.dataset.benefits ?? '').split(',').some((b) => active.benefit.has(b));
+        const matchNetwork = active.network.size === 0 || active.network.has(item.dataset.network ?? '');
         item.style.display = matchBank && matchBenefit && matchNetwork ? '' : 'none';
       }
     }
 
-    bankFilter?.addEventListener('change', applyFilters);
-    benefitFilter?.addEventListener('change', applyFilters);
-    networkFilter?.addEventListener('change', applyFilters);
+    tags.forEach((tag) => {
+      tag.addEventListener('click', () => {
+        const filter = tag.dataset.filter as string;
+        const value = tag.dataset.value as string;
+        if (active[filter].has(value)) {
+          active[filter].delete(value);
+          tag.classList.remove('is-active');
+        } else {
+          active[filter].add(value);
+          tag.classList.add('is-active');
+        }
+        applyFilters();
+      });
+    });
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
