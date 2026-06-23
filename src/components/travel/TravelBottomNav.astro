@@ -1,6 +1,8 @@
 ---
 import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
+import DockNav from '../DockNav.astro';
+import type { DockSection } from '../DockNav.astro';
 import {
   travelPath,
   cardListPath,
@@ -18,24 +20,22 @@ interface Props {
 const { lang, current } = Astro.props;
 const t = ui(lang).travel;
 
-const items = [
-  { href: travelPath(lang), label: t.heroTitle, key: 'index' as const },
-  { href: cardListPath(lang), label: t.sectionCards, key: 'cards' as const },
-  { href: airlineListPath(lang), label: t.sectionAirlines, key: 'airlines' as const },
-  { href: loungeListPath(lang), label: t.sectionLounges, key: 'lounges' as const },
-  { href: programListPath(lang), label: t.programs, key: 'programs' as const },
-  { href: matrixPath(lang), label: t.matrix, key: 'matrix' as const },
+const sections: DockSection[] = [
+  { id: 'cards', label: t.sectionCards, href: cardListPath(lang) },
+  { id: 'airlines', label: t.sectionAirlines, href: airlineListPath(lang) },
+  { id: 'lounges', label: t.sectionLounges, href: loungeListPath(lang) },
+  { id: 'programs', label: t.programs, href: programListPath(lang) },
+  { id: 'matrix', label: t.matrix, href: matrixPath(lang) },
 ];
 ---
 
-<nav class="travel-bottomnav" aria-label="Travel bottom navigation">
-  {items.map((item) => (
-    <a
-      class:list={['travel-bottomnav__item', { 'is-active': current === item.key }]}
-      href={item.href}
-      aria-current={current === item.key ? 'page' : undefined}
-    >
-      {item.label}
-    </a>
-  ))}
-</nav>
+<DockNav
+  lang={lang}
+  pathname={Astro.url.pathname}
+  dockSections={sections}
+  dockSectionLinkMode="hash"
+  dockHomeHref={travelPath(lang)}
+  dockHomeLabel={t.heroTitle}
+  dockHomeIcon="back"
+  dockOrder="sections-first"
+/>
