@@ -360,6 +360,47 @@ const checkMark = '✓';
     import { initCardTilt } from '../../scripts/card-tilt';
     initPortfolioCursor();
     initCardTilt();
+
+    // ── 頁內分頁：DockNav pill 切換顯示區塊 ──
+    const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs', 'matrix'];
+    const sections = TAB_IDS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    const pills = document.querySelectorAll<HTMLElement>('.dock-nav__section');
+
+    function showTab(id: string, pushHash = true) {
+      for (const sec of sections) {
+        sec.style.display = sec.id === id ? '' : 'none';
+      }
+      pills.forEach((pill) => {
+        const pillId = pill.getAttribute('data-dock-scroll-id') || pill.getAttribute('href')?.replace('#', '');
+        const active = pillId === id;
+        pill.classList.toggle('dock-nav__section--active', active);
+        if (active) pill.setAttribute('aria-current', 'location');
+        else pill.removeAttribute('aria-current');
+      });
+      if (pushHash) {
+        history.replaceState(null, '', `#${id}`);
+      }
+      window.scrollTo({ top: 0 });
+    }
+
+    // 攔截 DockNav pill 點擊，改為切換分頁
+    pills.forEach((pill) => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = pill.getAttribute('data-dock-scroll-id') || pill.getAttribute('href')?.replace('#', '');
+        if (id && TAB_IDS.includes(id)) showTab(id);
+      });
+    });
+
+    // 初始化：從 hash 或預設 cards
+    const initHash = window.location.hash.slice(1);
+    showTab(TAB_IDS.includes(initHash) ? initHash : 'cards', false);
+
+    window.addEventListener('hashchange', () => {
+      const h = window.location.hash.slice(1);
+      if (TAB_IDS.includes(h)) showTab(h, false);
+    });
   </script>
   <TravelBottomNav lang={lang} />
 </body>

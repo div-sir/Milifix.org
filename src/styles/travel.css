@@ -246,7 +246,12 @@ html[data-theme='light'] body::before {
 
 .travel-section + .travel-section {
   padding-top: 0.75rem;
-  border-top: 1px solid color-mix(in srgb, var(--travel-card-border) 60%, transparent);
+}
+
+/* 頁內分頁模式的區塊切換動畫 */
+.travel-section[style*="display: none"] + .travel-section {
+  border-top: none;
+  padding-top: 0;
 }
 
 .travel-section__header {
