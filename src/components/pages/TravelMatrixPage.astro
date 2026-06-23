@@ -14,6 +14,7 @@ import TravelSubnav from '../travel/TravelSubnav.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
@@ -215,5 +216,6 @@ const checkMark = '✓';
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
     initPortfolioCursor();
   </script>
+  <TravelBottomNav lang={lang} current="matrix" />
 </body>
 </html>

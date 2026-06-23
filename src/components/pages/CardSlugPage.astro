@@ -8,6 +8,7 @@ import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
@@ -215,5 +216,6 @@ const benefitsByType = typeOrder
     initPortfolioCursor();
     initCardTilt();
   </script>
+  <TravelBottomNav lang={lang} current="cards" />
 </body>
 </html>

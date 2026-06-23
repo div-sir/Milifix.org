@@ -1,0 +1,41 @@
+---
+import type { Lang } from '../../i18n/types';
+import { ui } from '../../i18n/ui';
+import {
+  travelPath,
+  cardListPath,
+  loungeListPath,
+  airlineListPath,
+  programListPath,
+  matrixPath,
+} from '../../i18n/routes';
+
+interface Props {
+  lang: Lang;
+  current?: 'index' | 'cards' | 'lounges' | 'airlines' | 'programs' | 'matrix';
+}
+
+const { lang, current } = Astro.props;
+const t = ui(lang).travel;
+
+const items = [
+  { href: travelPath(lang), label: t.heroTitle, key: 'index' as const, icon: '◇' },
+  { href: cardListPath(lang), label: t.sectionCards, key: 'cards' as const, icon: '▭' },
+  { href: airlineListPath(lang), label: t.sectionAirlines, key: 'airlines' as const, icon: '✈' },
+  { href: loungeListPath(lang), label: t.sectionLounges, key: 'lounges' as const, icon: '◈' },
+  { href: programListPath(lang), label: t.programs, key: 'programs' as const, icon: '⊞' },
+  { href: matrixPath(lang), label: t.matrix, key: 'matrix' as const, icon: '⊡' },
+];
+---
+
+<nav class="travel-bottomnav" aria-label="Travel bottom navigation">
+  {items.map((item) => (
+    <a
+      class:list={['travel-bottomnav__item', { 'is-active': current === item.key }]}
+      href={item.href}
+    >
+      <span class="travel-bottomnav__icon">{item.icon}</span>
+      <span class="travel-bottomnav__label">{item.label}</span>
+    </a>
+  ))}
+</nav>

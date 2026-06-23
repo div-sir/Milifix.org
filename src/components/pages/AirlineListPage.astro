@@ -8,6 +8,7 @@ import AirlineCard from '../travel/AirlineCard.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
@@ -112,5 +113,6 @@ const alliances = [...new Set(airlines.map((a) => a.alliance))].sort();
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
     initPortfolioCursor();
   </script>
+  <TravelBottomNav lang={lang} current="airlines" />
 </body>
 </html>
