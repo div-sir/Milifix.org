@@ -4,7 +4,7 @@ import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import TravelSubnav from '../travel/TravelSubnav.astro';
-import CreditCardCard from '../travel/CreditCardCard.astro';
+import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import LoungeCard from '../travel/LoungeCard.astro';
 import AirlineCard from '../travel/AirlineCard.astro';
 import '../../styles/theme.css';
@@ -30,9 +30,19 @@ const [cards, lounges, airlines, allPrograms] = await Promise.all([
   getPrograms(),
 ]);
 
-const previewCards = cards.slice(0, 3);
-const previewLounges = lounges.slice(0, 3);
-const previewAirlines = airlines.slice(0, 3);
+const previewCards = cards.slice(0, 6);
+const previewLounges = lounges.slice(0, 6);
+const previewAirlines = airlines.slice(0, 8);
+
+const bankCount = new Set(cards.map((c) => c.bank)).size;
+const loungeNetworks = new Set(allPrograms.filter((p) => p.programType === 'lounge-network').map((p) => p.name));
+
+const stats = [
+  { value: String(cards.length), label: lang === 'zh' ? '張信用卡' : 'Cards' },
+  { value: String(bankCount), label: lang === 'zh' ? '家銀行' : 'Banks' },
+  { value: String(airlines.length), label: lang === 'zh' ? '家航空' : 'Airlines' },
+  { value: String(lounges.length), label: lang === 'zh' ? '間貴賓室' : 'Lounges' },
+];
 ---
 
 <!DOCTYPE html>
@@ -66,10 +76,19 @@ const previewAirlines = airlines.slice(0, 3);
   <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
 
   <main id="main-content">
-    <header class="travel-hero">
+    <header class="travel-hero travel-hero--index">
       <span class="travel-hero__tag">{t.heroTag}</span>
       <h1 class="travel-hero__title">{t.heroTitle}</h1>
       <p class="travel-hero__desc">{t.heroDesc}</p>
+
+      <div class="travel-stats">
+        {stats.map((s) => (
+          <div class="travel-stats__item">
+            <span class="travel-stats__value">{s.value}</span>
+            <span class="travel-stats__label">{s.label}</span>
+          </div>
+        ))}
+      </div>
     </header>
 
     <TravelSubnav lang={lang} current="index" />
@@ -82,9 +101,9 @@ const previewAirlines = airlines.slice(0, 3);
             {t.viewAll}
           </a>
         </div>
-        <div class="travel-grid">
+        <div class="travel-grid travel-grid--wallet">
           {previewCards.map((card) => (
-            <CreditCardCard lang={lang} card={card} />
+            <RealisticCreditCard lang={lang} card={card} />
           ))}
         </div>
       </section>
@@ -133,7 +152,9 @@ const previewAirlines = airlines.slice(0, 3);
 
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    import { initCardTilt } from '../../scripts/card-tilt';
     initPortfolioCursor();
+    initCardTilt();
   </script>
   <TravelBottomNav lang={lang} current="index" />
 </body>

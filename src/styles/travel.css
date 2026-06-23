@@ -145,6 +145,60 @@ html[data-theme='light'] body::before {
   max-width: 600px;
 }
 
+/* 首頁特化 hero：更高、有統計數字 */
+.travel-hero--index {
+  padding-top: clamp(3rem, 6vw, 5rem);
+  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.travel-hero--index .travel-hero__title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--text) 30%, var(--travel-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 統計數字列 */
+.travel-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--travel-card-border);
+}
+
+.travel-stats__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.travel-stats__value {
+  font-family: var(--sans);
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--travel-accent);
+}
+
+.travel-stats__label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+}
+
+@media (max-width: 480px) {
+  .travel-stats {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
 /* ── Sub-navigation ───────────────────────────────────── */
 
 .travel-subnav {
@@ -185,22 +239,39 @@ html[data-theme='light'] body::before {
 .travel-section {
   position: relative;
   z-index: 2;
-  padding: 0 clamp(1rem, 4vw, 4rem) 1rem;
+  padding: 0 clamp(1rem, 4vw, 4rem) 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.travel-section + .travel-section {
+  padding-top: 0.75rem;
+  border-top: 1px solid color-mix(in srgb, var(--travel-card-border) 60%, transparent);
 }
 
 .travel-section__header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.85rem;
 }
 
 .travel-section__title {
   font-family: var(--sans);
   font-size: 1.25rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.travel-section__title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--travel-accent);
+  border-radius: 2px;
 }
 
 .travel-section__link {
