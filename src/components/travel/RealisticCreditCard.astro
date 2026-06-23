@@ -30,6 +30,7 @@ const bankTheme: Record<string, string> = {
   星展銀行: 'dbs',
   聯邦銀行: 'union',
   台北富邦: 'fubon',
+  永豐銀行: 'sinopac',
 };
 const theme = bankTheme[card.bank] ?? 'default';
 const tier = card.annualFee >= 20000 ? 'premium' : card.annualFee >= 5000 ? 'mid' : 'base';

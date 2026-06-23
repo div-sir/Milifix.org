@@ -1133,6 +1133,9 @@ html[data-theme='light'] body::before {
 .cc3d[data-theme='fubon'] .cc3d__front {
   background: linear-gradient(135deg, #2c2c2e 0%, #131316 55%, #3a3220 100%);
 }
+.cc3d[data-theme='sinopac'] .cc3d__front {
+  background: linear-gradient(135deg, #c85a32 0%, #6e2d18 55%, #a8472a 100%);
+}
 
 /* 頂級卡：加上金色細邊與更深的金屬光澤 */
 .cc3d[data-tier='premium'] .cc3d__front {
