@@ -48,6 +48,16 @@ const banks = [...new Set(cards.map((c) => c.bank))].sort();
 const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other');
 const FEE_CAP = 30000;
 
+// 各權益類型對應的卡片數（用於 tag 顯示數量 / 灰掉無資料者）
+const benefitCounts: Record<string, number> = {};
+const bankCounts: Record<string, number> = {};
+for (const c of cards) {
+  for (const bt of new Set(c.benefits.map((b) => b.benefitType))) {
+    benefitCounts[bt] = (benefitCounts[bt] ?? 0) + 1;
+  }
+  bankCounts[c.bank] = (bankCounts[c.bank] ?? 0) + 1;
+}
+
 // ── Programs grouped by type ──
 const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as const;
 const programsByType = Object.fromEntries(
@@ -142,16 +152,30 @@ const programsByType = Object.fromEntries(
             <span class="card-filters__label">{lang === 'zh' ? '銀行' : 'Bank'}</span>
             <div class="card-filters__group">
               {banks.map((b) => (
-                <button type="button" class="card-filters__tag" data-filter="bank" data-value={b}>{b}</button>
+                <button type="button" class="card-filters__tag" data-filter="bank" data-value={b} aria-pressed="false">
+                  {b}<span class="card-filters__tag-count">{bankCounts[b] ?? 0}</span>
+                </button>
               ))}
             </div>
           </div>
           <div class="card-filters__section">
             <span class="card-filters__label">{lang === 'zh' ? '卡片特點' : 'Benefits'}</span>
             <div class="card-filters__group">
-              {allBenefitTypes.map((bt) => (
-                <button type="button" class="card-filters__tag" data-filter="benefit" data-value={bt}>{t.benefitTypes[bt] ?? bt}</button>
-              ))}
+              {allBenefitTypes.map((bt) => {
+                const n = benefitCounts[bt] ?? 0;
+                return (
+                  <button
+                    type="button"
+                    class:list={['card-filters__tag', { 'is-empty': n === 0 }]}
+                    data-filter="benefit"
+                    data-value={bt}
+                    aria-pressed="false"
+                    disabled={n === 0}
+                  >
+                    {t.benefitTypes[bt] ?? bt}<span class="card-filters__tag-count">{n}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div class="card-filters__section card-filters__section--fee">
@@ -167,6 +191,7 @@ const programsByType = Object.fromEntries(
                   max={FEE_CAP}
                   value="0"
                   step="100"
+                  aria-label={lang === 'zh' ? '年費下限' : 'Minimum annual fee'}
                 />
                 <input
                   type="range"
@@ -176,6 +201,7 @@ const programsByType = Object.fromEntries(
                   max={FEE_CAP}
                   value={FEE_CAP}
                   step="100"
+                  aria-label={lang === 'zh' ? '年費上限' : 'Maximum annual fee'}
                 />
                 <div class="card-filters__ticks">
                   <span class="card-filters__tick" style="left:0%">
@@ -435,7 +461,7 @@ const programsByType = Object.fromEntries(
     function clearAll() {
       active.bank.clear();
       active.benefit.clear();
-      tags.forEach(function(tag) { tag.classList.remove('is-active'); });
+      tags.forEach(function(tag) { tag.classList.remove('is-active'); tag.setAttribute('aria-pressed', 'false'); });
       searchTerm = '';
       if (searchInput) searchInput.value = '';
       feeMin = 0;
@@ -469,9 +495,11 @@ const programsByType = Object.fromEntries(
         if (active[filter].has(value)) {
           active[filter].delete(value);
           tag.classList.remove('is-active');
+          tag.setAttribute('aria-pressed', 'false');
         } else {
           active[filter].add(value);
           tag.classList.add('is-active');
+          tag.setAttribute('aria-pressed', 'true');
         }
         tag.classList.add('is-bouncing');
         setTimeout(function() { tag.classList.remove('is-bouncing'); }, 300);
@@ -750,23 +778,45 @@ const programsByType = Object.fromEntries(
       });
     });
 
+    let lastFocused: HTMLElement | null = null;
+    const FOCUSABLE = 'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])';
+
     function openModal() {
+      lastFocused = document.activeElement as HTMLElement;
       compareModal.setAttribute('aria-hidden', 'false');
       compareModal.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       renderCompare();
+      const first = compareModal.querySelector<HTMLElement>('.compare-modal__close');
+      first?.focus();
     }
     function closeModal() {
       compareModal.classList.remove('is-open');
       compareModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      lastFocused?.focus();
     }
 
     compareDockBtn?.addEventListener('click', openModal);
     document.getElementById('compare-modal-backdrop')?.addEventListener('click', closeModal);
     document.getElementById('compare-modal-close')?.addEventListener('click', closeModal);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && compareModal.classList.contains('is-open')) closeModal();
+      if (!compareModal.classList.contains('is-open')) return;
+      if (e.key === 'Escape') { closeModal(); return; }
+      if (e.key === 'Tab') {
+        const focusables = Array.from(compareModal.querySelectorAll<HTMLElement>(FOCUSABLE))
+          .filter((el) => el.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
 
     // 複製分享連結

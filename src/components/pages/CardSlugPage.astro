@@ -101,6 +101,24 @@ const relatedLounges = dedupeBySlug(
 );
 const relatedPrograms = dedupeBySlug(card.benefits.flatMap(getBenefitPrograms));
 const hasRelated = relatedAirlines.length > 0 || relatedLounges.length > 0 || relatedPrograms.length > 0;
+
+// ── 結構化資料（JSON-LD）供搜尋引擎理解這是一張信用卡商品 ──
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreditCard',
+  name: `${card.bank} ${card.name}`,
+  ...(card.description ? { description: card.description } : {}),
+  url: Astro.url.href,
+  ...(card.officialUrl ? { sameAs: card.officialUrl } : {}),
+  provider: { '@type': 'BankOrCreditUnion', name: card.bank },
+  feesAndCommissionsSpecification:
+    card.annualFee === 0
+      ? (lang === 'zh' ? '免年費' : 'No annual fee')
+      : `NT$ ${card.annualFee.toLocaleString()}${card.annualFeeNote ? `（${card.annualFeeNote}）` : ''}`,
+  ...(card.benefits.length
+    ? { amenityFeature: card.benefits.map((b) => ({ '@type': 'LocationFeatureSpecification', name: b.title, value: true })) }
+    : {}),
+};
 ---
 
 <!DOCTYPE html>
@@ -114,6 +132,8 @@ const hasRelated = relatedAirlines.length > 0 || relatedLounges.length > 0 || re
   <link rel="icon" href="/favicon.ico" />
   <title>{card.name} — {t.sectionCards} — Milifix</title>
   <meta name="description" content={card.description ?? ''} />
+  <link rel="canonical" href={Astro.url.href} />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   <script is:inline>
     (function () {
       try {

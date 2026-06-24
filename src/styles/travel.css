@@ -540,6 +540,24 @@ html[data-theme='light'] body::before {
   border-color: var(--travel-accent);
 }
 
+.card-filters__tag-count {
+  margin-left: 0.4rem;
+  font-size: 0.6rem;
+  opacity: 0.6;
+}
+
+.card-filters__tag.is-empty {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.card-filters__tag.is-empty:hover {
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  border-color: var(--travel-card-border);
+  background: transparent;
+}
+
 .card-filters__tag.is-bouncing {
   animation: tagBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
