@@ -239,6 +239,10 @@ const STRINGS: Record<
         upgrade: 'Upgrade',
         baggage: 'Extra baggage',
         insurance: 'Travel insurance',
+        'airport-transfer': 'Airport transfer',
+        'airline-membership': 'Airline membership',
+        'flight-discount': 'Flight discount',
+        'duty-free-discount': 'Duty-free discount',
         other: 'Other',
       },
       allianceNames: {
@@ -376,6 +380,10 @@ const STRINGS: Record<
         upgrade: '艙等升等',
         baggage: '額外行李',
         insurance: '旅遊保險',
+        'airport-transfer': '機場接送',
+        'airline-membership': '航空會員',
+        'flight-discount': '機票折扣',
+        'duty-free-discount': '免稅品折扣',
         other: '其他',
       },
       allianceNames: {
@@ -513,6 +521,10 @@ const STRINGS: Record<
         upgrade: 'Upgrade',
         baggage: 'Extra baggage',
         insurance: 'Travel insurance',
+        'airport-transfer': 'Airport transfer',
+        'airline-membership': 'Airline membership',
+        'flight-discount': 'Flight discount',
+        'duty-free-discount': 'Duty-free discount',
         other: 'Other',
       },
       allianceNames: {

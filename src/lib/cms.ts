@@ -128,6 +128,10 @@ export type CmsBenefitType =
   | 'upgrade'
   | 'baggage'
   | 'insurance'
+  | 'airport-transfer'
+  | 'airline-membership'
+  | 'flight-discount'
+  | 'duty-free-discount'
   | 'other'
 
 export type CmsCardBenefit = {

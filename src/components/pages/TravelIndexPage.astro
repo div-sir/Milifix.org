@@ -48,7 +48,7 @@ const banks = [...new Set(cards.map((c) => c.bank))].sort();
 const benefitTypes = [...new Set(cards.flatMap((c) => c.benefits.map((b) => b.benefitType)))]
   .filter((bt) => bt !== 'other')
   .sort();
-const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
+const FEE_CAP = 30000;
 
 // ── Programs grouped by type ──
 const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as const;
@@ -130,15 +130,38 @@ const programsByType = Object.fromEntries(
           <div class="card-filters__section card-filters__section--fee">
             <span class="card-filters__label">{lang === 'zh' ? '年費上限' : 'Max annual fee'}</span>
             <div class="card-filters__fee-row">
-              <input
-                type="range"
-                class="card-filters__slider"
-                id="fee-slider"
-                min="0"
-                max={maxFee}
-                value={maxFee}
-                step="100"
-              />
+              <div class="card-filters__slider-wrap">
+                <input
+                  type="range"
+                  class="card-filters__slider"
+                  id="fee-slider"
+                  min="0"
+                  max={FEE_CAP}
+                  value={FEE_CAP}
+                  step="100"
+                  list="fee-ticks"
+                />
+                <div class="card-filters__ticks">
+                  <span class="card-filters__tick" style="left:0%">
+                    <span class="card-filters__tick-label">{lang === 'zh' ? '免費' : 'Free'}</span>
+                  </span>
+                  <span class="card-filters__tick" style="left:16.7%">
+                    <span class="card-filters__tick-label">$5K</span>
+                  </span>
+                  <span class="card-filters__tick" style="left:66.7%">
+                    <span class="card-filters__tick-label">$20K</span>
+                  </span>
+                  <span class="card-filters__tick" style="left:100%">
+                    <span class="card-filters__tick-label">$30K</span>
+                  </span>
+                </div>
+                <datalist id="fee-ticks">
+                  <option value="0" />
+                  <option value="5000" />
+                  <option value="20000" />
+                  <option value="30000" />
+                </datalist>
+              </div>
               <span class="card-filters__fee-value" id="fee-value">
                 {lang === 'zh' ? '不限' : 'All'}
               </span>
@@ -265,14 +288,14 @@ const programsByType = Object.fromEntries(
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
-  <script is:inline define:vars={{ maxFeeVal: maxFee }}>
+  <script is:inline define:vars={{ feeCap: FEE_CAP }}>
     // Tag-based card filters + fee slider
-    const grid = document.getElementById('card-grid');
-    const tags = document.querySelectorAll('.card-filters__tag');
-    const active = { bank: new Set(), benefit: new Set() };
-    const feeSlider = document.getElementById('fee-slider');
-    const feeValueEl = document.getElementById('fee-value');
-    let currentMaxFee = maxFeeVal;
+    var grid = document.getElementById('card-grid');
+    var tags = document.querySelectorAll('.card-filters__tag');
+    var active = { bank: new Set(), benefit: new Set() };
+    var feeSlider = document.getElementById('fee-slider');
+    var feeValueEl = document.getElementById('fee-value');
+    var currentMaxFee = feeCap;
 
     function applyFilters() {
       if (!grid) return;
@@ -315,7 +338,7 @@ const programsByType = Object.fromEntries(
       feeSlider.addEventListener('input', function() {
         currentMaxFee = parseInt(feeSlider.value, 10);
         if (feeValueEl) {
-          feeValueEl.textContent = currentMaxFee >= maxFeeVal
+          feeValueEl.textContent = currentMaxFee >= feeCap
             ? (window.__compareLang === 'zh' ? '不限' : 'All')
             : currentMaxFee === 0
               ? (window.__compareLang === 'zh' ? '免年費' : 'Free')
@@ -401,21 +424,38 @@ const programsByType = Object.fromEntries(
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
 
-    // 浮動比較按鈕（FAB）
-    const fab = document.createElement('button');
-    fab.className = 'compare-fab';
-    fab.id = 'compare-fab';
-    fab.setAttribute('aria-label', isZh ? '開啟比較' : 'Open compare');
-    fab.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="compare-fab__badge" id="compare-fab-badge">0</span>`;
-    fab.style.display = 'none';
-    document.body.appendChild(fab);
+    // 比較按鈕：插入底部導覽列
+    const dockRow = document.querySelector('.dock-pill-nav__row');
+    const comparePillLi = document.createElement('li');
+    comparePillLi.className = 'dock-pill-nav__cell';
+    comparePillLi.setAttribute('role', 'none');
+    comparePillLi.id = 'compare-dock-cell';
+    comparePillLi.style.display = 'none';
+    comparePillLi.innerHTML = `
+      <button type="button" class="dock-pill-nav__pill dock-pill-nav__pill--compare" id="compare-dock-btn"
+              aria-label="${isZh ? '開啟比較' : 'Open compare'}">
+        <span class="dock-pill-nav__home-icon" aria-hidden="true">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </span>
+        <span class="dock-compare-badge" id="compare-dock-badge">0</span>
+      </button>`;
+
+    // 插在 separator 之前（scroll-top 那組的前面）
+    const seps = dockRow?.querySelectorAll('.dock-pill-nav__sep-cell');
+    const lastSep = seps && seps.length > 0 ? seps[seps.length - 1] : null;
+    if (lastSep) {
+      dockRow!.insertBefore(comparePillLi, lastSep);
+    } else if (dockRow) {
+      dockRow.appendChild(comparePillLi);
+    }
+    const compareDockBtn = document.getElementById('compare-dock-btn');
 
     function updateBadge() {
       const n = selected.size;
       compareCount.textContent = String(n);
-      const badge = document.getElementById('compare-fab-badge');
+      const badge = document.getElementById('compare-dock-badge');
       if (badge) badge.textContent = String(n);
-      fab.style.display = n > 0 ? '' : 'none';
+      comparePillLi.style.display = n > 0 ? '' : 'none';
 
       compareBtns.forEach((btn) => {
         const slug = btn.dataset.compareSlug!;
@@ -509,7 +549,7 @@ const programsByType = Object.fromEntries(
       document.body.style.overflow = '';
     }
 
-    fab.addEventListener('click', openModal);
+    compareDockBtn?.addEventListener('click', openModal);
     document.getElementById('compare-modal-backdrop')?.addEventListener('click', closeModal);
     document.getElementById('compare-modal-close')?.addEventListener('click', closeModal);
     document.addEventListener('keydown', (e) => {

@@ -395,8 +395,14 @@ html[data-theme='light'] body::before {
   gap: 0.75rem;
 }
 
-.card-filters__slider {
+.card-filters__slider-wrap {
   flex: 1;
+  position: relative;
+  padding-bottom: 1.3rem;
+}
+
+.card-filters__slider {
+  width: 100%;
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
@@ -432,6 +438,38 @@ html[data-theme='light'] body::before {
   cursor: grab;
 }
 
+.card-filters__ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1rem;
+  pointer-events: none;
+}
+
+.card-filters__tick {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-filters__tick::before {
+  content: '';
+  width: 1px;
+  height: 6px;
+  background: color-mix(in srgb, var(--text) 25%, transparent);
+}
+
+.card-filters__tick-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text) 40%, transparent);
+  white-space: nowrap;
+}
+
 .card-filters__fee-value {
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -440,6 +478,8 @@ html[data-theme='light'] body::before {
   min-width: 80px;
   text-align: right;
   white-space: nowrap;
+  align-self: flex-start;
+  padding-top: 0.1rem;
 }
 
 /* ── Card filter transitions ──────────────────────────── */
@@ -917,60 +957,31 @@ html[data-theme='light'] body::before {
   background: color-mix(in srgb, #e44 10%, transparent);
 }
 
-/* ── 比較 FAB ──────────────────────────────────────── */
+/* ── 底部導覽列比較按鈕 ─────────────────────────────── */
 
-.compare-fab {
-  position: fixed;
-  z-index: 190;
-  right: clamp(1rem, 3vw, 2rem);
-  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1.5px solid color-mix(in srgb, var(--travel-accent) 40%, transparent);
-  background: color-mix(in srgb, var(--bg) 85%, var(--travel-accent));
-  backdrop-filter: blur(10px);
-  color: var(--travel-accent);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow:
-    0 4px 16px color-mix(in srgb, var(--shadow-card) 50%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--travel-accent) 12%, transparent);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  animation: fabIn 0.35s cubic-bezier(0.22, 1, 0.32, 1) both;
+.dock-pill-nav__pill--compare {
+  position: relative;
+  gap: 0;
 }
 
-.compare-fab:hover {
-  transform: scale(1.08);
-  box-shadow:
-    0 6px 24px color-mix(in srgb, var(--shadow-card) 65%, transparent),
-    0 0 0 1.5px var(--travel-accent);
-}
-
-@keyframes fabIn {
-  from { opacity: 0; transform: scale(0.5) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.compare-fab__badge {
+.dock-compare-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
+  top: 2px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
   background: var(--travel-accent);
   color: var(--on-accent);
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
+  padding: 0 3px;
   line-height: 1;
+  pointer-events: none;
 }
 
 /* ── 比較 Modal ────────────────────────────────────── */
@@ -1091,7 +1102,6 @@ html[data-theme='light'] body::before {
 @media (prefers-reduced-motion: reduce) {
   .compare-modal__panel,
   .compare-modal__backdrop { transition: none; }
-  .compare-fab { animation: none; }
 }
 
 /* dock-nav 已由 DockNav.astro + dock-nav.css 處理，travel 頁面直接復用 */
