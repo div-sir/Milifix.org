@@ -11,7 +11,7 @@ import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { airlineListPath } from '../../i18n/routes';
+import { travelPath } from '../../i18n/routes';
 import type { CmsAirline } from '../../lib/cms';
 
 interface Props {
@@ -57,7 +57,7 @@ const relatedCards = await getCardsByAirline(airline.id);
 
   <main id="main-content">
     <article class="travel-detail">
-      <a class="travel-detail__back" href={airlineListPath(lang)}>{t.backToTravel}</a>
+      <a class="travel-detail__back" href={`${travelPath(lang)}#airlines`}>{t.backToTravel}</a>
 
       <header class="travel-detail__header">
         <p class="travel-detail__overline">{airline.iataCode}</p>

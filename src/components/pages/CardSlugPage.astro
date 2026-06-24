@@ -13,7 +13,7 @@ import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import {
-  cardListPath,
+  travelPath,
   airlineSlugPath,
   loungeSlugPath,
   programSlugPath,
@@ -155,7 +155,7 @@ const jsonLd = {
 
   <main id="main-content">
     <article class="travel-detail">
-      <a class="travel-detail__back" href={cardListPath(lang)}>{t.backToTravel}</a>
+      <a class="travel-detail__back" href={`${travelPath(lang)}#cards`}>{t.backToTravel}</a>
 
       <header class="travel-detail__header">
         <p class="travel-detail__overline">{card.bank} · {card.cardNetwork.toUpperCase()}</p>
@@ -173,7 +173,7 @@ const jsonLd = {
       {card.tags.length > 0 && (
         <div class="travel-card__tags" style="margin-bottom: 2rem;">
           {card.tags.map((tag) => (
-            <a class="travel-tag travel-tag--clickable" href={`${cardListPath(lang)}#tag:${encodeURIComponent(tag.tag)}`}>
+            <a class="travel-tag travel-tag--clickable" href={`${travelPath(lang)}#cards`}>
               {tag.tag}
             </a>
           ))}

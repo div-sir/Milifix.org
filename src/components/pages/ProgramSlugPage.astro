@@ -14,7 +14,7 @@ import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { programListPath } from '../../i18n/routes';
+import { travelPath } from '../../i18n/routes';
 
 interface Props { lang: Lang; program: CmsProgram; }
 const { lang, program } = Astro.props;
@@ -96,7 +96,7 @@ const relatedCards = allCards.filter((card) =>
 
   <main id="main-content">
     <article class="travel-detail">
-      <a class="travel-detail__back" href={programListPath(lang)}>{t.backToTravel}</a>
+      <a class="travel-detail__back" href={`${travelPath(lang)}#programs`}>{t.backToTravel}</a>
 
       <header class="travel-detail__header">
         <p class="travel-detail__overline">

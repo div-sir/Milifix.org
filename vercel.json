@@ -3,5 +3,17 @@
     "api/generate-pass.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "redirects": [
+    { "source": "/travel/cards", "destination": "/travel#cards", "permanent": true },
+    { "source": "/travel/lounges", "destination": "/travel#lounges", "permanent": true },
+    { "source": "/travel/airlines", "destination": "/travel#airlines", "permanent": true },
+    { "source": "/travel/programs", "destination": "/travel#programs", "permanent": true },
+    { "source": "/travel/matrix", "destination": "/travel#cards", "permanent": true },
+    { "source": "/zh/travel/cards", "destination": "/zh/travel#cards", "permanent": true },
+    { "source": "/zh/travel/lounges", "destination": "/zh/travel#lounges", "permanent": true },
+    { "source": "/zh/travel/airlines", "destination": "/zh/travel#airlines", "permanent": true },
+    { "source": "/zh/travel/programs", "destination": "/zh/travel#programs", "permanent": true },
+    { "source": "/zh/travel/matrix", "destination": "/zh/travel#cards", "permanent": true }
+  ]
 }
