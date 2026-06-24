@@ -485,27 +485,38 @@ html[data-theme='light'] body::before {
 /* ── Card filter transitions ──────────────────────────── */
 
 .travel-grid--wallet > * {
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.32, 1);
   animation: cardFilterIn 0.35s cubic-bezier(0.22, 1, 0.32, 1) both;
   animation-delay: calc(var(--stagger, 0) * 0.03s);
 }
 
-.travel-grid--wallet > .card-hidden {
-  opacity: 0;
-  transform: scale(0.92);
+/* 退場動畫：先播完再摺疊 */
+.travel-grid--wallet > .card-exiting {
+  animation: cardFilterOut 0.28s cubic-bezier(0.55, 0, 1, 0.45) both;
   pointer-events: none;
+}
+
+/* 動畫結束後真正隱藏 */
+.travel-grid--wallet > .card-hidden {
   position: absolute;
   width: 0;
   height: 0;
   overflow: hidden;
   margin: 0;
   padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 進場動畫 */
+.travel-grid--wallet > .card-entering {
+  animation: cardFilterIn 0.35s cubic-bezier(0.22, 1, 0.32, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 0.03s);
 }
 
 @keyframes cardFilterIn {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(8px);
+    transform: scale(0.92) translateY(10px);
   }
   to {
     opacity: 1;
@@ -513,8 +524,21 @@ html[data-theme='light'] body::before {
   }
 }
 
+@keyframes cardFilterOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.88) translateY(-6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .travel-grid--wallet > * { animation: none; transition: none; }
+  .travel-grid--wallet > *,
+  .travel-grid--wallet > .card-entering,
+  .travel-grid--wallet > .card-exiting { animation: none; }
   .travel-grid--wallet > .card-hidden { opacity: 0; transform: none; }
 }
 

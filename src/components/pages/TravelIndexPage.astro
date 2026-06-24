@@ -297,22 +297,45 @@ const programsByType = Object.fromEntries(
     var feeValueEl = document.getElementById('fee-value');
     var currentMaxFee = feeCap;
 
+    var EXIT_MS = 280;
+
     function applyFilters() {
       if (!grid) return;
-      let visibleIdx = 0;
-      for (const el of grid.children) {
-        const item = el;
-        const matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
-        const matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
-        const fee = parseInt(item.dataset.fee || '0', 10);
-        const matchFee = fee <= currentMaxFee;
-        const show = matchBank && matchBenefit && matchFee;
-        if (show) {
-          item.classList.remove('card-hidden');
+      var visibleIdx = 0;
+      for (var i = 0; i < grid.children.length; i++) {
+        var item = grid.children[i];
+        var matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
+        var matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
+        var fee = parseInt(item.dataset.fee || '0', 10);
+        var matchFee = fee <= currentMaxFee;
+        var show = matchBank && matchBenefit && matchFee;
+        var isHidden = item.classList.contains('card-hidden');
+        var isExiting = item.classList.contains('card-exiting');
+
+        if (show && (isHidden || isExiting)) {
+          item.classList.remove('card-hidden', 'card-exiting');
+          item.classList.add('card-entering');
           item.style.setProperty('--stagger', String(visibleIdx));
           visibleIdx++;
-        } else {
-          item.classList.add('card-hidden');
+          (function(el) {
+            el.addEventListener('animationend', function handler() {
+              el.classList.remove('card-entering');
+              el.removeEventListener('animationend', handler);
+            });
+          })(item);
+        } else if (show) {
+          item.style.setProperty('--stagger', String(visibleIdx));
+          visibleIdx++;
+        } else if (!show && !isHidden && !isExiting) {
+          item.classList.add('card-exiting');
+          (function(el) {
+            setTimeout(function() {
+              if (el.classList.contains('card-exiting')) {
+                el.classList.remove('card-exiting');
+                el.classList.add('card-hidden');
+              }
+            }, EXIT_MS);
+          })(item);
         }
       }
     }
