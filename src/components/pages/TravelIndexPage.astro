@@ -128,18 +128,27 @@ const programsByType = Object.fromEntries(
             </div>
           </div>
           <div class="card-filters__section card-filters__section--fee">
-            <span class="card-filters__label">{lang === 'zh' ? '年費上限' : 'Max annual fee'}</span>
+            <span class="card-filters__label">{lang === 'zh' ? '年費區間' : 'Annual fee range'}</span>
             <div class="card-filters__fee-row">
               <div class="card-filters__slider-wrap">
+                <div class="card-filters__range-track" id="fee-track"></div>
                 <input
                   type="range"
-                  class="card-filters__slider"
-                  id="fee-slider"
+                  class="card-filters__slider card-filters__slider--min"
+                  id="fee-slider-min"
+                  min="0"
+                  max={FEE_CAP}
+                  value="0"
+                  step="100"
+                />
+                <input
+                  type="range"
+                  class="card-filters__slider card-filters__slider--max"
+                  id="fee-slider-max"
                   min="0"
                   max={FEE_CAP}
                   value={FEE_CAP}
                   step="100"
-                  list="fee-ticks"
                 />
                 <div class="card-filters__ticks">
                   <span class="card-filters__tick" style="left:0%">
@@ -155,12 +164,6 @@ const programsByType = Object.fromEntries(
                     <span class="card-filters__tick-label">$30K</span>
                   </span>
                 </div>
-                <datalist id="fee-ticks">
-                  <option value="0" />
-                  <option value="5000" />
-                  <option value="20000" />
-                  <option value="30000" />
-                </datalist>
               </div>
               <span class="card-filters__fee-value" id="fee-value">
                 {lang === 'zh' ? '不限' : 'All'}
@@ -289,13 +292,17 @@ const programsByType = Object.fromEntries(
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
   <script is:inline define:vars={{ feeCap: FEE_CAP }}>
-    // Tag-based card filters + fee slider
+    // Tag-based card filters + dual range fee slider
     var grid = document.getElementById('card-grid');
     var tags = document.querySelectorAll('.card-filters__tag');
     var active = { bank: new Set(), benefit: new Set() };
-    var feeSlider = document.getElementById('fee-slider');
+    var sliderMin = document.getElementById('fee-slider-min');
+    var sliderMax = document.getElementById('fee-slider-max');
+    var feeTrack = document.getElementById('fee-track');
     var feeValueEl = document.getElementById('fee-value');
-    var currentMaxFee = feeCap;
+    var feeMin = 0;
+    var feeMax = feeCap;
+    var isZh = (window.__compareLang || 'zh') === 'zh';
 
     var EXIT_MS = 300;
 
@@ -307,7 +314,7 @@ const programsByType = Object.fromEntries(
         var matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
         var matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
         var fee = parseInt(item.dataset.fee || '0', 10);
-        var matchFee = fee <= currentMaxFee;
+        var matchFee = fee >= feeMin && fee <= feeMax;
         var show = matchBank && matchBenefit && matchFee;
         var isHidden = item.classList.contains('card-hidden');
         var isExiting = item.classList.contains('card-exiting');
@@ -342,8 +349,8 @@ const programsByType = Object.fromEntries(
 
     tags.forEach(function(tag) {
       tag.addEventListener('click', function() {
-        const filter = tag.dataset.filter;
-        const value = tag.dataset.value;
+        var filter = tag.dataset.filter;
+        var value = tag.dataset.value;
         if (active[filter].has(value)) {
           active[filter].delete(value);
           tag.classList.remove('is-active');
@@ -357,18 +364,42 @@ const programsByType = Object.fromEntries(
       });
     });
 
-    if (feeSlider) {
-      feeSlider.addEventListener('input', function() {
-        currentMaxFee = parseInt(feeSlider.value, 10);
-        if (feeValueEl) {
-          feeValueEl.textContent = currentMaxFee >= feeCap
-            ? (window.__compareLang === 'zh' ? '不限' : 'All')
-            : currentMaxFee === 0
-              ? (window.__compareLang === 'zh' ? '免年費' : 'Free')
-              : 'NT$ ' + currentMaxFee.toLocaleString();
-        }
-        applyFilters();
-      });
+    function feeLabel(lo, hi) {
+      var loStr = lo === 0 ? (isZh ? '免費' : 'Free') : 'NT$ ' + lo.toLocaleString();
+      var hiStr = hi >= feeCap ? (isZh ? '不限' : 'All') : 'NT$ ' + hi.toLocaleString();
+      if (lo === 0 && hi >= feeCap) return isZh ? '不限' : 'All';
+      return loStr + ' — ' + hiStr;
+    }
+
+    function updateTrack() {
+      if (!feeTrack) return;
+      var lo = (feeMin / feeCap) * 100;
+      var hi = (feeMax / feeCap) * 100;
+      feeTrack.style.left = lo + '%';
+      feeTrack.style.right = (100 - hi) + '%';
+    }
+
+    function onSliderInput() {
+      var lo = parseInt(sliderMin.value, 10);
+      var hi = parseInt(sliderMax.value, 10);
+      if (lo > hi) { var t = lo; lo = hi; hi = t; }
+      feeMin = lo;
+      feeMax = hi;
+      if (feeValueEl) feeValueEl.textContent = feeLabel(lo, hi);
+      updateTrack();
+    }
+
+    function onSliderChange() {
+      onSliderInput();
+      applyFilters();
+    }
+
+    if (sliderMin && sliderMax) {
+      sliderMin.addEventListener('input', onSliderInput);
+      sliderMax.addEventListener('input', onSliderInput);
+      sliderMin.addEventListener('change', onSliderChange);
+      sliderMax.addEventListener('change', onSliderChange);
+      updateTrack();
     }
   </script>
   <script>

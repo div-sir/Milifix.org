@@ -132,6 +132,9 @@ export type CmsBenefitType =
   | 'airline-membership'
   | 'flight-discount'
   | 'duty-free-discount'
+  | 'cashback'
+  | 'hotel'
+  | 'airport-parking'
   | 'other'
 
 export type CmsCardBenefit = {

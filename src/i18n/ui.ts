@@ -243,6 +243,9 @@ const STRINGS: Record<
         'airline-membership': 'Airline membership',
         'flight-discount': 'Flight discount',
         'duty-free-discount': 'Duty-free discount',
+        cashback: 'Cashback',
+        hotel: 'Hotel perks',
+        'airport-parking': 'Airport parking',
         other: 'Other',
       },
       allianceNames: {
@@ -384,6 +387,9 @@ const STRINGS: Record<
         'airline-membership': '航空會員',
         'flight-discount': '機票折扣',
         'duty-free-discount': '免稅品折扣',
+        cashback: '現金回饋',
+        hotel: '飯店禮遇',
+        'airport-parking': '機場停車',
         other: '其他',
       },
       allianceNames: {
@@ -525,6 +531,9 @@ const STRINGS: Record<
         'airline-membership': 'Airline membership',
         'flight-discount': 'Flight discount',
         'duty-free-discount': 'Duty-free discount',
+        cashback: 'Cashback',
+        hotel: 'Hotel perks',
+        'airport-parking': 'Airport parking',
         other: 'Other',
       },
       allianceNames: {
