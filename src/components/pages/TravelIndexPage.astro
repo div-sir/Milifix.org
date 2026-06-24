@@ -4,9 +4,6 @@ import {
   getAirlines,
   getLounges,
   getPrograms,
-  type CmsCreditCard,
-  type CmsAirline,
-  type CmsLounge,
 } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
@@ -21,12 +18,7 @@ import '../../styles/travel.css';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import {
-  cardSlugPath,
-  loungeSlugPath,
-  airlineSlugPath,
-  programSlugPath,
-} from '../../i18n/routes';
+import { programSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -53,8 +45,10 @@ const stats = [
 
 // ── Card filters data ──
 const banks = [...new Set(cards.map((c) => c.bank))].sort();
-const benefitTypes = [...new Set(cards.flatMap((c) => c.benefits.map((b) => b.benefitType)))].sort();
-const networks = [...new Set(cards.map((c) => c.cardNetwork))].sort();
+const benefitTypes = [...new Set(cards.flatMap((c) => c.benefits.map((b) => b.benefitType)))]
+  .filter((bt) => bt !== 'other')
+  .sort();
+const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
 
 // ── Programs grouped by type ──
 const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as const;
@@ -62,32 +56,6 @@ const programsByType = Object.fromEntries(
   programTypes.map((type) => [type, allPrograms.filter((p) => p.programType === type)])
 );
 
-// ── Matrix data ──
-function isPopulated(v: unknown): v is { id: string; slug: string } {
-  return typeof v === 'object' && v !== null && 'slug' in v;
-}
-
-type MatrixRow = {
-  card: CmsCreditCard;
-  loungeIds: Set<string>;
-  airlineIds: Set<string>;
-};
-
-const matrix: MatrixRow[] = cards.map((card) => {
-  const loungeIds = new Set<string>();
-  const airlineIds = new Set<string>();
-  for (const b of card.benefits) {
-    if (isPopulated(b.lounge)) loungeIds.add(b.lounge.id);
-    else if (typeof b.lounge === 'string') loungeIds.add(b.lounge);
-    if (isPopulated(b.airline)) airlineIds.add(b.airline.id);
-    else if (typeof b.airline === 'string') airlineIds.add(b.airline);
-  }
-  return { card, loungeIds, airlineIds };
-});
-
-const usedLounges = lounges.filter((l) => matrix.some((m) => m.loungeIds.has(l.id)));
-const usedAirlines = airlines.filter((a) => matrix.some((m) => m.airlineIds.has(a.id)));
-const checkMark = '✓';
 ---
 
 <!DOCTYPE html>
@@ -143,28 +111,47 @@ const checkMark = '✓';
           <h2 class="travel-section__title">{t.sectionCards}</h2>
         </div>
         <div class="card-filters" id="card-filters">
-          <div class="card-filters__group">
-            {banks.map((b) => (
-              <button type="button" class="card-filters__tag" data-filter="bank" data-value={b}>{b}</button>
-            ))}
+          <div class="card-filters__section">
+            <span class="card-filters__label">{lang === 'zh' ? '銀行' : 'Bank'}</span>
+            <div class="card-filters__group">
+              {banks.map((b) => (
+                <button type="button" class="card-filters__tag" data-filter="bank" data-value={b}>{b}</button>
+              ))}
+            </div>
           </div>
-          <div class="card-filters__group">
-            {benefitTypes.map((bt) => (
-              <button type="button" class="card-filters__tag" data-filter="benefit" data-value={bt}>{t.benefitTypes[bt] ?? bt}</button>
-            ))}
+          <div class="card-filters__section">
+            <span class="card-filters__label">{lang === 'zh' ? '卡片特點' : 'Benefits'}</span>
+            <div class="card-filters__group">
+              {benefitTypes.map((bt) => (
+                <button type="button" class="card-filters__tag" data-filter="benefit" data-value={bt}>{t.benefitTypes[bt] ?? bt}</button>
+              ))}
+            </div>
           </div>
-          <div class="card-filters__group">
-            {networks.map((n) => (
-              <button type="button" class="card-filters__tag" data-filter="network" data-value={n}>{n.toUpperCase()}</button>
-            ))}
+          <div class="card-filters__section card-filters__section--fee">
+            <span class="card-filters__label">{lang === 'zh' ? '年費上限' : 'Max annual fee'}</span>
+            <div class="card-filters__fee-row">
+              <input
+                type="range"
+                class="card-filters__slider"
+                id="fee-slider"
+                min="0"
+                max={maxFee}
+                value={maxFee}
+                step="100"
+              />
+              <span class="card-filters__fee-value" id="fee-value">
+                {lang === 'zh' ? '不限' : 'All'}
+              </span>
+            </div>
           </div>
         </div>
         <div class="travel-grid travel-grid--wallet" id="card-grid">
           {cards.map((card) => (
             <div
               data-bank={card.bank}
-              data-network={card.cardNetwork}
               data-benefits={card.benefits.map((b) => b.benefitType).join(',')}
+              data-fee={card.annualFee}
+              data-slug={card.slug}
             >
               <RealisticCreditCard lang={lang} card={card} />
             </div>
@@ -231,50 +218,45 @@ const checkMark = '✓';
       </section>
     )}
 
-    <!-- ── 比較 ── -->
-    <section class="travel-section" id="matrix">
-      <div class="travel-section__header">
-        <h2 class="travel-section__title">{t.matrix}</h2>
-      </div>
-
-      <p class="compare-hint">{lang === 'zh' ? '選擇要比較的卡片（最多 4 張）' : 'Pick cards to compare (up to 4)'}</p>
-
-      <div class="compare-picker" id="compare-picker">
-        {cards.map((card) => (
-          <button
-            type="button"
-            class="compare-picker__chip"
-            data-compare-slug={card.slug}
-          >
-            <span class="compare-picker__bank">{card.bank}</span>
-            <span class="compare-picker__name">{card.name}</span>
+    <!-- ── 比較 Modal ── -->
+    <div class="compare-modal" id="compare-modal" aria-hidden="true">
+      <div class="compare-modal__backdrop" id="compare-modal-backdrop"></div>
+      <div class="compare-modal__panel">
+        <div class="compare-modal__header">
+          <h2 class="compare-modal__title">
+            {lang === 'zh' ? '卡片比較' : 'Compare Cards'}
+            <span class="compare-modal__count" id="compare-count">0</span>
+          </h2>
+          <button type="button" class="compare-modal__close" id="compare-modal-close" aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-        ))}
-      </div>
-
-      <div class="compare-table-wrap" id="compare-table">
-        <table class="compare-table">
-          <thead id="compare-head"></thead>
-          <tbody id="compare-body"></tbody>
-        </table>
-        <div class="compare-empty" id="compare-empty">
-          {lang === 'zh' ? '← 點選上方卡片開始比較' : '← Pick cards above to compare'}
+        </div>
+        <div class="compare-modal__body">
+          <div class="compare-table-wrap" id="compare-table">
+            <table class="compare-table">
+              <thead id="compare-head"></thead>
+              <tbody id="compare-body"></tbody>
+            </table>
+            <div class="compare-empty" id="compare-empty">
+              {lang === 'zh' ? '點選卡片上的 ＋ 加入比較（最多 4 張）' : 'Tap + on cards to compare (up to 4)'}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 卡片資料注入（供 JS 讀取） -->
-      <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
-        slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
-        annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
-        benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title })),
-      }))), benefitLabels: JSON.stringify(Object.fromEntries(
-        benefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
-      )), lang }}>
-        window.__compareCards = JSON.parse(cardsJson);
-        window.__benefitLabels = JSON.parse(benefitLabels);
-        window.__compareLang = lang;
-      </script>
-    </section>
+    <!-- 卡片資料注入（供 JS 讀取） -->
+    <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
+      slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
+      annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
+      benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title })),
+    }))), benefitLabels: JSON.stringify(Object.fromEntries(
+      benefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
+    )), lang }}>
+      window.__compareCards = JSON.parse(cardsJson);
+      window.__benefitLabels = JSON.parse(benefitLabels);
+      window.__compareLang = lang;
+    </script>
 
     {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
       <div class="travel-empty"><p>{t.noResults}</p></div>
@@ -283,21 +265,25 @@ const checkMark = '✓';
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
-  <script>
-    // Tag-based card filters
+  <script is:inline define:vars={{ maxFeeVal: maxFee }}>
+    // Tag-based card filters + fee slider
     const grid = document.getElementById('card-grid');
-    const tags = document.querySelectorAll<HTMLButtonElement>('.card-filters__tag');
-    const active: Record<string, Set<string>> = { bank: new Set(), benefit: new Set(), network: new Set() };
+    const tags = document.querySelectorAll('.card-filters__tag');
+    const active = { bank: new Set(), benefit: new Set() };
+    const feeSlider = document.getElementById('fee-slider');
+    const feeValueEl = document.getElementById('fee-value');
+    let currentMaxFee = maxFeeVal;
 
     function applyFilters() {
       if (!grid) return;
       let visibleIdx = 0;
       for (const el of grid.children) {
-        const item = el as HTMLElement;
-        const matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank ?? '');
-        const matchBenefit = active.benefit.size === 0 || (item.dataset.benefits ?? '').split(',').some((b) => active.benefit.has(b));
-        const matchNetwork = active.network.size === 0 || active.network.has(item.dataset.network ?? '');
-        const show = matchBank && matchBenefit && matchNetwork;
+        const item = el;
+        const matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
+        const matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
+        const fee = parseInt(item.dataset.fee || '0', 10);
+        const matchFee = fee <= currentMaxFee;
+        const show = matchBank && matchBenefit && matchFee;
         if (show) {
           item.classList.remove('card-hidden');
           item.style.setProperty('--stagger', String(visibleIdx));
@@ -308,10 +294,10 @@ const checkMark = '✓';
       }
     }
 
-    tags.forEach((tag) => {
-      tag.addEventListener('click', () => {
-        const filter = tag.dataset.filter as string;
-        const value = tag.dataset.value as string;
+    tags.forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const filter = tag.dataset.filter;
+        const value = tag.dataset.value;
         if (active[filter].has(value)) {
           active[filter].delete(value);
           tag.classList.remove('is-active');
@@ -319,9 +305,25 @@ const checkMark = '✓';
           active[filter].add(value);
           tag.classList.add('is-active');
         }
+        tag.classList.add('is-bouncing');
+        setTimeout(function() { tag.classList.remove('is-bouncing'); }, 300);
         applyFilters();
       });
     });
+
+    if (feeSlider) {
+      feeSlider.addEventListener('input', function() {
+        currentMaxFee = parseInt(feeSlider.value, 10);
+        if (feeValueEl) {
+          feeValueEl.textContent = currentMaxFee >= maxFeeVal
+            ? (window.__compareLang === 'zh' ? '不限' : 'All')
+            : currentMaxFee === 0
+              ? (window.__compareLang === 'zh' ? '免年費' : 'Free')
+              : 'NT$ ' + currentMaxFee.toLocaleString();
+        }
+        applyFilters();
+      });
+    }
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
@@ -330,7 +332,7 @@ const checkMark = '✓';
     initCardTilt();
 
     // ── 頁內分頁：帶動畫的 tab 切換 ──
-    const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs', 'matrix'];
+    const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs'];
     const sections = TAB_IDS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const pills = document.querySelectorAll<HTMLElement>('.dock-nav__section');
     let currentTab = '';
@@ -345,7 +347,7 @@ const checkMark = '✓';
           sec.style.display = '';
           if (animate && currentTab) {
             sec.style.animation = 'none';
-            sec.offsetHeight; // reflow
+            sec.offsetHeight;
             sec.style.animation = `tabIn 0.35s cubic-bezier(0.22,1,0.32,1) both`;
             sec.style.setProperty('--tab-dir', String(direction));
           }
@@ -382,13 +384,15 @@ const checkMark = '✓';
       if (TAB_IDS.includes(h)) showTab(h, false);
     });
 
-    // ── 互動比較表 ──
+    // ── 互動比較（Modal） ──
     const MAX_COMPARE = 4;
     const selected = new Set<string>();
-    const chips = document.querySelectorAll<HTMLButtonElement>('[data-compare-slug]');
+    const compareModal = document.getElementById('compare-modal')!;
+    const compareBtns = document.querySelectorAll<HTMLButtonElement>('.cc3d__compare-btn');
     const compareHead = document.getElementById('compare-head')!;
     const compareBody = document.getElementById('compare-body')!;
     const compareEmpty = document.getElementById('compare-empty')!;
+    const compareCount = document.getElementById('compare-count')!;
     const allCards: Array<{
       slug: string; name: string; bank: string; annualFee: number;
       annualFeeNote: string; cardNetwork: string;
@@ -397,6 +401,32 @@ const checkMark = '✓';
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
 
+    // 浮動比較按鈕（FAB）
+    const fab = document.createElement('button');
+    fab.className = 'compare-fab';
+    fab.id = 'compare-fab';
+    fab.setAttribute('aria-label', isZh ? '開啟比較' : 'Open compare');
+    fab.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="compare-fab__badge" id="compare-fab-badge">0</span>`;
+    fab.style.display = 'none';
+    document.body.appendChild(fab);
+
+    function updateBadge() {
+      const n = selected.size;
+      compareCount.textContent = String(n);
+      const badge = document.getElementById('compare-fab-badge');
+      if (badge) badge.textContent = String(n);
+      fab.style.display = n > 0 ? '' : 'none';
+
+      compareBtns.forEach((btn) => {
+        const slug = btn.dataset.compareSlug!;
+        const on = selected.has(slug);
+        btn.classList.toggle('is-selected', on);
+        btn.setAttribute('aria-label', on
+          ? (isZh ? '移除比較' : 'Remove from compare')
+          : (isZh ? '加入比較' : 'Add to compare'));
+      });
+    }
+
     function renderCompare() {
       const picks = allCards.filter((c) => selected.has(c.slug));
       compareEmpty.style.display = picks.length ? 'none' : '';
@@ -404,19 +434,19 @@ const checkMark = '✓';
       if (!picks.length) {
         compareHead.innerHTML = '';
         compareBody.innerHTML = '';
+        updateBadge();
         return;
       }
 
-      // header
       compareHead.innerHTML = `<tr>
         <th class="compare-table__corner">${isZh ? '比較項目' : 'Compare'}</th>
         ${picks.map((c) => `<th class="compare-table__card-head">
           <span class="compare-table__bank">${c.bank}</span>
           <span class="compare-table__name">${c.name}</span>
+          <button type="button" class="compare-table__remove" data-remove-slug="${c.slug}" aria-label="Remove">✕</button>
         </th>`).join('')}
       </tr>`;
 
-      // rows
       const rows: Array<{ label: string; values: string[] }> = [
         { label: isZh ? '卡片網路' : 'Network', values: picks.map((c) => c.cardNetwork.toUpperCase()) },
         { label: isZh ? '年費' : 'Annual Fee', values: picks.map((c) =>
@@ -425,7 +455,6 @@ const checkMark = '✓';
         { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => c.annualFeeNote || '—') },
       ];
 
-      // benefit rows grouped by type
       const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
       for (const type of allTypes) {
         rows.push({
@@ -441,22 +470,53 @@ const checkMark = '✓';
         <td class="compare-table__label">${r.label}</td>
         ${r.values.map((v) => `<td class="compare-table__value">${v}</td>`).join('')}
       </tr>`).join('');
+
+      compareHead.querySelectorAll<HTMLButtonElement>('[data-remove-slug]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selected.delete(btn.dataset.removeSlug!);
+          renderCompare();
+        });
+      });
+
+      updateBadge();
     }
 
-    chips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        const slug = chip.dataset.compareSlug!;
+    // 卡片上的 "+" 按鈕
+    compareBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const slug = btn.dataset.compareSlug!;
         if (selected.has(slug)) {
           selected.delete(slug);
-          chip.classList.remove('is-selected');
         } else {
           if (selected.size >= MAX_COMPARE) return;
           selected.add(slug);
-          chip.classList.add('is-selected');
         }
         renderCompare();
       });
     });
+
+    function openModal() {
+      compareModal.setAttribute('aria-hidden', 'false');
+      compareModal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      renderCompare();
+    }
+    function closeModal() {
+      compareModal.classList.remove('is-open');
+      compareModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    fab.addEventListener('click', openModal);
+    document.getElementById('compare-modal-backdrop')?.addEventListener('click', closeModal);
+    document.getElementById('compare-modal-close')?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && compareModal.classList.contains('is-open')) closeModal();
+    });
+
+    updateBadge();
   </script>
   <TravelBottomNav lang={lang} />
 </body>
