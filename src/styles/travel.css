@@ -342,6 +342,42 @@ html[data-theme='light'] body::before {
   border-color: var(--travel-accent);
 }
 
+/* ── Card filter transitions ──────────────────────────── */
+
+.travel-grid--wallet > * {
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.32, 1);
+  animation: cardFilterIn 0.35s cubic-bezier(0.22, 1, 0.32, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 0.03s);
+}
+
+.travel-grid--wallet > .card-hidden {
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes cardFilterIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-grid--wallet > * { animation: none; transition: none; }
+  .travel-grid--wallet > .card-hidden { opacity: 0; transform: none; }
+}
+
 /* ── Card grid ────────────────────────────────────────── */
 
 .travel-grid {

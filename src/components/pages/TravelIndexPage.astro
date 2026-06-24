@@ -335,12 +335,20 @@ const checkMark = '✓';
 
     function applyFilters() {
       if (!grid) return;
+      let visibleIdx = 0;
       for (const el of grid.children) {
         const item = el as HTMLElement;
         const matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank ?? '');
         const matchBenefit = active.benefit.size === 0 || (item.dataset.benefits ?? '').split(',').some((b) => active.benefit.has(b));
         const matchNetwork = active.network.size === 0 || active.network.has(item.dataset.network ?? '');
-        item.style.display = matchBank && matchBenefit && matchNetwork ? '' : 'none';
+        const show = matchBank && matchBenefit && matchNetwork;
+        if (show) {
+          item.classList.remove('card-hidden');
+          item.style.setProperty('--stagger', String(visibleIdx));
+          visibleIdx++;
+        } else {
+          item.classList.add('card-hidden');
+        }
       }
     }
 
