@@ -259,11 +259,35 @@ const programsByType = Object.fromEntries(
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionAirlines}</h2>
         </div>
-        <div class="travel-grid">
+        <div class="card-toolbar">
+          <div class="card-toolbar__search">
+            <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="airline-search" class="card-toolbar__search-input" autocomplete="off"
+              placeholder={lang === 'zh' ? '搜尋航空公司或代碼…' : 'Search airline or code…'}
+              aria-label={lang === 'zh' ? '搜尋航空公司' : 'Search airlines'} />
+          </div>
+          <span class="card-filters__count" id="airline-count">{airlines.length}</span>
+        </div>
+        {[...new Set(airlines.map((a) => a.alliance))].filter((a) => a !== 'none').length > 0 && (
+          <div class="card-filters__group" style="margin-bottom: 1rem;">
+            {[...new Set(airlines.map((a) => a.alliance))].sort().map((al) => (
+              <button type="button" class="card-filters__tag airline-alliance-pill" data-value={al} aria-pressed="false">
+                {t.allianceNames[al] ?? al}
+              </button>
+            ))}
+          </div>
+        )}
+        <div class="travel-grid" id="airline-grid">
           {airlines.map((airline) => (
-            <AirlineCard lang={lang} airline={airline} />
+            <div
+              data-search={`${airline.name} ${airline.iataCode} ${t.allianceNames[airline.alliance] ?? ''}`.toLowerCase()}
+              data-alliance={airline.alliance}
+            >
+              <AirlineCard lang={lang} airline={airline} />
+            </div>
           ))}
         </div>
+        <div class="travel-empty" id="airline-empty" hidden>{t.noResults}</div>
       </section>
     )}
 
@@ -273,11 +297,23 @@ const programsByType = Object.fromEntries(
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionLounges}</h2>
         </div>
-        <div class="travel-grid">
+        <div class="card-toolbar">
+          <div class="card-toolbar__search">
+            <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="lounge-search" class="card-toolbar__search-input" autocomplete="off"
+              placeholder={lang === 'zh' ? '搜尋貴賓室、機場或代碼…' : 'Search lounge, airport or code…'}
+              aria-label={lang === 'zh' ? '搜尋貴賓室' : 'Search lounges'} />
+          </div>
+          <span class="card-filters__count" id="lounge-count">{lounges.length}</span>
+        </div>
+        <div class="travel-grid" id="lounge-grid">
           {lounges.map((lounge) => (
-            <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
+            <div data-search={`${lounge.name} ${lounge.airport} ${lounge.airportCode} ${lounge.terminal ?? ''}`.toLowerCase()}>
+              <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
+            </div>
           ))}
         </div>
+        <div class="travel-empty" id="lounge-empty" hidden>{t.noResults}</div>
       </section>
     )}
 
@@ -547,6 +583,47 @@ const programsByType = Object.fromEntries(
 
     // 初始化結果數量
     applyFilters();
+
+    // ── 航空 / 貴賓室區塊：搜尋 + (航空)聯盟篩選 ──
+    function initSearchGrid(gridId, inputId, countId, emptyId, pillSel, pillAttr) {
+      var g = document.getElementById(gridId);
+      if (!g) return;
+      var input = document.getElementById(inputId);
+      var countEl = document.getElementById(countId);
+      var emptyEl2 = document.getElementById(emptyId);
+      var pills2 = pillSel ? document.querySelectorAll(pillSel) : [];
+      var active2 = {};
+      var term = '';
+      var total = g.children.length;
+      function apply() {
+        var visible = 0;
+        for (var i = 0; i < g.children.length; i++) {
+          var item = g.children[i];
+          var ms = term === '' || (item.dataset.search || '').indexOf(term) !== -1;
+          var keys = Object.keys(active2);
+          var mp = keys.length === 0 || active2[item.dataset[pillAttr] || ''];
+          var show = ms && !!mp;
+          item.style.display = show ? '' : 'none';
+          if (show) visible++;
+        }
+        if (countEl) countEl.textContent = visible + ' / ' + total + (isZh ? ' 筆' : '');
+        if (emptyEl2) emptyEl2.hidden = visible !== 0;
+        g.style.display = visible === 0 ? 'none' : '';
+      }
+      if (input) input.addEventListener('input', function() { term = input.value.trim().toLowerCase(); apply(); });
+      pills2.forEach(function(p) {
+        p.addEventListener('click', function() {
+          var v = p.dataset.value;
+          if (active2[v]) { delete active2[v]; p.classList.remove('is-active'); p.setAttribute('aria-pressed', 'false'); }
+          else { active2[v] = true; p.classList.add('is-active'); p.setAttribute('aria-pressed', 'true'); }
+          apply();
+        });
+      });
+      apply();
+    }
+
+    initSearchGrid('airline-grid', 'airline-search', 'airline-count', 'airline-empty', '.airline-alliance-pill', 'alliance');
+    initSearchGrid('lounge-grid', 'lounge-search', 'lounge-count', 'lounge-empty', null, '');
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
