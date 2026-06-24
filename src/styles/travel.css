@@ -549,8 +549,9 @@ html[data-theme='light'] body::before {
 
 /* 退場動畫：先播完再摺疊 */
 .travel-grid--wallet > .card-exiting {
-  animation: cardFilterOut 0.3s cubic-bezier(0.55, 0, 1, 0.45) both;
+  animation: cardFilterOut 0.4s cubic-bezier(0.4, 0, 1, 1) both;
   pointer-events: none;
+  transform-origin: center bottom;
 }
 
 /* 動畫結束後真正隱藏 */
@@ -586,13 +587,15 @@ html[data-theme='light'] body::before {
 }
 
 @keyframes cardFilterOut {
-  from {
+  0% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: perspective(600px) scale(1) rotateX(0deg);
+    filter: blur(0);
   }
-  to {
+  100% {
     opacity: 0;
-    transform: scale(0.85) translateY(-10px);
+    transform: perspective(600px) scale(0.6) rotateX(35deg) translateY(-20px);
+    filter: blur(4px);
   }
 }
 

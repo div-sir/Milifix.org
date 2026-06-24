@@ -45,9 +45,7 @@ const stats = [
 
 // ── Card filters data ──
 const banks = [...new Set(cards.map((c) => c.bank))].sort();
-const benefitTypes = [...new Set(cards.flatMap((c) => c.benefits.map((b) => b.benefitType)))]
-  .filter((bt) => bt !== 'other')
-  .sort();
+const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other');
 const FEE_CAP = 30000;
 
 // ── Programs grouped by type ──
@@ -122,7 +120,7 @@ const programsByType = Object.fromEntries(
           <div class="card-filters__section">
             <span class="card-filters__label">{lang === 'zh' ? '卡片特點' : 'Benefits'}</span>
             <div class="card-filters__group">
-              {benefitTypes.map((bt) => (
+              {allBenefitTypes.map((bt) => (
                 <button type="button" class="card-filters__tag" data-filter="benefit" data-value={bt}>{t.benefitTypes[bt] ?? bt}</button>
               ))}
             </div>
@@ -277,7 +275,7 @@ const programsByType = Object.fromEntries(
       annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
       benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title })),
     }))), benefitLabels: JSON.stringify(Object.fromEntries(
-      benefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
+      allBenefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
     )), lang }}>
       window.__compareCards = JSON.parse(cardsJson);
       window.__benefitLabels = JSON.parse(benefitLabels);
@@ -304,7 +302,7 @@ const programsByType = Object.fromEntries(
     var feeMax = feeCap;
     var isZh = (window.__compareLang || 'zh') === 'zh';
 
-    var EXIT_MS = 300;
+    var EXIT_MS = 400;
 
     function applyFilters() {
       if (!grid) return;
