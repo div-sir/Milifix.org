@@ -1015,6 +1015,36 @@ html[data-theme='light'] body::before {
   margin-bottom: 0.4rem;
 }
 
+/* ── Card detail: consolidated related links ─────────── */
+
+.travel-related {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--travel-card-border);
+}
+
+.travel-related__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.travel-related__label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--travel-accent);
+}
+
+.travel-related__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .travel-benefit {
   padding: 0.5rem 0.75rem;
   border-radius: 8px;

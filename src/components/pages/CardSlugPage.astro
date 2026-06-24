@@ -74,7 +74,11 @@ function getBenefitPrograms(b: typeof card.benefits[number]): CmsProgram[] {
 }
 
 // Group benefits by type
-const typeOrder: CmsBenefitType[] = ['miles', 'lounge', 'upgrade', 'priority-boarding', 'baggage', 'insurance', 'other'];
+const typeOrder: CmsBenefitType[] = [
+  'miles', 'lounge', 'upgrade', 'priority-boarding', 'baggage', 'insurance',
+  'airport-transfer', 'airline-membership', 'flight-discount', 'duty-free-discount',
+  'cashback', 'hotel', 'airport-parking', 'other',
+];
 const benefitsByType = typeOrder
   .map((type) => ({
     type,
@@ -82,6 +86,21 @@ const benefitsByType = typeOrder
     items: card.benefits.filter((b) => b.benefitType === type),
   }))
   .filter((g) => g.items.length > 0);
+
+// ── 相關連結（去重）：把這張卡連到的航空 / 貴賓室 / 計畫彙整成總覽 ──
+function dedupeBySlug<T extends { slug: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  return items.filter((it) => (seen.has(it.slug) ? false : (seen.add(it.slug), true)));
+}
+
+const relatedAirlines = dedupeBySlug(
+  card.benefits.map((b) => b.airline).filter((a): a is CmsAirline => isPopulated(a))
+);
+const relatedLounges = dedupeBySlug(
+  card.benefits.map((b) => b.lounge).filter((l): l is CmsLounge => isPopulated(l))
+);
+const relatedPrograms = dedupeBySlug(card.benefits.flatMap(getBenefitPrograms));
+const hasRelated = relatedAirlines.length > 0 || relatedLounges.length > 0 || relatedPrograms.length > 0;
 ---
 
 <!DOCTYPE html>
@@ -203,6 +222,48 @@ const benefitsByType = typeOrder
               </ul>
             </div>
           ))}
+        </section>
+      )}
+
+      {hasRelated && (
+        <section class="travel-related">
+          <h2 class="travel-benefits__title">{lang === 'zh' ? '相關連結' : 'Related'}</h2>
+          {relatedAirlines.length > 0 && (
+            <div class="travel-related__group">
+              <span class="travel-related__label">{lang === 'zh' ? '航空公司' : 'Airlines'}</span>
+              <div class="travel-related__items">
+                {relatedAirlines.map((a) => (
+                  <a class="travel-tag travel-tag--clickable" href={airlineSlugPath(lang, a.slug)}>
+                    {a.name}{a.iataCode ? ` (${a.iataCode})` : ''}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {relatedLounges.length > 0 && (
+            <div class="travel-related__group">
+              <span class="travel-related__label">{lang === 'zh' ? '機場貴賓室' : 'Lounges'}</span>
+              <div class="travel-related__items">
+                {relatedLounges.map((l) => (
+                  <a class="travel-tag travel-tag--clickable travel-tag--network" href={loungeSlugPath(lang, l.slug)}>
+                    {l.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {relatedPrograms.length > 0 && (
+            <div class="travel-related__group">
+              <span class="travel-related__label">{lang === 'zh' ? '旅遊計畫' : 'Programs'}</span>
+              <div class="travel-related__items">
+                {relatedPrograms.map((p) => (
+                  <a class="travel-tag travel-tag--clickable travel-tag--alliance" href={programSlugPath(lang, p.slug)}>
+                    {p.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
     </article>
