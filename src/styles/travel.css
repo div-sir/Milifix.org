@@ -192,6 +192,41 @@ html[data-theme='light'] body::before {
   color: color-mix(in srgb, var(--text) 50%, transparent);
 }
 
+/* ── Hero quick-jump to sections ─────────────────────── */
+
+.travel-hero__jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.5rem;
+}
+
+.travel-hero__jump-btn {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.5rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--bg) 70%, var(--bg2));
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+  cursor: pointer;
+  transition: all 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.travel-hero__jump-btn:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--travel-accent) 50%, transparent);
+  transform: translateY(-1px);
+}
+
+.travel-hero__jump-btn.is-active {
+  color: var(--on-accent);
+  background: var(--travel-accent);
+  border-color: var(--travel-accent);
+}
+
 @media (max-width: 480px) {
   .travel-stats {
     gap: 1rem;

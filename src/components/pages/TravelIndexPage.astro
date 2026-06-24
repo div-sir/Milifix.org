@@ -100,6 +100,12 @@ const programsByType = Object.fromEntries(
           </div>
         ))}
       </div>
+      <nav class="travel-hero__jump" aria-label={lang === 'zh' ? '區塊快速跳轉' : 'Jump to section'}>
+        <button type="button" class="travel-hero__jump-btn" data-tab="cards">{t.sectionCards}</button>
+        <button type="button" class="travel-hero__jump-btn" data-tab="airlines">{t.sectionAirlines}</button>
+        <button type="button" class="travel-hero__jump-btn" data-tab="lounges">{t.sectionLounges}</button>
+        <button type="button" class="travel-hero__jump-btn" data-tab="programs">{t.programs}</button>
+      </nav>
     </header>
 
     <!-- ── 信用卡 ── -->
@@ -524,6 +530,7 @@ const programsByType = Object.fromEntries(
     const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs'];
     const sections = TAB_IDS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const pills = document.querySelectorAll<HTMLElement>('.dock-nav__section');
+    const jumpBtns = document.querySelectorAll<HTMLElement>('.travel-hero__jump-btn');
     let currentTab = '';
 
     function showTab(id: string, pushHash = true, animate = true) {
@@ -552,6 +559,9 @@ const programsByType = Object.fromEntries(
         if (on) pill.setAttribute('aria-current', 'location');
         else pill.removeAttribute('aria-current');
       });
+      jumpBtns.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.tab === id);
+      });
       if (pushHash) history.replaceState(null, '', `#${id}`);
       window.scrollTo({ top: 0 });
     }
@@ -561,6 +571,13 @@ const programsByType = Object.fromEntries(
         e.preventDefault();
         e.stopPropagation();
         const id = pill.getAttribute('data-dock-scroll-id') || pill.getAttribute('href')?.replace('#', '');
+        if (id && TAB_IDS.includes(id)) showTab(id);
+      });
+    });
+
+    jumpBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.tab;
         if (id && TAB_IDS.includes(id)) showTab(id);
       });
     });
