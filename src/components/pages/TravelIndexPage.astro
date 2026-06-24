@@ -231,94 +231,50 @@ const checkMark = '✓';
       </section>
     )}
 
-    <!-- ── 對照表 ── -->
-    {matrix.length > 0 && (usedLounges.length > 0 || usedAirlines.length > 0) && (
-      <section class="travel-section" id="matrix">
-        <div class="travel-section__header">
-          <h2 class="travel-section__title">{t.matrix}</h2>
+    <!-- ── 比較 ── -->
+    <section class="travel-section" id="matrix">
+      <div class="travel-section__header">
+        <h2 class="travel-section__title">{t.matrix}</h2>
+      </div>
+
+      <p class="compare-hint">{lang === 'zh' ? '選擇要比較的卡片（最多 4 張）' : 'Pick cards to compare (up to 4)'}</p>
+
+      <div class="compare-picker" id="compare-picker">
+        {cards.map((card) => (
+          <button
+            type="button"
+            class="compare-picker__chip"
+            data-compare-slug={card.slug}
+          >
+            <span class="compare-picker__bank">{card.bank}</span>
+            <span class="compare-picker__name">{card.name}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="compare-table-wrap" id="compare-table">
+        <table class="compare-table">
+          <thead id="compare-head"></thead>
+          <tbody id="compare-body"></tbody>
+        </table>
+        <div class="compare-empty" id="compare-empty">
+          {lang === 'zh' ? '← 點選上方卡片開始比較' : '← Pick cards above to compare'}
         </div>
+      </div>
 
-        {usedLounges.length > 0 && (
-          <div style="margin-bottom: 1.25rem;">
-            <h3 class="travel-section__subtitle">{t.sectionCards} × {t.sectionLounges}</h3>
-            <div class="travel-matrix-wrap">
-              <table class="travel-matrix">
-                <thead>
-                  <tr>
-                    <th class="travel-matrix__corner">{t.sectionCards}</th>
-                    {usedLounges.map((l) => (
-                      <th class="travel-matrix__col-head">
-                        <a href={loungeSlugPath(lang, l.slug)}>
-                          <span class="travel-matrix__col-code">{l.airportCode}</span>
-                          <span class="travel-matrix__col-name">{l.name}</span>
-                        </a>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {matrix.filter((m) => m.loungeIds.size > 0).map((m) => (
-                    <tr>
-                      <td class="travel-matrix__row-head">
-                        <a href={cardSlugPath(lang, m.card.slug)}>
-                          <span class="travel-matrix__row-bank">{m.card.bank}</span>
-                          <span class="travel-matrix__row-name">{m.card.name}</span>
-                        </a>
-                      </td>
-                      {usedLounges.map((l) => (
-                        <td class={m.loungeIds.has(l.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
-                          {m.loungeIds.has(l.id) ? checkMark : ''}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {usedAirlines.length > 0 && (
-          <div>
-            <h3 class="travel-section__subtitle">{t.sectionCards} × {t.sectionAirlines}</h3>
-            <div class="travel-matrix-wrap">
-              <table class="travel-matrix">
-                <thead>
-                  <tr>
-                    <th class="travel-matrix__corner">{t.sectionCards}</th>
-                    {usedAirlines.map((a) => (
-                      <th class="travel-matrix__col-head">
-                        <a href={airlineSlugPath(lang, a.slug)}>
-                          <span class="travel-matrix__col-code">{a.iataCode}</span>
-                          <span class="travel-matrix__col-name">{a.name}</span>
-                        </a>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {matrix.filter((m) => m.airlineIds.size > 0).map((m) => (
-                    <tr>
-                      <td class="travel-matrix__row-head">
-                        <a href={cardSlugPath(lang, m.card.slug)}>
-                          <span class="travel-matrix__row-bank">{m.card.bank}</span>
-                          <span class="travel-matrix__row-name">{m.card.name}</span>
-                        </a>
-                      </td>
-                      {usedAirlines.map((a) => (
-                        <td class={m.airlineIds.has(a.id) ? 'travel-matrix__cell travel-matrix__cell--yes' : 'travel-matrix__cell'}>
-                          {m.airlineIds.has(a.id) ? checkMark : ''}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </section>
-    )}
+      <!-- 卡片資料注入（供 JS 讀取） -->
+      <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
+        slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
+        annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
+        benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title })),
+      }))), benefitLabels: JSON.stringify(Object.fromEntries(
+        benefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
+      )), lang }}>
+        window.__compareCards = JSON.parse(cardsJson);
+        window.__benefitLabels = JSON.parse(benefitLabels);
+        window.__compareLang = lang;
+      </script>
+    </section>
 
     {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
       <div class="travel-empty"><p>{t.noResults}</p></div>
@@ -373,29 +329,42 @@ const checkMark = '✓';
     initPortfolioCursor();
     initCardTilt();
 
-    // ── 頁內分頁：DockNav pill 切換顯示區塊 ──
+    // ── 頁內分頁：帶動畫的 tab 切換 ──
     const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs', 'matrix'];
     const sections = TAB_IDS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const pills = document.querySelectorAll<HTMLElement>('.dock-nav__section');
+    let currentTab = '';
 
-    function showTab(id: string, pushHash = true) {
+    function showTab(id: string, pushHash = true, animate = true) {
+      const prevIdx = TAB_IDS.indexOf(currentTab);
+      const nextIdx = TAB_IDS.indexOf(id);
+      const direction = nextIdx >= prevIdx ? 1 : -1;
+
       for (const sec of sections) {
-        sec.style.display = sec.id === id ? '' : 'none';
+        if (sec.id === id) {
+          sec.style.display = '';
+          if (animate && currentTab) {
+            sec.style.animation = 'none';
+            sec.offsetHeight; // reflow
+            sec.style.animation = `tabIn 0.35s cubic-bezier(0.22,1,0.32,1) both`;
+            sec.style.setProperty('--tab-dir', String(direction));
+          }
+        } else {
+          sec.style.display = 'none';
+        }
       }
+      currentTab = id;
       pills.forEach((pill) => {
         const pillId = pill.getAttribute('data-dock-scroll-id') || pill.getAttribute('href')?.replace('#', '');
-        const active = pillId === id;
-        pill.classList.toggle('dock-nav__section--active', active);
-        if (active) pill.setAttribute('aria-current', 'location');
+        const on = pillId === id;
+        pill.classList.toggle('dock-nav__section--active', on);
+        if (on) pill.setAttribute('aria-current', 'location');
         else pill.removeAttribute('aria-current');
       });
-      if (pushHash) {
-        history.replaceState(null, '', `#${id}`);
-      }
+      if (pushHash) history.replaceState(null, '', `#${id}`);
       window.scrollTo({ top: 0 });
     }
 
-    // 攔截 DockNav pill 點擊，改為切換分頁
     pills.forEach((pill) => {
       pill.addEventListener('click', (e) => {
         e.preventDefault();
@@ -405,13 +374,88 @@ const checkMark = '✓';
       });
     });
 
-    // 初始化：從 hash 或預設 cards
     const initHash = window.location.hash.slice(1);
-    showTab(TAB_IDS.includes(initHash) ? initHash : 'cards', false);
+    showTab(TAB_IDS.includes(initHash) ? initHash : 'cards', false, false);
 
     window.addEventListener('hashchange', () => {
       const h = window.location.hash.slice(1);
       if (TAB_IDS.includes(h)) showTab(h, false);
+    });
+
+    // ── 互動比較表 ──
+    const MAX_COMPARE = 4;
+    const selected = new Set<string>();
+    const chips = document.querySelectorAll<HTMLButtonElement>('[data-compare-slug]');
+    const compareHead = document.getElementById('compare-head')!;
+    const compareBody = document.getElementById('compare-body')!;
+    const compareEmpty = document.getElementById('compare-empty')!;
+    const allCards: Array<{
+      slug: string; name: string; bank: string; annualFee: number;
+      annualFeeNote: string; cardNetwork: string;
+      benefits: Array<{ type: string; title: string }>;
+    }> = (window as any).__compareCards ?? [];
+    const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
+    const isZh = (window as any).__compareLang === 'zh';
+
+    function renderCompare() {
+      const picks = allCards.filter((c) => selected.has(c.slug));
+      compareEmpty.style.display = picks.length ? 'none' : '';
+
+      if (!picks.length) {
+        compareHead.innerHTML = '';
+        compareBody.innerHTML = '';
+        return;
+      }
+
+      // header
+      compareHead.innerHTML = `<tr>
+        <th class="compare-table__corner">${isZh ? '比較項目' : 'Compare'}</th>
+        ${picks.map((c) => `<th class="compare-table__card-head">
+          <span class="compare-table__bank">${c.bank}</span>
+          <span class="compare-table__name">${c.name}</span>
+        </th>`).join('')}
+      </tr>`;
+
+      // rows
+      const rows: Array<{ label: string; values: string[] }> = [
+        { label: isZh ? '卡片網路' : 'Network', values: picks.map((c) => c.cardNetwork.toUpperCase()) },
+        { label: isZh ? '年費' : 'Annual Fee', values: picks.map((c) =>
+          c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : `NT$ ${c.annualFee.toLocaleString()}`
+        )},
+        { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => c.annualFeeNote || '—') },
+      ];
+
+      // benefit rows grouped by type
+      const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
+      for (const type of allTypes) {
+        rows.push({
+          label: benefitLabels[type] ?? type,
+          values: picks.map((c) => {
+            const items = c.benefits.filter((b) => b.type === type);
+            return items.length ? items.map((b) => b.title).join('<br>') : '—';
+          }),
+        });
+      }
+
+      compareBody.innerHTML = rows.map((r) => `<tr>
+        <td class="compare-table__label">${r.label}</td>
+        ${r.values.map((v) => `<td class="compare-table__value">${v}</td>`).join('')}
+      </tr>`).join('');
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const slug = chip.dataset.compareSlug!;
+        if (selected.has(slug)) {
+          selected.delete(slug);
+          chip.classList.remove('is-selected');
+        } else {
+          if (selected.size >= MAX_COMPARE) return;
+          selected.add(slug);
+          chip.classList.add('is-selected');
+        }
+        renderCompare();
+      });
     });
   </script>
   <TravelBottomNav lang={lang} />
