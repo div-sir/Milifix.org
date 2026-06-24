@@ -48,7 +48,7 @@ const hasTags = matchedPrograms.length > 0 || unmatchedParts.length > 0;
 
 <a class="travel-card" href={href}>
   {thumb && (
-    <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" />
+    <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" decoding="async" />
   )}
   <span class="travel-card__overline">{lounge.airportCode}</span>
   <span class="travel-card__title">{lounge.name}</span>

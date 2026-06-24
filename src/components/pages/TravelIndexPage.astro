@@ -306,9 +306,19 @@ const programsByType = Object.fromEntries(
           </div>
           <span class="card-filters__count" id="lounge-count">{lounges.length}</span>
         </div>
+        {[...new Set(lounges.map((l) => l.airportCode).filter(Boolean))].length > 1 && (
+          <div class="card-filters__group" style="margin-bottom: 1rem;">
+            {[...new Set(lounges.map((l) => l.airportCode).filter(Boolean))].sort().map((code) => (
+              <button type="button" class="card-filters__tag lounge-airport-pill" data-value={code} aria-pressed="false">{code}</button>
+            ))}
+          </div>
+        )}
         <div class="travel-grid" id="lounge-grid">
           {lounges.map((lounge) => (
-            <div data-search={`${lounge.name} ${lounge.airport} ${lounge.airportCode} ${lounge.terminal ?? ''}`.toLowerCase()}>
+            <div
+              data-search={`${lounge.name} ${lounge.airport} ${lounge.airportCode} ${lounge.terminal ?? ''}`.toLowerCase()}
+              data-airport={lounge.airportCode}
+            >
               <LoungeCard lang={lang} lounge={lounge} programs={allPrograms} />
             </div>
           ))}
@@ -623,7 +633,7 @@ const programsByType = Object.fromEntries(
     }
 
     initSearchGrid('airline-grid', 'airline-search', 'airline-count', 'airline-empty', '.airline-alliance-pill', 'alliance');
-    initSearchGrid('lounge-grid', 'lounge-search', 'lounge-count', 'lounge-empty', null, '');
+    initSearchGrid('lounge-grid', 'lounge-search', 'lounge-count', 'lounge-empty', '.lounge-airport-pill', 'airport');
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
