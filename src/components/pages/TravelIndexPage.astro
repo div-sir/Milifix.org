@@ -108,6 +108,29 @@ const programsByType = Object.fromEntries(
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionCards}</h2>
         </div>
+        <div class="card-toolbar">
+          <div class="card-toolbar__search">
+            <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              type="search"
+              id="card-search"
+              class="card-toolbar__search-input"
+              placeholder={lang === 'zh' ? '搜尋卡名或銀行…' : 'Search card or bank…'}
+              autocomplete="off"
+              aria-label={lang === 'zh' ? '搜尋信用卡' : 'Search credit cards'}
+            />
+          </div>
+          <div class="card-toolbar__sort">
+            <label class="card-toolbar__sort-label" for="card-sort">{lang === 'zh' ? '排序' : 'Sort'}</label>
+            <select id="card-sort" class="card-toolbar__sort-select">
+              <option value="default">{lang === 'zh' ? '預設' : 'Default'}</option>
+              <option value="fee-asc">{lang === 'zh' ? '年費 低→高' : 'Fee low→high'}</option>
+              <option value="fee-desc">{lang === 'zh' ? '年費 高→低' : 'Fee high→low'}</option>
+              <option value="name">{lang === 'zh' ? '卡名 A→Z' : 'Name A→Z'}</option>
+              <option value="benefits">{lang === 'zh' ? '權益最多' : 'Most benefits'}</option>
+            </select>
+          </div>
+        </div>
         <div class="card-filters" id="card-filters">
           <div class="card-filters__section">
             <span class="card-filters__label">{lang === 'zh' ? '銀行' : 'Bank'}</span>
@@ -168,18 +191,32 @@ const programsByType = Object.fromEntries(
               </span>
             </div>
           </div>
+          <div class="card-filters__result">
+            <span class="card-filters__count" id="card-result-count">{cards.length}</span>
+            <button type="button" class="card-filters__clear" id="card-clear" hidden>
+              {lang === 'zh' ? '清除全部' : 'Clear all'}
+            </button>
+          </div>
         </div>
         <div class="travel-grid travel-grid--wallet" id="card-grid">
           {cards.map((card) => (
             <div
               data-bank={card.bank}
+              data-name={`${card.bank} ${card.name}`.toLowerCase()}
               data-benefits={card.benefits.map((b) => b.benefitType).join(',')}
+              data-benefit-count={new Set(card.benefits.map((b) => b.benefitType)).size}
               data-fee={card.annualFee}
               data-slug={card.slug}
             >
               <RealisticCreditCard lang={lang} card={card} />
             </div>
           ))}
+        </div>
+        <div class="travel-empty travel-empty--cards" id="card-empty" hidden>
+          <p>{lang === 'zh' ? '找不到符合條件的卡片' : 'No cards match your filters'}</p>
+          <button type="button" class="card-filters__clear" id="card-empty-clear">
+            {lang === 'zh' ? '清除篩選' : 'Clear filters'}
+          </button>
         </div>
       </section>
     )}
@@ -251,9 +288,15 @@ const programsByType = Object.fromEntries(
             {lang === 'zh' ? '卡片比較' : 'Compare Cards'}
             <span class="compare-modal__count" id="compare-count">0</span>
           </h2>
-          <button type="button" class="compare-modal__close" id="compare-modal-close" aria-label="Close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          <div class="compare-modal__actions">
+            <button type="button" class="compare-modal__share" id="compare-share" aria-label={lang === 'zh' ? '複製比較連結' : 'Copy compare link'}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              <span class="compare-modal__share-label">{lang === 'zh' ? '複製連結' : 'Share'}</span>
+            </button>
+            <button type="button" class="compare-modal__close" id="compare-modal-close" aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
         </div>
         <div class="compare-modal__body">
           <div class="compare-table-wrap" id="compare-table">
@@ -290,7 +333,7 @@ const programsByType = Object.fromEntries(
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
   <script is:inline define:vars={{ feeCap: FEE_CAP }}>
-    // Tag-based card filters + dual range fee slider
+    // Tag-based card filters + dual range fee slider + search + sort
     var grid = document.getElementById('card-grid');
     var tags = document.querySelectorAll('.card-filters__tag');
     var active = { bank: new Set(), benefit: new Set() };
@@ -298,24 +341,36 @@ const programsByType = Object.fromEntries(
     var sliderMax = document.getElementById('fee-slider-max');
     var feeTrack = document.getElementById('fee-track');
     var feeValueEl = document.getElementById('fee-value');
+    var searchInput = document.getElementById('card-search');
+    var sortSelect = document.getElementById('card-sort');
+    var clearBtn = document.getElementById('card-clear');
+    var emptyClearBtn = document.getElementById('card-empty-clear');
+    var resultCountEl = document.getElementById('card-result-count');
+    var emptyEl = document.getElementById('card-empty');
     var feeMin = 0;
     var feeMax = feeCap;
+    var searchTerm = '';
     var isZh = (window.__compareLang || 'zh') === 'zh';
+    var totalCards = grid ? grid.children.length : 0;
 
     var EXIT_MS = 400;
 
     function applyFilters() {
       if (!grid) return;
       var visibleIdx = 0;
+      var visibleCount = 0;
       for (var i = 0; i < grid.children.length; i++) {
         var item = grid.children[i];
         var matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
         var matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
         var fee = parseInt(item.dataset.fee || '0', 10);
         var matchFee = fee >= feeMin && fee <= feeMax;
-        var show = matchBank && matchBenefit && matchFee;
+        var matchSearch = searchTerm === '' || (item.dataset.name || '').indexOf(searchTerm) !== -1;
+        var show = matchBank && matchBenefit && matchFee && matchSearch;
         var isHidden = item.classList.contains('card-hidden');
         var isExiting = item.classList.contains('card-exiting');
+
+        if (show) visibleCount++;
 
         if (show && (isHidden || isExiting)) {
           item.classList.remove('card-hidden', 'card-exiting');
@@ -343,7 +398,63 @@ const programsByType = Object.fromEntries(
           })(item);
         }
       }
+
+      if (resultCountEl) {
+        resultCountEl.textContent = isZh
+          ? (visibleCount + ' / ' + totalCards + ' 張')
+          : (visibleCount + ' / ' + totalCards + ' cards');
+      }
+      var anyFilter = active.bank.size > 0 || active.benefit.size > 0 ||
+        searchTerm !== '' || feeMin > 0 || feeMax < feeCap;
+      if (clearBtn) clearBtn.hidden = !anyFilter;
+      if (emptyEl) emptyEl.hidden = visibleCount !== 0;
+      if (grid) grid.style.display = visibleCount === 0 ? 'none' : '';
     }
+
+    function applySort() {
+      if (!grid || !sortSelect) return;
+      var mode = sortSelect.value;
+      if (mode === 'default') return;
+      var items = Array.prototype.slice.call(grid.children);
+      items.sort(function(a, b) {
+        if (mode === 'fee-asc') return (+a.dataset.fee || 0) - (+b.dataset.fee || 0);
+        if (mode === 'fee-desc') return (+b.dataset.fee || 0) - (+a.dataset.fee || 0);
+        if (mode === 'benefits') return (+b.dataset.benefitCount || 0) - (+a.dataset.benefitCount || 0);
+        if (mode === 'name') return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+        return 0;
+      });
+      items.forEach(function(el) { grid.appendChild(el); });
+    }
+
+    function clearAll() {
+      active.bank.clear();
+      active.benefit.clear();
+      tags.forEach(function(tag) { tag.classList.remove('is-active'); });
+      searchTerm = '';
+      if (searchInput) searchInput.value = '';
+      feeMin = 0;
+      feeMax = feeCap;
+      if (sliderMin) sliderMin.value = '0';
+      if (sliderMax) sliderMax.value = String(feeCap);
+      if (feeValueEl) feeValueEl.textContent = isZh ? '不限' : 'All';
+      updateTrack();
+      applyFilters();
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        searchTerm = searchInput.value.trim().toLowerCase();
+        applyFilters();
+      });
+    }
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        applySort();
+        applyFilters();
+      });
+    }
+    if (clearBtn) clearBtn.addEventListener('click', clearAll);
+    if (emptyClearBtn) emptyClearBtn.addEventListener('click', clearAll);
 
     tags.forEach(function(tag) {
       tag.addEventListener('click', function() {
@@ -399,6 +510,9 @@ const programsByType = Object.fromEntries(
       sliderMax.addEventListener('change', onSliderChange);
       updateTrack();
     }
+
+    // 初始化結果數量
+    applyFilters();
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
@@ -475,6 +589,35 @@ const programsByType = Object.fromEntries(
     }> = (window as any).__compareCards ?? [];
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
+    const STORAGE_KEY = 'milifix-compare';
+
+    // 將比較清單寫進網址 query 與 localStorage（可延續 / 分享）
+    function persistSelection() {
+      const slugs = [...selected];
+      const url = new URL(window.location.href);
+      if (slugs.length) url.searchParams.set('compare', slugs.join(','));
+      else url.searchParams.delete('compare');
+      history.replaceState(null, '', url.toString());
+      try {
+        if (slugs.length) localStorage.setItem(STORAGE_KEY, slugs.join(','));
+        else localStorage.removeItem(STORAGE_KEY);
+      } catch (e) { /* localStorage 不可用時忽略 */ }
+    }
+
+    // 從網址或 localStorage 還原；回傳是否來自分享連結（用於自動開啟）
+    function restoreSelection(): boolean {
+      const url = new URL(window.location.href);
+      const param = url.searchParams.get('compare');
+      let raw = param ?? '';
+      let fromUrl = !!param;
+      if (!raw) { try { raw = localStorage.getItem(STORAGE_KEY) ?? ''; } catch (e) { raw = ''; } }
+      if (!raw) return false;
+      const valid = new Set(allCards.map((c) => c.slug));
+      raw.split(',').filter(Boolean).forEach((s) => {
+        if (selected.size < MAX_COMPARE && valid.has(s)) selected.add(s);
+      });
+      return fromUrl && selected.size > 0;
+    }
 
     // 比較按鈕：插入底部導覽列
     const dockRow = document.querySelector('.dock-pill-nav__row');
@@ -520,6 +663,7 @@ const programsByType = Object.fromEntries(
     }
 
     function renderCompare() {
+      persistSelection();
       const picks = allCards.filter((c) => selected.has(c.slug));
       compareEmpty.style.display = picks.length ? 'none' : '';
 
@@ -608,7 +752,37 @@ const programsByType = Object.fromEntries(
       if (e.key === 'Escape' && compareModal.classList.contains('is-open')) closeModal();
     });
 
+    // 複製分享連結
+    const shareBtn = document.getElementById('compare-share');
+    shareBtn?.addEventListener('click', async () => {
+      persistSelection();
+      const link = window.location.href;
+      try {
+        await navigator.clipboard.writeText(link);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = link;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e2) { /* noop */ }
+        document.body.removeChild(ta);
+      }
+      shareBtn.classList.add('is-copied');
+      const label = shareBtn.querySelector('.compare-modal__share-label');
+      const prev = label?.textContent ?? '';
+      if (label) label.textContent = isZh ? '已複製!' : 'Copied!';
+      setTimeout(() => {
+        shareBtn.classList.remove('is-copied');
+        if (label) label.textContent = prev;
+      }, 1600);
+    });
+
+    // 還原比較清單（分享連結 / 回訪）
+    const openedFromUrl = restoreSelection();
     updateBadge();
+    if (openedFromUrl) openModal();
   </script>
   <TravelBottomNav lang={lang} />
 </body>
