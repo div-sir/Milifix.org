@@ -124,11 +124,32 @@ export default function AirlineDome({ airlines, lang }) {
     }
   }, { target: mainRef, eventOptions: { passive: true } });
 
-  const onTileClick = useCallback((e) => {
-    if (movedRef.current || performance.now() - lastDragEndAt.current < 80) return;
-    const slug = e.currentTarget.dataset.slug;
+  const hintRef = useRef(null);
+  const dismissHint = useCallback(() => { hintRef.current?.classList.add('is-hidden'); }, []);
+
+  useEffect(() => {
+    const id = setTimeout(dismissHint, 4500);
+    return () => clearTimeout(id);
+  }, [dismissHint]);
+
+  const openSlug = useCallback((slug) => {
     if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
   }, []);
+
+  const onTileClick = useCallback((e) => {
+    if (movedRef.current || performance.now() - lastDragEndAt.current < 80) return;
+    openSlug(e.currentTarget.dataset.slug);
+  }, [openSlug]);
+
+  const onTileKey = useCallback((e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openSlug(e.currentTarget.dataset.slug);
+    }
+  }, [openSlug]);
+
+  const isZh = lang === 'zh';
+  const seen = new Set();
 
   return (
     <div
@@ -142,34 +163,44 @@ export default function AirlineDome({ airlines, lang }) {
         '--image-filter': 'none',
       }}
     >
-      <main ref={mainRef} className="sphere-main">
+      <main ref={mainRef} className="sphere-main" onPointerDown={dismissHint}>
         <div className="stage">
           <div ref={sphereRef} className="sphere">
-            {items.map((it, i) => (
-              <div
-                key={`${it.x},${it.y},${i}`}
-                className="item"
-                style={{ '--offset-x': it.x, '--offset-y': it.y, '--item-size-x': it.sizeX, '--item-size-y': it.sizeY }}
-              >
+            {items.map((it, i) => {
+              const dup = it.slug ? seen.has(it.slug) : true;
+              if (it.slug) seen.add(it.slug);
+              return (
                 <div
-                  className="item__image airline-tile"
-                  role="button"
-                  tabIndex={0}
-                  data-slug={it.slug}
-                  aria-label={it.alt || 'Airline'}
-                  onClick={onTileClick}
+                  key={`${it.x},${it.y},${i}`}
+                  className="item"
+                  aria-hidden={dup ? 'true' : undefined}
+                  style={{ '--offset-x': it.x, '--offset-y': it.y, '--item-size-x': it.sizeX, '--item-size-y': it.sizeY }}
                 >
-                  <img src={it.src} draggable={false} alt={it.alt} />
-                  <span className="airline-tile__label">{it.name}</span>
+                  <div
+                    className="item__image airline-tile"
+                    role="button"
+                    tabIndex={dup ? -1 : 0}
+                    data-slug={it.slug}
+                    aria-label={it.alt || 'Airline'}
+                    onClick={onTileClick}
+                    onKeyDown={onTileKey}
+                  >
+                    <img src={it.src} draggable={false} alt={dup ? '' : it.alt} loading="lazy" />
+                    <span className="airline-tile__label">{it.name}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         <div className="overlay" />
         <div className="overlay overlay--blur" />
         <div className="edge-fade edge-fade--top" />
         <div className="edge-fade edge-fade--bottom" />
+        <div ref={hintRef} className="airline-dome-hint" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/></svg>
+          <span>{isZh ? '拖曳探索 · 點擊查看' : 'Drag to explore · Tap to view'}</span>
+        </div>
       </main>
     </div>
   );

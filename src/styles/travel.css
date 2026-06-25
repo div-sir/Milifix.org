@@ -337,6 +337,52 @@ html[data-theme='light'] body::before {
   border-radius: 0 !important;
 }
 
+.airline-dome-root .sphere-main {
+  cursor: grab;
+}
+
+.airline-dome-root .sphere-main:active {
+  cursor: grabbing;
+}
+
+.airline-dome-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(4.5rem, 12vh, 7rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  backdrop-filter: blur(8px);
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hintPulse 2.2s ease-in-out infinite;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.airline-dome-hint.is-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .airline-dome-hint { animation: none; }
+}
+
 /* tile 融入背景：無框、無底色，logo 直接浮在球面上 */
 .airline-tile {
   display: flex;
@@ -355,15 +401,21 @@ html[data-theme='light'] body::before {
 }
 
 .airline-tile img {
-  width: 52px !important;
-  height: 52px !important;
+  width: 56px !important;
+  height: 56px !important;
   object-fit: contain !important;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35)) !important;
-  transition: filter 200ms ease;
+  padding: 9px;
+  border-radius: 50%;
+  /* 隨主題自適應的霧面圓底：深色主題給淡亮底、淺色主題給淡暗底，
+     讓深色 logo 也能浮出背景而不顯得有方框 */
+  background: color-mix(in srgb, var(--text) 8%, transparent) !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) !important;
+  transition: background 200ms ease, box-shadow 200ms ease;
 }
 
 .airline-tile:hover img {
-  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--travel-accent) 60%, transparent)) !important;
+  background: color-mix(in srgb, var(--text) 14%, transparent) !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--travel-accent) 45%, transparent);
 }
 
 .airline-tile__label {
