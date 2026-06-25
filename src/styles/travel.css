@@ -726,6 +726,17 @@ html[data-theme='light'] body::before {
   padding-top: 0.1rem;
 }
 
+.card-filters__fee-match {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--travel-accent);
+  text-align: right;
+  white-space: nowrap;
+  min-width: 50px;
+  align-self: flex-start;
+  padding-top: 0.1rem;
+}
+
 /* ── Card filter transitions ──────────────────────────── */
 
 .travel-grid--wallet > * {
@@ -1233,6 +1244,12 @@ html[data-theme='light'] body::before {
   text-align: center;
   color: var(--text);
   line-height: 1.45;
+}
+
+.compare-table__desc {
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  line-height: 1.35;
 }
 
 .compare-empty {

@@ -10,14 +10,16 @@ interface Props {
   current?: string;
 }
 
-const { lang } = Astro.props;
+const { lang, current } = Astro.props;
 const t = ui(lang).travel;
+const base = travelPath(lang);
+const isDetailPage = !!current;
 
 const sections: DockSection[] = [
-  { id: 'cards', label: t.sectionCards },
-  { id: 'airlines', label: t.sectionAirlines },
-  { id: 'lounges', label: t.sectionLounges },
-  { id: 'programs', label: t.programs },
+  { id: 'cards', label: t.sectionCards, ...(isDetailPage ? { href: `${base}#cards` } : {}) },
+  { id: 'airlines', label: t.sectionAirlines, ...(isDetailPage ? { href: `${base}#airlines` } : {}) },
+  { id: 'lounges', label: t.sectionLounges, ...(isDetailPage ? { href: `${base}#lounges` } : {}) },
+  { id: 'programs', label: t.programs, ...(isDetailPage ? { href: `${base}#programs` } : {}) },
 ];
 ---
 

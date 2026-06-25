@@ -222,6 +222,7 @@ const programsByType = Object.fromEntries(
               <span class="card-filters__fee-value" id="fee-value">
                 {lang === 'zh' ? '不限' : 'All'}
               </span>
+              <span class="card-filters__fee-match" id="fee-match"></span>
             </div>
           </div>
           <div class="card-filters__result">
@@ -395,7 +396,7 @@ const programsByType = Object.fromEntries(
     <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
       slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
       annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
-      benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title })),
+      benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title, desc: b.description ?? '' })),
     }))), benefitLabels: JSON.stringify(Object.fromEntries(
       allBenefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
     )), lang }}>
@@ -420,6 +421,7 @@ const programsByType = Object.fromEntries(
     var sliderMax = document.getElementById('fee-slider-max');
     var feeTrack = document.getElementById('fee-track');
     var feeValueEl = document.getElementById('fee-value');
+    var feeMatchEl = document.getElementById('fee-match');
     var searchInput = document.getElementById('card-search');
     var sortSelect = document.getElementById('card-sort');
     var clearBtn = document.getElementById('card-clear');
@@ -569,6 +571,16 @@ const programsByType = Object.fromEntries(
       feeTrack.style.right = (100 - hi) + '%';
     }
 
+    function countCardsInFeeRange(lo, hi) {
+      if (!grid) return 0;
+      var n = 0;
+      for (var i = 0; i < grid.children.length; i++) {
+        var fee = parseInt(grid.children[i].dataset.fee || '0', 10);
+        if (fee >= lo && fee <= hi) n++;
+      }
+      return n;
+    }
+
     function onSliderInput() {
       var lo = parseInt(sliderMin.value, 10);
       var hi = parseInt(sliderMax.value, 10);
@@ -576,6 +588,8 @@ const programsByType = Object.fromEntries(
       feeMin = lo;
       feeMax = hi;
       if (feeValueEl) feeValueEl.textContent = feeLabel(lo, hi);
+      var inRange = countCardsInFeeRange(lo, hi);
+      if (feeMatchEl) feeMatchEl.textContent = inRange + (isZh ? ' 張' : ' cards');
       updateTrack();
     }
 
@@ -718,7 +732,7 @@ const programsByType = Object.fromEntries(
     const allCards: Array<{
       slug: string; name: string; bank: string; annualFee: number;
       annualFeeNote: string; cardNetwork: string;
-      benefits: Array<{ type: string; title: string }>;
+      benefits: Array<{ type: string; title: string; desc: string }>;
     }> = (window as any).__compareCards ?? [];
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
@@ -830,7 +844,10 @@ const programsByType = Object.fromEntries(
           label: benefitLabels[type] ?? type,
           values: picks.map((c) => {
             const items = c.benefits.filter((b) => b.type === type);
-            return items.length ? items.map((b) => b.title).join('<br>') : '—';
+            return items.length ? items.map((b) => {
+              if (b.desc && b.desc.length > b.title.length) return `<strong>${b.title}</strong><br><span class="compare-table__desc">${b.desc}</span>`;
+              return b.title;
+            }).join('<br>') : '—';
           }),
         });
       }
