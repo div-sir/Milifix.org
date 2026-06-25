@@ -46,7 +46,8 @@ const stats = [
 // ── Card filters data ──
 const banks = [...new Set(cards.map((c) => c.bank))].sort();
 const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other');
-const FEE_CAP = 30000;
+const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
+const FEE_CAP = Math.ceil(maxFee / 10000) * 10000 || 30000;
 
 // 各權益類型對應的卡片數（用於 tag 顯示數量 / 灰掉無資料者）
 const benefitCounts: Record<string, number> = {};
@@ -207,14 +208,14 @@ const programsByType = Object.fromEntries(
                   <span class="card-filters__tick" style="left:0%">
                     <span class="card-filters__tick-label">{lang === 'zh' ? '免費' : 'Free'}</span>
                   </span>
-                  <span class="card-filters__tick" style="left:16.7%">
-                    <span class="card-filters__tick-label">$5K</span>
+                  <span class="card-filters__tick" style="left:33.3%">
+                    <span class="card-filters__tick-label">${Math.round(FEE_CAP / 3 / 1000)}K</span>
                   </span>
                   <span class="card-filters__tick" style="left:66.7%">
-                    <span class="card-filters__tick-label">$20K</span>
+                    <span class="card-filters__tick-label">${Math.round(FEE_CAP * 2 / 3 / 1000)}K</span>
                   </span>
                   <span class="card-filters__tick" style="left:100%">
-                    <span class="card-filters__tick-label">$30K</span>
+                    <span class="card-filters__tick-label">${FEE_CAP / 1000}K</span>
                   </span>
                 </div>
               </div>
