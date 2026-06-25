@@ -316,12 +316,61 @@ html[data-theme='light'] body::before {
   gap: 0.5rem;
 }
 
-.airline-dome-wrap {
-  margin-bottom: 1.5rem;
-  border-radius: 16px;
+/* ── Airlines immersive dome ─────────────────────────── */
+
+.travel-section--immersive {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.airline-dome-full {
+  width: 100vw;
+  height: calc(100vh - 70px);
+  height: calc(100dvh - 70px);
+  margin-left: calc(-50vw + 50%);
+  position: relative;
+}
+
+.airline-dome-root {
+  border-radius: 0 !important;
+}
+
+.airline-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: color-mix(in srgb, var(--bg, #111318) 85%, var(--text, #fff)) !important;
+  border: 1px solid color-mix(in srgb, var(--text, #fff) 10%, transparent);
+  transition: transform 300ms, border-color 200ms, box-shadow 200ms;
+}
+
+.airline-tile:hover {
+  border-color: var(--travel-accent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--travel-accent) 25%, transparent);
+}
+
+.airline-tile img {
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+  filter: none !important;
+  border-radius: 6px;
+}
+
+.airline-tile__label {
+  font-family: var(--mono, monospace);
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text, #fff) 65%, transparent);
+  text-align: center;
+  max-width: 90%;
   overflow: hidden;
-  border: 1px solid var(--travel-card-border);
-  background: color-mix(in srgb, var(--bg) 90%, var(--bg2));
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .travel-section__title::before {

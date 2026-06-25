@@ -10,7 +10,6 @@ import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import LoungeCard from '../travel/LoungeCard.astro';
-import AirlineCard from '../travel/AirlineCard.astro';
 import AirlineDome from '../travel/AirlineDome.jsx';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import '../../styles/theme.css';
@@ -266,42 +265,21 @@ const programsByType = Object.fromEntries(
 
     <!-- ── 航空公司 ── -->
     {airlines.length > 0 && (
-      <section class="travel-section" id="airlines">
-        <div class="travel-section__header">
-          <h2 class="travel-section__title">{t.sectionAirlines}</h2>
+      <section class="travel-section travel-section--immersive" id="airlines">
+        <div class="airline-dome-full">
+          <AirlineDome
+            client:visible
+            airlines={airlines.map((a) => ({
+              name: a.name,
+              iataCode: a.iataCode,
+              slug: a.slug,
+              logo: a.logo,
+              alliance: a.alliance,
+              href: `/${lang === 'en' ? '' : lang + '/'}travel/airlines/${a.slug}`,
+            }))}
+            lang={lang}
+          />
         </div>
-        <div class="airline-dome-wrap">
-          <AirlineDome client:visible airlines={airlines.map((a) => ({ name: a.name, iataCode: a.iataCode, slug: a.slug, logo: a.logo }))} />
-        </div>
-        <div class="card-toolbar">
-          <div class="card-toolbar__search">
-            <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="airline-search" class="card-toolbar__search-input" autocomplete="off"
-              placeholder={lang === 'zh' ? '搜尋航空公司或代碼…' : 'Search airline or code…'}
-              aria-label={lang === 'zh' ? '搜尋航空公司' : 'Search airlines'} />
-          </div>
-          <span class="card-filters__count" id="airline-count">{airlines.length}</span>
-        </div>
-        {[...new Set(airlines.map((a) => a.alliance))].filter((a) => a !== 'none').length > 0 && (
-          <div class="card-filters__group" style="margin-bottom: 1rem;">
-            {[...new Set(airlines.map((a) => a.alliance))].sort().map((al) => (
-              <button type="button" class="card-filters__tag airline-alliance-pill" data-value={al} aria-pressed="false">
-                {t.allianceNames[al] ?? al}
-              </button>
-            ))}
-          </div>
-        )}
-        <div class="travel-grid" id="airline-grid">
-          {airlines.map((airline) => (
-            <div
-              data-search={`${airline.name} ${airline.iataCode} ${t.allianceNames[airline.alliance] ?? ''}`.toLowerCase()}
-              data-alliance={airline.alliance}
-            >
-              <AirlineCard lang={lang} airline={airline} />
-            </div>
-          ))}
-        </div>
-        <div class="travel-empty" id="airline-empty" hidden>{t.noResults}</div>
       </section>
     )}
 
@@ -675,7 +653,7 @@ const programsByType = Object.fromEntries(
       apply();
     }
 
-    initSearchGrid('airline-grid', 'airline-search', 'airline-count', 'airline-empty', '.airline-alliance-pill', 'alliance');
+    // airline search removed — airlines now use DomeGallery full-page
     initSearchGrid('lounge-grid', 'lounge-search', 'lounge-count', 'lounge-empty', '.lounge-airport-pill', 'airport');
   </script>
   <script>
@@ -691,10 +669,16 @@ const programsByType = Object.fromEntries(
     const jumpBtns = document.querySelectorAll<HTMLElement>('.travel-hero__jump-btn');
     let currentTab = '';
 
+    const heroEl = document.querySelector<HTMLElement>('.travel-hero--index');
+    const IMMERSIVE_TABS = ['airlines'];
+
     function showTab(id: string, pushHash = true, animate = true) {
       const prevIdx = TAB_IDS.indexOf(currentTab);
       const nextIdx = TAB_IDS.indexOf(id);
       const direction = nextIdx >= prevIdx ? 1 : -1;
+      const immersive = IMMERSIVE_TABS.includes(id);
+
+      if (heroEl) heroEl.style.display = immersive ? 'none' : '';
 
       for (const sec of sections) {
         if (sec.id === id) {
