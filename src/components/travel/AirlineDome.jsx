@@ -33,7 +33,7 @@ export default function AirlineDome({ airlines, lang }) {
   const images = useMemo(() => airlines.map((a) => ({
     src: a.logo?.url ?? `https://pics.avs.io/200/200/${a.iataCode}.png`,
     alt: `${a.name} (${a.iataCode})`,
-    href: a.href,
+    slug: a.slug,
     name: a.name,
     iataCode: a.iataCode,
   })), [airlines]);
@@ -126,8 +126,8 @@ export default function AirlineDome({ airlines, lang }) {
 
   const onTileClick = useCallback((e) => {
     if (movedRef.current || performance.now() - lastDragEndAt.current < 80) return;
-    const href = e.currentTarget.dataset.href;
-    if (href) window.location.href = href;
+    const slug = e.currentTarget.dataset.slug;
+    if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
   }, []);
 
   return (
@@ -153,9 +153,9 @@ export default function AirlineDome({ airlines, lang }) {
               >
                 <div
                   className="item__image airline-tile"
-                  role="link"
+                  role="button"
                   tabIndex={0}
-                  data-href={it.href}
+                  data-slug={it.slug}
                   aria-label={it.alt || 'Airline'}
                   onClick={onTileClick}
                 >

@@ -329,48 +329,235 @@ html[data-theme='light'] body::before {
   height: calc(100dvh - 70px);
   margin-left: calc(-50vw + 50%);
   position: relative;
+  overflow: hidden;
+  background: var(--bg);
 }
 
 .airline-dome-root {
   border-radius: 0 !important;
 }
 
+/* tile 融入背景：無框、無底色，logo 直接浮在球面上 */
 .airline-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  background: color-mix(in srgb, var(--bg, #111318) 85%, var(--text, #fff)) !important;
-  border: 1px solid color-mix(in srgb, var(--text, #fff) 10%, transparent);
-  transition: transform 300ms, border-color 200ms, box-shadow 200ms;
+  gap: 7px;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+  transition: transform 300ms ease;
 }
 
 .airline-tile:hover {
-  border-color: var(--travel-accent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--travel-accent) 25%, transparent);
+  transform: scale(1.12);
 }
 
 .airline-tile img {
-  width: 48px !important;
-  height: 48px !important;
+  width: 52px !important;
+  height: 52px !important;
   object-fit: contain !important;
-  filter: none !important;
-  border-radius: 6px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35)) !important;
+  transition: filter 200ms ease;
+}
+
+.airline-tile:hover img {
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--travel-accent) 60%, transparent)) !important;
 }
 
 .airline-tile__label {
   font-family: var(--mono, monospace);
   font-size: 0.5rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--text, #fff) 65%, transparent);
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--text, #fff) 55%, transparent);
   text-align: center;
-  max-width: 90%;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.airline-tile:hover .airline-tile__label {
+  opacity: 1;
+}
+
+/* ── 航空彈窗 ───────────────────────────────────────── */
+
+.airline-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.airline-modal.is-open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.airline-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 55%, rgba(0, 0, 0, 0.6));
+  backdrop-filter: blur(6px);
+}
+
+.airline-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--bg) 92%, var(--bg2));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.airline-modal.is-open .airline-modal__panel {
+  transform: translateY(0) scale(1);
+}
+
+.airline-modal__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--travel-card-border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.airline-modal__close:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.airline-modal__head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  padding-right: 2rem;
+}
+
+.airline-modal__logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.airline-modal__title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.airline-modal__iata {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--travel-accent);
+}
+
+.airline-modal__name {
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.airline-modal__alliance {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+}
+
+.airline-modal__desc {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--text) 75%, transparent);
+  margin-bottom: 1.25rem;
+}
+
+.airline-modal__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.airline-modal__cards-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--travel-accent);
+  margin-bottom: 0.25rem;
+}
+
+.airline-modal__cards-empty {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text) 40%, transparent);
+}
+
+.airline-modal__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--travel-card-border);
+  background: var(--travel-card-bg);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.airline-modal__card:hover {
+  border-color: var(--travel-accent);
+  transform: translateX(3px);
+}
+
+.airline-modal__card-bank {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+}
+
+.airline-modal__card-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .airline-modal,
+  .airline-modal__panel { transition: none; }
 }
 
 .travel-section__title::before {

@@ -64,6 +64,30 @@ for (const c of cards) {
   bankCounts[c.bank] = (bankCounts[c.bank] ?? 0) + 1;
 }
 
+// ── 各航空對應的卡片（給航空彈窗用）──
+const cardPath = (slug: string) => `/${lang === 'en' ? '' : lang + '/'}travel/cards/${slug}`;
+const airlineCards: Record<string, { name: string; bank: string; href: string }[]> = {};
+for (const c of cards) {
+  const slugs = new Set<string>();
+  for (const b of c.benefits) {
+    const al = b.airline;
+    if (al && typeof al === 'object' && 'slug' in al) slugs.add(al.slug);
+  }
+  for (const s of slugs) {
+    (airlineCards[s] ??= []).push({ name: c.name, bank: c.bank, href: cardPath(c.slug) });
+  }
+}
+const airlinesData = airlines.map((a) => ({
+  slug: a.slug,
+  name: a.name,
+  iataCode: a.iataCode,
+  alliance: t.allianceNames[a.alliance] ?? a.alliance,
+  isAlliance: a.alliance !== 'none',
+  description: a.description ?? '',
+  logo: a.logo?.url ?? `https://pics.avs.io/240/240/${a.iataCode}.png`,
+  cards: airlineCards[a.slug] ?? [],
+}));
+
 // ── Programs grouped by type ──
 const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as const;
 const programsByType = Object.fromEntries(
@@ -381,6 +405,31 @@ const programsByType = Object.fromEntries(
         </div>
       </div>
     </div>
+
+    <!-- ── 航空彈窗 ── -->
+    <div class="airline-modal" id="airline-modal" aria-hidden="true">
+      <div class="airline-modal__backdrop" id="airline-modal-backdrop"></div>
+      <div class="airline-modal__panel" role="dialog" aria-modal="true" aria-labelledby="airline-modal-name">
+        <button type="button" class="airline-modal__close" id="airline-modal-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="airline-modal__head">
+          <img class="airline-modal__logo" id="airline-modal-logo" src="" alt="" />
+          <div class="airline-modal__title-wrap">
+            <span class="airline-modal__iata" id="airline-modal-iata"></span>
+            <h2 class="airline-modal__name" id="airline-modal-name"></h2>
+            <span class="airline-modal__alliance" id="airline-modal-alliance"></span>
+          </div>
+        </div>
+        <p class="airline-modal__desc" id="airline-modal-desc"></p>
+        <div class="airline-modal__cards" id="airline-modal-cards"></div>
+      </div>
+    </div>
+
+    <!-- 航空資料注入 -->
+    <script is:inline define:vars={{ airlinesJson: JSON.stringify(airlinesData), lang }}>
+      window.__airlines = JSON.parse(airlinesJson);
+    </script>
 
     <!-- 卡片資料注入（供 JS 讀取） -->
     <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
@@ -967,6 +1016,56 @@ const programsByType = Object.fromEntries(
     const openedFromUrl = restoreSelection();
     updateBadge();
     if (openedFromUrl) openModal();
+
+    // ── 航空彈窗 ──
+    const airlinesData: Array<{
+      slug: string; name: string; iataCode: string; alliance: string;
+      isAlliance: boolean; description: string; logo: string;
+      cards: Array<{ name: string; bank: string; href: string }>;
+    }> = (window as any).__airlines ?? [];
+    const airlineModal = document.getElementById('airline-modal');
+    let airlineLastFocused: HTMLElement | null = null;
+
+    function openAirline(slug: string) {
+      const a = airlinesData.find((x) => x.slug === slug);
+      if (!a || !airlineModal) return;
+      airlineLastFocused = document.activeElement as HTMLElement;
+      (document.getElementById('airline-modal-logo') as HTMLImageElement).src = a.logo;
+      (document.getElementById('airline-modal-logo') as HTMLImageElement).alt = a.name;
+      document.getElementById('airline-modal-iata')!.textContent = a.iataCode;
+      document.getElementById('airline-modal-name')!.textContent = a.name;
+      const allianceEl = document.getElementById('airline-modal-alliance')!;
+      allianceEl.textContent = a.alliance;
+      allianceEl.style.display = a.isAlliance ? '' : 'none';
+      const descEl = document.getElementById('airline-modal-desc')!;
+      descEl.textContent = a.description;
+      descEl.style.display = a.description ? '' : 'none';
+      const cardsEl = document.getElementById('airline-modal-cards')!;
+      if (a.cards.length) {
+        cardsEl.innerHTML = `<span class="airline-modal__cards-label">${isZh ? '可累積哩程的卡片' : 'Cards earning these miles'}</span>` +
+          a.cards.map((c) => `<a class="airline-modal__card" href="${c.href}"><span class="airline-modal__card-bank">${c.bank}</span><span class="airline-modal__card-name">${c.name}</span></a>`).join('');
+      } else {
+        cardsEl.innerHTML = `<span class="airline-modal__cards-empty">${isZh ? '目前無對應信用卡' : 'No matching cards yet'}</span>`;
+      }
+      airlineModal.setAttribute('aria-hidden', 'false');
+      airlineModal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('airline-modal-close')?.focus();
+    }
+    function closeAirline() {
+      if (!airlineModal) return;
+      airlineModal.classList.remove('is-open');
+      airlineModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      airlineLastFocused?.focus();
+    }
+
+    window.addEventListener('airline:open', ((e: CustomEvent) => openAirline(e.detail.slug)) as EventListener);
+    document.getElementById('airline-modal-backdrop')?.addEventListener('click', closeAirline);
+    document.getElementById('airline-modal-close')?.addEventListener('click', closeAirline);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && airlineModal?.classList.contains('is-open')) closeAirline();
+    });
   </script>
   <TravelBottomNav lang={lang} />
 </body>
