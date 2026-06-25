@@ -11,6 +11,7 @@ import AmbientBackdrop from '../AmbientBackdrop.astro';
 import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import LoungeCard from '../travel/LoungeCard.astro';
 import AirlineCard from '../travel/AirlineCard.astro';
+import AirlineDome from '../travel/AirlineDome.jsx';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
@@ -269,6 +270,9 @@ const programsByType = Object.fromEntries(
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.sectionAirlines}</h2>
         </div>
+        <div class="airline-dome-wrap">
+          <AirlineDome client:visible airlines={airlines.map((a) => ({ name: a.name, iataCode: a.iataCode, slug: a.slug, logo: a.logo }))} />
+        </div>
         <div class="card-toolbar">
           <div class="card-toolbar__search">
             <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -443,7 +447,7 @@ const programsByType = Object.fromEntries(
     var isZh = (window.__compareLang || 'zh') === 'zh';
     var totalCards = grid ? grid.children.length : 0;
 
-    var EXIT_MS = 400;
+    var EXIT_MS = 550;
 
     function applyFilters() {
       if (!grid) return;

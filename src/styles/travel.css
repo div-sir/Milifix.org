@@ -316,6 +316,14 @@ html[data-theme='light'] body::before {
   gap: 0.5rem;
 }
 
+.airline-dome-wrap {
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--bg) 90%, var(--bg2));
+}
+
 .travel-section__title::before {
   content: '';
   display: inline-block;
@@ -729,9 +737,9 @@ html[data-theme='light'] body::before {
   animation-delay: calc(var(--stagger, 0) * 0.06s);
 }
 
-/* 退場動畫：先播完再摺疊 */
+/* 退場動畫 */
 .travel-grid--wallet > .card-exiting {
-  animation: cardFilterOut 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+  animation: cardFilterOut 0.55s cubic-bezier(0.4, 0, 1, 1) both;
   pointer-events: none;
   transform-origin: center bottom;
 }
@@ -750,34 +758,40 @@ html[data-theme='light'] body::before {
 
 /* 進場動畫 */
 .travel-grid--wallet > .card-entering {
-  animation: cardFilterIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: calc(var(--stagger, 0) * 0.06s);
+  animation: cardFilterIn 0.65s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 0.08s);
 }
 
 @keyframes cardFilterIn {
   0% {
     opacity: 0;
-    transform: scale(0.75) translateY(24px);
+    transform: scale(0.5) translateY(40px) rotateX(-15deg);
+    filter: blur(6px);
   }
-  60% {
-    opacity: 1;
+  40% {
+    opacity: 0.8;
+    filter: blur(1px);
   }
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1) translateY(0) rotateX(0deg);
+    filter: blur(0);
   }
 }
 
 @keyframes cardFilterOut {
   0% {
     opacity: 1;
-    transform: perspective(600px) scale(1) rotateX(0deg);
+    transform: perspective(600px) scale(1) rotateX(0deg) translateY(0);
     filter: blur(0);
+  }
+  50% {
+    opacity: 0.6;
   }
   100% {
     opacity: 0;
-    transform: perspective(600px) scale(0.6) rotateX(35deg) translateY(-20px);
-    filter: blur(4px);
+    transform: perspective(500px) scale(0.45) rotateX(45deg) translateY(-40px);
+    filter: blur(8px);
   }
 }
 
@@ -1191,8 +1205,10 @@ html[data-theme='light'] body::before {
 }
 
 .compare-table__card-head {
+  position: relative;
   text-align: center;
   min-width: 140px;
+  padding: 0.85rem 1.2rem 0.65rem;
   background: var(--travel-card-bg);
 }
 
@@ -1246,21 +1262,31 @@ html[data-theme='light'] body::before {
 }
 
 .compare-table__remove {
-  display: block;
-  margin: 0.3rem auto 0;
-  background: none;
-  border: none;
-  color: color-mix(in srgb, var(--text) 40%, transparent);
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+  background: color-mix(in srgb, var(--bg) 85%, var(--bg2));
+  color: color-mix(in srgb, var(--text) 50%, transparent);
   cursor: pointer;
-  font-size: 0.65rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.2s ease;
 }
 
 .compare-table__remove:hover {
-  color: #e44;
-  background: color-mix(in srgb, #e44 10%, transparent);
+  color: #fff;
+  background: #d44;
+  border-color: #d44;
+  transform: scale(1.1);
 }
 
 /* ── 底部導覽列比較按鈕 ─────────────────────────────── */
