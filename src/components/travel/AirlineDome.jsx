@@ -50,9 +50,18 @@ export default function AirlineDome({ airlines, lang }) {
   const movedRef = useRef(false);
   const inertiaRAF = useRef(null);
   const lastDragEndAt = useRef(0);
+  const autoRAF = useRef(null);
+  const autoResumeAt = useRef(0);
+  const hoveringRef = useRef(false);
+  const inViewRef = useRef(true);
 
   const maxVert = 5;
   const dragSens = 20;
+  const AUTO_RESUME_DELAY = 2200;
+
+  const bumpAutoResume = useCallback(() => {
+    autoResumeAt.current = performance.now() + AUTO_RESUME_DELAY;
+  }, []);
 
   const applyTransform = (x, y) => {
     if (sphereRef.current) sphereRef.current.style.transform = `translateZ(calc(var(--radius) * -1)) rotateX(${x}deg) rotateY(${y}deg)`;
@@ -77,6 +86,47 @@ export default function AirlineDome({ airlines, lang }) {
 
   useEffect(() => { applyTransform(0, 0); }, []);
 
+  // 自動回轉：靜止時球面緩慢自轉，互動／移出視野／reduced-motion 時暫停
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const AUTO_SPEED = 0.004; // deg/ms ≈ 90 秒一圈
+    let lastT = performance.now();
+    const tick = (t) => {
+      const dt = Math.min(64, t - lastT);
+      lastT = t;
+      const idle =
+        inViewRef.current &&
+        !draggingRef.current &&
+        !inertiaRAF.current &&
+        !hoveringRef.current &&
+        t >= autoResumeAt.current;
+      if (idle) {
+        const ny = wrapAngleSigned(rotationRef.current.y + AUTO_SPEED * dt);
+        rotationRef.current = { x: rotationRef.current.x, y: ny };
+        applyTransform(rotationRef.current.x, ny);
+      }
+      autoRAF.current = requestAnimationFrame(tick);
+    };
+    autoRAF.current = requestAnimationFrame(tick);
+
+    const root = rootRef.current;
+    const io = root
+      ? new IntersectionObserver(([e]) => { inViewRef.current = e.isIntersecting; }, { threshold: 0.05 })
+      : null;
+    if (io && root) io.observe(root);
+
+    const onVis = () => {
+      autoResumeAt.current = document.hidden ? Infinity : performance.now() + AUTO_RESUME_DELAY;
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      if (autoRAF.current) cancelAnimationFrame(autoRAF.current);
+      io?.disconnect();
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
+
   const stopInertia = useCallback(() => { if (inertiaRAF.current) { cancelAnimationFrame(inertiaRAF.current); inertiaRAF.current = null; } }, []);
 
   const startInertia = useCallback((vx, vy) => {
@@ -98,6 +148,7 @@ export default function AirlineDome({ airlines, lang }) {
   useGesture({
     onDragStart: ({ event }) => {
       stopInertia();
+      bumpAutoResume();
       draggingRef.current = true; movedRef.current = false;
       startRotRef.current = { ...rotationRef.current };
       startPosRef.current = { x: event.clientX, y: event.clientY };
@@ -119,6 +170,7 @@ export default function AirlineDome({ airlines, lang }) {
         }
         if (Math.abs(vx) > 0.005 || Math.abs(vy) > 0.005) startInertia(vx, vy);
         if (movedRef.current) lastDragEndAt.current = performance.now();
+        bumpAutoResume();
         movedRef.current = false;
       }
     }
@@ -138,8 +190,17 @@ export default function AirlineDome({ airlines, lang }) {
 
   const onTileClick = useCallback((e) => {
     if (movedRef.current || performance.now() - lastDragEndAt.current < 80) return;
+    bumpAutoResume();
     openSlug(e.currentTarget.dataset.slug);
-  }, [openSlug]);
+  }, [openSlug, bumpAutoResume]);
+
+  const onPointerEnter = useCallback(() => {
+    if (window.matchMedia('(hover: hover)').matches) hoveringRef.current = true;
+  }, []);
+  const onPointerLeave = useCallback(() => {
+    hoveringRef.current = false;
+    bumpAutoResume();
+  }, [bumpAutoResume]);
 
   const onTileKey = useCallback((e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -163,7 +224,7 @@ export default function AirlineDome({ airlines, lang }) {
         '--image-filter': 'none',
       }}
     >
-      <main ref={mainRef} className="sphere-main" onPointerDown={dismissHint}>
+      <main ref={mainRef} className="sphere-main" onPointerDown={dismissHint} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
         <div className="stage">
           <div ref={sphereRef} className="sphere">
             {items.map((it, i) => {
