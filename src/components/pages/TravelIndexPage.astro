@@ -454,7 +454,7 @@ const programsByType = Object.fromEntries(
         var matchBank = active.bank.size === 0 || active.bank.has(item.dataset.bank || '');
         var matchBenefit = active.benefit.size === 0 || (item.dataset.benefits || '').split(',').some(function(b) { return active.benefit.has(b); });
         var fee = parseInt(item.dataset.fee || '0', 10);
-        var matchFee = fee >= feeMin && fee <= feeMax;
+        var matchFee = fee >= feeMin && (feeMax >= feeCap ? true : fee < feeMax);
         var matchSearch = searchTerm === '' || (item.dataset.name || '').indexOf(searchTerm) !== -1;
         var show = matchBank && matchBenefit && matchFee && matchSearch;
         var isHidden = item.classList.contains('card-hidden');
@@ -589,7 +589,7 @@ const programsByType = Object.fromEntries(
       var n = 0;
       for (var i = 0; i < grid.children.length; i++) {
         var fee = parseInt(grid.children[i].dataset.fee || '0', 10);
-        if (fee >= lo && fee <= hi) n++;
+        if (fee >= lo && (hi >= feeCap ? true : fee < hi)) n++;
       }
       return n;
     }
