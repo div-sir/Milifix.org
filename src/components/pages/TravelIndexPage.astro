@@ -49,7 +49,7 @@ const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other
 const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
 const FEE_CAP = Math.ceil(maxFee / 10000) * 10000 || 30000;
 // 對數分界：每階約 2.5~3x，貼合卡片年費分布。滑桿以 index 步進＝天然吸附
-const FEE_LADDER = [0, 1000, 3000, 10000, 30000, 100000, 300000];
+const FEE_LADDER = [0, 5000, 10000, 20000];
 const FEE_BUCKETS = FEE_LADDER.filter((b) => b < FEE_CAP);
 FEE_BUCKETS.push(FEE_CAP);
 const FEE_LAST = FEE_BUCKETS.length - 1;
