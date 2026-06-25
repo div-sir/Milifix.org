@@ -89,7 +89,7 @@ const heroImage = lounge.images?.[0]?.image?.url;
 
         {lounge.location && (
           <>
-            <span class="travel-info__label">Location</span>
+            <span class="travel-info__label">{lang === 'zh' ? '位置' : 'Location'}</span>
             <span class="travel-info__value">{lounge.location}</span>
           </>
         )}

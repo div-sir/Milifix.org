@@ -185,7 +185,7 @@ const jsonLd = {
           <span class="travel-info__label">{t.website}</span>
           <span class="travel-info__value">
             <a href={card.officialUrl} target="_blank" rel="noopener noreferrer" style="color: var(--travel-accent); text-decoration: none;">
-              {card.bank}官方卡片介紹 ↗
+              {lang === 'zh' ? `${card.bank}官方卡片介紹` : 'Official card page'} ↗
             </a>
           </span>
         </div>
@@ -214,7 +214,7 @@ const jsonLd = {
                     <li class="card-benefit-item">
                       <span class="card-benefit-item__title">{b.title}</span>
                       {b.conditions && (
-                        <span class="card-benefit-item__cond">條件：{b.conditions}</span>
+                        <span class="card-benefit-item__cond">{t.conditions}{lang === 'zh' ? '：' : ': '}{b.conditions}</span>
                       )}
 
                       {(airline || lounge || programs.length > 0) && (
