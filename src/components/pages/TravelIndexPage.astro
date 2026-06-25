@@ -48,6 +48,7 @@ const banks = [...new Set(cards.map((c) => c.bank))].sort();
 const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other');
 const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
 const FEE_CAP = Math.ceil(maxFee / 10000) * 10000 || 30000;
+const FEE_SNAPS = [0, 5000, 10000, 25000, FEE_CAP];
 
 // 各權益類型對應的卡片數（用於 tag 顯示數量 / 灰掉無資料者）
 const benefitCounts: Record<string, number> = {};
@@ -164,14 +165,14 @@ const programsByType = Object.fromEntries(
             <div class="card-filters__group">
               {allBenefitTypes.map((bt) => {
                 const n = benefitCounts[bt] ?? 0;
+                if (n === 0) return null;
                 return (
                   <button
                     type="button"
-                    class:list={['card-filters__tag', { 'is-empty': n === 0 }]}
+                    class="card-filters__tag"
                     data-filter="benefit"
                     data-value={bt}
                     aria-pressed="false"
-                    disabled={n === 0}
                   >
                     {t.benefitTypes[bt] ?? bt}<span class="card-filters__tag-count">{n}</span>
                   </button>
@@ -205,18 +206,15 @@ const programsByType = Object.fromEntries(
                   aria-label={lang === 'zh' ? '年費上限' : 'Maximum annual fee'}
                 />
                 <div class="card-filters__ticks">
-                  <span class="card-filters__tick" style="left:0%">
-                    <span class="card-filters__tick-label">{lang === 'zh' ? '免費' : 'Free'}</span>
-                  </span>
-                  <span class="card-filters__tick" style="left:33.3%">
-                    <span class="card-filters__tick-label">${Math.round(FEE_CAP / 3 / 1000)}K</span>
-                  </span>
-                  <span class="card-filters__tick" style="left:66.7%">
-                    <span class="card-filters__tick-label">${Math.round(FEE_CAP * 2 / 3 / 1000)}K</span>
-                  </span>
-                  <span class="card-filters__tick" style="left:100%">
-                    <span class="card-filters__tick-label">${FEE_CAP / 1000}K</span>
-                  </span>
+                  {FEE_SNAPS.map((v) => {
+                    const pct = (v / FEE_CAP * 100).toFixed(1);
+                    const label = v === 0 ? (lang === 'zh' ? '免費' : 'Free') : v >= 1000 ? `$${v / 1000}K` : `$${v}`;
+                    return (
+                      <span class="card-filters__tick" style={`left:${pct}%`}>
+                        <span class="card-filters__tick-label">{label}</span>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
               <span class="card-filters__fee-value" id="fee-value">
@@ -412,7 +410,7 @@ const programsByType = Object.fromEntries(
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
-  <script is:inline define:vars={{ feeCap: FEE_CAP }}>
+  <script is:inline define:vars={{ feeCap: FEE_CAP, feeSnaps: FEE_SNAPS }}>
     // Tag-based card filters + dual range fee slider + search + sort
     var grid = document.getElementById('card-grid');
     var tags = document.querySelectorAll('.card-filters__tag');
@@ -593,8 +591,28 @@ const programsByType = Object.fromEntries(
       updateTrack();
     }
 
+    function snapToNearest(val) {
+      var best = feeSnaps[0];
+      var bestDist = Math.abs(val - best);
+      for (var i = 1; i < feeSnaps.length; i++) {
+        var dist = Math.abs(val - feeSnaps[i]);
+        if (dist < bestDist) { best = feeSnaps[i]; bestDist = dist; }
+      }
+      return best;
+    }
+
     function onSliderChange() {
-      onSliderInput();
+      var lo = snapToNearest(parseInt(sliderMin.value, 10));
+      var hi = snapToNearest(parseInt(sliderMax.value, 10));
+      if (lo > hi) { var t = lo; lo = hi; hi = t; }
+      feeMin = lo;
+      feeMax = hi;
+      sliderMin.value = String(lo);
+      sliderMax.value = String(hi);
+      if (feeValueEl) feeValueEl.textContent = feeLabel(lo, hi);
+      var inRange = countCardsInFeeRange(lo, hi);
+      if (feeMatchEl) feeMatchEl.textContent = inRange + (isZh ? ' 張' : ' cards');
+      updateTrack();
       applyFilters();
     }
 
