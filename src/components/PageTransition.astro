@@ -79,5 +79,12 @@
     } else {
       boot();
     }
+
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        runExit();
+        bindNavClicks();
+      }
+    });
   }
 </script>
