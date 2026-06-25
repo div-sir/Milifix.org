@@ -319,15 +319,16 @@ html[data-theme='light'] body::before {
 /* ── Airlines immersive dome ─────────────────────────── */
 
 .travel-section--immersive {
+  max-width: none !important;
+  width: 100%;
   padding: 0 !important;
   margin: 0 !important;
 }
 
 .airline-dome-full {
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - 70px);
   height: calc(100dvh - 70px);
-  margin-left: calc(-50vw + 50%);
   position: relative;
   overflow: hidden;
   background: var(--bg);
