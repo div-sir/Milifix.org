@@ -48,7 +48,11 @@ const banks = [...new Set(cards.map((c) => c.bank))].sort();
 const allBenefitTypes = Object.keys(t.benefitTypes).filter((bt) => bt !== 'other');
 const maxFee = cards.length ? Math.max(...cards.map((c) => c.annualFee)) : 0;
 const FEE_CAP = Math.ceil(maxFee / 10000) * 10000 || 30000;
-const FEE_SNAPS = [0, 5000, 10000, 25000, FEE_CAP];
+// 對數分界：每階約 2.5~3x，貼合卡片年費分布。滑桿以 index 步進＝天然吸附
+const FEE_LADDER = [0, 1000, 3000, 10000, 30000, 100000, 300000];
+const FEE_BUCKETS = FEE_LADDER.filter((b) => b < FEE_CAP);
+FEE_BUCKETS.push(FEE_CAP);
+const FEE_LAST = FEE_BUCKETS.length - 1;
 
 // 各權益類型對應的卡片數（用於 tag 顯示數量 / 灰掉無資料者）
 const benefitCounts: Record<string, number> = {};
@@ -181,46 +185,52 @@ const programsByType = Object.fromEntries(
             </div>
           </div>
           <div class="card-filters__section card-filters__section--fee">
-            <span class="card-filters__label">{lang === 'zh' ? '年費區間' : 'Annual fee range'}</span>
-            <div class="card-filters__fee-row">
-              <div class="card-filters__slider-wrap">
-                <div class="card-filters__range-track" id="fee-track"></div>
-                <input
-                  type="range"
-                  class="card-filters__slider card-filters__slider--min"
-                  id="fee-slider-min"
-                  min="0"
-                  max={FEE_CAP}
-                  value="0"
-                  step="100"
-                  aria-label={lang === 'zh' ? '年費下限' : 'Minimum annual fee'}
-                />
-                <input
-                  type="range"
-                  class="card-filters__slider card-filters__slider--max"
-                  id="fee-slider-max"
-                  min="0"
-                  max={FEE_CAP}
-                  value={FEE_CAP}
-                  step="100"
-                  aria-label={lang === 'zh' ? '年費上限' : 'Maximum annual fee'}
-                />
-                <div class="card-filters__ticks">
-                  {FEE_SNAPS.map((v) => {
-                    const pct = (v / FEE_CAP * 100).toFixed(1);
-                    const label = v === 0 ? (lang === 'zh' ? '免費' : 'Free') : v >= 1000 ? `$${v / 1000}K` : `$${v}`;
-                    return (
-                      <span class="card-filters__tick" style={`left:${pct}%`}>
-                        <span class="card-filters__tick-label">{label}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-              <span class="card-filters__fee-value" id="fee-value">
-                {lang === 'zh' ? '不限' : 'All'}
+            <div class="fee-head">
+              <span class="card-filters__label">{lang === 'zh' ? '年費區間' : 'Annual fee'}</span>
+              <span class="fee-readout">
+                <span class="fee-readout__range" id="fee-value">{lang === 'zh' ? '不限' : 'All'}</span>
+                <span class="fee-readout__count" id="fee-match"></span>
               </span>
-              <span class="card-filters__fee-match" id="fee-match"></span>
+            </div>
+            <div class="fee-slider" id="fee-slider">
+              <div class="fee-slider__rail"></div>
+              <div class="fee-slider__fill" id="fee-track"></div>
+              <input
+                type="range"
+                class="fee-slider__input fee-slider__input--min"
+                id="fee-slider-min"
+                min="0"
+                max={FEE_LAST}
+                value="0"
+                step="1"
+                aria-label={lang === 'zh' ? '年費下限' : 'Minimum annual fee'}
+              />
+              <input
+                type="range"
+                class="fee-slider__input fee-slider__input--max"
+                id="fee-slider-max"
+                min="0"
+                max={FEE_LAST}
+                value={FEE_LAST}
+                step="1"
+                aria-label={lang === 'zh' ? '年費上限' : 'Maximum annual fee'}
+              />
+              <div class="fee-slider__ticks">
+                {FEE_BUCKETS.map((v, i) => {
+                  const pct = (i / FEE_LAST * 100).toFixed(2);
+                  const label = v === 0
+                    ? (lang === 'zh' ? '免費' : 'Free')
+                    : i === FEE_LAST
+                      ? (lang === 'zh' ? '不限' : '∞')
+                      : v >= 1000 ? `$${v / 1000}K` : `$${v}`;
+                  return (
+                    <span class="fee-slider__tick" style={`left:${pct}%`}>
+                      <span class="fee-slider__tick-dot"></span>
+                      <span class="fee-slider__tick-label">{label}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <div class="card-filters__result">
@@ -410,7 +420,7 @@ const programsByType = Object.fromEntries(
 
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
-  <script is:inline define:vars={{ feeCap: FEE_CAP, feeSnaps: FEE_SNAPS }}>
+  <script is:inline define:vars={{ feeCap: FEE_CAP, feeBuckets: FEE_BUCKETS }}>
     // Tag-based card filters + dual range fee slider + search + sort
     var grid = document.getElementById('card-grid');
     var tags = document.querySelectorAll('.card-filters__tag');
@@ -426,8 +436,9 @@ const programsByType = Object.fromEntries(
     var emptyClearBtn = document.getElementById('card-empty-clear');
     var resultCountEl = document.getElementById('card-result-count');
     var emptyEl = document.getElementById('card-empty');
-    var feeMin = 0;
-    var feeMax = feeCap;
+    var feeLast = feeBuckets.length - 1;
+    var feeMin = feeBuckets[0];
+    var feeMax = feeBuckets[feeLast];
     var searchTerm = '';
     var isZh = (window.__compareLang || 'zh') === 'zh';
     var totalCards = grid ? grid.children.length : 0;
@@ -511,12 +522,9 @@ const programsByType = Object.fromEntries(
       tags.forEach(function(tag) { tag.classList.remove('is-active'); tag.setAttribute('aria-pressed', 'false'); });
       searchTerm = '';
       if (searchInput) searchInput.value = '';
-      feeMin = 0;
-      feeMax = feeCap;
       if (sliderMin) sliderMin.value = '0';
-      if (sliderMax) sliderMax.value = String(feeCap);
-      if (feeValueEl) feeValueEl.textContent = isZh ? '不限' : 'All';
-      updateTrack();
+      if (sliderMax) sliderMax.value = String(feeLast);
+      refreshFeeUI();
       applyFilters();
     }
 
@@ -554,19 +562,26 @@ const programsByType = Object.fromEntries(
       });
     });
 
-    function feeLabel(lo, hi) {
-      var loStr = lo === 0 ? (isZh ? '免費' : 'Free') : 'NT$ ' + lo.toLocaleString();
-      var hiStr = hi >= feeCap ? (isZh ? '不限' : 'All') : 'NT$ ' + hi.toLocaleString();
-      if (lo === 0 && hi >= feeCap) return isZh ? '不限' : 'All';
-      return loStr + ' — ' + hiStr;
+    // 對數區間滑桿：input 的 value 是 bucket index，feeMin/feeMax 為實際年費值
+    function feeFmt(v) {
+      if (v === 0) return isZh ? '免費' : 'Free';
+      return v >= 1000 ? 'NT$' + (v / 1000) + 'K' : 'NT$' + v;
+    }
+
+    function feeLabel(loIdx, hiIdx) {
+      if (loIdx === 0 && hiIdx === feeLast) return isZh ? '不限' : 'All';
+      var loStr = feeFmt(feeBuckets[loIdx]);
+      var hiStr = hiIdx === feeLast ? (isZh ? '不限' : '∞') : feeFmt(feeBuckets[hiIdx]);
+      return loStr + ' – ' + hiStr;
     }
 
     function updateTrack() {
       if (!feeTrack) return;
-      var lo = (feeMin / feeCap) * 100;
-      var hi = (feeMax / feeCap) * 100;
-      feeTrack.style.left = lo + '%';
-      feeTrack.style.right = (100 - hi) + '%';
+      var loIdx = parseInt(sliderMin.value, 10);
+      var hiIdx = parseInt(sliderMax.value, 10);
+      if (loIdx > hiIdx) { var t = loIdx; loIdx = hiIdx; hiIdx = t; }
+      feeTrack.style.left = (loIdx / feeLast * 100) + '%';
+      feeTrack.style.right = (100 - hiIdx / feeLast * 100) + '%';
     }
 
     function countCardsInFeeRange(lo, hi) {
@@ -579,40 +594,31 @@ const programsByType = Object.fromEntries(
       return n;
     }
 
-    function onSliderInput() {
-      var lo = parseInt(sliderMin.value, 10);
-      var hi = parseInt(sliderMax.value, 10);
-      if (lo > hi) { var t = lo; lo = hi; hi = t; }
-      feeMin = lo;
-      feeMax = hi;
-      if (feeValueEl) feeValueEl.textContent = feeLabel(lo, hi);
-      var inRange = countCardsInFeeRange(lo, hi);
-      if (feeMatchEl) feeMatchEl.textContent = inRange + (isZh ? ' 張' : ' cards');
+    function readFeeIdx() {
+      var loIdx = parseInt(sliderMin.value, 10);
+      var hiIdx = parseInt(sliderMax.value, 10);
+      if (loIdx > hiIdx) { var t = loIdx; loIdx = hiIdx; hiIdx = t; }
+      return [loIdx, hiIdx];
+    }
+
+    function refreshFeeUI() {
+      var idx = readFeeIdx();
+      var loIdx = idx[0], hiIdx = idx[1];
+      feeMin = feeBuckets[loIdx];
+      feeMax = feeBuckets[hiIdx];
+      if (feeValueEl) feeValueEl.textContent = feeLabel(loIdx, hiIdx);
+      var inRange = countCardsInFeeRange(feeMin, feeMax);
+      if (feeMatchEl) {
+        feeMatchEl.textContent = inRange + (isZh ? ' 張' : '');
+        feeMatchEl.style.display = (loIdx === 0 && hiIdx === feeLast) ? 'none' : '';
+      }
       updateTrack();
     }
 
-    function snapToNearest(val) {
-      var best = feeSnaps[0];
-      var bestDist = Math.abs(val - best);
-      for (var i = 1; i < feeSnaps.length; i++) {
-        var dist = Math.abs(val - feeSnaps[i]);
-        if (dist < bestDist) { best = feeSnaps[i]; bestDist = dist; }
-      }
-      return best;
-    }
+    function onSliderInput() { refreshFeeUI(); }
 
     function onSliderChange() {
-      var lo = snapToNearest(parseInt(sliderMin.value, 10));
-      var hi = snapToNearest(parseInt(sliderMax.value, 10));
-      if (lo > hi) { var t = lo; lo = hi; hi = t; }
-      feeMin = lo;
-      feeMax = hi;
-      sliderMin.value = String(lo);
-      sliderMax.value = String(hi);
-      if (feeValueEl) feeValueEl.textContent = feeLabel(lo, hi);
-      var inRange = countCardsInFeeRange(lo, hi);
-      if (feeMatchEl) feeMatchEl.textContent = inRange + (isZh ? ' 張' : ' cards');
-      updateTrack();
+      refreshFeeUI();
       applyFilters();
     }
 
@@ -621,7 +627,7 @@ const programsByType = Object.fromEntries(
       sliderMax.addEventListener('input', onSliderInput);
       sliderMin.addEventListener('change', onSliderChange);
       sliderMax.addEventListener('change', onSliderChange);
-      updateTrack();
+      refreshFeeUI();
     }
 
     // 初始化結果數量

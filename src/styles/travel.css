@@ -571,170 +571,155 @@ html[data-theme='light'] body::before {
 
 /* ── Fee range slider ────────────────────────────────── */
 
+/* ── 年費對數區間滑桿 ───────────────────────────────── */
+
 .card-filters__section--fee {
-  padding-top: 0.15rem;
+  gap: 0.55rem;
 }
 
-.card-filters__fee-row {
+.fee-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
-.card-filters__slider-wrap {
-  flex: 1;
-  position: relative;
-  padding-bottom: 1.3rem;
-  height: 20px;
-  display: flex;
+.fee-readout {
+  display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
+  font-family: var(--mono);
 }
 
-.card-filters__slider-wrap::before {
-  content: '';
+.fee-readout__range {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.fee-readout__count {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--on-accent);
+  background: var(--travel-accent);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+  white-space: nowrap;
+}
+
+.fee-slider {
+  position: relative;
+  height: 42px;
+  margin-top: 0.1rem;
+}
+
+.fee-slider__rail,
+.fee-slider__fill {
   position: absolute;
+  top: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.fee-slider__rail {
   left: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(calc(-50% - 0.65rem));
-  height: 4px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--text) 15%, transparent);
-  pointer-events: none;
+  background: color-mix(in srgb, var(--text) 13%, transparent);
 }
 
-.card-filters__range-track {
-  position: absolute;
-  top: 50%;
-  transform: translateY(calc(-50% - 0.65rem));
-  height: 4px;
-  border-radius: 2px;
-  background: var(--travel-accent);
-  pointer-events: none;
+.fee-slider__fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--travel-accent) 65%, transparent),
+    var(--travel-accent));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--travel-accent) 30%, transparent);
   z-index: 1;
 }
 
-.card-filters__slider {
+.fee-slider__input {
   position: absolute;
+  top: -1px;
   left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(calc(-50% - 0.65rem));
   width: 100%;
+  height: 20px;
+  margin: 0;
   -webkit-appearance: none;
   appearance: none;
-  height: 4px;
   background: transparent;
   outline: none;
-  cursor: pointer;
   pointer-events: none;
   z-index: 2;
 }
 
-.card-filters__slider::-webkit-slider-thumb {
+.fee-slider__input--max {
+  z-index: 3;
+}
+
+.fee-slider__input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--travel-accent);
-  border: 2.5px solid var(--bg);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+  background: var(--bg);
+  border: 4px solid var(--travel-accent);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   pointer-events: auto;
-  position: relative;
-  z-index: 3;
 }
 
-.card-filters__slider::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+.fee-slider__input::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
 }
 
-.card-filters__slider::-webkit-slider-thumb:active {
+.fee-slider__input::-webkit-slider-thumb:active {
   cursor: grabbing;
-  transform: scale(1.15);
+  transform: scale(1.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.card-filters__slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+.fee-slider__input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--travel-accent);
-  border: 2.5px solid var(--bg);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+  background: var(--bg);
+  border: 4px solid var(--travel-accent);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
   cursor: grab;
   pointer-events: auto;
 }
 
-.card-filters__slider--max {
-  z-index: 3;
-}
-
-.card-filters__ticks {
+.fee-slider__ticks {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1rem;
+  inset: 0;
   pointer-events: none;
 }
 
-.card-filters__tick {
+.fee-slider__tick {
   position: absolute;
+  top: 0;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.card-filters__tick::before {
-  content: '';
-  width: 1px;
-  height: 6px;
-  background: color-mix(in srgb, var(--text) 25%, transparent);
-}
-
-.card-filters__tick::after {
-  content: '';
-  position: absolute;
-  top: -11px;
-  width: 6px;
-  height: 6px;
+.fee-slider__tick-dot {
+  width: 4px;
+  height: 4px;
+  margin-top: 7px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--text) 22%, transparent);
-  border: 1.5px solid color-mix(in srgb, var(--text) 12%, transparent);
+  background: color-mix(in srgb, var(--text) 30%, var(--bg));
 }
 
-.card-filters__tick-label {
+.fee-slider__tick-label {
+  margin-top: 9px;
   font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 0.04em;
-  color: color-mix(in srgb, var(--text) 40%, transparent);
+  font-size: 0.56rem;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--text) 42%, transparent);
   white-space: nowrap;
-}
-
-.card-filters__fee-value {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text);
-  min-width: 80px;
-  text-align: right;
-  white-space: nowrap;
-  align-self: flex-start;
-  padding-top: 0.1rem;
-}
-
-.card-filters__fee-match {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--travel-accent);
-  text-align: right;
-  white-space: nowrap;
-  min-width: 50px;
-  align-self: flex-start;
-  padding-top: 0.1rem;
 }
 
 /* ── Card filter transitions ──────────────────────────── */
