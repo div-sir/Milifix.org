@@ -38,6 +38,7 @@ export default function AirlineDome({ airlines, lang }) {
     slug: a.slug,
     name: a.name,
     iataCode: a.iataCode,
+    alliance: a.alliance,
   })), [airlines]);
 
   const [seg, setSeg] = useState(33);
@@ -56,16 +57,45 @@ export default function AirlineDome({ airlines, lang }) {
   const velSampleRef = useRef({ vx: 0, vy: 0 }); // 平滑後的指標速度（px/ms）
   const autoRAF = useRef(null);
   const autoResumeAt = useRef(0);
-  const hoveringRef = useRef(false);
+  const hintRef = useRef(null);
+  const hintDismissedRef = useRef(false);
+  const captionRef = useRef(null);
   const inViewRef = useRef(true);
 
   const maxVert = 5;
   const dragSens = 20;
-  const AUTO_RESUME_DELAY = 2200;
+  const IDLE_BEFORE_AUTO = 2000; // 滑鼠靜止此毫秒數後開始自轉
 
   const bumpAutoResume = useCallback(() => {
-    autoResumeAt.current = performance.now() + AUTO_RESUME_DELAY;
+    autoResumeAt.current = performance.now() + IDLE_BEFORE_AUTO;
   }, []);
+
+  // 提示：一旦發生旋轉（拖曳或自轉）就隱藏，且只隱藏一次
+  const dismissHint = useCallback(() => {
+    if (hintDismissedRef.current) return;
+    hintDismissedRef.current = true;
+    hintRef.current?.classList.add('is-hidden');
+  }, []);
+
+  // 焦點／hover：在底部 2D 浮層顯示該航空資訊。
+  // （球面上的逐格標籤在密集排列時會被鄰近晶片在 3D 中遮住，故改用永遠在最上層的浮層）
+  const showCaption = useCallback((el) => {
+    const cap = captionRef.current;
+    if (!cap || !el?.dataset?.name) return;
+    cap.querySelector('.airline-caption__name').textContent = el.dataset.name;
+    const meta = el.dataset.meta || '';
+    const metaEl = cap.querySelector('.airline-caption__meta');
+    metaEl.textContent = meta;
+    metaEl.style.display = meta ? '' : 'none';
+    cap.classList.add('is-visible');
+    dismissHint();
+    bumpAutoResume();
+  }, [dismissHint, bumpAutoResume]);
+  const hideCaption = useCallback(() => { captionRef.current?.classList.remove('is-visible'); }, []);
+  const onTileOver = useCallback((e) => {
+    const el = e.target.closest?.('.airline-tile');
+    if (el && el.dataset.name) showCaption(el); else hideCaption();
+  }, [showCaption, hideCaption]);
 
   const applyTransform = (x, y) => {
     if (sphereRef.current) sphereRef.current.style.transform = `translateZ(calc(var(--radius) * -1)) rotateX(${x}deg) rotateY(${y}deg)`;
@@ -98,17 +128,19 @@ export default function AirlineDome({ airlines, lang }) {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const AUTO_SPEED = 0.004; // deg/ms ≈ 90 秒一圈
+    autoResumeAt.current = performance.now() + 3500; // 進場先讓提示可讀，靜置後才自轉
     let lastT = performance.now();
     const tick = (t) => {
       const dt = Math.min(64, t - lastT);
       lastT = t;
+      // 沒有拖曳／慣性，且滑鼠靜止超過閒置時間 → 自轉（滑鼠停在球面上也會轉）
       const idle =
         inViewRef.current &&
         !draggingRef.current &&
         !inertiaRAF.current &&
-        !hoveringRef.current &&
         t >= autoResumeAt.current;
       if (idle) {
+        dismissHint();
         const ny = wrapAngleSigned(rotationRef.current.y + AUTO_SPEED * dt);
         rotationRef.current = { x: rotationRef.current.x, y: ny };
         applyTransform(rotationRef.current.x, ny);
@@ -133,7 +165,7 @@ export default function AirlineDome({ airlines, lang }) {
       io?.disconnect();
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, []);
+  }, [dismissHint]);
 
   const stopInertia = useCallback(() => { if (inertiaRAF.current) { cancelAnimationFrame(inertiaRAF.current); inertiaRAF.current = null; } }, []);
 
@@ -168,7 +200,7 @@ export default function AirlineDome({ airlines, lang }) {
     onDrag: ({ event, last }) => {
       if (!draggingRef.current || !startPosRef.current) return;
       const dx = event.clientX - startPosRef.current.x, dy = event.clientY - startPosRef.current.y;
-      if (!movedRef.current && dx * dx + dy * dy > 16) movedRef.current = true;
+      if (!movedRef.current && dx * dx + dy * dy > 16) { movedRef.current = true; dismissHint(); }
       const nx = clamp(startRotRef.current.x - dy / dragSens, -maxVert, maxVert);
       const ny = wrapAngleSigned(startRotRef.current.y + dx / dragSens);
       rotationRef.current = { x: nx, y: ny }; applyTransform(nx, ny);
@@ -206,14 +238,6 @@ export default function AirlineDome({ airlines, lang }) {
     }
   }, { target: mainRef, eventOptions: { passive: true } });
 
-  const hintRef = useRef(null);
-  const dismissHint = useCallback(() => { hintRef.current?.classList.add('is-hidden'); }, []);
-
-  useEffect(() => {
-    const id = setTimeout(dismissHint, 4500);
-    return () => clearTimeout(id);
-  }, [dismissHint]);
-
   const openSlug = useCallback((slug) => {
     if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
   }, []);
@@ -224,14 +248,6 @@ export default function AirlineDome({ airlines, lang }) {
     openSlug(e.currentTarget.dataset.slug);
   }, [openSlug, bumpAutoResume]);
 
-  const onPointerEnter = useCallback(() => {
-    if (window.matchMedia('(hover: hover)').matches) hoveringRef.current = true;
-  }, []);
-  const onPointerLeave = useCallback(() => {
-    hoveringRef.current = false;
-    bumpAutoResume();
-  }, [bumpAutoResume]);
-
   const onTileKey = useCallback((e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -240,6 +256,11 @@ export default function AirlineDome({ airlines, lang }) {
   }, [openSlug]);
 
   const isZh = lang === 'zh';
+  const ALLIANCE_LABEL = {
+    'star-alliance': isZh ? '星空聯盟' : 'Star Alliance',
+    oneworld: isZh ? '寰宇一家' : 'oneworld',
+    skyteam: isZh ? '天合聯盟' : 'SkyTeam',
+  };
   const seen = new Set();
 
   return (
@@ -254,12 +275,21 @@ export default function AirlineDome({ airlines, lang }) {
         '--image-filter': 'none',
       }}
     >
-      <main ref={mainRef} className="sphere-main" onPointerDown={dismissHint} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
+      <main
+        ref={mainRef}
+        className="sphere-main"
+        onPointerMove={bumpAutoResume}
+        onPointerOver={onTileOver}
+        onPointerLeave={hideCaption}
+        onFocus={onTileOver}
+        onBlur={hideCaption}
+      >
         <div className="stage">
           <div ref={sphereRef} className="sphere">
             {items.map((it, i) => {
               const dup = it.slug ? seen.has(it.slug) : true;
               if (it.slug) seen.add(it.slug);
+              const meta = [it.iataCode, ALLIANCE_LABEL[it.alliance]].filter(Boolean).join(' · ');
               return (
                 <div
                   key={`${it.x},${it.y},${i}`}
@@ -272,12 +302,17 @@ export default function AirlineDome({ airlines, lang }) {
                     role="button"
                     tabIndex={dup ? -1 : 0}
                     data-slug={it.slug}
+                    data-name={it.name}
+                    data-meta={meta}
                     aria-label={it.alt || 'Airline'}
                     onClick={onTileClick}
                     onKeyDown={onTileKey}
                   >
                     <img src={it.src} draggable={false} alt={dup ? '' : it.alt} loading="lazy" />
-                    <span className="airline-tile__label">{it.name}</span>
+                    <span className="airline-tile__label">
+                      <span className="airline-tile__name">{it.name}</span>
+                      {meta && <span className="airline-tile__meta">{meta}</span>}
+                    </span>
                   </div>
                 </div>
               );
@@ -291,6 +326,10 @@ export default function AirlineDome({ airlines, lang }) {
         <div ref={hintRef} className="airline-dome-hint" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/></svg>
           <span>{isZh ? '拖曳探索 · 點擊查看' : 'Drag to explore · Tap to view'}</span>
+        </div>
+        <div ref={captionRef} className="airline-dome-caption" aria-hidden="true">
+          <span className="airline-caption__name" />
+          <span className="airline-caption__meta" />
         </div>
       </main>
     </div>

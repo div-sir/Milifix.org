@@ -384,6 +384,54 @@ html[data-theme='light'] body::before {
   .airline-dome-hint { animation: none; }
 }
 
+/* 焦點／hover 資訊浮層：永遠在球面之上的 2D 層，不受 3D 遮擋，保證可讀 */
+.airline-dome-caption {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(3rem, 9vh, 5.5rem);
+  transform: translateX(-50%) translateY(6px);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.5rem 1.15rem;
+  border-radius: 14px;
+  border: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 22px color-mix(in srgb, #000 28%, transparent);
+  max-width: min(80vw, 360px);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.airline-dome-caption.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.airline-caption__name {
+  font-family: var(--sans, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.airline-caption__meta {
+  font-family: var(--mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+}
+
 /* tile 融入背景：無框、無底色，logo 直接浮在球面上 */
 .airline-tile {
   display: flex;
@@ -397,8 +445,10 @@ html[data-theme='light'] body::before {
   transition: transform 300ms ease;
 }
 
-.airline-tile:hover {
+.airline-tile:hover,
+.airline-tile:focus-visible {
   transform: scale(1.12);
+  z-index: 6;
 }
 
 .airline-tile img {
@@ -414,7 +464,8 @@ html[data-theme='light'] body::before {
   transition: background 200ms ease, box-shadow 200ms ease;
 }
 
-.airline-tile:hover img {
+.airline-tile:hover img,
+.airline-tile:focus-visible img {
   background: color-mix(in srgb, var(--text) 14%, transparent) !important;
   box-shadow: 0 0 18px color-mix(in srgb, var(--travel-accent) 45%, transparent);
 }
@@ -441,34 +492,56 @@ html:not([data-theme]) .airline-tile img {
   }
 }
 
-/* 深色模式：航名標籤提亮，與霧白晶片下方協調 */
-html[data-theme='dark'] .airline-tile__label,
-html:not([data-theme]) .airline-tile__label {
-  color: color-mix(in srgb, var(--text, #fff) 70%, transparent);
+/* 鍵盤 focus（任何裝置）也給深色晶片同樣的光暈強調 */
+html[data-theme='dark'] .airline-tile:focus-visible img,
+html:not([data-theme]) .airline-tile:focus-visible img {
+  background: #fff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 0 22px color-mix(in srgb, var(--travel-accent) 50%, transparent),
+    0 3px 12px rgba(0, 0, 0, 0.45) !important;
 }
 
+/* 標籤：名稱 +（IATA · 聯盟），hover／鍵盤 focus 時顯示相關資訊。色彩用 var(--text) 自適應深淺 */
 .airline-tile__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  max-width: min(150px, 24vw);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.airline-tile__name {
   font-family: var(--mono, monospace);
   font-size: 0.56rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-  color: color-mix(in srgb, var(--text, #fff) 55%, transparent);
-  text-align: center;
+  color: color-mix(in srgb, var(--text, #fff) 78%, transparent);
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0;
-  transition: opacity 200ms ease;
 }
 
-.airline-tile:hover .airline-tile__label {
-  opacity: 1;
+.airline-tile__meta {
+  font-family: var(--mono, monospace);
+  font-size: 0.48rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text, #fff) 48%, transparent);
+  white-space: nowrap;
 }
 
-/* 觸控裝置無 hover：航空公司名稱常駐顯示，且取消 hover 放大殘留 */
+/* 桌機／鍵盤的「相關資訊」改由底部浮層 .airline-dome-caption 顯示（見下），
+   球面逐格標籤在密集排列時會被鄰近晶片在 3D 中遮住，故此處不再以 hover/focus 揭示 */
+
+/* 觸控裝置無 hover：只常駐顯示名稱（隱藏較細的 meta 以免擁擠），並取消 hover 放大殘留 */
 @media (hover: none) {
   .airline-tile__label { opacity: 0.72; }
+  .airline-tile__meta { display: none; }
   .airline-tile:hover { transform: none; }
   .airline-tile:hover img {
     background: color-mix(in srgb, var(--text) 8%, transparent) !important;
