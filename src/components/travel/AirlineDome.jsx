@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
 import './DomeGallery.css';
 
@@ -9,9 +9,11 @@ const wrapAngleSigned = deg => {
 };
 
 function buildItems(pool, seg) {
-  const xCols = Array.from({ length: seg }, (_, i) => -37 + i * 2);
-  const evenYs = [-4, -2, 0, 2, 4];
-  const oddYs = [-3, -1, 1, 3, 5];
+  // 欄置中（球心對前），縱向列數隨密度調整以覆蓋約 52° 視野，磚牆錯位排列
+  const xCols = Array.from({ length: seg }, (_, i) => i * 2 - (seg - 1));
+  const R = clamp(Math.round((52 * seg) / 360) + 1, 5, 8);
+  const evenYs = Array.from({ length: R }, (_, i) => i * 2 - (R - 1));
+  const oddYs = evenYs.map(y => y + 1);
   const coords = xCols.flatMap((x, c) => {
     const ys = c % 2 === 0 ? evenYs : oddYs;
     return ys.map(y => ({ x, y, sizeX: 2, sizeY: 2 }));
@@ -38,8 +40,8 @@ export default function AirlineDome({ airlines, lang }) {
     iataCode: a.iataCode,
   })), [airlines]);
 
-  const seg = 25;
-  const items = useMemo(() => buildItems(images, seg), [images]);
+  const [seg, setSeg] = useState(33);
+  const items = useMemo(() => buildItems(images, seg), [images, seg]);
   const rootRef = useRef(null);
   const mainRef = useRef(null);
   const sphereRef = useRef(null);
@@ -50,6 +52,8 @@ export default function AirlineDome({ airlines, lang }) {
   const movedRef = useRef(false);
   const inertiaRAF = useRef(null);
   const lastDragEndAt = useRef(0);
+  const lastSampleRef = useRef(null);            // 最近一次指標取樣 { t, x, y }
+  const velSampleRef = useRef({ vx: 0, vy: 0 }); // 平滑後的指標速度（px/ms）
   const autoRAF = useRef(null);
   const autoResumeAt = useRef(0);
   const hoveringRef = useRef(false);
@@ -78,6 +82,10 @@ export default function AirlineDome({ airlines, lang }) {
       let radius = clamp(Math.min(basis * 0.55, h * 1.35), 400, Infinity);
       root.style.setProperty('--radius', `${Math.round(radius)}px`);
       root.style.setProperty('--viewer-pad', `${Math.max(8, Math.round(minDim * 0.2))}px`);
+      // 依球面尺寸自動決定欄數：以圖標尺寸推算理想圓心間距，讓各螢幕間距一致地緊湊
+      const iconPx = clamp(w * 0.062, 66, 104); // 對齊 CSS .airline-tile img 的 clamp
+      const nextSeg = clamp(Math.round((2 * Math.PI * radius) / (iconPx * 1.28)), 20, 52);
+      setSeg(prev => (prev === nextSeg ? prev : nextSeg));
       applyTransform(rotationRef.current.x, rotationRef.current.y);
     });
     ro.observe(root);
@@ -129,14 +137,16 @@ export default function AirlineDome({ airlines, lang }) {
 
   const stopInertia = useCallback(() => { if (inertiaRAF.current) { cancelAnimationFrame(inertiaRAF.current); inertiaRAF.current = null; } }, []);
 
-  const startInertia = useCallback((vx, vy) => {
-    let vX = clamp(vx, -1.4, 1.4) * 80, vY = clamp(vy, -1.4, 1.4) * 80;
-    let frames = 0;
+  // 拋甩慣性：以「度／影格」為角速度，每影格乘上摩擦係數逐漸減速直到停下
+  const startInertia = useCallback((avx, avy) => {
+    const FRICTION = 0.975; // 越接近 1 滑得越久（物理慣性手感）
+    const STOP = 0.015;     // 低於此角速度即停止（度／影格）
+    let vX = clamp(avx, -4, 4), vY = clamp(avy, -4, 4);
     const step = () => {
-      vX *= 0.96; vY *= 0.96;
-      if ((Math.abs(vX) < 0.01 && Math.abs(vY) < 0.01) || ++frames > 200) { inertiaRAF.current = null; return; }
-      const nx = clamp(rotationRef.current.x - vY / 200, -maxVert, maxVert);
-      const ny = wrapAngleSigned(rotationRef.current.y + vX / 200);
+      vX *= FRICTION; vY *= FRICTION;
+      if (Math.abs(vX) < STOP && Math.abs(vY) < STOP) { inertiaRAF.current = null; return; }
+      const nx = clamp(rotationRef.current.x - vY, -maxVert, maxVert);
+      const ny = wrapAngleSigned(rotationRef.current.y + vX);
       rotationRef.current = { x: nx, y: ny };
       applyTransform(nx, ny);
       inertiaRAF.current = requestAnimationFrame(step);
@@ -152,23 +162,43 @@ export default function AirlineDome({ airlines, lang }) {
       draggingRef.current = true; movedRef.current = false;
       startRotRef.current = { ...rotationRef.current };
       startPosRef.current = { x: event.clientX, y: event.clientY };
+      lastSampleRef.current = { t: performance.now(), x: event.clientX, y: event.clientY };
+      velSampleRef.current = { vx: 0, vy: 0 };
     },
-    onDrag: ({ event, last, velocity = [0, 0], direction = [0, 0], movement }) => {
+    onDrag: ({ event, last }) => {
       if (!draggingRef.current || !startPosRef.current) return;
       const dx = event.clientX - startPosRef.current.x, dy = event.clientY - startPosRef.current.y;
       if (!movedRef.current && dx * dx + dy * dy > 16) movedRef.current = true;
       const nx = clamp(startRotRef.current.x - dy / dragSens, -maxVert, maxVert);
       const ny = wrapAngleSigned(startRotRef.current.y + dx / dragSens);
       rotationRef.current = { x: nx, y: ny }; applyTransform(nx, ny);
+
+      // 自行取樣指標速度：比手勢庫的 velocity 更貼近放手瞬間，慣性更穩定
+      const now = performance.now();
+      const prev = lastSampleRef.current;
+      if (prev) {
+        const dt = now - prev.t;
+        if (dt > 0) {
+          const ivx = (event.clientX - prev.x) / dt;
+          const ivy = (event.clientY - prev.y) / dt;
+          if (dt > 100) {
+            // 拖曳中出現停頓（無移動事件）→ 以當下瞬時速度重設，避免甩出殘留速度
+            velSampleRef.current = { vx: ivx, vy: ivy };
+          } else {
+            velSampleRef.current.vx = velSampleRef.current.vx * 0.6 + ivx * 0.4;
+            velSampleRef.current.vy = velSampleRef.current.vy * 0.6 + ivy * 0.4;
+          }
+        }
+      }
+      lastSampleRef.current = { t: now, x: event.clientX, y: event.clientY };
+
       if (last) {
         draggingRef.current = false;
-        let [vm0, vm1] = velocity; const [d0, d1] = direction;
-        let vx = vm0 * d0, vy = vm1 * d1;
-        if (Math.abs(vx) < 0.001 && Math.abs(vy) < 0.001 && Array.isArray(movement)) {
-          vx = clamp((movement[0] / dragSens) * 0.02, -1.2, 1.2);
-          vy = clamp((movement[1] / dragSens) * 0.02, -1.2, 1.2);
-        }
-        if (Math.abs(vx) > 0.005 || Math.abs(vy) > 0.005) startInertia(vx, vy);
+        // px/ms → 度/影格（與拖曳手感一致：位移 / 靈敏度 = 旋轉角度）
+        const FRAME_MS = 1000 / 60;
+        const avX = (velSampleRef.current.vx / dragSens) * FRAME_MS;
+        const avY = (velSampleRef.current.vy / dragSens) * FRAME_MS;
+        if (Math.abs(avX) > 0.05 || Math.abs(avY) > 0.05) startInertia(avX, avY);
         if (movedRef.current) lastDragEndAt.current = performance.now();
         bumpAutoResume();
         movedRef.current = false;

@@ -390,7 +390,7 @@ html[data-theme='light'] body::before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   background: transparent !important;
   border: none !important;
   overflow: visible !important;
@@ -402,10 +402,10 @@ html[data-theme='light'] body::before {
 }
 
 .airline-tile img {
-  width: 56px !important;
-  height: 56px !important;
+  width: clamp(66px, 6.2vw, 104px) !important;
+  height: clamp(66px, 6.2vw, 104px) !important;
   object-fit: contain !important;
-  padding: 9px;
+  padding: 10px;
   border-radius: 50%;
   /* 隨主題自適應的霧面圓底：深色主題給淡亮底、淺色主題給淡暗底，
      讓深色 logo 也能浮出背景而不顯得有方框 */
@@ -419,9 +419,37 @@ html[data-theme='light'] body::before {
   box-shadow: 0 0 18px color-mix(in srgb, var(--travel-accent) 45%, transparent);
 }
 
+/* 深色模式：品牌 logo 多為深色，淡白霧底太弱讀不清 —— 改用較亮的霧白圓底＋細邊＋暗影，
+   讓 logo 像浮在深色球面上的霧面晶片，深淺 logo 都能清楚浮出 */
+html[data-theme='dark'] .airline-tile img,
+html:not([data-theme]) .airline-tile img {
+  background: #fff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.85),
+    0 4px 14px rgba(0, 0, 0, 0.55) !important;
+  filter: none !important;
+}
+
+@media (hover: hover) {
+  html[data-theme='dark'] .airline-tile:hover img,
+  html:not([data-theme]) .airline-tile:hover img {
+    background: #fff !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+      0 0 22px color-mix(in srgb, var(--travel-accent) 50%, transparent),
+      0 3px 12px rgba(0, 0, 0, 0.45) !important;
+  }
+}
+
+/* 深色模式：航名標籤提亮，與霧白晶片下方協調 */
+html[data-theme='dark'] .airline-tile__label,
+html:not([data-theme]) .airline-tile__label {
+  color: color-mix(in srgb, var(--text, #fff) 70%, transparent);
+}
+
 .airline-tile__label {
   font-family: var(--mono, monospace);
-  font-size: 0.5rem;
+  font-size: 0.56rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: color-mix(in srgb, var(--text, #fff) 55%, transparent);
