@@ -14,16 +14,31 @@
  * 註：logo 留空，前端球面會自動以 IATA 代碼向 pics.avs.io 取圖。
  */
 import { readFile } from 'node:fs/promises';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// 自動載入專案根目錄的 .env（已 gitignore），免在指令列／聊天貼帳密
+function loadDotenv() {
+  const envPath = path.join(__dirname, '..', '.env');
+  if (!existsSync(envPath)) return;
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/i);
+    if (!m) continue;
+    const key = m[1];
+    let val = m[2].trim().replace(/^["']|["']$/g, '');
+    if (process.env[key] === undefined) process.env[key] = val;
+  }
+}
+loadDotenv();
 
 const CMS_URL = (process.env.CMS_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const AUTH_COLLECTION = process.env.CMS_AUTH_COLLECTION ?? 'users';
 const EMAIL = process.env.CMS_EMAIL;
 const PASSWORD = process.env.CMS_PASSWORD;
 const DRY_RUN = process.argv.includes('--dry-run');
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function die(msg) {
   console.error(`✖ ${msg}`);
