@@ -57,13 +57,15 @@ async function login() {
   return data.token;
 }
 
-async function slugExists(slug, token) {
+async function airlineExists({ slug, iataCode }, token) {
+  // slug 或 IATA 任一已存在就視為重複，避免同公司不同 slug 被重複建立
   const params = new URLSearchParams({ limit: '1' });
-  params.set('where[slug][equals]', slug);
+  params.set('where[or][0][slug][equals]', slug);
+  params.set('where[or][1][iataCode][equals]', iataCode);
   const res = await fetch(`${CMS_URL}/api/airlines?${params}`, {
     headers: { Authorization: `JWT ${token}` },
   });
-  if (!res.ok) die(`查詢 slug "${slug}" 失敗（${res.status}）`);
+  if (!res.ok) die(`查詢 "${slug}/${iataCode}" 失敗（${res.status}）`);
   const data = await res.json();
   return (data.docs?.length ?? 0) > 0;
 }
@@ -92,7 +94,7 @@ async function main() {
   let created = 0, skipped = 0, failed = 0;
   for (const a of airlines) {
     try {
-      if (token && (await slugExists(a.slug, token))) {
+      if (token && (await airlineExists(a, token))) {
         console.log(`· 跳過（已存在）：${a.name} [${a.iataCode}]`);
         skipped++;
         continue;
