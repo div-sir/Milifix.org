@@ -351,7 +351,12 @@ body.tab-immersive #main-content {
   background: var(--bg);
 }
 
-.airline-dome-root {
+/* 球面根層以絕對定位填滿 .airline-dome-full（position:relative）。
+   不用 height:100%：父層高度來自 flex:1（display:block），百分比高度會解析成 0，
+   導致球面塌陷看不見。絕對定位 inset:0 不受此限制。 */
+.airline-dome-full .airline-dome-root {
+  position: absolute;
+  inset: 0;
   border-radius: 0 !important;
 }
 

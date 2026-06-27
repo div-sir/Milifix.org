@@ -8,10 +8,10 @@ const wrapAngleSigned = deg => {
   return a - 180;
 };
 
-function buildItems(pool, seg) {
-  // 欄置中（球心對前），縱向列數隨密度調整以覆蓋約 52° 視野，磚牆錯位排列
+function buildItems(pool, seg, rows) {
+  // 欄置中（球心對前），縱向列數 rows 由外部依視野高度決定（直式螢幕需更多列填滿），磚牆錯位排列
   const xCols = Array.from({ length: seg }, (_, i) => i * 2 - (seg - 1));
-  const R = clamp(Math.round((52 * seg) / 360) + 1, 5, 8);
+  const R = rows ?? clamp(Math.round((52 * seg) / 360) + 1, 5, 8);
   const evenYs = Array.from({ length: R }, (_, i) => i * 2 - (R - 1));
   const oddYs = evenYs.map(y => y + 1);
   const coords = xCols.flatMap((x, c) => {
@@ -42,7 +42,8 @@ export default function AirlineDome({ airlines, lang }) {
   })), [airlines]);
 
   const [seg, setSeg] = useState(33);
-  const items = useMemo(() => buildItems(images, seg), [images, seg]);
+  const [rows, setRows] = useState(null);
+  const items = useMemo(() => buildItems(images, seg, rows), [images, seg, rows]);
   const rootRef = useRef(null);
   const mainRef = useRef(null);
   const sphereRef = useRef(null);
@@ -116,6 +117,13 @@ export default function AirlineDome({ airlines, lang }) {
       const iconPx = clamp(w * 0.062, 66, 104); // 對齊 CSS .airline-tile img 的 clamp
       const nextSeg = clamp(Math.round((2 * Math.PI * radius) / (iconPx * 1.28)), 20, 52);
       setSeg(prev => (prev === nextSeg ? prev : nextSeg));
+      // 縱向列數：橫式維持原密度；直式（手機）依可視垂直角度增列，填滿窄高視窗
+      let nextRows = null;
+      if (aspect < 1) {
+        const vDeg = (2 * Math.asin(clamp((h / 2) / radius, 0, 1)) * 180) / Math.PI;
+        nextRows = clamp(Math.round((vDeg * nextSeg) / 360) + 1, 6, 9);
+      }
+      setRows(prev => (prev === nextRows ? prev : nextRows));
       applyTransform(rotationRef.current.x, rotationRef.current.y);
     });
     ro.observe(root);
@@ -156,7 +164,7 @@ export default function AirlineDome({ airlines, lang }) {
     if (io && root) io.observe(root);
 
     const onVis = () => {
-      autoResumeAt.current = document.hidden ? Infinity : performance.now() + AUTO_RESUME_DELAY;
+      autoResumeAt.current = document.hidden ? Infinity : performance.now() + IDLE_BEFORE_AUTO;
     };
     document.addEventListener('visibilitychange', onVis);
 
