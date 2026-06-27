@@ -378,6 +378,17 @@ body.tab-immersive .site-nav:not(:focus-within) {
   border-radius: 0 !important;
 }
 
+/* 真正的球面：每格依自身緯度(--lat)／經度(--lon)定位並朝外，尺寸由 --item-px 決定。
+   覆寫 DomeGallery 預設的 offset 網格 transform。 */
+.airline-dome-root .item {
+  width: var(--item-px);
+  height: var(--item-px);
+  transform:
+    rotateY(calc(var(--lon) * 1deg))
+    rotateX(calc(var(--lat) * -1deg))
+    translateZ(var(--radius));
+}
+
 .airline-dome-root .sphere-main {
   cursor: grab;
 }

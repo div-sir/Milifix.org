@@ -8,19 +8,20 @@ const wrapAngleSigned = deg => {
   return a - 180;
 };
 
-function buildItems(pool, seg, rows) {
-  // 欄置中（球心對前），縱向列數 rows 由外部依視野高度決定（直式螢幕需更多列填滿），磚牆錯位排列
-  const xCols = Array.from({ length: seg }, (_, i) => i * 2 - (seg - 1));
-  const R = rows ?? clamp(Math.round((52 * seg) / 360) + 1, 5, 8);
-  const evenYs = Array.from({ length: R }, (_, i) => i * 2 - (R - 1));
-  const oddYs = evenYs.map(y => y + 1);
-  const coords = xCols.flatMap((x, c) => {
-    const ys = c % 2 === 0 ? evenYs : oddYs;
-    return ys.map(y => ({ x, y, sizeX: 2, sizeY: 2 }));
-  });
-  const totalSlots = coords.length;
-  if (!pool.length) return coords.map(c => ({ ...c, src: '', alt: '', href: '' }));
-  const used = Array.from({ length: totalSlots }, (_, i) => pool[i % pool.length]);
+function buildSphere(pool, bands) {
+  // 真正的 UV 球面：緯度帶由 -90°→+90° 覆蓋整顆球，各帶欄數 ∝ cos(緯度)，
+  // 使每格弧長相等（近正方形、極點不擠成一團）；逐列半格錯位呈磚牆排列。
+  const coords = [];
+  for (let r = 0; r < bands; r++) {
+    const lat = -90 + ((r + 0.5) * 180) / bands; // 帶中心緯度，跳過正極點奇異點
+    const cols = Math.max(1, Math.round(2 * bands * Math.cos((lat * Math.PI) / 180)));
+    const lonOffset = (r % 2) * (180 / cols); // 半格錯位
+    for (let c = 0; c < cols; c++) {
+      coords.push({ lat, lon: c * (360 / cols) + lonOffset });
+    }
+  }
+  if (!pool.length) return coords.map(c => ({ ...c, src: '', alt: '', name: '', slug: '' }));
+  const used = coords.map((_, i) => pool[i % pool.length]);
   for (let i = 1; i < used.length; i++) {
     if (used[i].src === used[i - 1].src) {
       for (let j = i + 1; j < used.length; j++) {
@@ -41,9 +42,8 @@ export default function AirlineDome({ airlines, lang }) {
     alliance: a.alliance,
   })), [airlines]);
 
-  const [seg, setSeg] = useState(33);
-  const [rows, setRows] = useState(null);
-  const items = useMemo(() => buildItems(images, seg, rows), [images, seg, rows]);
+  const [bands, setBands] = useState(16);
+  const items = useMemo(() => buildSphere(images, bands), [images, bands]);
   const rootRef = useRef(null);
   const mainRef = useRef(null);
   const sphereRef = useRef(null);
@@ -63,7 +63,6 @@ export default function AirlineDome({ airlines, lang }) {
   const captionRef = useRef(null);
   const inViewRef = useRef(true);
 
-  const maxVert = 5;
   const dragSens = 20;
   const IDLE_BEFORE_AUTO = 2000; // 滑鼠靜止此毫秒數後開始自轉
 
@@ -113,17 +112,13 @@ export default function AirlineDome({ airlines, lang }) {
       let radius = clamp(Math.min(basis * 0.55, h * 1.35), 400, Infinity);
       root.style.setProperty('--radius', `${Math.round(radius)}px`);
       root.style.setProperty('--viewer-pad', `${Math.max(8, Math.round(minDim * 0.2))}px`);
-      // 依球面尺寸自動決定欄數：以圖標尺寸推算理想圓心間距，讓各螢幕間距一致地緊湊
-      const iconPx = clamp(w * 0.062, 66, 104); // 對齊 CSS .airline-tile img 的 clamp
-      const nextSeg = clamp(Math.round((2 * Math.PI * radius) / (iconPx * 1.28)), 20, 52);
-      setSeg(prev => (prev === nextSeg ? prev : nextSeg));
-      // 縱向列數：橫式維持原密度；直式（手機）依可視垂直角度增列，填滿窄高視窗
-      let nextRows = null;
-      if (aspect < 1) {
-        const vDeg = (2 * Math.asin(clamp((h / 2) / radius, 0, 1)) * 180) / Math.PI;
-        nextRows = clamp(Math.round((vDeg * nextSeg) / 360) + 1, 6, 9);
-      }
-      setRows(prev => (prev === nextRows ? prev : nextRows));
+      // 自適應密度：每格弧長 = π·radius/bands，調整 bands 讓格子約 iconPx 大小。
+      // 係數 1.4 讓全球面的格子比原本帶狀略大、總數可控（兼顧球感與效能）。
+      const iconPx = clamp(w * 0.062, 64, 104);
+      const nextBands = clamp(Math.round((Math.PI * radius) / (iconPx * 1.4)), 9, 22);
+      const tilePx = Math.round((Math.PI * radius) / nextBands);
+      root.style.setProperty('--item-px', `${tilePx}px`);
+      setBands(prev => (prev === nextBands ? prev : nextBands));
       applyTransform(rotationRef.current.x, rotationRef.current.y);
     });
     ro.observe(root);
@@ -185,7 +180,7 @@ export default function AirlineDome({ airlines, lang }) {
     const step = () => {
       vX *= FRICTION; vY *= FRICTION;
       if (Math.abs(vX) < STOP && Math.abs(vY) < STOP) { inertiaRAF.current = null; return; }
-      const nx = clamp(rotationRef.current.x - vY, -maxVert, maxVert);
+      const nx = wrapAngleSigned(rotationRef.current.x - vY);
       const ny = wrapAngleSigned(rotationRef.current.y + vX);
       rotationRef.current = { x: nx, y: ny };
       applyTransform(nx, ny);
@@ -209,7 +204,7 @@ export default function AirlineDome({ airlines, lang }) {
       if (!draggingRef.current || !startPosRef.current) return;
       const dx = event.clientX - startPosRef.current.x, dy = event.clientY - startPosRef.current.y;
       if (!movedRef.current && dx * dx + dy * dy > 16) { movedRef.current = true; dismissHint(); }
-      const nx = clamp(startRotRef.current.x - dy / dragSens, -maxVert, maxVert);
+      const nx = wrapAngleSigned(startRotRef.current.x - dy / dragSens);
       const ny = wrapAngleSigned(startRotRef.current.y + dx / dragSens);
       rotationRef.current = { x: nx, y: ny }; applyTransform(nx, ny);
 
@@ -276,8 +271,7 @@ export default function AirlineDome({ airlines, lang }) {
       ref={rootRef}
       className="sphere-root airline-dome-root"
       style={{
-        '--segments-x': seg,
-        '--segments-y': seg,
+        '--item-px': '90px',
         '--overlay-blur-color': 'var(--bg, #111318)',
         '--tile-radius': '14px',
         '--image-filter': 'none',
@@ -300,10 +294,10 @@ export default function AirlineDome({ airlines, lang }) {
               const meta = [it.iataCode, ALLIANCE_LABEL[it.alliance]].filter(Boolean).join(' · ');
               return (
                 <div
-                  key={`${it.x},${it.y},${i}`}
+                  key={`${it.lat},${it.lon},${i}`}
                   className="item"
                   aria-hidden={dup ? 'true' : undefined}
-                  style={{ '--offset-x': it.x, '--offset-y': it.y, '--item-size-x': it.sizeX, '--item-size-y': it.sizeY }}
+                  style={{ '--lat': it.lat, '--lon': it.lon }}
                 >
                   <div
                     className="item__image airline-tile"
