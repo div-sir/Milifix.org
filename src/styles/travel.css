@@ -687,6 +687,10 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   object-fit: contain;
   border-radius: 12px;
   flex-shrink: 0;
+  /* logo 多為深色／給白底設計，固定白底 chip + 內距，確保深淺色模式都清晰可見 */
+  background: #fff;
+  border: 1px solid var(--travel-card-border);
+  padding: 8px;
 }
 
 .airline-modal__title-wrap {
