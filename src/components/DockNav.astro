@@ -24,6 +24,8 @@ interface Props {
   dockOrder?: 'home-first' | 'sections-first';
   /** 首屏封面／hero 頁面可關閉，與版面內捲動提示分工 */
   showScrollTop?: boolean;
+  /** 分頁式頁面（如旅遊首頁的 tab）自行管理區塊切換，需停用捲動 spy 以免它移除 hash */
+  disableSectionSpy?: boolean;
 }
 
 const {
@@ -36,6 +38,7 @@ const {
   dockHomeIcon = 'home',
   dockOrder = 'home-first',
   showScrollTop = true,
+  disableSectionSpy = false,
 } = Astro.props;
 const useScrollSections = dockSectionLinkMode === 'scroll';
 const N = ui(lang).nav;
@@ -49,7 +52,7 @@ const onDockHome = lp === dockTargetKey;
 const hasSections = dockSections.length > 0;
 ---
 
-<nav class="dock-nav dock-pill-nav" aria-label={N.dockAria}>
+<nav class="dock-nav dock-pill-nav" aria-label={N.dockAria} data-no-section-spy={disableSectionSpy ? '' : undefined}>
   <div class="dock-pill-nav__shell">
     <ul class="dock-pill-nav__row" role="menubar">
       {
@@ -304,7 +307,8 @@ const hasSections = dockSections.length > 0;
   import { closeMobileSiteNavFlyout } from '../scripts/site-nav-client';
 
   const nav = document.querySelector<HTMLElement>('.dock-nav');
-  if (nav) initDockSectionSpy(nav);
+  // 分頁式頁面自行管理切換（並設定 hash），停用 spy 以免它捲動 + 移除 hash 造成衝突
+  if (nav && nav.dataset.noSectionSpy === undefined) initDockSectionSpy(nav);
 
   document.getElementById('dock-nav-scroll-top')?.addEventListener('click', () => {
     closeMobileSiteNavFlyout();

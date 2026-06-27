@@ -337,6 +337,14 @@ body.tab-immersive .travel-footer {
   display: none;
 }
 
+/* 沉浸式：頂部欄自動收起（沿用 .site-nav 既有的 0.45s transform transition），
+   切回其他分頁因移除 tab-immersive 會自動滑回；focus 進入時（鍵盤無障礙）仍顯示 */
+body.tab-immersive .site-nav:not(:focus-within) {
+  transform: translateY(calc(-100% - 1px));
+  box-shadow: none;
+  border-bottom-color: transparent;
+}
+
 .travel-section--immersive {
   max-width: none !important;
   width: 100%;
