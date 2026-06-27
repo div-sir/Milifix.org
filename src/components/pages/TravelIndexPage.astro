@@ -741,6 +741,7 @@ const programsByType = Object.fromEntries(
       const immersive = IMMERSIVE_TABS.includes(id);
 
       if (heroEl) heroEl.style.display = immersive ? 'none' : '';
+      document.body.classList.toggle('tab-immersive', immersive);
 
       for (const sec of sections) {
         if (sec.id === id) {
