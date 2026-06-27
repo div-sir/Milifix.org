@@ -349,6 +349,10 @@ body.tab-immersive #main-content {
   position: relative;
   overflow: hidden;
   background: var(--bg);
+  /* 底部漸隱：整個 dome（底色＋logo＋edge-fade）淡出成透明，露出後方 body＋AmbientBackdrop，
+     與下方 footer 區的柔光無縫銜接，消除原本「有柔光／無柔光」的水平分界 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
 }
 
 /* 球面根層以絕對定位填滿 .airline-dome-full（position:relative）。
