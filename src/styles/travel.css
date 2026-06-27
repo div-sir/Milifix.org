@@ -2067,10 +2067,36 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   color: var(--text);
 }
 
+.card-benefit-item__desc {
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+  line-height: 1.45;
+}
+
 .card-benefit-item__cond {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: color-mix(in srgb, var(--text) 42%, transparent);
+}
+
+.card-benefit-item__insurance {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0.3rem 0 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  border-radius: 0.5rem;
+}
+.card-benefit-item__insurance dt {
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+  white-space: nowrap;
+}
+.card-benefit-item__insurance dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
 }
 
 .card-benefit-item__links {
@@ -2078,6 +2104,16 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   flex-wrap: wrap;
   gap: 0.25rem;
   margin-top: 0.1rem;
+}
+
+.travel-detail__meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.travel-detail__meta-grid:empty {
+  display: none;
 }
 
 /* ── Empty state ──────────────────────────────────────── */

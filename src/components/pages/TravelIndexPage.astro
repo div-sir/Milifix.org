@@ -448,12 +448,41 @@ const programsByType = Object.fromEntries(
     <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
       slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
       annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
-      benefits: c.benefits.map((b) => ({ type: b.benefitType, title: b.title, desc: b.description ?? '' })),
+      annualFeeWaivable: c.annualFeeWaivable ?? 'unknown',
+      supplementaryCardFee: c.supplementaryCardFee ?? null,
+      supplementaryCardMax: c.supplementaryCardMax ?? null,
+      signUpBonus: c.signUpBonus ?? '',
+      renewalBonus: c.renewalBonus ?? '',
+      benefits: c.benefits.map((b) => ({
+        type: b.benefitType, title: b.title, desc: b.description ?? '',
+        conditions: b.conditions ?? '',
+        guestPolicy: b.guestPolicy ?? '',
+        insuranceTravel: b.insuranceTravel ?? null,
+        insuranceOverseas: b.insuranceOverseas ?? null,
+        insuranceFlightDelay: b.insuranceFlightDelay ?? null,
+        insuranceBaggageDelay: b.insuranceBaggageDelay ?? null,
+        insuranceBaggageLost: b.insuranceBaggageLost ?? null,
+        insuranceTripCancel: b.insuranceTripCancel ?? null,
+      })),
     }))), benefitLabels: JSON.stringify(Object.fromEntries(
       allBenefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
-    )), lang }}>
+    )), compareLabels: JSON.stringify({
+      annualFeeWaivable: t.annualFeeWaivable,
+      annualFeeNotWaivable: t.annualFeeNotWaivable,
+      supplementaryCard: t.supplementaryCard,
+      supplementaryCardFree: t.supplementaryCardFree,
+      signUpBonus: t.signUpBonus,
+      renewalBonus: t.renewalBonus,
+      insuranceTravel: t.insuranceTravel,
+      insuranceOverseas: t.insuranceOverseas,
+      insuranceFlightDelay: t.insuranceFlightDelay,
+      insuranceBaggageDelay: t.insuranceBaggageDelay,
+      insuranceBaggageLost: t.insuranceBaggageLost,
+      insuranceTripCancel: t.insuranceTripCancel,
+    }), lang }}>
       window.__compareCards = JSON.parse(cardsJson);
       window.__benefitLabels = JSON.parse(benefitLabels);
+      window.__compareLabels = JSON.parse(compareLabels);
       window.__compareLang = lang;
     </script>
 
@@ -807,9 +836,18 @@ const programsByType = Object.fromEntries(
     const allCards: Array<{
       slug: string; name: string; bank: string; annualFee: number;
       annualFeeNote: string; cardNetwork: string;
-      benefits: Array<{ type: string; title: string; desc: string }>;
+      annualFeeWaivable: string; supplementaryCardFee: number | null;
+      supplementaryCardMax: number | null; signUpBonus: string; renewalBonus: string;
+      benefits: Array<{
+        type: string; title: string; desc: string; conditions: string;
+        guestPolicy: string;
+        insuranceTravel: number | null; insuranceOverseas: number | null;
+        insuranceFlightDelay: number | null; insuranceBaggageDelay: number | null;
+        insuranceBaggageLost: number | null; insuranceTripCancel: number | null;
+      }>;
     }> = (window as any).__compareCards ?? [];
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
+    const cmpL: Record<string, string> = (window as any).__compareLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
     const STORAGE_KEY = 'milifix-compare';
 
@@ -905,23 +943,68 @@ const programsByType = Object.fromEntries(
         </th>`).join('')}
       </tr>`;
 
+      function fmtNT(n: number) { return `NT$ ${n.toLocaleString()}`; }
+      function fmtWan(n: number) { return n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${isZh ? '萬' : 'M'}` : fmtNT(n); }
+
       const rows: Array<{ label: string; values: string[] }> = [
         { label: isZh ? '卡片網路' : 'Network', values: picks.map((c) => c.cardNetwork.toUpperCase()) },
-        { label: isZh ? '年費' : 'Annual Fee', values: picks.map((c) =>
-          c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : `NT$ ${c.annualFee.toLocaleString()}`
-        )},
+        { label: isZh ? '年費' : 'Annual Fee', values: picks.map((c) => {
+          let s = c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : fmtNT(c.annualFee);
+          if (c.annualFeeWaivable === 'no') s += `<br><span class="compare-table__desc">${cmpL.annualFeeNotWaivable || '不可減免'}</span>`;
+          return s;
+        })},
         { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => c.annualFeeNote || '—') },
+        { label: cmpL.supplementaryCard || '附卡', values: picks.map((c) => {
+          if (c.supplementaryCardFee == null) return '—';
+          let s = c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee);
+          if (c.supplementaryCardMax != null) s += `<br><span class="compare-table__desc">${isZh ? '最多 ' + c.supplementaryCardMax + ' 張' : 'Max ' + c.supplementaryCardMax}</span>`;
+          return s;
+        })},
+        { label: cmpL.signUpBonus || '首刷禮', values: picks.map((c) => c.signUpBonus || '—') },
+        { label: cmpL.renewalBonus || '續卡禮', values: picks.map((c) => c.renewalBonus || '—') },
       ];
+
+      // remove rows where every value is '—'
+      const filteredMeta = rows.filter((r) => r.values.some((v) => v !== '—'));
+      rows.length = 0;
+      rows.push(...filteredMeta);
 
       const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
       for (const type of allTypes) {
+        if (type === 'insurance') {
+          // structured insurance row
+          const fields = [
+            { key: 'insuranceTravel', label: cmpL.insuranceTravel || '旅平險' },
+            { key: 'insuranceOverseas', label: cmpL.insuranceOverseas || '海外意外險' },
+            { key: 'insuranceFlightDelay', label: cmpL.insuranceFlightDelay || '班機延誤' },
+            { key: 'insuranceBaggageLost', label: cmpL.insuranceBaggageLost || '行李遺失' },
+            { key: 'insuranceTripCancel', label: cmpL.insuranceTripCancel || '行程取消' },
+          ] as const;
+          const insuranceValues = picks.map((c) => {
+            const ins = c.benefits.filter((b) => b.type === 'insurance');
+            if (!ins.length) return '—';
+            const parts: string[] = [];
+            for (const f of fields) {
+              const val = ins.reduce((mx, b) => Math.max(mx, (b as any)[f.key] ?? 0), 0);
+              if (val > 0) parts.push(`${f.label} ${fmtWan(val)}`);
+            }
+            if (!parts.length) return ins.map((b) => b.title).join('<br>');
+            return parts.join('<br>');
+          });
+          rows.push({ label: benefitLabels[type] ?? type, values: insuranceValues });
+          continue;
+        }
         rows.push({
           label: benefitLabels[type] ?? type,
           values: picks.map((c) => {
             const items = c.benefits.filter((b) => b.type === type);
             return items.length ? items.map((b) => {
-              if (b.desc && b.desc.length > b.title.length) return `<strong>${b.title}</strong><br><span class="compare-table__desc">${b.desc}</span>`;
-              return b.title;
+              let html = '';
+              if (b.desc && b.desc.length > b.title.length)
+                html = `<strong>${b.title}</strong><br><span class="compare-table__desc">${b.desc}</span>`;
+              else html = b.title;
+              if (b.conditions) html += `<br><span class="compare-table__desc">${b.conditions}</span>`;
+              return html;
             }).join('<br>') : '—';
           }),
         });

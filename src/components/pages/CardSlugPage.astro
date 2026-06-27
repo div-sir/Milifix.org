@@ -163,11 +163,36 @@ const jsonLd = {
         <p class="travel-detail__desc">
           {t.annualFee}：{feeDisplay}
           {card.annualFeeNote && <span class="travel-detail__fee-note">（{card.annualFeeNote}）</span>}
+          {card.annualFeeWaivable === 'no' && <span class="travel-detail__fee-note">（{t.annualFeeNotWaivable}）</span>}
         </p>
       </header>
 
       <div class="travel-detail__card3d">
         <RealisticCreditCard lang={lang} card={card} link={false} />
+      </div>
+
+      <div class="travel-detail__meta-grid">
+        {card.supplementaryCardFee != null && (
+          <div class="travel-info">
+            <span class="travel-info__label">{t.supplementaryCard}</span>
+            <span class="travel-info__value">
+              {card.supplementaryCardFee === 0 ? t.supplementaryCardFree : `NT$ ${card.supplementaryCardFee.toLocaleString()}`}
+              {card.supplementaryCardMax != null && (lang === 'zh' ? `（最多 ${card.supplementaryCardMax} 張）` : ` (max ${card.supplementaryCardMax})`)}
+            </span>
+          </div>
+        )}
+        {card.signUpBonus && (
+          <div class="travel-info">
+            <span class="travel-info__label">{t.signUpBonus}</span>
+            <span class="travel-info__value">{card.signUpBonus}</span>
+          </div>
+        )}
+        {card.renewalBonus && (
+          <div class="travel-info">
+            <span class="travel-info__label">{t.renewalBonus}</span>
+            <span class="travel-info__value">{card.renewalBonus}</span>
+          </div>
+        )}
       </div>
 
       {card.tags.length > 0 && (
@@ -210,11 +235,37 @@ const jsonLd = {
                   const lounge = isPopulated(b.lounge) ? b.lounge : null;
                   const programs = getBenefitPrograms(b);
 
+                  const fmtWan = (n: number) => n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${lang === 'zh' ? '萬' : 'M'}` : `NT$ ${n.toLocaleString()}`;
+                  const insFields = b.benefitType === 'insurance' ? [
+                    b.insuranceTravel ? { l: t.insuranceTravel, v: fmtWan(b.insuranceTravel) } : null,
+                    b.insuranceOverseas ? { l: t.insuranceOverseas, v: fmtWan(b.insuranceOverseas) } : null,
+                    b.insuranceFlightDelay ? { l: t.insuranceFlightDelay, v: `NT$ ${b.insuranceFlightDelay.toLocaleString()}` } : null,
+                    b.insuranceBaggageLost ? { l: t.insuranceBaggageLost, v: `NT$ ${b.insuranceBaggageLost.toLocaleString()}` } : null,
+                    b.insuranceTripCancel ? { l: t.insuranceTripCancel, v: `NT$ ${b.insuranceTripCancel.toLocaleString()}` } : null,
+                  ].filter(Boolean) as { l: string; v: string }[] : [];
+
                   return (
                     <li class="card-benefit-item">
                       <span class="card-benefit-item__title">{b.title}</span>
+                      {b.description && (
+                        <span class="card-benefit-item__desc">{b.description}</span>
+                      )}
                       {b.conditions && (
                         <span class="card-benefit-item__cond">{t.conditions}{lang === 'zh' ? '：' : ': '}{b.conditions}</span>
+                      )}
+                      {b.guestPolicy && (
+                        <span class="card-benefit-item__cond">{t.guestPolicy}{lang === 'zh' ? '：' : ': '}{b.guestPolicy}</span>
+                      )}
+
+                      {insFields.length > 0 && (
+                        <dl class="card-benefit-item__insurance">
+                          {insFields.map((f) => (
+                            <Fragment>
+                              <dt>{f.l}</dt>
+                              <dd>{f.v}</dd>
+                            </Fragment>
+                          ))}
+                        </dl>
                       )}
 
                       {(airline || lounge || programs.length > 0) && (

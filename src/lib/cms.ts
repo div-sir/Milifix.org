@@ -137,12 +137,23 @@ export type CmsBenefitType =
   | 'airport-parking'
   | 'other'
 
+export type CmsAnnualFeeWaivable = 'yes' | 'no' | 'unknown'
+
 export type CmsCardBenefit = {
   id: string
   benefitType: CmsBenefitType
   title: string
   description?: string
   conditions?: string
+  guestPolicy?: string
+  supplementaryCardEligible?: boolean
+  requirePhysicalCard?: boolean
+  insuranceTravel?: number
+  insuranceOverseas?: number
+  insuranceFlightDelay?: number
+  insuranceBaggageDelay?: number
+  insuranceBaggageLost?: number
+  insuranceTripCancel?: number
   airline?: CmsAirline | string
   lounge?: CmsLounge | string
   program?: (CmsProgram | string)[]
@@ -156,11 +167,16 @@ export type CmsCreditCard = {
   image?: { url: string; alt?: string }
   annualFee: number
   annualFeeNote?: string
+  annualFeeWaivable?: CmsAnnualFeeWaivable
+  supplementaryCardFee?: number
+  supplementaryCardMax?: number
   cardNetwork: CmsCardNetwork
   officialUrl?: string
   tags: { id: string; tag: string }[]
   benefits: CmsCardBenefit[]
   description?: string
+  signUpBonus?: string
+  renewalBonus?: string
 }
 
 export const getCreditCards = (opts?: { bank?: string }) =>

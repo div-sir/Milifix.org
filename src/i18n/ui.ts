@@ -88,6 +88,20 @@ const STRINGS: Record<
       airlineListDesc: string;
       annualFee: string;
       annualFeeWaived: string;
+      annualFeeWaivable: string;
+      annualFeeNotWaivable: string;
+      supplementaryCard: string;
+      supplementaryCardFree: string;
+      signUpBonus: string;
+      renewalBonus: string;
+      insuranceTravel: string;
+      insuranceOverseas: string;
+      insuranceFlightDelay: string;
+      insuranceBaggageDelay: string;
+      insuranceBaggageLost: string;
+      insuranceTripCancel: string;
+      guestPolicy: string;
+      requirePhysicalCard: string;
       bank: string;
       benefits: string;
       conditions: string;
@@ -213,6 +227,20 @@ const STRINGS: Record<
       airlineListDesc: 'Airlines with credit card partnership benefits.',
       annualFee: 'Annual fee',
       annualFeeWaived: 'Waived',
+      annualFeeWaivable: 'Waivable',
+      annualFeeNotWaivable: 'Not waivable',
+      supplementaryCard: 'Supplementary card',
+      supplementaryCardFree: 'Free',
+      signUpBonus: 'Sign-up bonus',
+      renewalBonus: 'Renewal bonus',
+      insuranceTravel: 'Travel accident',
+      insuranceOverseas: 'Overseas accident',
+      insuranceFlightDelay: 'Flight delay',
+      insuranceBaggageDelay: 'Baggage delay',
+      insuranceBaggageLost: 'Baggage lost',
+      insuranceTripCancel: 'Trip cancel/shorten',
+      guestPolicy: 'Guest policy',
+      requirePhysicalCard: 'Physical card required',
       bank: 'Bank',
       benefits: 'Benefits',
       conditions: 'Conditions',
@@ -357,6 +385,20 @@ const STRINGS: Record<
       airlineListDesc: '與信用卡合作的航空公司權益。',
       annualFee: '年費',
       annualFeeWaived: '免年費',
+      annualFeeWaivable: '可減免',
+      annualFeeNotWaivable: '不可減免',
+      supplementaryCard: '附卡',
+      supplementaryCardFree: '免年費',
+      signUpBonus: '首刷禮',
+      renewalBonus: '續卡禮',
+      insuranceTravel: '旅平險',
+      insuranceOverseas: '海外意外險',
+      insuranceFlightDelay: '班機延誤',
+      insuranceBaggageDelay: '行李延誤',
+      insuranceBaggageLost: '行李遺失',
+      insuranceTripCancel: '行程取消/縮短',
+      guestPolicy: '帶人規定',
+      requirePhysicalCard: '需出示實體卡',
       bank: '發卡銀行',
       benefits: '權益',
       conditions: '使用條件',
@@ -501,6 +543,20 @@ const STRINGS: Record<
       airlineListDesc: 'Airlines with credit card partnership benefits.',
       annualFee: 'Annual fee',
       annualFeeWaived: 'Waived',
+      annualFeeWaivable: 'Waivable',
+      annualFeeNotWaivable: 'Not waivable',
+      supplementaryCard: 'Supplementary card',
+      supplementaryCardFree: 'Free',
+      signUpBonus: 'Sign-up bonus',
+      renewalBonus: 'Renewal bonus',
+      insuranceTravel: 'Travel accident',
+      insuranceOverseas: 'Overseas accident',
+      insuranceFlightDelay: 'Flight delay',
+      insuranceBaggageDelay: 'Baggage delay',
+      insuranceBaggageLost: 'Baggage lost',
+      insuranceTripCancel: 'Trip cancel/shorten',
+      guestPolicy: 'Guest policy',
+      requirePhysicalCard: 'Physical card required',
       bank: 'Bank',
       benefits: 'Benefits',
       conditions: 'Conditions',
