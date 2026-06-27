@@ -405,6 +405,9 @@ body.tab-immersive .travel-footer {
 .airline-dome-hint.is-hidden {
   opacity: 0;
   transform: translateX(-50%) translateY(8px);
+  /* 必須停掉脈動動畫，否則 hintPulse 的 opacity 會蓋過此處的 opacity:0，
+     導致提示永遠不會真正消失（dismissHint 形同失效） */
+  animation: none;
 }
 
 @keyframes hintPulse {
@@ -443,6 +446,15 @@ body.tab-immersive .travel-footer {
 .airline-dome-caption.is-visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* 浮層出現時，提示立即讓位：兩者都在底部正中，浮層較窄會讓提示從兩側露出而互相干擾。
+   用 :has 即時隱藏（涵蓋 dismissHint 淡出與浮層淡入之間的時間差），確保零重疊 */
+.airline-dome-root:has(.airline-dome-caption.is-visible) .airline-dome-hint {
+  opacity: 0;
+  animation: none;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
 }
 
 .airline-caption__name {
