@@ -331,6 +331,12 @@ body.tab-immersive #main-content {
   min-height: 0;
 }
 
+/* 沉浸式：隱藏 footer，讓 dome 一路延伸到底部 dock 附近（footer 只在此分頁隱藏，
+   其他分頁因不帶 tab-immersive 仍正常顯示） */
+body.tab-immersive .travel-footer {
+  display: none;
+}
+
 .travel-section--immersive {
   max-width: none !important;
   width: 100%;
