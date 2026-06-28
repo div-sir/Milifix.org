@@ -1817,6 +1817,43 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 
 .cg__list li:last-child { margin-bottom: 0; }
 
+.cg__row--no-label {
+  padding-top: 0.15rem;
+}
+
+.cg__row--no-label > .cg__cell {
+  padding-top: 0;
+}
+
+.cg__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  justify-content: center;
+}
+
+.cg__tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--travel-accent) 35%, transparent);
+  background: color-mix(in srgb, var(--travel-accent) 8%, transparent);
+  color: var(--travel-accent);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.cg__tag:hover {
+  background: color-mix(in srgb, var(--travel-accent) 18%, transparent);
+  border-color: var(--travel-accent);
+}
+
 .compare-empty {
   padding: 2.5rem 1rem;
   text-align: center;

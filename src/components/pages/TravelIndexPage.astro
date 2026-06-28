@@ -18,7 +18,7 @@ import '../../styles/travel.css';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { programSlugPath } from '../../i18n/routes';
+import { travelPath, programSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -448,17 +448,23 @@ const programsByType = Object.fromEntries(
       supplementaryCardMax: c.supplementaryCardMax ?? null,
       signUpBonus: c.signUpBonus ?? '',
       renewalBonus: c.renewalBonus ?? '',
-      benefits: c.benefits.map((b) => ({
-        type: b.benefitType, title: b.title, desc: b.description ?? '',
-        conditions: b.conditions ?? '',
-        guestPolicy: b.guestPolicy ?? '',
-        insuranceTravel: b.insuranceTravel ?? null,
-        insuranceOverseas: b.insuranceOverseas ?? null,
-        insuranceFlightDelay: b.insuranceFlightDelay ?? null,
-        insuranceBaggageDelay: b.insuranceBaggageDelay ?? null,
-        insuranceBaggageLost: b.insuranceBaggageLost ?? null,
-        insuranceTripCancel: b.insuranceTripCancel ?? null,
-      })),
+      benefits: c.benefits.map((b) => {
+        const lo = b.lounge && typeof b.lounge === 'object' && 'slug' in b.lounge ? b.lounge : null;
+        const progs = (b.program ?? []).filter((p) => typeof p === 'object' && p !== null && 'slug' in p) as { slug: string; name: string }[];
+        return {
+          type: b.benefitType, title: b.title, desc: b.description ?? '',
+          conditions: b.conditions ?? '',
+          guestPolicy: b.guestPolicy ?? '',
+          insuranceTravel: b.insuranceTravel ?? null,
+          insuranceOverseas: b.insuranceOverseas ?? null,
+          insuranceFlightDelay: b.insuranceFlightDelay ?? null,
+          insuranceBaggageDelay: b.insuranceBaggageDelay ?? null,
+          insuranceBaggageLost: b.insuranceBaggageLost ?? null,
+          insuranceTripCancel: b.insuranceTripCancel ?? null,
+          lounge: lo ? { slug: lo.slug, name: lo.name } : null,
+          programs: progs.map((p) => ({ slug: p.slug, name: p.name })),
+        };
+      }),
     }))), benefitLabels: JSON.stringify(Object.fromEntries(
       allBenefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
     )), compareLabels: JSON.stringify({
@@ -474,11 +480,12 @@ const programsByType = Object.fromEntries(
       insuranceBaggageDelay: t.insuranceBaggageDelay,
       insuranceBaggageLost: t.insuranceBaggageLost,
       insuranceTripCancel: t.insuranceTripCancel,
-    }), lang }}>
+    }), basePath: travelPath(lang), lang }}>
       window.__compareCards = JSON.parse(cardsJson);
       window.__benefitLabels = JSON.parse(benefitLabels);
       window.__compareLabels = JSON.parse(compareLabels);
       window.__compareLang = lang;
+      window.__travelBase = basePath;
     </script>
 
     {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
@@ -827,22 +834,26 @@ const programsByType = Object.fromEntries(
     const compareContent = document.getElementById('compare-content')!;
     const compareEmpty = document.getElementById('compare-empty')!;
     const compareCount = document.getElementById('compare-count')!;
+    type CompBenefit = {
+      type: string; title: string; desc: string; conditions: string;
+      guestPolicy: string;
+      insuranceTravel: number | null; insuranceOverseas: number | null;
+      insuranceFlightDelay: number | null; insuranceBaggageDelay: number | null;
+      insuranceBaggageLost: number | null; insuranceTripCancel: number | null;
+      lounge: { slug: string; name: string } | null;
+      programs: { slug: string; name: string }[];
+    };
     const allCards: Array<{
       slug: string; name: string; bank: string; annualFee: number;
       annualFeeNote: string; cardNetwork: string;
       annualFeeWaivable: string; supplementaryCardFee: number | null;
       supplementaryCardMax: number | null; signUpBonus: string; renewalBonus: string;
-      benefits: Array<{
-        type: string; title: string; desc: string; conditions: string;
-        guestPolicy: string;
-        insuranceTravel: number | null; insuranceOverseas: number | null;
-        insuranceFlightDelay: number | null; insuranceBaggageDelay: number | null;
-        insuranceBaggageLost: number | null; insuranceTripCancel: number | null;
-      }>;
+      benefits: CompBenefit[];
     }> = (window as any).__compareCards ?? [];
     const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
     const cmpL: Record<string, string> = (window as any).__compareLabels ?? {};
     const isZh = (window as any).__compareLang === 'zh';
+    const travelBase: string = (window as any).__travelBase ?? '/zh/travel';
     const STORAGE_KEY = 'milifix-compare';
 
     // slug ↔ index 映射（讓 URL 更短：?compare=2.5.8）
@@ -940,7 +951,17 @@ const programsByType = Object.fromEntries(
       const cols = picks.length;
       function fmtNT(n: number) { return `NT$ ${n.toLocaleString()}`; }
       function fmtWan(n: number) { return n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${isZh ? '萬' : 'M'}` : fmtNT(n); }
-      function stripPrefix(text: string): string { return text.replace(/貴賓室網路[：:]\s*/g, ''); }
+      const STRIP_RE = /(?:貴賓室網路|飯店計畫|航空聯盟|機場貴賓室|旅遊保險|機場接送|航空會員|機票折扣|免稅折扣|機場停車)[：:]\s*/g;
+      const PURGE_RE = /浦東機場推薦[^。]*[。]?/g;
+      function cleanText(text: string): string {
+        return text.replace(STRIP_RE, '').replace(PURGE_RE, '').trim();
+      }
+      function splitSentences(text: string): string[] {
+        return text.split(/[。；]\s*/).map((s) => s.trim()).filter(Boolean);
+      }
+      function tagHtml(name: string, href: string): string {
+        return `<a class="cg__tag" href="${href}">${esc(name)}</a>`;
+      }
       function esc(s: string) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
       // ── Header (sticky) ──
@@ -1018,9 +1039,47 @@ const programsByType = Object.fromEntries(
       if (promo.rows.length) sections.push(promo);
 
       // ── Sections: benefit types ──
+      function benefitTags(b: CompBenefit): string {
+        const tags: string[] = [];
+        if (b.lounge) tags.push(tagHtml(b.lounge.name, `${travelBase}/lounges/${b.lounge.slug}`));
+        for (const p of b.programs) tags.push(tagHtml(p.name, `${travelBase}/programs/${p.slug}`));
+        return tags.length ? `<div class="cg__tags">${tags.join('')}</div>` : '';
+      }
+
+      function renderBenefitCell(items: CompBenefit[]): string {
+        if (!items.length) return '—';
+        const lines: string[] = [];
+        const allTags: string[] = [];
+        for (const b of items) {
+          const title = cleanText(b.title);
+          const desc = cleanText(b.desc);
+          const cond = cleanText(b.conditions);
+          // 把 desc 拆成多句
+          if (desc && desc !== title) {
+            const sentences = splitSentences(desc);
+            if (sentences.length > 1) {
+              lines.push(...sentences);
+            } else {
+              lines.push(`${title}：${sentences[0]}`);
+            }
+          } else {
+            lines.push(title);
+          }
+          if (cond) {
+            splitSentences(cond).forEach((s) => { if (!lines.includes(s)) lines.push(s); });
+          }
+          allTags.push(benefitTags(b));
+        }
+        const tagsHtml = allTags.filter(Boolean).join('');
+        if (lines.length <= 1 && !tagsHtml) return lines[0] || '—';
+        let html = `<ul class="cg__list">${lines.map((l) => `<li>${l}</li>`).join('')}</ul>`;
+        if (tagsHtml) html += tagsHtml;
+        return html;
+      }
+
       const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
       for (const type of allTypes) {
-        const sec: typeof sections[number] = { title: benefitLabels[type] ?? type, rows: [] };
+        const label = benefitLabels[type] ?? type;
         if (type === 'insurance') {
           const fields = [
             { key: 'insuranceTravel', label: cmpL.insuranceTravel || '旅平險' },
@@ -1029,7 +1088,7 @@ const programsByType = Object.fromEntries(
             { key: 'insuranceBaggageLost', label: cmpL.insuranceBaggageLost || '行李遺失' },
             { key: 'insuranceTripCancel', label: cmpL.insuranceTripCancel || '行程取消' },
           ] as const;
-          addRow(sec, benefitLabels[type] ?? type, picks.map((c) => {
+          const values = picks.map((c) => {
             const ins = c.benefits.filter((b) => b.type === 'insurance');
             if (!ins.length) return '—';
             const parts: string[] = [];
@@ -1037,45 +1096,37 @@ const programsByType = Object.fromEntries(
               const val = ins.reduce((mx, b) => Math.max(mx, (b as any)[f.key] ?? 0), 0);
               if (val > 0) parts.push(`${f.label} ${fmtWan(val)}`);
             }
-            if (!parts.length) return ins.map((b) => b.title).join('<br>');
+            if (!parts.length) return ins.map((b) => cleanText(b.title)).join('<br>');
             return `<ul class="cg__list">${parts.map((p) => `<li>${p}</li>`).join('')}</ul>`;
-          }), true);
-        } else {
-          addRow(sec, benefitLabels[type] ?? type, picks.map((c) => {
-            const items = c.benefits.filter((b) => b.type === type);
-            if (!items.length) return '—';
-            if (items.length === 1) {
-              const b = items[0];
-              const title = stripPrefix(b.title);
-              let html = title;
-              const desc = stripPrefix(b.desc);
-              if (desc && desc !== title) html += `<br><span class="cg__sub">${desc}</span>`;
-              if (b.conditions) html += `<br><span class="cg__sub">${stripPrefix(b.conditions)}</span>`;
-              return html;
-            }
-            return `<ul class="cg__list">${items.map((b) => {
-              const title = stripPrefix(b.title);
-              let li = title;
-              const desc = stripPrefix(b.desc);
-              if (desc && desc !== title) li += `<br><span class="cg__sub">${desc}</span>`;
-              if (b.conditions) li += `<br><span class="cg__sub">${stripPrefix(b.conditions)}</span>`;
-              return `<li>${li}</li>`;
-            }).join('')}</ul>`;
-          }), true);
+          });
+          if (!values.every((v) => v === '—')) {
+            sections.push({ title: label, rows: [{ label, values, isList: true }] });
+          }
+          continue;
         }
-        if (sec.rows.length) sections.push(sec);
+        const values = picks.map((c) => renderBenefitCell(c.benefits.filter((b) => b.type === type)));
+        if (!values.every((v) => v === '—')) {
+          sections.push({ title: label, rows: [{ label, values, isList: true }] });
+        }
       }
 
       // ── Build grid HTML ──
       let html = headerHtml;
       for (const sec of sections) {
+        const singleRow = sec.rows.length === 1 && sec.rows[0].label === sec.title;
         html += `<div class="cg__section">`;
-        html += `<div class="cg__section-title" style="--cg-cols:${cols}">${sec.title}</div>`;
-        for (const row of sec.rows) {
-          html += `<div class="cg__row" style="--cg-cols:${cols}">`;
-          html += `<div class="cg__label">${row.label}</div>`;
-          html += row.values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
+        html += `<div class="cg__section-title">${sec.title}</div>`;
+        if (singleRow) {
+          html += `<div class="cg__row cg__row--no-label" style="--cg-cols:${cols}">`;
+          html += sec.rows[0].values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
           html += `</div>`;
+        } else {
+          for (const row of sec.rows) {
+            html += `<div class="cg__row" style="--cg-cols:${cols}">`;
+            html += `<div class="cg__label">${row.label}</div>`;
+            html += row.values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
+            html += `</div>`;
+          }
         }
         html += `</div>`;
       }
