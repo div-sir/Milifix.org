@@ -349,84 +349,96 @@ const jsonLd = {
   <footer class="travel-footer">{ui(lang).platform.footer}</footer>
 
   <script is:inline define:vars={{ cardSlug: card.slug, travelBase: travelPath(lang), lang }}>
-    var STORAGE_KEY = 'milifix-compare';
-    var MAX_COMPARE = 4;
-    var isZh = lang === 'zh';
+    (function () {
+      function init() {
+        var STORAGE_KEY = 'milifix-compare';
+        var MAX_COMPARE = 4;
+        var isZh = lang === 'zh';
 
-    function getCompareSet() {
-      try {
-        var raw = localStorage.getItem(STORAGE_KEY) ?? '';
-        return new Set(raw.split(',').filter(Boolean));
-      } catch (e) { return new Set(); }
-    }
+        function getCompareSet() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY) || '';
+            return new Set(raw.split(',').filter(Boolean));
+          } catch (e) { return new Set(); }
+        }
 
-    function saveCompareSet(set) {
-      try {
-        var arr = Array.from(set);
-        if (arr.length) localStorage.setItem(STORAGE_KEY, arr.join(','));
-        else localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-    }
+        function saveCompareSet(set) {
+          try {
+            var arr = Array.from(set);
+            if (arr.length) localStorage.setItem(STORAGE_KEY, arr.join(','));
+            else localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
+        }
 
-    // 卡片詳情頁比較按鈕
-    var btn = document.getElementById('detail-compare-btn');
-    var label = document.getElementById('detail-compare-label');
-    var set = getCompareSet();
+        var set = getCompareSet();
 
-    function updateBtn() {
-      var inSet = set.has(cardSlug);
-      btn.classList.toggle('is-selected', inSet);
-      var svg = btn.querySelector('svg');
-      if (inSet) {
-        svg.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
-        label.textContent = isZh ? '已加入比較' : 'In compare';
+        // ── 底部導覽列比較按鈕（dock 由 TravelBottomNav 在此 script 之後渲染，故需等 DOM ready）──
+        var dockRow = document.querySelector('.dock-pill-nav__row');
+        var comparePillLi = document.createElement('li');
+        comparePillLi.className = 'dock-pill-nav__cell';
+        comparePillLi.setAttribute('role', 'none');
+        comparePillLi.id = 'compare-dock-cell';
+        comparePillLi.innerHTML =
+          '<a href="' + travelBase + '?compare=open#cards" class="dock-pill-nav__pill dock-pill-nav__pill--compare" id="compare-dock-link"' +
+          ' aria-label="' + (isZh ? '開啟比較' : 'Open compare') + '">' +
+          '<span class="dock-pill-nav__home-icon" aria-hidden="true">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' +
+          '</span><span class="dock-compare-badge" id="compare-dock-badge">0</span></a>';
+
+        if (dockRow) {
+          var seps = dockRow.querySelectorAll('.dock-pill-nav__sep-cell');
+          var lastSep = seps.length > 0 ? seps[seps.length - 1] : null;
+          if (lastSep) dockRow.insertBefore(comparePillLi, lastSep);
+          else dockRow.appendChild(comparePillLi);
+        }
+
+        function updateDockBadge() {
+          var n = set.size;
+          var badge = document.getElementById('compare-dock-badge');
+          if (badge) {
+            badge.textContent = String(n);
+            // 數量為 0 時隱藏徽章，但按鈕本身在卡片詳情頁恆常顯示
+            badge.style.display = n > 0 ? '' : 'none';
+          }
+        }
+
+        // ── 卡片詳情頁「加入比較」按鈕 ──
+        var btn = document.getElementById('detail-compare-btn');
+        var label = document.getElementById('detail-compare-label');
+
+        function updateBtn() {
+          if (btn) {
+            var inSet = set.has(cardSlug);
+            btn.classList.toggle('is-selected', inSet);
+            var svg = btn.querySelector('svg');
+            if (svg) svg.innerHTML = inSet
+              ? '<polyline points="20 6 9 17 4 12"/>'
+              : '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>';
+            if (label) label.textContent = inSet
+              ? (isZh ? '已加入比較' : 'In compare')
+              : (isZh ? '加入比較' : 'Add to compare');
+          }
+          updateDockBadge();
+        }
+
+        if (btn) {
+          btn.addEventListener('click', function () {
+            if (set.has(cardSlug)) set.delete(cardSlug);
+            else { if (set.size >= MAX_COMPARE) return; set.add(cardSlug); }
+            saveCompareSet(set);
+            updateBtn();
+          });
+        }
+
+        updateBtn();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
       } else {
-        svg.innerHTML = '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>';
-        label.textContent = isZh ? '加入比較' : 'Add to compare';
+        init();
       }
-      updateDockBadge();
-    }
-
-    btn.addEventListener('click', function () {
-      if (set.has(cardSlug)) {
-        set.delete(cardSlug);
-      } else {
-        if (set.size >= MAX_COMPARE) return;
-        set.add(cardSlug);
-      }
-      saveCompareSet(set);
-      updateBtn();
-    });
-
-    // 底部導覽列比較按鈕
-    var dockRow = document.querySelector('.dock-pill-nav__row');
-    var comparePillLi = document.createElement('li');
-    comparePillLi.className = 'dock-pill-nav__cell';
-    comparePillLi.setAttribute('role', 'none');
-    comparePillLi.id = 'compare-dock-cell';
-    comparePillLi.innerHTML =
-      '<a href="' + travelBase + '?compare=open#cards" class="dock-pill-nav__pill dock-pill-nav__pill--compare" id="compare-dock-link"' +
-      ' aria-label="' + (isZh ? '開啟比較' : 'Open compare') + '">' +
-      '<span class="dock-pill-nav__home-icon" aria-hidden="true">' +
-      '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' +
-      '</span><span class="dock-compare-badge" id="compare-dock-badge">0</span></a>';
-
-    var seps = dockRow && dockRow.querySelectorAll('.dock-pill-nav__sep-cell');
-    var lastSep = seps && seps.length > 0 ? seps[seps.length - 1] : null;
-    if (lastSep) dockRow.insertBefore(comparePillLi, lastSep);
-    else if (dockRow) dockRow.appendChild(comparePillLi);
-
-    function updateDockBadge() {
-      var n = set.size;
-      var badge = document.getElementById('compare-dock-badge');
-      if (badge) {
-        badge.textContent = String(n);
-        // 數量為 0 時隱藏徽章，但按鈕本身在卡片詳情頁恆常顯示
-        badge.style.display = n > 0 ? '' : 'none';
-      }
-    }
-
-    updateBtn();
+    })();
   </script>
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
