@@ -77,7 +77,6 @@ for (const c of cards) {
     (airlineCards[s] ??= []).push({ name: c.name, bank: c.bank, href: cardPath(c.slug) });
   }
 }
-const airlinePath = (slug: string) => `/${lang === 'en' ? '' : lang + '/'}travel/airlines/${slug}`;
 const airlinesData = airlines.map((a) => ({
   slug: a.slug,
   name: a.name,
@@ -86,7 +85,6 @@ const airlinesData = airlines.map((a) => ({
   isAlliance: a.alliance !== 'none',
   description: a.description ?? '',
   logo: a.logo?.url ?? `https://pics.avs.io/240/240/${a.iataCode}.png`,
-  href: airlinePath(a.slug),
   cards: airlineCards[a.slug] ?? [],
 }));
 
@@ -1228,7 +1226,7 @@ const programsByType = Object.fromEntries(
     // ── 航空彈窗 ──
     const airlinesData: Array<{
       slug: string; name: string; iataCode: string; alliance: string;
-      isAlliance: boolean; description: string; logo: string; href: string;
+      isAlliance: boolean; description: string; logo: string;
       cards: Array<{ name: string; bank: string; href: string }>;
     }> = (window as any).__airlines ?? [];
     const airlineModal = document.getElementById('airline-modal');

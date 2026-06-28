@@ -2,7 +2,6 @@
 import type { Lang } from '../../i18n/types';
 import type { CmsAirline } from '../../lib/cms';
 import { ui } from '../../i18n/ui';
-import { airlineSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -11,11 +10,10 @@ interface Props {
 
 const { lang, airline } = Astro.props;
 const t = ui(lang).travel;
-const href = airlineSlugPath(lang, airline.slug);
 const logoUrl = airline.logo?.url ?? `https://pics.avs.io/200/200/${airline.iataCode}.png`;
 ---
 
-<a class="travel-card travel-card--airline" href={href}>
+<div class="travel-card travel-card--airline">
   <img
     class="travel-card__airline-logo"
     src={logoUrl}
@@ -36,4 +34,4 @@ const logoUrl = airline.logo?.url ?? `https://pics.avs.io/200/200/${airline.iata
       </span>
     )}
   </span>
-</a>
+</div>

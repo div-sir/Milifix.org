@@ -14,7 +14,6 @@ import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import {
   travelPath,
-  airlineSlugPath,
   loungeSlugPath,
   programSlugPath,
 } from '../../i18n/routes';
@@ -278,9 +277,9 @@ const jsonLd = {
                       {(airline || lounge || programs.length > 0) && (
                         <div class="card-benefit-item__links">
                           {airline && (
-                            <a class="travel-tag travel-tag--clickable" href={airlineSlugPath(lang, airline.slug)}>
+                            <span class="travel-tag">
                               {airline.name} ({(airline as CmsAirline).iataCode})
-                            </a>
+                            </span>
                           )}
                           {lounge && (
                             <a class="travel-tag travel-tag--clickable travel-tag--network" href={loungeSlugPath(lang, lounge.slug)}>
@@ -311,9 +310,9 @@ const jsonLd = {
               <span class="travel-related__label">{lang === 'zh' ? '航空公司' : 'Airlines'}</span>
               <div class="travel-related__items">
                 {relatedAirlines.map((a) => (
-                  <a class="travel-tag travel-tag--clickable" href={airlineSlugPath(lang, a.slug)}>
+                  <span class="travel-tag">
                     {a.name}{a.iataCode ? ` (${a.iataCode})` : ''}
-                  </a>
+                  </span>
                 ))}
               </div>
             </div>
