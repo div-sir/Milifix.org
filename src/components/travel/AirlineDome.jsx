@@ -30,7 +30,7 @@ export default function AirlineDome({ airlines, lang }) {
   const hintDismissedRef = useRef(false);
   const captionRef = useRef(null);
   const inViewRef = useRef(true);
-  const sizeRef = useRef({ cellW: 80, cellH: 80 });
+  const [cellSize, setCellSize] = useState(80);
 
   const IDLE_BEFORE_AUTO = 2000;
   const isZh = lang === 'zh';
@@ -89,9 +89,9 @@ export default function AirlineDome({ airlines, lang }) {
     const ro = new ResizeObserver(entries => {
       const cr = entries[0].contentRect;
       const w = Math.max(1, cr.width);
-      const cellW = clamp(w * 0.11, 56, 100);
-      sizeRef.current = { cellW, cellH: cellW };
-      root.style.setProperty('--hc-cell', `${Math.round(cellW)}px`);
+      const cellW = Math.round(clamp(w * 0.11, 56, 100));
+      setCellSize(prev => prev === cellW ? prev : cellW);
+      root.style.setProperty('--hc-cell', `${cellW}px`);
     });
     ro.observe(root);
     return () => ro.disconnect();
@@ -224,9 +224,8 @@ export default function AirlineDome({ airlines, lang }) {
 
   // Build hex grid tiles: render 3×3 copies for infinite wrap
   const renderGrid = () => {
-    const { cellW, cellH } = sizeRef.current;
-    const spacingX = cellW * 1.15;
-    const spacingY = cellH * 1.0;
+    const spacingX = cellSize * 1.15;
+    const spacingY = cellSize * 1.0;
     const blockW = cols * spacingX;
     const blockH = rows * spacingY;
     const tiles = [];
@@ -261,8 +260,8 @@ export default function AirlineDome({ airlines, lang }) {
                 position: 'absolute',
                 left: `${x}px`,
                 top: `${y}px`,
-                width: `var(--hc-cell, ${cellW}px)`,
-                height: `var(--hc-cell, ${cellH}px)`,
+                width: `${cellSize}px`,
+                height: `${cellSize}px`,
               }}
             >
               <div className="hc-tile__img">
