@@ -999,35 +999,30 @@ const programsByType = Object.fromEntries(
         return parts.join('<br>');
       }));
 
-      // 年費備註：原始 annualFeeNote，剔除附卡相關描述（因附卡有獨立列）
+      // 年費備註：剔除附卡/附屬卡描述（有獨立列）＋ 剔除「不可減免」等（年費列已顯示）
+      const NOTE_STRIP = /[，,；;]?\s*(?:附卡|副卡|附屬卡)[^，,；;。]*(?=[，,；;。]|$)/g;
+      const NOTE_STRIP_FEE = /[，,；;]?\s*(?:正卡)?年費不可減免/g;
       addRow(meta, isZh ? '年費備註' : 'Fee Note', picks.map((c) => {
         if (!c.annualFeeNote) return '—';
-        let note = c.annualFeeNote;
-        if (c.supplementaryCardFee != null) {
-          note = note.replace(/[，,；;]?\s*附卡[^，,；;。]*(?=[，,；;。]|$)/g, '')
-                     .replace(/[，,；;]?\s*副卡[^，,；;。]*(?=[，,；;。]|$)/g, '')
-                     .replace(/^[，,；;\s]+/, '').replace(/[，,；;\s]+$/, '');
-        }
+        let note = c.annualFeeNote
+          .replace(NOTE_STRIP, '')
+          .replace(NOTE_STRIP_FEE, '')
+          .replace(/^[，,；;\s。]+/, '').replace(/[，,；;\s]+$/, '');
         return note || '—';
       }));
 
-      // 附卡：年費 + 最多幾張 + 從 annualFeeNote 中提取附卡描述
+      // 附卡：年費 + 最多幾張；從 annualFeeNote 提取附卡/附屬卡 max 數（若 CMS 欄位未填）
       addRow(meta, cmpL.supplementaryCard || '附卡', picks.map((c) => {
         if (c.supplementaryCardFee == null) return '—';
-        const parts: string[] = [];
-        parts.push(c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee));
-        if (c.supplementaryCardMax != null) parts.push(isZh ? `最多 ${c.supplementaryCardMax} 張` : `Max ${c.supplementaryCardMax}`);
-        // 從 annualFeeNote 提取附卡相關描述
-        if (c.annualFeeNote) {
-          const m = c.annualFeeNote.match(/(?:附卡|副卡)[^，,；;。]*/g);
-          if (m) {
-            for (const s of m) {
-              const clean = s.trim();
-              if (clean && !parts.some((p) => p.includes(clean))) parts.push(clean);
-            }
-          }
+        const feeStr = c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee);
+        let maxStr = '';
+        if (c.supplementaryCardMax != null) {
+          maxStr = isZh ? `最多 ${c.supplementaryCardMax} 張` : `Max ${c.supplementaryCardMax}`;
+        } else if (c.annualFeeNote) {
+          const mx = c.annualFeeNote.match(/(?:附卡|副卡|附屬卡).*?(\d+)\s*張/);
+          if (mx) maxStr = isZh ? `最多 ${mx[1]} 張` : `Max ${mx[1]}`;
         }
-        return parts.join('<br>');
+        return maxStr ? `${feeStr}<br>${maxStr}` : feeStr;
       }));
 
       if (meta.rows.length) sections.push(meta);
