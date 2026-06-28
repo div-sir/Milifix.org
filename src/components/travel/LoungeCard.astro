@@ -23,7 +23,15 @@ const networkKeywords: Record<string, string[]> = {
   'amex-centurion-network': ['Centurion Network', 'Centurion Lounge', 'AMEX Centurion'],
 };
 
+// 航空公司自營貴賓室也算一種「貴賓室分類」（與 Priority Pass 等並列）
+const ALLIANCE_RE = /Alliance|oneworld|SkyTeam|星空聯盟|寰宇一家|天合聯盟/i;
+const AIRLINE_RE = /航空|全日空|Airlines?|Airways/i;
+const airlineLoungeLabel = lang === 'zh' ? '航空公司貴賓室' : 'Airline Lounge';
+
 const networkText = lounge.network ?? '';
+const segments = networkText.split('/').map((s) => s.trim()).filter(Boolean);
+const isAirlineLounge = segments.some((s) => AIRLINE_RE.test(s) && !ALLIANCE_RE.test(s));
+
 const matchedPrograms = programs.length > 0
   ? programs.filter((p) => {
       const kws = networkKeywords[p.slug];
@@ -32,18 +40,15 @@ const matchedPrograms = programs.length > 0
   : [];
 
 const unmatchedParts = matchedPrograms.length > 0
-  ? networkText
-      .split('/')
-      .map((s) => s.trim())
-      .filter((part) =>
-        !matchedPrograms.some((p) => {
-          const kws = networkKeywords[p.slug];
-          return kws?.some((kw) => part.includes(kw));
-        }),
-      )
-  : networkText.split('/').map((s) => s.trim()).filter(Boolean);
+  ? segments.filter((part) =>
+      !matchedPrograms.some((p) => {
+        const kws = networkKeywords[p.slug];
+        return kws?.some((kw) => part.includes(kw));
+      }),
+    )
+  : segments;
 
-const hasTags = matchedPrograms.length > 0 || unmatchedParts.length > 0;
+const hasTags = isAirlineLounge || matchedPrograms.length > 0 || unmatchedParts.length > 0;
 ---
 
 <a class="travel-card" href={href}>
@@ -58,6 +63,9 @@ const hasTags = matchedPrograms.length > 0 || unmatchedParts.length > 0;
   </span>
   {hasTags && (
     <span class="travel-card__tags">
+      {isAirlineLounge && (
+        <span class="travel-tag travel-tag--airline">{airlineLoungeLabel}</span>
+      )}
       {matchedPrograms.map((p) => (
         <span class="travel-tag travel-tag--network">{p.name}</span>
       ))}
