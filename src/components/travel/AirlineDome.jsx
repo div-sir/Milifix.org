@@ -151,6 +151,10 @@ export default function AirlineDome({ airlines, lang }) {
     inertiaRAF.current = requestAnimationFrame(step);
   }, [stopInertia, applyPan]);
 
+  const openSlug = useCallback((slug) => {
+    if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
+  }, []);
+
   // Pointer drag
   const onPointerDown = useCallback((e) => {
     stopInertia();
@@ -214,10 +218,6 @@ export default function AirlineDome({ airlines, lang }) {
     bumpAutoResume();
     movedRef.current = false;
   }, [startInertia, bumpAutoResume, openSlug]);
-
-  const openSlug = useCallback((slug) => {
-    if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
-  }, []);
 
   const onTileClick = useCallback((e) => {
     if (movedRef.current || performance.now() - lastDragEndAt.current < 80) return;
