@@ -69,6 +69,10 @@ const compareLabelsData = {
         <span class="compare-modal__count" id="compare-count">0</span>
       </h2>
       <div class="compare-modal__actions">
+        <button type="button" class="compare-modal__clear" id="compare-clear" aria-label={lang === 'zh' ? '清除所有卡片' : 'Clear all cards'} style="display:none">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>{lang === 'zh' ? '清除全部' : 'Clear all'}</span>
+        </button>
         <button type="button" class="compare-modal__share" id="compare-share" aria-label={lang === 'zh' ? '複製比較連結' : 'Copy compare link'}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           <span class="compare-modal__share-label">{lang === 'zh' ? '複製連結' : 'Share'}</span>
@@ -207,12 +211,15 @@ const compareLabelsData = {
     }
     const compareDockBtn = document.getElementById('compare-dock-btn');
 
+    const clearBtn = document.getElementById('compare-clear');
+
     function updateBadge() {
       const n = selected.size;
       compareCount.textContent = String(n);
       const badge = document.getElementById('compare-dock-badge');
       if (badge) badge.textContent = String(n);
       comparePillLi.style.display = n > 0 ? '' : 'none';
+      if (clearBtn) clearBtn.style.display = n > 0 ? '' : 'none';
       // 通知外部按鈕（卡片牆「+」、詳情頁「加入比較」）更新狀態
       window.dispatchEvent(new CustomEvent('compare:changed', { detail: { slugs: [...selected] } }));
     }
@@ -491,6 +498,12 @@ const compareLabelsData = {
         shareBtn.classList.remove('is-copied');
         if (label) label.textContent = prev;
       }, 1600);
+    });
+
+    // 清除所有卡片
+    clearBtn?.addEventListener('click', () => {
+      selected.clear();
+      renderCompare();
     });
 
     // 對外事件介面

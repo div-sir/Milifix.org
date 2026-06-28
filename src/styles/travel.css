@@ -1847,6 +1847,29 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   gap: 0.5rem;
 }
 
+.compare-modal__clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 36px;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #e53e3e 40%, var(--travel-card-border));
+  background: transparent;
+  color: #e53e3e;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.compare-modal__clear:hover {
+  background: color-mix(in srgb, #e53e3e 10%, transparent);
+  border-color: #e53e3e;
+}
+
 .compare-modal__share {
   display: inline-flex;
   align-items: center;
@@ -1903,8 +1926,10 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 }
 
 @media (max-width: 480px) {
-  .compare-modal__share { padding: 0 0.7rem; }
+  .compare-modal__clear span,
   .compare-modal__share-label { display: none; }
+  .compare-modal__clear,
+  .compare-modal__share { padding: 0 0.7rem; }
   .compare-modal__body { padding: 0 0.75rem 1.5rem; }
   .cg__cell { padding: 0.2rem 0.35rem 0.55rem; font-size: 0.74rem; }
   .cg__name { font-size: 0.78rem; }
