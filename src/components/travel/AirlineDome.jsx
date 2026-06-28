@@ -195,14 +195,25 @@ export default function AirlineDome({ airlines, lang }) {
   const onPointerUp = useCallback((e) => {
     if (!draggingRef.current) return;
     draggingRef.current = false;
-    const FRAME_MS = 1000 / 60;
-    const avx = velRef.current.vx * FRAME_MS;
-    const avy = velRef.current.vy * FRAME_MS;
-    if (Math.abs(avx) > 0.5 || Math.abs(avy) > 0.5) startInertia(avx, avy);
-    if (movedRef.current) lastDragEndAt.current = performance.now();
+
+    if (!movedRef.current) {
+      // Tap — release capture so elementFromPoint hits the tile, not the viewport
+      try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_) {}
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const tile = el?.closest?.('.hc-tile');
+      if (tile?.dataset?.slug) {
+        openSlug(tile.dataset.slug);
+      }
+    } else {
+      const FRAME_MS = 1000 / 60;
+      const avx = velRef.current.vx * FRAME_MS;
+      const avy = velRef.current.vy * FRAME_MS;
+      if (Math.abs(avx) > 0.5 || Math.abs(avy) > 0.5) startInertia(avx, avy);
+      lastDragEndAt.current = performance.now();
+    }
     bumpAutoResume();
     movedRef.current = false;
-  }, [startInertia, bumpAutoResume]);
+  }, [startInertia, bumpAutoResume, openSlug]);
 
   const openSlug = useCallback((slug) => {
     if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
