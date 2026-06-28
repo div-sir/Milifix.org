@@ -293,13 +293,6 @@ const programsByType = Object.fromEntries(
     {airlines.length > 0 && (
       <section class="travel-section travel-section--immersive" id="airlines">
         <div class="airline-dome-full">
-          <nav class="airline-dome-seo" aria-label={t.sectionAirlines}>
-            <ul>
-              {airlines.map((a) => (
-                <li><a href={airlinePath(a.slug)}>{a.name} ({a.iataCode})</a></li>
-              ))}
-            </ul>
-          </nav>
           <AirlineDome
             client:visible
             airlines={airlines.map((a) => ({
@@ -308,7 +301,6 @@ const programsByType = Object.fromEntries(
               slug: a.slug,
               logo: a.logo,
               alliance: a.alliance,
-              href: airlinePath(a.slug),
             }))}
             lang={lang}
           />
@@ -427,10 +419,6 @@ const programsByType = Object.fromEntries(
         </div>
         <p class="airline-modal__desc" id="airline-modal-desc"></p>
         <div class="airline-modal__cards" id="airline-modal-cards"></div>
-        <a class="airline-modal__fullpage" id="airline-modal-link" href="#">
-          <span>{lang === 'zh' ? '查看完整資料' : 'View full details'}</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
       </div>
     </div>
 
@@ -1267,7 +1255,6 @@ const programsByType = Object.fromEntries(
       } else {
         cardsEl.innerHTML = `<span class="airline-modal__cards-empty">${isZh ? '目前無對應信用卡' : 'No matching cards yet'}</span>`;
       }
-      (document.getElementById('airline-modal-link') as HTMLAnchorElement).href = a.href;
       airlineModal.setAttribute('aria-hidden', 'false');
       airlineModal.classList.add('is-open');
       document.body.style.overflow = 'hidden';
