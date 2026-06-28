@@ -1024,7 +1024,8 @@ const programsByType = Object.fromEntries(
           const mx = c.annualFeeNote.match(/(?:附卡|副卡|附屬卡).*?(\d+)\s*張/);
           if (mx) maxStr = isZh ? `最多 ${mx[1]} 張` : `Max ${mx[1]}`;
         }
-        return maxStr ? `${feeStr}<br>${maxStr}` : feeStr;
+        if (!maxStr) maxStr = `<span class="cg__sub">${isZh ? '張數依發卡行規定' : 'Per issuer policy'}</span>`;
+        return `${feeStr}<br>${maxStr}`;
       }));
 
       if (meta.rows.length) sections.push(meta);
