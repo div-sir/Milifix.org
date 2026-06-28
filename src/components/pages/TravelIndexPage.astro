@@ -401,15 +401,10 @@ const programsByType = Object.fromEntries(
             </button>
           </div>
         </div>
-        <div class="compare-modal__body">
-          <div class="compare-table-wrap" id="compare-table">
-            <table class="compare-table">
-              <thead id="compare-head"></thead>
-              <tbody id="compare-body"></tbody>
-            </table>
-            <div class="compare-empty" id="compare-empty">
-              {lang === 'zh' ? '點選卡片上的 ＋ 加入比較（最多 4 張）' : 'Tap + on cards to compare (up to 4)'}
-            </div>
+        <div class="compare-modal__body" id="compare-scroll">
+          <div id="compare-content"></div>
+          <div class="compare-empty" id="compare-empty">
+            {lang === 'zh' ? '點選卡片上的 ＋ 加入比較（最多 4 張）' : 'Tap + on cards to compare (up to 4)'}
           </div>
         </div>
       </div>
@@ -829,8 +824,7 @@ const programsByType = Object.fromEntries(
     const selected = new Set<string>();
     const compareModal = document.getElementById('compare-modal')!;
     const compareBtns = document.querySelectorAll<HTMLButtonElement>('.cc3d__compare-btn');
-    const compareHead = document.getElementById('compare-head')!;
-    const compareBody = document.getElementById('compare-body')!;
+    const compareContent = document.getElementById('compare-content')!;
     const compareEmpty = document.getElementById('compare-empty')!;
     const compareCount = document.getElementById('compare-count')!;
     const allCards: Array<{
@@ -938,66 +932,96 @@ const programsByType = Object.fromEntries(
       compareEmpty.style.display = picks.length ? 'none' : '';
 
       if (!picks.length) {
-        compareHead.innerHTML = '';
-        compareBody.innerHTML = '';
+        compareContent.innerHTML = '';
         updateBadge();
         return;
       }
 
-      compareHead.innerHTML = `<tr>
-        <th class="compare-table__corner">${isZh ? '比較項目' : 'Compare'}</th>
-        ${picks.map((c) => `<th class="compare-table__card-head">
-          <span class="compare-table__bank">${c.bank}</span>
-          <span class="compare-table__name">${c.name}</span>
-          <button type="button" class="compare-table__remove" data-remove-slug="${c.slug}" aria-label="Remove">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span>${isZh ? '移除' : 'Remove'}</span>
-          </button>
-        </th>`).join('')}
-      </tr>`;
-
+      const cols = picks.length;
       function fmtNT(n: number) { return `NT$ ${n.toLocaleString()}`; }
       function fmtWan(n: number) { return n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${isZh ? '萬' : 'M'}` : fmtNT(n); }
+      function stripPrefix(text: string): string { return text.replace(/貴賓室網路[：:]\s*/g, ''); }
+      function esc(s: string) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-      const rows: Array<{ label: string; values: string[] }> = [
-        { label: isZh ? '卡片網路' : 'Network', values: picks.map((c) => c.cardNetwork.toUpperCase()) },
-        { label: isZh ? '年費' : 'Annual Fee', values: picks.map((c) => {
-          let s = c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : fmtNT(c.annualFee);
-          if (c.annualFeeWaivable === 'no') s += `<br><span class="compare-table__desc">${cmpL.annualFeeNotWaivable || '不可減免'}</span>`;
-          return s;
-        })},
-        { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => {
-          if (!c.annualFeeNote) return '—';
-          let note = c.annualFeeNote;
-          if (c.supplementaryCardFee != null) {
-            note = note.replace(/[，,；;]?\s*附卡[^，,；;。]*/g, '').replace(/[，,；;]?\s*副卡[^，,；;。]*/g, '').trim();
-            note = note.replace(/^[，,；;]\s*/, '').replace(/[，,；;]\s*$/, '');
-          }
-          return note || '—';
-        })},
-        { label: cmpL.supplementaryCard || '附卡', values: picks.map((c) => {
-          if (c.supplementaryCardFee == null) return '—';
-          let s = c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee);
-          if (c.supplementaryCardMax != null) s += `<br><span class="compare-table__desc">${isZh ? '最多 ' + c.supplementaryCardMax + ' 張' : 'Max ' + c.supplementaryCardMax}</span>`;
-          return s;
-        })},
-        { label: cmpL.signUpBonus || '首刷禮', values: picks.map((c) => c.signUpBonus || '—') },
-        { label: cmpL.renewalBonus || '續卡禮', values: picks.map((c) => c.renewalBonus || '—') },
-      ];
+      // ── Header (sticky) ──
+      const headerHtml = `<div class="cg__header" style="--cg-cols:${cols}">
+        ${picks.map((c) => `<div class="cg__card">
+          <span class="cg__bank">${esc(c.bank)}</span>
+          <span class="cg__name">${esc(c.name)}</span>
+          <button type="button" class="cg__remove" data-remove-slug="${c.slug}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            ${isZh ? '移除' : 'Remove'}
+          </button>
+        </div>`).join('')}
+      </div>`;
 
-      // remove rows where every value is '—'
-      const filteredMeta = rows.filter((r) => r.values.some((v) => v !== '—'));
-      rows.length = 0;
-      rows.push(...filteredMeta);
+      // ── Row helper ──
+      type Row = { label: string; values: string[]; isList?: boolean };
+      const sections: Array<{ title: string; rows: Row[] }> = [];
 
-      function stripPrefix(text: string): string {
-        return text.replace(/貴賓室網路[：:]\s*/g, '');
+      function addRow(sec: typeof sections[number], label: string, values: string[], isList = false) {
+        if (values.every((v) => v === '—')) return;
+        sec.rows.push({ label, values, isList });
       }
 
+      // ── Section: 基本資訊 ──
+      const meta: typeof sections[number] = { title: isZh ? '基本資訊' : 'Basic Info', rows: [] };
+
+      addRow(meta, isZh ? '卡片網路' : 'Network', picks.map((c) => c.cardNetwork.toUpperCase()));
+
+      // 年費：金額 + 可否減免
+      addRow(meta, isZh ? '年費' : 'Annual Fee', picks.map((c) => {
+        const parts: string[] = [];
+        parts.push(c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : fmtNT(c.annualFee));
+        if (c.annualFeeWaivable === 'yes') parts.push(cmpL.annualFeeWaivable || '可減免');
+        else if (c.annualFeeWaivable === 'no') parts.push(cmpL.annualFeeNotWaivable || '不可減免');
+        return parts.join('<br>');
+      }));
+
+      // 年費備註：原始 annualFeeNote，剔除附卡相關描述（因附卡有獨立列）
+      addRow(meta, isZh ? '年費備註' : 'Fee Note', picks.map((c) => {
+        if (!c.annualFeeNote) return '—';
+        let note = c.annualFeeNote;
+        if (c.supplementaryCardFee != null) {
+          note = note.replace(/[，,；;]?\s*附卡[^，,；;。]*(?=[，,；;。]|$)/g, '')
+                     .replace(/[，,；;]?\s*副卡[^，,；;。]*(?=[，,；;。]|$)/g, '')
+                     .replace(/^[，,；;\s]+/, '').replace(/[，,；;\s]+$/, '');
+        }
+        return note || '—';
+      }));
+
+      // 附卡：年費 + 最多幾張 + 從 annualFeeNote 中提取附卡描述
+      addRow(meta, cmpL.supplementaryCard || '附卡', picks.map((c) => {
+        if (c.supplementaryCardFee == null) return '—';
+        const parts: string[] = [];
+        parts.push(c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee));
+        if (c.supplementaryCardMax != null) parts.push(isZh ? `最多 ${c.supplementaryCardMax} 張` : `Max ${c.supplementaryCardMax}`);
+        // 從 annualFeeNote 提取附卡相關描述
+        if (c.annualFeeNote) {
+          const m = c.annualFeeNote.match(/(?:附卡|副卡)[^，,；;。]*/g);
+          if (m) {
+            for (const s of m) {
+              const clean = s.trim();
+              if (clean && !parts.some((p) => p.includes(clean))) parts.push(clean);
+            }
+          }
+        }
+        return parts.join('<br>');
+      }));
+
+      if (meta.rows.length) sections.push(meta);
+
+      // ── Section: 優惠 ──
+      const promo: typeof sections[number] = { title: isZh ? '優惠' : 'Promos', rows: [] };
+      addRow(promo, cmpL.signUpBonus || '首刷禮', picks.map((c) => c.signUpBonus || '—'));
+      addRow(promo, cmpL.renewalBonus || '續卡禮', picks.map((c) => c.renewalBonus || '—'));
+      if (promo.rows.length) sections.push(promo);
+
+      // ── Sections: benefit types ──
       const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
       for (const type of allTypes) {
+        const sec: typeof sections[number] = { title: benefitLabels[type] ?? type, rows: [] };
         if (type === 'insurance') {
-          // structured insurance row
           const fields = [
             { key: 'insuranceTravel', label: cmpL.insuranceTravel || '旅平險' },
             { key: 'insuranceOverseas', label: cmpL.insuranceOverseas || '海外意外險' },
@@ -1005,7 +1029,7 @@ const programsByType = Object.fromEntries(
             { key: 'insuranceBaggageLost', label: cmpL.insuranceBaggageLost || '行李遺失' },
             { key: 'insuranceTripCancel', label: cmpL.insuranceTripCancel || '行程取消' },
           ] as const;
-          const insuranceValues = picks.map((c) => {
+          addRow(sec, benefitLabels[type] ?? type, picks.map((c) => {
             const ins = c.benefits.filter((b) => b.type === 'insurance');
             if (!ins.length) return '—';
             const parts: string[] = [];
@@ -1014,35 +1038,52 @@ const programsByType = Object.fromEntries(
               if (val > 0) parts.push(`${f.label} ${fmtWan(val)}`);
             }
             if (!parts.length) return ins.map((b) => b.title).join('<br>');
-            return parts.join('<br>');
-          });
-          rows.push({ label: benefitLabels[type] ?? type, values: insuranceValues });
-          continue;
-        }
-        rows.push({
-          label: benefitLabels[type] ?? type,
-          values: picks.map((c) => {
+            return `<ul class="cg__list">${parts.map((p) => `<li>${p}</li>`).join('')}</ul>`;
+          }), true);
+        } else {
+          addRow(sec, benefitLabels[type] ?? type, picks.map((c) => {
             const items = c.benefits.filter((b) => b.type === type);
-            return items.length ? items.map((b) => {
-              let html = '';
+            if (!items.length) return '—';
+            if (items.length === 1) {
+              const b = items[0];
               const title = stripPrefix(b.title);
+              let html = title;
               const desc = stripPrefix(b.desc);
-              if (desc && desc.length > title.length)
-                html = `<strong>${title}</strong><br><span class="compare-table__desc">${desc}</span>`;
-              else html = title;
-              if (b.conditions) html += `<br><span class="compare-table__desc">${stripPrefix(b.conditions)}</span>`;
+              if (desc && desc !== title) html += `<br><span class="cg__sub">${desc}</span>`;
+              if (b.conditions) html += `<br><span class="cg__sub">${stripPrefix(b.conditions)}</span>`;
               return html;
-            }).join('<br>') : '—';
-          }),
-        });
+            }
+            return `<ul class="cg__list">${items.map((b) => {
+              const title = stripPrefix(b.title);
+              let li = title;
+              const desc = stripPrefix(b.desc);
+              if (desc && desc !== title) li += `<br><span class="cg__sub">${desc}</span>`;
+              if (b.conditions) li += `<br><span class="cg__sub">${stripPrefix(b.conditions)}</span>`;
+              return `<li>${li}</li>`;
+            }).join('')}</ul>`;
+          }), true);
+        }
+        if (sec.rows.length) sections.push(sec);
       }
 
-      compareBody.innerHTML = rows.map((r) => `<tr>
-        <td class="compare-table__label">${r.label}</td>
-        ${r.values.map((v) => `<td class="compare-table__value">${v}</td>`).join('')}
-      </tr>`).join('');
+      // ── Build grid HTML ──
+      let html = headerHtml;
+      for (const sec of sections) {
+        html += `<div class="cg__section">`;
+        html += `<div class="cg__section-title" style="--cg-cols:${cols}">${sec.title}</div>`;
+        for (const row of sec.rows) {
+          html += `<div class="cg__row" style="--cg-cols:${cols}">`;
+          html += `<div class="cg__label">${row.label}</div>`;
+          html += row.values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
+          html += `</div>`;
+        }
+        html += `</div>`;
+      }
 
-      compareHead.querySelectorAll<HTMLButtonElement>('[data-remove-slug]').forEach((btn) => {
+      compareContent.innerHTML = html;
+
+      // Bind remove buttons
+      compareContent.querySelectorAll<HTMLButtonElement>('[data-remove-slug]').forEach((btn) => {
         btn.addEventListener('click', () => {
           selected.delete(btn.dataset.removeSlug!);
           renderCompare();

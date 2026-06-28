@@ -1682,97 +1682,140 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 
 /* ── 互動比較表 ─────────────────────────────────────── */
 
-.compare-table-wrap {
-  position: relative;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 10px;
-  border: 1px solid var(--travel-card-border);
-  background: var(--travel-card-bg);
-}
+/* ── Compare Grid (Apple-style) ──────────────────────── */
 
-.compare-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-}
-
-.compare-table th,
-.compare-table td {
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid var(--travel-card-border);
-  vertical-align: top;
-}
-
-.compare-table__corner {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-  background: var(--travel-card-bg);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--text) 50%, transparent);
-  text-align: left;
-  min-width: 100px;
-  white-space: nowrap;
-}
-
-.compare-table thead {
+.cg__header {
   position: sticky;
   top: 0;
-  z-index: 4;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(var(--cg-cols), 1fr);
+  gap: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--travel-card-border);
+  padding: 1rem 0 0.75rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.compare-table__card-head {
-  position: relative;
+.cg__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0 0.75rem;
   text-align: center;
-  min-width: 140px;
-  padding: 0.85rem 1.2rem 0.65rem;
-  background: var(--travel-card-bg);
 }
 
-.compare-table__bank {
-  display: block;
+.cg__bank {
   font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text) 50%, transparent);
 }
 
-.compare-table__name {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 500;
+.cg__name {
+  font-size: 0.88rem;
+  font-weight: 600;
   color: var(--text);
+  line-height: 1.25;
 }
 
-.compare-table__label {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background: var(--bg);
-  font-family: var(--mono);
+.cg__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--travel-accent);
+  cursor: pointer;
+  font-family: var(--sans);
   font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--text) 55%, transparent);
-  white-space: nowrap;
-  min-width: 100px;
+  font-weight: 500;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.compare-table__value {
-  text-align: center;
+.cg__remove:hover { opacity: 0.65; }
+
+.cg__section {
+  border-bottom: 1px solid var(--travel-card-border);
+}
+
+.cg__section:last-child { border-bottom: none; }
+
+.cg__section-title {
+  padding: 1rem 0 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 600;
   color: var(--text);
-  line-height: 1.45;
+  letter-spacing: -0.01em;
 }
 
-.compare-table__desc {
+.cg__row {
+  display: grid;
+  grid-template-columns: repeat(var(--cg-cols), 1fr);
+  border-top: 1px solid color-mix(in srgb, var(--travel-card-border) 50%, transparent);
+  padding: 0;
+}
+
+.cg__label {
+  grid-column: 1 / -1;
+  padding: 0.65rem 0 0.2rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text) 45%, transparent);
+}
+
+.cg__cell {
+  padding: 0.25rem 0.75rem 0.65rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.cg__sub {
   font-size: 0.72rem;
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  color: color-mix(in srgb, var(--text) 55%, transparent);
   line-height: 1.35;
 }
+
+.cg__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.cg__list li {
+  position: relative;
+  padding-left: 0.85rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.cg__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 35%, transparent);
+}
+
+.cg__list li:last-child { margin-bottom: 0; }
 
 .compare-empty {
   padding: 2.5rem 1rem;
@@ -1780,36 +1823,6 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   font-family: var(--mono);
   font-size: 0.8rem;
   color: color-mix(in srgb, var(--text) 35%, transparent);
-}
-
-.compare-table__remove {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.4rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--text) 15%, transparent);
-  background: color-mix(in srgb, var(--text) 5%, transparent);
-  color: color-mix(in srgb, var(--text) 50%, transparent);
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  line-height: 1;
-  transition: all 0.2s ease;
-}
-
-.compare-table__remove span {
-  display: inline;
-}
-
-.compare-table__remove:hover {
-  color: #fff;
-  background: #d44;
-  border-color: #d44;
-  transform: scale(1.05);
 }
 
 /* ── 底部導覽列比較按鈕 ─────────────────────────────── */
@@ -1979,25 +1992,17 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 .compare-modal__body {
   flex: 1;
   overflow-y: auto;
-  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 1rem 1.25rem 2rem;
-}
-
-.compare-modal__body .compare-table-wrap {
-  border: none;
-  background: transparent;
-  overflow: visible;
-}
-
-.compare-modal__body .compare-table thead th {
-  background: var(--bg);
-  box-shadow: 0 1px 0 var(--travel-card-border);
+  padding: 0 1.25rem 2rem;
 }
 
 @media (max-width: 480px) {
   .compare-modal__share { padding: 0 0.7rem; }
   .compare-modal__share-label { display: none; }
+  .compare-modal__body { padding: 0 0.75rem 1.5rem; }
+  .cg__cell { padding: 0.2rem 0.35rem 0.55rem; font-size: 0.74rem; }
+  .cg__name { font-size: 0.78rem; }
+  .cg__card { padding: 0 0.35rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
