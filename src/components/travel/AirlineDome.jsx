@@ -58,8 +58,13 @@ export default function AirlineDome({ airlines, lang }) {
     hintRef.current?.classList.add('is-hidden');
   }, []);
 
+  const blockSizeRef = useRef({ w: 1, h: 1 });
+
   const applyPan = useCallback(() => {
     if (!gridRef.current) return;
+    const { w, h } = blockSizeRef.current;
+    if (w > 1) panRef.current.x = ((panRef.current.x % w) + w) % w - w;
+    if (h > 1) panRef.current.y = ((panRef.current.y % h) + h) % h - h;
     gridRef.current.style.transform = `translate(${panRef.current.x}px, ${panRef.current.y}px)`;
   }, []);
 
@@ -228,13 +233,16 @@ export default function AirlineDome({ airlines, lang }) {
     const spacingY = cellSize * 1.0;
     const blockW = cols * spacingX;
     const blockH = rows * spacingY;
+    blockSizeRef.current = { w: blockW, h: blockH };
+    const centerX = -blockW * 1.5;
+    const centerY = -blockH * 1.5;
     const tiles = [];
     const seen = new Set();
 
-    for (let by = -1; by <= 1; by++) {
-      for (let bx = -1; bx <= 1; bx++) {
-        const ox = bx * blockW;
-        const oy = by * blockH;
+    for (let by = 0; by < 3; by++) {
+      for (let bx = 0; bx < 3; bx++) {
+        const ox = centerX + bx * blockW;
+        const oy = centerY + by * blockH;
         pattern.forEach((img, idx) => {
           const r = Math.floor(idx / cols);
           const c = idx % cols;
