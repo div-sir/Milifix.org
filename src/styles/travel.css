@@ -1574,6 +1574,15 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   font-weight: 600;
   color: var(--text);
   line-height: 1.25;
+  text-decoration: none;
+  transition: color 0.15s;
+  cursor: pointer;
+}
+
+.cg__name:hover {
+  color: var(--travel-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .cg__remove {

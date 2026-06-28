@@ -404,7 +404,6 @@ const jsonLd = {
     comparePillLi.className = 'dock-pill-nav__cell';
     comparePillLi.setAttribute('role', 'none');
     comparePillLi.id = 'compare-dock-cell';
-    comparePillLi.style.display = 'none';
     comparePillLi.innerHTML =
       '<a href="' + travelBase + '?compare=open#cards" class="dock-pill-nav__pill dock-pill-nav__pill--compare" id="compare-dock-link"' +
       ' aria-label="' + (isZh ? '開啟比較' : 'Open compare') + '">' +
@@ -420,8 +419,11 @@ const jsonLd = {
     function updateDockBadge() {
       var n = set.size;
       var badge = document.getElementById('compare-dock-badge');
-      if (badge) badge.textContent = String(n);
-      comparePillLi.style.display = n > 0 ? '' : 'none';
+      if (badge) {
+        badge.textContent = String(n);
+        // 數量為 0 時隱藏徽章，但按鈕本身在卡片詳情頁恆常顯示
+        badge.style.display = n > 0 ? '' : 'none';
+      }
     }
 
     updateBtn();
