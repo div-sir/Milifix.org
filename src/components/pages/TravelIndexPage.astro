@@ -1000,8 +1000,10 @@ const programsByType = Object.fromEntries(
       }));
 
       // 年費備註：剔除附卡/附屬卡描述（有獨立列）＋ 剔除「不可減免」等（年費列已顯示）
-      const NOTE_STRIP = /[，,；;]?\s*(?:附卡|副卡|附屬卡)[^，,；;。]*(?=[，,；;。]|$)/g;
-      const NOTE_STRIP_FEE = /[，,；;]?\s*(?:正卡)?年費不可減免/g;
+      // (?:^|[，；;]) 確保「附卡」前是句首或分隔符，不會誤刪「正附卡合併消費」
+      // [^，；。]* 只用中文標點斷句，不被 NT$1,800 的英文逗號截斷
+      const NOTE_STRIP = /(?:^|[，,；;]\s*)(?:附卡|副卡|附屬卡)[^，；。]*(?=[，；。]|$)/g;
+      const NOTE_STRIP_FEE = /(?:^|[，,；;]\s*)(?:正卡)?年費不可減免/g;
       addRow(meta, isZh ? '年費備註' : 'Fee Note', picks.map((c) => {
         if (!c.annualFeeNote) return '—';
         let note = c.annualFeeNote
