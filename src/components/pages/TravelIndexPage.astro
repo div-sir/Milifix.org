@@ -12,13 +12,14 @@ import RealisticCreditCard from '../travel/RealisticCreditCard.astro';
 import LoungeCard from '../travel/LoungeCard.astro';
 import AirlineDome from '../travel/AirlineDome.jsx';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
+import CompareModal from '../travel/CompareModal.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { travelPath, programSlugPath } from '../../i18n/routes';
+import { programSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -372,33 +373,8 @@ const programsByType = Object.fromEntries(
       </section>
     )}
 
-    <!-- ── 比較 Modal ── -->
-    <div class="compare-modal" id="compare-modal" aria-hidden="true">
-      <div class="compare-modal__backdrop" id="compare-modal-backdrop"></div>
-      <div class="compare-modal__panel">
-        <div class="compare-modal__header">
-          <h2 class="compare-modal__title">
-            {lang === 'zh' ? '卡片比較' : 'Compare Cards'}
-            <span class="compare-modal__count" id="compare-count">0</span>
-          </h2>
-          <div class="compare-modal__actions">
-            <button type="button" class="compare-modal__share" id="compare-share" aria-label={lang === 'zh' ? '複製比較連結' : 'Copy compare link'}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-              <span class="compare-modal__share-label">{lang === 'zh' ? '複製連結' : 'Share'}</span>
-            </button>
-            <button type="button" class="compare-modal__close" id="compare-modal-close" aria-label="Close">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="compare-modal__body" id="compare-scroll">
-          <div id="compare-content"></div>
-          <div class="compare-empty" id="compare-empty">
-            {lang === 'zh' ? '點選卡片上的 ＋ 加入比較（最多 4 張）' : 'Tap + on cards to compare (up to 4)'}
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- ── 比較 Modal（共用元件）── -->
+    <CompareModal lang={lang} cards={cards} />
 
     <!-- ── 航空彈窗 ── -->
     <div class="airline-modal" id="airline-modal" aria-hidden="true">
@@ -423,55 +399,6 @@ const programsByType = Object.fromEntries(
     <!-- 航空資料注入 -->
     <script is:inline define:vars={{ airlinesJson: JSON.stringify(airlinesData), lang }}>
       window.__airlines = JSON.parse(airlinesJson);
-    </script>
-
-    <!-- 卡片資料注入（供 JS 讀取） -->
-    <script is:inline define:vars={{ cardsJson: JSON.stringify(cards.map((c) => ({
-      slug: c.slug, name: c.name, bank: c.bank, annualFee: c.annualFee,
-      annualFeeNote: c.annualFeeNote ?? '', cardNetwork: c.cardNetwork,
-      annualFeeWaivable: c.annualFeeWaivable ?? 'unknown',
-      supplementaryCardFee: c.supplementaryCardFee ?? null,
-      supplementaryCardMax: c.supplementaryCardMax ?? null,
-      signUpBonus: c.signUpBonus ?? '',
-      renewalBonus: c.renewalBonus ?? '',
-      benefits: c.benefits.map((b) => {
-        const lo = b.lounge && typeof b.lounge === 'object' && 'slug' in b.lounge ? b.lounge : null;
-        const progs = (b.program ?? []).filter((p) => typeof p === 'object' && p !== null && 'slug' in p) as { slug: string; name: string }[];
-        return {
-          type: b.benefitType, title: b.title, desc: b.description ?? '',
-          conditions: b.conditions ?? '',
-          guestPolicy: b.guestPolicy ?? '',
-          insuranceTravel: b.insuranceTravel ?? null,
-          insuranceOverseas: b.insuranceOverseas ?? null,
-          insuranceFlightDelay: b.insuranceFlightDelay ?? null,
-          insuranceBaggageDelay: b.insuranceBaggageDelay ?? null,
-          insuranceBaggageLost: b.insuranceBaggageLost ?? null,
-          insuranceTripCancel: b.insuranceTripCancel ?? null,
-          lounge: lo ? { slug: lo.slug, name: lo.name } : null,
-          programs: progs.map((p) => ({ slug: p.slug, name: p.name })),
-        };
-      }),
-    }))), benefitLabels: JSON.stringify(Object.fromEntries(
-      allBenefitTypes.map((bt) => [bt, t.benefitTypes[bt] ?? bt])
-    )), compareLabels: JSON.stringify({
-      annualFeeWaivable: t.annualFeeWaivable,
-      annualFeeNotWaivable: t.annualFeeNotWaivable,
-      supplementaryCard: t.supplementaryCard,
-      supplementaryCardFree: t.supplementaryCardFree,
-      signUpBonus: t.signUpBonus,
-      renewalBonus: t.renewalBonus,
-      insuranceTravel: t.insuranceTravel,
-      insuranceOverseas: t.insuranceOverseas,
-      insuranceFlightDelay: t.insuranceFlightDelay,
-      insuranceBaggageDelay: t.insuranceBaggageDelay,
-      insuranceBaggageLost: t.insuranceBaggageLost,
-      insuranceTripCancel: t.insuranceTripCancel,
-    }), basePath: travelPath(lang), lang }}>
-      window.__compareCards = JSON.parse(cardsJson);
-      window.__benefitLabels = JSON.parse(benefitLabels);
-      window.__compareLabels = JSON.parse(compareLabels);
-      window.__compareLang = lang;
-      window.__travelBase = basePath;
     </script>
 
     {cards.length === 0 && lounges.length === 0 && airlines.length === 0 && (
@@ -812,418 +739,35 @@ const programsByType = Object.fromEntries(
       if (TAB_IDS.includes(h)) showTab(h, false);
     });
 
-    // ── 互動比較（Modal） ──
-    const MAX_COMPARE = 4;
-    const selected = new Set<string>();
-    const compareModal = document.getElementById('compare-modal')!;
+    // ── 互動比較：卡片牆「+」按鈕 → 透過事件與 CompareModal 元件溝通 ──
     const compareBtns = document.querySelectorAll<HTMLButtonElement>('.cc3d__compare-btn');
-    const compareContent = document.getElementById('compare-content')!;
-    const compareEmpty = document.getElementById('compare-empty')!;
-    const compareCount = document.getElementById('compare-count')!;
-    type CompBenefit = {
-      type: string; title: string; desc: string; conditions: string;
-      guestPolicy: string;
-      insuranceTravel: number | null; insuranceOverseas: number | null;
-      insuranceFlightDelay: number | null; insuranceBaggageDelay: number | null;
-      insuranceBaggageLost: number | null; insuranceTripCancel: number | null;
-      lounge: { slug: string; name: string } | null;
-      programs: { slug: string; name: string }[];
-    };
-    const allCards: Array<{
-      slug: string; name: string; bank: string; annualFee: number;
-      annualFeeNote: string; cardNetwork: string;
-      annualFeeWaivable: string; supplementaryCardFee: number | null;
-      supplementaryCardMax: number | null; signUpBonus: string; renewalBonus: string;
-      benefits: CompBenefit[];
-    }> = (window as any).__compareCards ?? [];
-    const benefitLabels: Record<string, string> = (window as any).__benefitLabels ?? {};
-    const cmpL: Record<string, string> = (window as any).__compareLabels ?? {};
-    const isZh = (window as any).__compareLang === 'zh';
-    const travelBase: string = (window as any).__travelBase ?? '/zh/travel';
-    const STORAGE_KEY = 'milifix-compare';
+    const isZhCompare = (window as any).__compareLang === 'zh';
 
-    // slug ↔ index 映射（讓 URL 更短：?compare=2.5.8）
-    const slugToIdx: Record<string, number> = {};
-    const idxToSlug: Record<number, string> = {};
-    allCards.forEach((c, i) => { slugToIdx[c.slug] = i; idxToSlug[i] = c.slug; });
-
-    function persistSelection() {
-      const slugs = [...selected];
-      const url = new URL(window.location.href);
-      if (slugs.length) {
-        const indices = slugs.map((s) => slugToIdx[s]).filter((i) => i !== undefined);
-        url.searchParams.set('compare', indices.join('.'));
-      } else {
-        url.searchParams.delete('compare');
-      }
-      history.replaceState(null, '', url.toString());
-      try {
-        if (slugs.length) localStorage.setItem(STORAGE_KEY, slugs.join(','));
-        else localStorage.removeItem(STORAGE_KEY);
-      } catch (e) { /* localStorage 不可用時忽略 */ }
-    }
-
-    function restoreSelection(): boolean {
-      const url = new URL(window.location.href);
-      const param = url.searchParams.get('compare');
-      let raw = param ?? '';
-      let fromUrl = !!param;
-      if (!raw) { try { raw = localStorage.getItem(STORAGE_KEY) ?? ''; } catch (e) { raw = ''; } }
-      if (!raw) return false;
-      const valid = new Set(allCards.map((c) => c.slug));
-      const isIndices = /^[\d.]+$/.test(raw);
-      const parts = raw.split(isIndices ? '.' : ',').filter(Boolean);
-      parts.forEach((s) => {
-        const slug = isIndices ? idxToSlug[parseInt(s, 10)] : s;
-        if (slug && selected.size < MAX_COMPARE && valid.has(slug)) selected.add(slug);
-      });
-      return fromUrl && selected.size > 0;
-    }
-
-    // 比較按鈕：插入底部導覽列
-    const dockRow = document.querySelector('.dock-pill-nav__row');
-    const comparePillLi = document.createElement('li');
-    comparePillLi.className = 'dock-pill-nav__cell';
-    comparePillLi.setAttribute('role', 'none');
-    comparePillLi.id = 'compare-dock-cell';
-    comparePillLi.style.display = 'none';
-    comparePillLi.innerHTML = `
-      <button type="button" class="dock-pill-nav__pill dock-pill-nav__pill--compare" id="compare-dock-btn"
-              aria-label="${isZh ? '開啟比較' : 'Open compare'}">
-        <span class="dock-pill-nav__home-icon" aria-hidden="true">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </span>
-        <span class="dock-compare-badge" id="compare-dock-badge">0</span>
-      </button>`;
-
-    // 插在 separator 之前（scroll-top 那組的前面）
-    const seps = dockRow?.querySelectorAll('.dock-pill-nav__sep-cell');
-    const lastSep = seps && seps.length > 0 ? seps[seps.length - 1] : null;
-    if (lastSep) {
-      dockRow!.insertBefore(comparePillLi, lastSep);
-    } else if (dockRow) {
-      dockRow.appendChild(comparePillLi);
-    }
-    const compareDockBtn = document.getElementById('compare-dock-btn');
-
-    function updateBadge() {
-      const n = selected.size;
-      compareCount.textContent = String(n);
-      const badge = document.getElementById('compare-dock-badge');
-      if (badge) badge.textContent = String(n);
-      comparePillLi.style.display = n > 0 ? '' : 'none';
-
-      compareBtns.forEach((btn) => {
-        const slug = btn.dataset.compareSlug!;
-        const on = selected.has(slug);
-        btn.classList.toggle('is-selected', on);
-        btn.setAttribute('aria-label', on
-          ? (isZh ? '移除比較' : 'Remove from compare')
-          : (isZh ? '加入比較' : 'Add to compare'));
-      });
-    }
-
-    function renderCompare() {
-      persistSelection();
-      const picks = allCards.filter((c) => selected.has(c.slug));
-      compareEmpty.style.display = picks.length ? 'none' : '';
-
-      if (!picks.length) {
-        compareContent.innerHTML = '';
-        updateBadge();
-        return;
-      }
-
-      const cols = picks.length;
-      function fmtNT(n: number) { return `NT$ ${n.toLocaleString()}`; }
-      function fmtWan(n: number) { return n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${isZh ? '萬' : 'M'}` : fmtNT(n); }
-      const STRIP_RE = /(?:貴賓室網路|飯店計畫|航空聯盟|機場貴賓室|旅遊保險|機場接送|航空會員|機票折扣|免稅折扣|機場停車)[：:]\s*/g;
-      const PURGE_RE = /浦東機場推薦[^。]*[。]?/g;
-      function cleanText(text: string): string {
-        return text.replace(STRIP_RE, '').replace(PURGE_RE, '').trim();
-      }
-      function splitSentences(text: string): string[] {
-        return text.split(/[。；]\s*/).map((s) => s.trim()).filter(Boolean);
-      }
-      function tagHtml(name: string, href: string): string {
-        return `<a class="cg__tag" href="${href}">${esc(name)}</a>`;
-      }
-      function esc(s: string) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-      // ── Header (sticky) ──
-      const headerHtml = `<div class="cg__header" style="--cg-cols:${cols}">
-        ${picks.map((c) => `<div class="cg__card">
-          <span class="cg__bank">${esc(c.bank)}</span>
-          <a class="cg__name" href="${travelBase}/cards/${c.slug}">${esc(c.name)}</a>
-          <button type="button" class="cg__remove" data-remove-slug="${c.slug}">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            ${isZh ? '移除' : 'Remove'}
-          </button>
-        </div>`).join('')}
-      </div>`;
-
-      // ── Row helper ──
-      type Row = { label: string; values: string[]; isList?: boolean };
-      const sections: Array<{ title: string; rows: Row[] }> = [];
-
-      function addRow(sec: typeof sections[number], label: string, values: string[], isList = false) {
-        if (values.every((v) => v === '—')) return;
-        sec.rows.push({ label, values, isList });
-      }
-
-      // ── Section: 基本資訊 ──
-      const meta: typeof sections[number] = { title: isZh ? '基本資訊' : 'Basic Info', rows: [] };
-
-      addRow(meta, isZh ? '卡片網路' : 'Network', picks.map((c) => c.cardNetwork.toUpperCase()));
-
-      // 年費：金額 + 可否減免
-      addRow(meta, isZh ? '年費' : 'Annual Fee', picks.map((c) => {
-        const parts: string[] = [];
-        parts.push(c.annualFee === 0 ? (isZh ? '免年費' : 'Waived') : fmtNT(c.annualFee));
-        if (c.annualFeeWaivable === 'yes') parts.push(cmpL.annualFeeWaivable || '可減免');
-        else if (c.annualFeeWaivable === 'no') parts.push(cmpL.annualFeeNotWaivable || '不可減免');
-        return parts.join('<br>');
-      }));
-
-      // 年費備註：剔除附卡/附屬卡描述（有獨立列）＋ 剔除「不可減免」等（年費列已顯示）
-      // (?:^|[，；;]) 確保「附卡」前是句首或分隔符，不會誤刪「正附卡合併消費」
-      // [^，；。]* 只用中文標點斷句，不被 NT$1,800 的英文逗號截斷
-      const NOTE_STRIP = /(?:^|[，,；;]\s*)(?:附卡|副卡|附屬卡)[^，；。]*(?=[，；。]|$)/g;
-      const NOTE_STRIP_FEE = /(?:^|[，,；;]\s*)(?:正卡)?年費不可減免/g;
-      addRow(meta, isZh ? '年費備註' : 'Fee Note', picks.map((c) => {
-        if (!c.annualFeeNote) return '—';
-        let note = c.annualFeeNote
-          .replace(NOTE_STRIP, '')
-          .replace(NOTE_STRIP_FEE, '')
-          .replace(/^[，,；;\s。]+/, '').replace(/[，,；;\s]+$/, '');
-        return note || '—';
-      }));
-
-      // 附卡：年費 + 最多幾張；從 annualFeeNote 提取附卡/附屬卡 max 數（若 CMS 欄位未填）
-      addRow(meta, cmpL.supplementaryCard || '附卡', picks.map((c) => {
-        if (c.supplementaryCardFee == null) return '—';
-        const feeStr = c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee);
-        let maxStr = '';
-        if (c.supplementaryCardMax != null) {
-          maxStr = isZh ? `最多 ${c.supplementaryCardMax} 張` : `Max ${c.supplementaryCardMax}`;
-        } else if (c.annualFeeNote) {
-          const mx = c.annualFeeNote.match(/(?:附卡|副卡|附屬卡).*?(\d+)\s*張/);
-          if (mx) maxStr = isZh ? `最多 ${mx[1]} 張` : `Max ${mx[1]}`;
-        }
-        return maxStr ? `${feeStr}<br>${maxStr}` : feeStr;
-      }));
-
-      if (meta.rows.length) sections.push(meta);
-
-      // ── Section: 優惠 ──
-      const promo: typeof sections[number] = { title: isZh ? '優惠' : 'Promos', rows: [] };
-      addRow(promo, cmpL.signUpBonus || '首刷禮', picks.map((c) => c.signUpBonus || '—'));
-      addRow(promo, cmpL.renewalBonus || '續卡禮', picks.map((c) => c.renewalBonus || '—'));
-      if (promo.rows.length) sections.push(promo);
-
-      // ── Sections: benefit types ──
-      function benefitTags(b: CompBenefit): string {
-        const tags: string[] = [];
-        if (b.lounge) tags.push(tagHtml(b.lounge.name, `${travelBase}/lounges/${b.lounge.slug}`));
-        for (const p of b.programs) tags.push(tagHtml(p.name, `${travelBase}/programs/${p.slug}`));
-        return tags.length ? `<div class="cg__tags">${tags.join('')}</div>` : '';
-      }
-
-      function renderBenefitCell(items: CompBenefit[]): string {
-        if (!items.length) return '—';
-        const lines: string[] = [];
-        const allTags: string[] = [];
-        for (const b of items) {
-          const title = cleanText(b.title);
-          const desc = cleanText(b.desc);
-          const cond = cleanText(b.conditions);
-          // 把 desc 拆成多句
-          if (desc && desc !== title) {
-            const sentences = splitSentences(desc);
-            if (sentences.length > 1) {
-              lines.push(...sentences);
-            } else {
-              lines.push(`${title}：${sentences[0]}`);
-            }
-          } else {
-            lines.push(title);
-          }
-          if (cond) {
-            splitSentences(cond).forEach((s) => { if (!lines.includes(s)) lines.push(s); });
-          }
-          allTags.push(benefitTags(b));
-        }
-        const tagsHtml = allTags.filter(Boolean).join('');
-        if (lines.length <= 1 && !tagsHtml) return lines[0] || '—';
-        let html = `<ul class="cg__list">${lines.map((l) => `<li>${l}</li>`).join('')}</ul>`;
-        if (tagsHtml) html += tagsHtml;
-        return html;
-      }
-
-      const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
-      for (const type of allTypes) {
-        const label = benefitLabels[type] ?? type;
-        if (type === 'insurance') {
-          const fields = [
-            { key: 'insuranceTravel', label: cmpL.insuranceTravel || '旅平險' },
-            { key: 'insuranceOverseas', label: cmpL.insuranceOverseas || '海外意外險' },
-            { key: 'insuranceFlightDelay', label: cmpL.insuranceFlightDelay || '班機延誤' },
-            { key: 'insuranceBaggageLost', label: cmpL.insuranceBaggageLost || '行李遺失' },
-            { key: 'insuranceTripCancel', label: cmpL.insuranceTripCancel || '行程取消' },
-          ] as const;
-          const values = picks.map((c) => {
-            const ins = c.benefits.filter((b) => b.type === 'insurance');
-            if (!ins.length) return '—';
-            const parts: string[] = [];
-            for (const f of fields) {
-              const val = ins.reduce((mx, b) => Math.max(mx, (b as any)[f.key] ?? 0), 0);
-              if (val > 0) parts.push(`${f.label} ${fmtWan(val)}`);
-            }
-            if (!parts.length) return ins.map((b) => cleanText(b.title)).join('<br>');
-            return `<ul class="cg__list">${parts.map((p) => `<li>${p}</li>`).join('')}</ul>`;
-          });
-          if (!values.every((v) => v === '—')) {
-            sections.push({ title: label, rows: [{ label, values, isList: true }] });
-          }
-          continue;
-        }
-        const values = picks.map((c) => renderBenefitCell(c.benefits.filter((b) => b.type === type)));
-        if (!values.every((v) => v === '—')) {
-          sections.push({ title: label, rows: [{ label, values, isList: true }] });
-        }
-      }
-
-      // ── Build grid HTML ──
-      let html = headerHtml;
-      for (const sec of sections) {
-        const singleRow = sec.rows.length === 1 && sec.rows[0].label === sec.title;
-        html += `<div class="cg__section">`;
-        html += `<div class="cg__section-title">${sec.title}</div>`;
-        if (singleRow) {
-          html += `<div class="cg__row cg__row--no-label" style="--cg-cols:${cols}">`;
-          html += sec.rows[0].values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
-          html += `</div>`;
-        } else {
-          for (const row of sec.rows) {
-            html += `<div class="cg__row" style="--cg-cols:${cols}">`;
-            html += `<div class="cg__label">${row.label}</div>`;
-            html += row.values.map((v) => `<div class="cg__cell">${v}</div>`).join('');
-            html += `</div>`;
-          }
-        }
-        html += `</div>`;
-      }
-
-      compareContent.innerHTML = html;
-
-      // Bind remove buttons
-      compareContent.querySelectorAll<HTMLButtonElement>('[data-remove-slug]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          selected.delete(btn.dataset.removeSlug!);
-          renderCompare();
-        });
-      });
-
-      updateBadge();
-    }
-
-    // 卡片上的 "+" 按鈕
     compareBtns.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const slug = btn.dataset.compareSlug!;
-        if (selected.has(slug)) {
-          selected.delete(slug);
-        } else {
-          if (selected.size >= MAX_COMPARE) return;
-          selected.add(slug);
-        }
-        renderCompare();
+        const slug = btn.dataset.compareSlug;
+        if (slug) window.dispatchEvent(new CustomEvent('compare:toggle', { detail: { slug } }));
       });
     });
 
-    let lastFocused: HTMLElement | null = null;
-    const FOCUSABLE = 'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])';
-
-    function openModal() {
-      lastFocused = document.activeElement as HTMLElement;
-      compareModal.setAttribute('aria-hidden', 'false');
-      compareModal.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-      renderCompare();
-      const first = compareModal.querySelector<HTMLElement>('.compare-modal__close');
-      first?.focus();
-    }
-    function closeModal() {
-      compareModal.classList.remove('is-open');
-      compareModal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      lastFocused?.focus();
-    }
-
-    compareDockBtn?.addEventListener('click', openModal);
-    document.getElementById('compare-modal-backdrop')?.addEventListener('click', closeModal);
-    document.getElementById('compare-modal-close')?.addEventListener('click', closeModal);
-    document.addEventListener('keydown', (e) => {
-      if (!compareModal.classList.contains('is-open')) return;
-      if (e.key === 'Escape') { closeModal(); return; }
-      if (e.key === 'Tab') {
-        const focusables = Array.from(compareModal.querySelectorAll<HTMLElement>(FOCUSABLE))
-          .filter((el) => el.offsetParent !== null);
-        if (!focusables.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    });
-
-    // 複製分享連結
-    const shareBtn = document.getElementById('compare-share');
-    shareBtn?.addEventListener('click', async () => {
-      persistSelection();
-      const link = window.location.href;
-      try {
-        await navigator.clipboard.writeText(link);
-      } catch (e) {
-        const ta = document.createElement('textarea');
-        ta.value = link;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch (e2) { /* noop */ }
-        document.body.removeChild(ta);
-      }
-      shareBtn.classList.add('is-copied');
-      const label = shareBtn.querySelector('.compare-modal__share-label');
-      const prev = label?.textContent ?? '';
-      if (label) label.textContent = isZh ? '已複製!' : 'Copied!';
-      setTimeout(() => {
-        shareBtn.classList.remove('is-copied');
-        if (label) label.textContent = prev;
-      }, 1600);
-    });
-
-    // ?compare=open → 從卡片詳情頁導回，用 localStorage 還原並開啟
-    const urlCheck = new URL(window.location.href);
-    const compareParam = urlCheck.searchParams.get('compare');
-    const isOpenTrigger = compareParam === 'open';
-    if (isOpenTrigger) {
-      urlCheck.searchParams.delete('compare');
-      history.replaceState(null, '', urlCheck.toString());
-    }
-    const openedFromUrl = restoreSelection();
-    updateBadge();
-    if (openedFromUrl || (isOpenTrigger && selected.size > 0)) openModal();
+    // CompareModal 回報目前選取 → 更新每顆「+」的狀態
+    window.addEventListener('compare:changed', ((e: CustomEvent) => {
+      const slugs: string[] = e.detail?.slugs ?? [];
+      const set = new Set(slugs);
+      compareBtns.forEach((btn) => {
+        const slug = btn.dataset.compareSlug!;
+        const on = set.has(slug);
+        btn.classList.toggle('is-selected', on);
+        btn.setAttribute('aria-label', on
+          ? (isZhCompare ? '移除比較' : 'Remove from compare')
+          : (isZhCompare ? '加入比較' : 'Add to compare'));
+      });
+    }) as EventListener);
 
     // ── 航空彈窗 ──
+    const isZh = isZhCompare;
     const airlinesData: Array<{
       slug: string; name: string; iataCode: string; alliance: string;
       isAlliance: boolean; description: string; logo: string;
