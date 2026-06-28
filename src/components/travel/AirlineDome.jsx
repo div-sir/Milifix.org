@@ -1,36 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { useGesture } from '@use-gesture/react';
 import './DomeGallery.css';
 
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-const wrapAngleSigned = deg => {
-  const a = (((deg + 180) % 360) + 360) % 360;
-  return a - 180;
-};
-
-function buildSphere(pool, bands) {
-  // 真正的 UV 球面：緯度帶由 -90°→+90° 覆蓋整顆球，各帶欄數 ∝ cos(緯度)，
-  // 使每格弧長相等（近正方形、極點不擠成一團）；逐列半格錯位呈磚牆排列。
-  const coords = [];
-  for (let r = 0; r < bands; r++) {
-    const lat = -90 + ((r + 0.5) * 180) / bands; // 帶中心緯度，跳過正極點奇異點
-    const cols = Math.max(1, Math.round(2 * bands * Math.cos((lat * Math.PI) / 180)));
-    const lonOffset = (r % 2) * (180 / cols); // 半格錯位
-    for (let c = 0; c < cols; c++) {
-      coords.push({ lat, lon: c * (360 / cols) + lonOffset });
-    }
-  }
-  if (!pool.length) return coords.map(c => ({ ...c, src: '', alt: '', name: '', slug: '' }));
-  const used = coords.map((_, i) => pool[i % pool.length]);
-  for (let i = 1; i < used.length; i++) {
-    if (used[i].src === used[i - 1].src) {
-      for (let j = i + 1; j < used.length; j++) {
-        if (used[j].src !== used[i].src) { [used[i], used[j]] = [used[j], used[i]]; break; }
-      }
-    }
-  }
-  return coords.map((c, i) => ({ ...c, ...used[i] }));
-}
 
 export default function AirlineDome({ airlines, lang }) {
   const images = useMemo(() => airlines.map((a) => ({
@@ -42,43 +13,57 @@ export default function AirlineDome({ airlines, lang }) {
     alliance: a.alliance,
   })), [airlines]);
 
-  const [bands, setBands] = useState(16);
-  const items = useMemo(() => buildSphere(images, bands), [images, bands]);
   const rootRef = useRef(null);
-  const mainRef = useRef(null);
-  const sphereRef = useRef(null);
-  const rotationRef = useRef({ x: 0, y: 0 });
-  const startRotRef = useRef({ x: 0, y: 0 });
+  const gridRef = useRef(null);
+  const panRef = useRef({ x: 0, y: 0 });
+  const startPanRef = useRef({ x: 0, y: 0 });
   const startPosRef = useRef(null);
   const draggingRef = useRef(false);
   const movedRef = useRef(false);
   const inertiaRAF = useRef(null);
-  const lastDragEndAt = useRef(0);
-  const lastSampleRef = useRef(null);            // 最近一次指標取樣 { t, x, y }
-  const velSampleRef = useRef({ vx: 0, vy: 0 }); // 平滑後的指標速度（px/ms）
   const autoRAF = useRef(null);
+  const lastDragEndAt = useRef(0);
+  const lastSampleRef = useRef(null);
+  const velRef = useRef({ vx: 0, vy: 0 });
   const autoResumeAt = useRef(0);
   const hintRef = useRef(null);
   const hintDismissedRef = useRef(false);
   const captionRef = useRef(null);
   const inViewRef = useRef(true);
+  const sizeRef = useRef({ cellW: 80, cellH: 80 });
 
-  const dragSens = 20;
-  const IDLE_BEFORE_AUTO = 2000; // 滑鼠靜止此毫秒數後開始自轉
+  const IDLE_BEFORE_AUTO = 2000;
+  const isZh = lang === 'zh';
+
+  // Hex grid layout: compute cols/rows for the pattern block
+  const { cols, rows, pattern } = useMemo(() => {
+    const n = images.length;
+    if (!n) return { cols: 1, rows: 1, pattern: [] };
+    const c = Math.max(3, Math.ceil(Math.sqrt(n * 1.15)));
+    const r = Math.ceil(n / c);
+    const arr = [];
+    for (let i = 0; i < r * c; i++) {
+      arr.push(images[i % n]);
+    }
+    return { cols: c, rows: r, pattern: arr };
+  }, [images]);
 
   const bumpAutoResume = useCallback(() => {
     autoResumeAt.current = performance.now() + IDLE_BEFORE_AUTO;
   }, []);
 
-  // 提示：一旦發生旋轉（拖曳或自轉）就隱藏，且只隱藏一次
   const dismissHint = useCallback(() => {
     if (hintDismissedRef.current) return;
     hintDismissedRef.current = true;
     hintRef.current?.classList.add('is-hidden');
   }, []);
 
-  // 焦點／hover：在底部 2D 浮層顯示該航空資訊。
-  // （球面上的逐格標籤在密集排列時會被鄰近晶片在 3D 中遮住，故改用永遠在最上層的浮層）
+  const applyPan = useCallback(() => {
+    if (!gridRef.current) return;
+    gridRef.current.style.transform = `translate(${panRef.current.x}px, ${panRef.current.y}px)`;
+  }, []);
+
+  // Caption
   const showCaption = useCallback((el) => {
     const cap = captionRef.current;
     if (!cap || !el?.dataset?.name) return;
@@ -93,153 +78,126 @@ export default function AirlineDome({ airlines, lang }) {
   }, [dismissHint, bumpAutoResume]);
   const hideCaption = useCallback(() => { captionRef.current?.classList.remove('is-visible'); }, []);
   const onTileOver = useCallback((e) => {
-    const el = e.target.closest?.('.airline-tile');
-    if (el && el.dataset.name) showCaption(el); else hideCaption();
+    const el = e.target.closest?.('.hc-tile');
+    if (el) showCaption(el); else hideCaption();
   }, [showCaption, hideCaption]);
 
-  const applyTransform = (x, y) => {
-    if (sphereRef.current) sphereRef.current.style.transform = `translateZ(calc(var(--radius) * -1)) rotateX(${x}deg) rotateY(${y}deg)`;
-  };
-
+  // Resize: compute cell size
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const ro = new ResizeObserver(entries => {
       const cr = entries[0].contentRect;
-      const w = Math.max(1, cr.width), h = Math.max(1, cr.height);
-      const minDim = Math.min(w, h), aspect = w / h;
-      let basis = aspect >= 1.3 ? w : minDim;
-      let radius = clamp(Math.min(basis * 0.55, h * 1.35), 400, Infinity);
-      root.style.setProperty('--radius', `${Math.round(radius)}px`);
-      root.style.setProperty('--viewer-pad', `${Math.max(8, Math.round(minDim * 0.2))}px`);
-      // 自適應密度：每格弧長 = π·radius/bands，調整 bands 讓格子約 iconPx 大小。
-      // 係數 1.4 讓全球面的格子比原本帶狀略大、總數可控（兼顧球感與效能）。
-      const iconPx = clamp(w * 0.062, 64, 104);
-      const nextBands = clamp(Math.round((Math.PI * radius) / (iconPx * 1.4)), 9, 22);
-      const tilePx = Math.round((Math.PI * radius) / nextBands);
-      root.style.setProperty('--item-px', `${tilePx}px`);
-      setBands(prev => (prev === nextBands ? prev : nextBands));
-      applyTransform(rotationRef.current.x, rotationRef.current.y);
+      const w = Math.max(1, cr.width);
+      const cellW = clamp(w * 0.11, 56, 100);
+      sizeRef.current = { cellW, cellH: cellW };
+      root.style.setProperty('--hc-cell', `${Math.round(cellW)}px`);
     });
     ro.observe(root);
     return () => ro.disconnect();
   }, []);
 
-  useEffect(() => { applyTransform(0, 0); }, []);
-
-  // 自動回轉：靜止時球面緩慢自轉，互動／移出視野／reduced-motion 時暫停
+  // Auto-pan
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const AUTO_SPEED = 0.004; // deg/ms ≈ 90 秒一圈
-    autoResumeAt.current = performance.now() + 3500; // 進場先讓提示可讀，靜置後才自轉
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const SPEED = 0.012; // px/ms
+    autoResumeAt.current = performance.now() + 3500;
     let lastT = performance.now();
     const tick = (t) => {
       const dt = Math.min(64, t - lastT);
       lastT = t;
-      // 沒有拖曳／慣性，且滑鼠靜止超過閒置時間 → 自轉（滑鼠停在球面上也會轉）
-      const idle =
-        inViewRef.current &&
-        !draggingRef.current &&
-        !inertiaRAF.current &&
-        t >= autoResumeAt.current;
+      const idle = inViewRef.current && !draggingRef.current && !inertiaRAF.current && t >= autoResumeAt.current;
       if (idle) {
         dismissHint();
-        const ny = wrapAngleSigned(rotationRef.current.y + AUTO_SPEED * dt);
-        rotationRef.current = { x: rotationRef.current.x, y: ny };
-        applyTransform(rotationRef.current.x, ny);
+        panRef.current.x -= SPEED * dt;
+        applyPan();
       }
       autoRAF.current = requestAnimationFrame(tick);
     };
     autoRAF.current = requestAnimationFrame(tick);
 
     const root = rootRef.current;
-    const io = root
-      ? new IntersectionObserver(([e]) => { inViewRef.current = e.isIntersecting; }, { threshold: 0.05 })
-      : null;
+    const io = root ? new IntersectionObserver(([e]) => { inViewRef.current = e.isIntersecting; }, { threshold: 0.05 }) : null;
     if (io && root) io.observe(root);
-
-    const onVis = () => {
-      autoResumeAt.current = document.hidden ? Infinity : performance.now() + IDLE_BEFORE_AUTO;
-    };
-    document.addEventListener('visibilitychange', onVis);
 
     return () => {
       if (autoRAF.current) cancelAnimationFrame(autoRAF.current);
       io?.disconnect();
-      document.removeEventListener('visibilitychange', onVis);
     };
-  }, [dismissHint]);
+  }, [dismissHint, applyPan]);
 
-  const stopInertia = useCallback(() => { if (inertiaRAF.current) { cancelAnimationFrame(inertiaRAF.current); inertiaRAF.current = null; } }, []);
+  const stopInertia = useCallback(() => {
+    if (inertiaRAF.current) { cancelAnimationFrame(inertiaRAF.current); inertiaRAF.current = null; }
+  }, []);
 
-  // 拋甩慣性：以「度／影格」為角速度，每影格乘上摩擦係數逐漸減速直到停下
-  const startInertia = useCallback((avx, avy) => {
-    const FRICTION = 0.975; // 越接近 1 滑得越久（物理慣性手感）
-    const STOP = 0.015;     // 低於此角速度即停止（度／影格）
-    let vX = clamp(avx, -4, 4), vY = clamp(avy, -4, 4);
+  const startInertia = useCallback((vx, vy) => {
+    const FRICTION = 0.965;
+    const STOP = 0.15;
+    let cvx = clamp(vx, -40, 40), cvy = clamp(vy, -40, 40);
     const step = () => {
-      vX *= FRICTION; vY *= FRICTION;
-      if (Math.abs(vX) < STOP && Math.abs(vY) < STOP) { inertiaRAF.current = null; return; }
-      const nx = wrapAngleSigned(rotationRef.current.x - vY);
-      const ny = wrapAngleSigned(rotationRef.current.y + vX);
-      rotationRef.current = { x: nx, y: ny };
-      applyTransform(nx, ny);
+      cvx *= FRICTION; cvy *= FRICTION;
+      if (Math.abs(cvx) < STOP && Math.abs(cvy) < STOP) { inertiaRAF.current = null; return; }
+      panRef.current.x += cvx;
+      panRef.current.y += cvy;
+      applyPan();
       inertiaRAF.current = requestAnimationFrame(step);
     };
     stopInertia();
     inertiaRAF.current = requestAnimationFrame(step);
-  }, [stopInertia]);
+  }, [stopInertia, applyPan]);
 
-  useGesture({
-    onDragStart: ({ event }) => {
-      stopInertia();
-      bumpAutoResume();
-      draggingRef.current = true; movedRef.current = false;
-      startRotRef.current = { ...rotationRef.current };
-      startPosRef.current = { x: event.clientX, y: event.clientY };
-      lastSampleRef.current = { t: performance.now(), x: event.clientX, y: event.clientY };
-      velSampleRef.current = { vx: 0, vy: 0 };
-    },
-    onDrag: ({ event, last }) => {
-      if (!draggingRef.current || !startPosRef.current) return;
-      const dx = event.clientX - startPosRef.current.x, dy = event.clientY - startPosRef.current.y;
-      if (!movedRef.current && dx * dx + dy * dy > 16) { movedRef.current = true; dismissHint(); }
-      const nx = wrapAngleSigned(startRotRef.current.x - dy / dragSens);
-      const ny = wrapAngleSigned(startRotRef.current.y + dx / dragSens);
-      rotationRef.current = { x: nx, y: ny }; applyTransform(nx, ny);
+  // Pointer drag
+  const onPointerDown = useCallback((e) => {
+    stopInertia();
+    bumpAutoResume();
+    draggingRef.current = true;
+    movedRef.current = false;
+    startPanRef.current = { ...panRef.current };
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+    lastSampleRef.current = { t: performance.now(), x: e.clientX, y: e.clientY };
+    velRef.current = { vx: 0, vy: 0 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [stopInertia, bumpAutoResume]);
 
-      // 自行取樣指標速度：比手勢庫的 velocity 更貼近放手瞬間，慣性更穩定
-      const now = performance.now();
-      const prev = lastSampleRef.current;
-      if (prev) {
-        const dt = now - prev.t;
-        if (dt > 0) {
-          const ivx = (event.clientX - prev.x) / dt;
-          const ivy = (event.clientY - prev.y) / dt;
-          if (dt > 100) {
-            // 拖曳中出現停頓（無移動事件）→ 以當下瞬時速度重設，避免甩出殘留速度
-            velSampleRef.current = { vx: ivx, vy: ivy };
-          } else {
-            velSampleRef.current.vx = velSampleRef.current.vx * 0.6 + ivx * 0.4;
-            velSampleRef.current.vy = velSampleRef.current.vy * 0.6 + ivy * 0.4;
-          }
+  const onPointerMove = useCallback((e) => {
+    bumpAutoResume();
+    if (!draggingRef.current || !startPosRef.current) return;
+    const dx = e.clientX - startPosRef.current.x;
+    const dy = e.clientY - startPosRef.current.y;
+    if (!movedRef.current && dx * dx + dy * dy > 16) { movedRef.current = true; dismissHint(); }
+    panRef.current.x = startPanRef.current.x + dx;
+    panRef.current.y = startPanRef.current.y + dy;
+    applyPan();
+
+    const now = performance.now();
+    const prev = lastSampleRef.current;
+    if (prev) {
+      const dt = now - prev.t;
+      if (dt > 0) {
+        const ivx = (e.clientX - prev.x) / dt;
+        const ivy = (e.clientY - prev.y) / dt;
+        if (dt > 100) {
+          velRef.current = { vx: ivx, vy: ivy };
+        } else {
+          velRef.current.vx = velRef.current.vx * 0.6 + ivx * 0.4;
+          velRef.current.vy = velRef.current.vy * 0.6 + ivy * 0.4;
         }
       }
-      lastSampleRef.current = { t: now, x: event.clientX, y: event.clientY };
-
-      if (last) {
-        draggingRef.current = false;
-        // px/ms → 度/影格（與拖曳手感一致：位移 / 靈敏度 = 旋轉角度）
-        const FRAME_MS = 1000 / 60;
-        const avX = (velSampleRef.current.vx / dragSens) * FRAME_MS;
-        const avY = (velSampleRef.current.vy / dragSens) * FRAME_MS;
-        if (Math.abs(avX) > 0.05 || Math.abs(avY) > 0.05) startInertia(avX, avY);
-        if (movedRef.current) lastDragEndAt.current = performance.now();
-        bumpAutoResume();
-        movedRef.current = false;
-      }
     }
-  }, { target: mainRef, eventOptions: { passive: true } });
+    lastSampleRef.current = { t: now, x: e.clientX, y: e.clientY };
+  }, [bumpAutoResume, dismissHint, applyPan]);
+
+  const onPointerUp = useCallback((e) => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    const FRAME_MS = 1000 / 60;
+    const avx = velRef.current.vx * FRAME_MS;
+    const avy = velRef.current.vy * FRAME_MS;
+    if (Math.abs(avx) > 0.5 || Math.abs(avy) > 0.5) startInertia(avx, avy);
+    if (movedRef.current) lastDragEndAt.current = performance.now();
+    bumpAutoResume();
+    movedRef.current = false;
+  }, [startInertia, bumpAutoResume]);
 
   const openSlug = useCallback((slug) => {
     if (slug) window.dispatchEvent(new CustomEvent('airline:open', { detail: { slug } }));
@@ -258,82 +216,95 @@ export default function AirlineDome({ airlines, lang }) {
     }
   }, [openSlug]);
 
-  const isZh = lang === 'zh';
   const ALLIANCE_LABEL = {
     'star-alliance': isZh ? '星空聯盟' : 'Star Alliance',
     oneworld: isZh ? '寰宇一家' : 'oneworld',
     skyteam: isZh ? '天合聯盟' : 'SkyTeam',
   };
-  const seen = new Set();
+
+  // Build hex grid tiles: render 3×3 copies for infinite wrap
+  const renderGrid = () => {
+    const { cellW, cellH } = sizeRef.current;
+    const spacingX = cellW * 1.15;
+    const spacingY = cellH * 1.0;
+    const blockW = cols * spacingX;
+    const blockH = rows * spacingY;
+    const tiles = [];
+    const seen = new Set();
+
+    for (let by = -1; by <= 1; by++) {
+      for (let bx = -1; bx <= 1; bx++) {
+        const ox = bx * blockW;
+        const oy = by * blockH;
+        pattern.forEach((img, idx) => {
+          const r = Math.floor(idx / cols);
+          const c = idx % cols;
+          const x = ox + c * spacingX + (r % 2 ? spacingX * 0.5 : 0);
+          const y = oy + r * spacingY;
+          const dup = seen.has(img.slug);
+          if (img.slug) seen.add(img.slug);
+          const meta = [img.iataCode, ALLIANCE_LABEL[img.alliance]].filter(Boolean).join(' · ');
+          tiles.push(
+            <div
+              key={`${bx},${by},${idx}`}
+              className="hc-tile"
+              role="button"
+              tabIndex={dup ? -1 : 0}
+              data-slug={img.slug}
+              data-name={img.name}
+              data-meta={meta}
+              aria-label={img.alt}
+              aria-hidden={dup ? 'true' : undefined}
+              onClick={onTileClick}
+              onKeyDown={onTileKey}
+              style={{
+                position: 'absolute',
+                left: `${x}px`,
+                top: `${y}px`,
+                width: `var(--hc-cell, ${cellW}px)`,
+                height: `var(--hc-cell, ${cellH}px)`,
+              }}
+            >
+              <div className="hc-tile__img">
+                <img src={img.src} draggable={false} alt={dup ? '' : img.alt} loading="lazy" />
+              </div>
+            </div>
+          );
+        });
+      }
+    }
+    return tiles;
+  };
 
   return (
-    <div
-      ref={rootRef}
-      className="sphere-root airline-dome-root"
-      style={{
-        '--item-px': '90px',
-        '--overlay-blur-color': 'var(--bg, #111318)',
-        '--tile-radius': '14px',
-        '--image-filter': 'none',
-      }}
-    >
-      <main
-        ref={mainRef}
-        className="sphere-main"
-        onPointerMove={bumpAutoResume}
+    <div ref={rootRef} className="hc-root" style={{ '--hc-cell': '80px' }}>
+      <div
+        className="hc-viewport"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         onPointerOver={onTileOver}
-        onPointerLeave={hideCaption}
+        onPointerLeave={(e) => { hideCaption(); onPointerUp(e); }}
         onFocus={onTileOver}
         onBlur={hideCaption}
       >
-        <div className="stage">
-          <div ref={sphereRef} className="sphere">
-            {items.map((it, i) => {
-              const dup = it.slug ? seen.has(it.slug) : true;
-              if (it.slug) seen.add(it.slug);
-              const meta = [it.iataCode, ALLIANCE_LABEL[it.alliance]].filter(Boolean).join(' · ');
-              return (
-                <div
-                  key={`${it.lat},${it.lon},${i}`}
-                  className="item"
-                  aria-hidden={dup ? 'true' : undefined}
-                  style={{ '--lat': it.lat, '--lon': it.lon }}
-                >
-                  <div
-                    className="item__image airline-tile"
-                    role="button"
-                    tabIndex={dup ? -1 : 0}
-                    data-slug={it.slug}
-                    data-name={it.name}
-                    data-meta={meta}
-                    aria-label={it.alt || 'Airline'}
-                    onClick={onTileClick}
-                    onKeyDown={onTileKey}
-                  >
-                    <img src={it.src} draggable={false} alt={dup ? '' : it.alt} loading="lazy" />
-                    <span className="airline-tile__label">
-                      <span className="airline-tile__name">{it.name}</span>
-                      {meta && <span className="airline-tile__meta">{meta}</span>}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div ref={gridRef} className="hc-grid" style={{ transform: 'translate(0px, 0px)' }}>
+          {renderGrid()}
         </div>
-        <div className="overlay" />
-        <div className="overlay overlay--blur" />
-        <div className="edge-fade edge-fade--top" />
-        <div className="edge-fade edge-fade--bottom" />
-        <div ref={hintRef} className="airline-dome-hint" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/></svg>
-          <span>{isZh ? '拖曳探索 · 點擊查看' : 'Drag to explore · Tap to view'}</span>
-        </div>
-        <div ref={captionRef} className="airline-dome-caption" aria-hidden="true">
-          <span className="airline-caption__name" />
-          <span className="airline-caption__meta" />
-        </div>
-      </main>
+        <div className="hc-fade hc-fade--left" />
+        <div className="hc-fade hc-fade--right" />
+        <div className="hc-fade hc-fade--top" />
+        <div className="hc-fade hc-fade--bottom" />
+      </div>
+      <div ref={hintRef} className="airline-dome-hint" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M5 12l4-4M5 12l4 4M19 12l-4-4M19 12l-4 4"/></svg>
+        <span>{isZh ? '拖曳探索 · 點擊查看' : 'Drag to explore · Tap to view'}</span>
+      </div>
+      <div ref={captionRef} className="airline-dome-caption" aria-hidden="true">
+        <span className="airline-caption__name" />
+        <span className="airline-caption__meta" />
+      </div>
     </div>
   );
 }

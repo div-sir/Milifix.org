@@ -1,174 +1,198 @@
-.dg-scroll-lock { overflow: hidden !important; }
+/* ── Honeycomb Grid ─────────────────────────────────── */
 
-.sphere-root {
+.hc-root {
   position: relative;
   width: 100%;
   height: 100%;
-  --radius: 520px;
-  --viewer-pad: 72px;
-  --circ: calc(var(--radius) * 3.14);
-  --rot-y: calc((360deg / var(--segments-x)) / 2);
-  --rot-x: calc((360deg / var(--segments-y)) / 2);
-  --item-width: calc(var(--circ) / var(--segments-x));
-  --item-height: calc(var(--circ) / var(--segments-y));
+  --hc-cell: 80px;
 }
 
-.sphere-root * { box-sizing: border-box; }
-.sphere, .item, .item__image { transform-style: preserve-3d; }
+.hc-root * { box-sizing: border-box; }
 
-main.sphere-main {
+.hc-viewport {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
   overflow: hidden;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  cursor: grab;
   background: transparent;
 }
 
-.stage {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  perspective: calc(var(--radius) * 2);
-  perspective-origin: 50% 50%;
-  contain: layout paint size;
-}
+.hc-viewport:active { cursor: grabbing; }
 
-.sphere {
-  transform: translateZ(calc(var(--radius) * -1));
+.hc-grid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   will-change: transform;
 }
 
-.overlay, .overlay--blur {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  z-index: 3;
-  pointer-events: none;
-}
+/* ── Tile ──────────────────────────────────────────── */
 
-.overlay {
-  background-image: radial-gradient(rgba(235, 235, 235, 0) 65%, var(--overlay-blur-color, #111318) 100%);
-}
-
-.overlay--blur {
-  -webkit-mask-image: radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, #111318) 90%);
-  mask-image: radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, #111318) 90%);
-  backdrop-filter: blur(3px);
-}
-
-.item {
-  width: calc(var(--item-width) * var(--item-size-x));
-  height: calc(var(--item-height) * var(--item-size-y));
-  position: absolute;
-  top: -999px; bottom: -999px; left: -999px; right: -999px;
-  margin: auto;
-  transform-origin: 50% 50%;
-  backface-visibility: hidden;
-  transition: transform 300ms;
-  transform: rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x) - 1) / 2)) + var(--rot-y-delta, 0deg)))
-    rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y) - 1) / 2)) + var(--rot-x-delta, 0deg)))
-    translateZ(var(--radius));
-}
-
-.item__image {
-  position: absolute;
-  display: block;
-  inset: 10px;
-  border-radius: var(--tile-radius, 12px);
-  background: transparent;
-  overflow: hidden;
-  backface-visibility: hidden;
-  transition: transform 300ms;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  pointer-events: auto;
-  transform: translateZ(0);
-}
-
-.item__image:focus { outline: none; }
-
-.item__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-  backface-visibility: hidden;
-  filter: var(--image-filter, none);
-}
-
-.viewer {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  pointer-events: none;
+.hc-tile {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--viewer-pad);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  transition: transform 0.2s ease;
 }
 
-.viewer .frame {
-  height: 100%;
-  aspect-ratio: 1;
-  border-radius: var(--enlarge-radius, 32px);
-  display: flex;
-}
+.hc-tile:hover { transform: scale(1.15); z-index: 2; }
+.hc-tile:focus-visible { outline: 2px solid var(--travel-accent); outline-offset: 3px; border-radius: 50%; }
 
-@media (max-aspect-ratio: 1/1) {
-  .viewer .frame { height: auto; width: 100%; }
-}
-
-.viewer .scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.4);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 500ms ease;
-  backdrop-filter: blur(3px);
-}
-
-.sphere-root[data-enlarging='true'] .viewer .scrim {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.viewer .enlarge {
-  position: absolute;
-  z-index: 30;
-  border-radius: var(--enlarge-radius, 32px);
+.hc-tile__img {
+  width: calc(var(--hc-cell) * 0.82);
+  height: calc(var(--hc-cell) * 0.82);
+  border-radius: 50%;
   overflow: hidden;
-  transition: transform 500ms ease, opacity 500ms ease;
-  transform-origin: top left;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s ease;
 }
 
-.viewer .enlarge img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: var(--image-filter, none);
+[data-theme='dark'] .hc-tile__img {
+  background: rgba(255, 255, 255, 0.92);
 }
 
-.sphere-root .enlarge-closing img {
-  filter: var(--image-filter, none);
+.hc-tile:hover .hc-tile__img {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 2px var(--travel-accent);
 }
 
-.edge-fade {
+.hc-tile__img img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ── Edge fades ────────────────────────────────────── */
+
+.hc-fade {
   position: absolute;
-  left: 0; right: 0;
-  height: 120px;
   z-index: 5;
   pointer-events: none;
-  background: linear-gradient(to bottom, transparent, var(--overlay-blur-color, #111318));
 }
 
-.edge-fade--top { top: 0; transform: rotate(180deg); }
-.edge-fade--bottom { bottom: 0; }
+.hc-fade--left,
+.hc-fade--right {
+  top: 0;
+  bottom: 0;
+  width: 80px;
+}
+
+.hc-fade--top,
+.hc-fade--bottom {
+  left: 0;
+  right: 0;
+  height: 80px;
+}
+
+.hc-fade--left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg, #111318), transparent);
+}
+
+.hc-fade--right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg, #111318), transparent);
+}
+
+.hc-fade--top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg, #111318), transparent);
+}
+
+.hc-fade--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg, #111318), transparent);
+}
+
+/* ── Hint + Caption (shared with old dome) ─────────── */
+
+.airline-dome-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg, #111318) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--text, #fff) 12%, transparent);
+  color: color-mix(in srgb, var(--text, #fff) 60%, transparent);
+  font-family: var(--mono, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+.airline-dome-hint.is-hidden { opacity: 0; }
+
+.airline-dome-caption {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg, #111318) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--text, #fff) 10%, transparent);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+
+.airline-dome-caption.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.airline-caption__name {
+  font-family: var(--sans, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text, #fff);
+}
+
+.airline-caption__meta {
+  font-family: var(--mono, monospace);
+  font-size: 0.65rem;
+  color: color-mix(in srgb, var(--text, #fff) 55%, transparent);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 480px) {
+  .hc-fade--left, .hc-fade--right { width: 40px; }
+  .hc-fade--top, .hc-fade--bottom { height: 40px; }
+}

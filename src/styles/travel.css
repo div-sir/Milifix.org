@@ -369,162 +369,16 @@ body.tab-immersive .site-nav:not(:focus-within) {
   mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
 }
 
-/* 球面根層以絕對定位填滿 .airline-dome-full（position:relative）。
-   不用 height:100%：父層高度來自 flex:1（display:block），百分比高度會解析成 0，
-   導致球面塌陷看不見。絕對定位 inset:0 不受此限制。 */
-.airline-dome-full .airline-dome-root {
+.airline-dome-full .hc-root {
   position: absolute;
   inset: 0;
-  border-radius: 0 !important;
 }
 
-/* 真正的球面：每格依自身緯度(--lat)／經度(--lon)定位並朝外，尺寸由 --item-px 決定。
-   覆寫 DomeGallery 預設的 offset 網格 transform。 */
-.airline-dome-root .item {
-  width: var(--item-px);
-  height: var(--item-px);
-  transform:
-    rotateY(calc(var(--lon) * 1deg))
-    rotateX(calc(var(--lat) * -1deg))
-    translateZ(var(--radius));
-}
-
-.airline-dome-root .sphere-main {
-  cursor: grab;
-}
-
-.airline-dome-root .sphere-main:active {
-  cursor: grabbing;
-}
-
-.airline-dome-hint {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(4.5rem, 12vh, 7rem);
-  transform: translateX(-50%);
-  z-index: 6;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  border: 1px solid var(--travel-card-border);
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-  backdrop-filter: blur(8px);
-  color: color-mix(in srgb, var(--text) 75%, transparent);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: hintPulse 2.2s ease-in-out infinite;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.airline-dome-hint.is-hidden {
-  opacity: 0;
-  transform: translateX(-50%) translateY(8px);
-  /* 必須停掉脈動動畫，否則 hintPulse 的 opacity 會蓋過此處的 opacity:0，
-     導致提示永遠不會真正消失（dismissHint 形同失效） */
-  animation: none;
-}
-
-@keyframes hintPulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .airline-dome-hint { animation: none; }
-}
-
-/* 焦點／hover 資訊浮層：永遠在球面之上的 2D 層，不受 3D 遮擋，保證可讀 */
-.airline-dome-caption {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(3rem, 9vh, 5.5rem);
-  transform: translateX(-50%) translateY(6px);
-  z-index: 7;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 0.5rem 1.15rem;
-  border-radius: 14px;
-  border: 1px solid var(--travel-card-border);
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 6px 22px color-mix(in srgb, #000 28%, transparent);
-  max-width: min(80vw, 360px);
-  text-align: center;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.airline-dome-caption.is-visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* 浮層出現時，提示立即讓位：兩者都在底部正中，浮層較窄會讓提示從兩側露出而互相干擾。
-   用 :has 即時隱藏（涵蓋 dismissHint 淡出與浮層淡入之間的時間差），確保零重疊 */
-.airline-dome-root:has(.airline-dome-caption.is-visible) .airline-dome-hint {
+/* hint/caption/tile 樣式已移至 DomeGallery.css */
+.hc-root:has(.airline-dome-caption.is-visible) .airline-dome-hint {
   opacity: 0;
   animation: none;
-  transition: opacity 0.12s ease;
   pointer-events: none;
-}
-
-.airline-caption__name {
-  font-family: var(--sans, sans-serif);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--text);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.airline-caption__meta {
-  font-family: var(--mono, monospace);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--text) 55%, transparent);
-}
-
-/* tile 融入背景：無框、無底色，logo 直接浮在球面上 */
-.airline-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: transparent !important;
-  border: none !important;
-  overflow: visible !important;
-  transition: transform 300ms ease;
-}
-
-.airline-tile:hover,
-.airline-tile:focus-visible {
-  transform: scale(1.12);
-  z-index: 6;
-}
-
-.airline-tile img {
-  width: clamp(66px, 6.2vw, 104px) !important;
-  height: clamp(66px, 6.2vw, 104px) !important;
-  object-fit: contain !important;
-  padding: 10px;
-  border-radius: 50%;
-  /* 隨主題自適應的霧面圓底：深色主題給淡亮底、淺色主題給淡暗底，
-     讓深色 logo 也能浮出背景而不顯得有方框 */
-  background: color-mix(in srgb, var(--text) 8%, transparent) !important;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) !important;
-  transition: background 200ms ease, box-shadow 200ms ease;
 }
 
 .airline-tile:hover img,
