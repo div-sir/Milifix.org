@@ -24,9 +24,10 @@
 
 .hc-grid {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 /* ── Tile ──────────────────────────────────────────── */
@@ -53,13 +54,12 @@
   border-radius: 50%;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(255, 255, 255, 0.08);
+  /* 改用 1px 邊框取代模糊陰影：大量 tile 時模糊陰影的繪製成本很高 */
+  border: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 [data-theme='dark'] .hc-tile__img {
@@ -67,9 +67,8 @@
 }
 
 .hc-tile:hover .hc-tile__img {
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.2),
-    0 0 0 2px var(--travel-accent);
+  border-color: var(--travel-accent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--travel-accent);
 }
 
 .hc-tile__img img {

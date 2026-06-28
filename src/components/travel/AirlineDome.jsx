@@ -31,6 +31,7 @@ export default function AirlineDome({ airlines, lang }) {
   const captionRef = useRef(null);
   const inViewRef = useRef(true);
   const [cellSize, setCellSize] = useState(80);
+  const [viewport, setViewport] = useState({ w: 1, h: 1 });
 
   const IDLE_BEFORE_AUTO = 2000;
   const isZh = lang === 'zh';
@@ -87,15 +88,17 @@ export default function AirlineDome({ airlines, lang }) {
     if (el) showCaption(el); else hideCaption();
   }, [showCaption, hideCaption]);
 
-  // Resize: compute cell size
+  // Resize: compute cell size + viewport（決定要渲染幾組 block，避免一次塞 720 顆）
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const ro = new ResizeObserver(entries => {
       const cr = entries[0].contentRect;
       const w = Math.max(1, cr.width);
+      const h = Math.max(1, cr.height);
       const cellW = Math.round(clamp(w * 0.11, 56, 100));
       setCellSize(prev => prev === cellW ? prev : cellW);
+      setViewport(prev => (prev.w === w && prev.h === h ? prev : { w, h }));
       root.style.setProperty('--hc-cell', `${cellW}px`);
     });
     ro.observe(root);
@@ -238,22 +241,24 @@ export default function AirlineDome({ airlines, lang }) {
     skyteam: isZh ? '天合聯盟' : 'SkyTeam',
   };
 
-  // Build hex grid tiles: render 3×3 copies for infinite wrap
+  // Build hex grid tiles：依視窗大小算出剛好夠覆蓋（+1 邊界）的 block 數，
+  // 而非固定 3×3，手機端可少渲染數百顆 tile。
   const renderGrid = () => {
     const spacingX = cellSize * 1.15;
     const spacingY = cellSize * 1.0;
     const blockW = cols * spacingX;
     const blockH = rows * spacingY;
     blockSizeRef.current = { w: blockW, h: blockH };
-    const centerX = -blockW * 1.5;
-    const centerY = -blockH * 1.5;
+    // pan 被 wrap 進 [-blockW, 0)，故需 ceil(vw/blockW)+1 組才能無縫覆蓋
+    const nx = Math.max(2, Math.ceil(viewport.w / blockW) + 1);
+    const ny = Math.max(2, Math.ceil(viewport.h / blockH) + 1);
     const tiles = [];
     const seen = new Set();
 
-    for (let by = 0; by < 3; by++) {
-      for (let bx = 0; bx < 3; bx++) {
-        const ox = centerX + bx * blockW;
-        const oy = centerY + by * blockH;
+    for (let by = 0; by < ny; by++) {
+      for (let bx = 0; bx < nx; bx++) {
+        const ox = bx * blockW;
+        const oy = by * blockH;
         pattern.forEach((img, idx) => {
           const r = Math.floor(idx / cols);
           const c = idx % cols;
@@ -284,7 +289,7 @@ export default function AirlineDome({ airlines, lang }) {
               }}
             >
               <div className="hc-tile__img">
-                <img src={img.src} draggable={false} alt={dup ? '' : img.alt} loading="lazy" />
+                <img src={img.src} draggable={false} alt={dup ? '' : img.alt} loading="lazy" decoding="async" width="40" height="40" />
               </div>
             </div>
           );

@@ -26,7 +26,11 @@ export function initAmbientBackdrop() {
   const clickLayer = document.querySelector<HTMLElement>('[data-ambient-click-layer]');
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  backdropEl.classList.toggle('ambient-backdrop--static', reduceMotion);
+  // 觸控裝置：游標光暈與捲動位移會在每個 scroll/touch frame 重繪整片漸層，
+  // 是手機端卡頓主因之一；改為靜態背景（與 reduced-motion 相同）。
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const staticMode = reduceMotion || coarse;
+  backdropEl.classList.toggle('ambient-backdrop--static', staticMode);
 
   function syncScroll() {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -34,7 +38,7 @@ export function initAmbientBackdrop() {
     backdropEl.style.setProperty('--amb-scroll', s.toFixed(4));
   }
 
-  if (reduceMotion) {
+  if (staticMode) {
     backdropEl.style.setProperty('--amb-x', '0.5');
     backdropEl.style.setProperty('--amb-y', '0.5');
     backdropEl.style.setProperty('--amb-scroll', '0');
