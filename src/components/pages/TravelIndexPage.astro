@@ -851,12 +851,20 @@ const programsByType = Object.fromEntries(
     const isZh = (window as any).__compareLang === 'zh';
     const STORAGE_KEY = 'milifix-compare';
 
-    // 將比較清單寫進網址 query 與 localStorage（可延續 / 分享）
+    // slug ↔ index 映射（讓 URL 更短：?compare=2.5.8）
+    const slugToIdx: Record<string, number> = {};
+    const idxToSlug: Record<number, string> = {};
+    allCards.forEach((c, i) => { slugToIdx[c.slug] = i; idxToSlug[i] = c.slug; });
+
     function persistSelection() {
       const slugs = [...selected];
       const url = new URL(window.location.href);
-      if (slugs.length) url.searchParams.set('compare', slugs.join(','));
-      else url.searchParams.delete('compare');
+      if (slugs.length) {
+        const indices = slugs.map((s) => slugToIdx[s]).filter((i) => i !== undefined);
+        url.searchParams.set('compare', indices.join('.'));
+      } else {
+        url.searchParams.delete('compare');
+      }
       history.replaceState(null, '', url.toString());
       try {
         if (slugs.length) localStorage.setItem(STORAGE_KEY, slugs.join(','));
@@ -864,7 +872,6 @@ const programsByType = Object.fromEntries(
       } catch (e) { /* localStorage 不可用時忽略 */ }
     }
 
-    // 從網址或 localStorage 還原；回傳是否來自分享連結（用於自動開啟）
     function restoreSelection(): boolean {
       const url = new URL(window.location.href);
       const param = url.searchParams.get('compare');
@@ -873,8 +880,11 @@ const programsByType = Object.fromEntries(
       if (!raw) { try { raw = localStorage.getItem(STORAGE_KEY) ?? ''; } catch (e) { raw = ''; } }
       if (!raw) return false;
       const valid = new Set(allCards.map((c) => c.slug));
-      raw.split(',').filter(Boolean).forEach((s) => {
-        if (selected.size < MAX_COMPARE && valid.has(s)) selected.add(s);
+      const isIndices = /^[\d.]+$/.test(raw);
+      const parts = raw.split(isIndices ? '.' : ',').filter(Boolean);
+      parts.forEach((s) => {
+        const slug = isIndices ? idxToSlug[parseInt(s, 10)] : s;
+        if (slug && selected.size < MAX_COMPARE && valid.has(slug)) selected.add(slug);
       });
       return fromUrl && selected.size > 0;
     }
@@ -939,7 +949,10 @@ const programsByType = Object.fromEntries(
         ${picks.map((c) => `<th class="compare-table__card-head">
           <span class="compare-table__bank">${c.bank}</span>
           <span class="compare-table__name">${c.name}</span>
-          <button type="button" class="compare-table__remove" data-remove-slug="${c.slug}" aria-label="Remove">✕</button>
+          <button type="button" class="compare-table__remove" data-remove-slug="${c.slug}" aria-label="Remove">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>${isZh ? '移除' : 'Remove'}</span>
+          </button>
         </th>`).join('')}
       </tr>`;
 
@@ -953,7 +966,15 @@ const programsByType = Object.fromEntries(
           if (c.annualFeeWaivable === 'no') s += `<br><span class="compare-table__desc">${cmpL.annualFeeNotWaivable || '不可減免'}</span>`;
           return s;
         })},
-        { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => c.annualFeeNote || '—') },
+        { label: isZh ? '年費備註' : 'Fee Note', values: picks.map((c) => {
+          if (!c.annualFeeNote) return '—';
+          let note = c.annualFeeNote;
+          if (c.supplementaryCardFee != null) {
+            note = note.replace(/[，,；;]?\s*附卡[^，,；;。]*/g, '').replace(/[，,；;]?\s*副卡[^，,；;。]*/g, '').trim();
+            note = note.replace(/^[，,；;]\s*/, '').replace(/[，,；;]\s*$/, '');
+          }
+          return note || '—';
+        })},
         { label: cmpL.supplementaryCard || '附卡', values: picks.map((c) => {
           if (c.supplementaryCardFee == null) return '—';
           let s = c.supplementaryCardFee === 0 ? (cmpL.supplementaryCardFree || '免年費') : fmtNT(c.supplementaryCardFee);
@@ -968,6 +989,10 @@ const programsByType = Object.fromEntries(
       const filteredMeta = rows.filter((r) => r.values.some((v) => v !== '—'));
       rows.length = 0;
       rows.push(...filteredMeta);
+
+      function stripPrefix(text: string): string {
+        return text.replace(/貴賓室網路[：:]\s*/g, '');
+      }
 
       const allTypes = [...new Set(picks.flatMap((c) => c.benefits.map((b) => b.type)))];
       for (const type of allTypes) {
@@ -1000,10 +1025,12 @@ const programsByType = Object.fromEntries(
             const items = c.benefits.filter((b) => b.type === type);
             return items.length ? items.map((b) => {
               let html = '';
-              if (b.desc && b.desc.length > b.title.length)
-                html = `<strong>${b.title}</strong><br><span class="compare-table__desc">${b.desc}</span>`;
-              else html = b.title;
-              if (b.conditions) html += `<br><span class="compare-table__desc">${b.conditions}</span>`;
+              const title = stripPrefix(b.title);
+              const desc = stripPrefix(b.desc);
+              if (desc && desc.length > title.length)
+                html = `<strong>${title}</strong><br><span class="compare-table__desc">${desc}</span>`;
+              else html = title;
+              if (b.conditions) html += `<br><span class="compare-table__desc">${stripPrefix(b.conditions)}</span>`;
               return html;
             }).join('<br>') : '—';
           }),
@@ -1109,10 +1136,17 @@ const programsByType = Object.fromEntries(
       }, 1600);
     });
 
-    // 還原比較清單（分享連結 / 回訪）
+    // ?compare=open → 從卡片詳情頁導回，用 localStorage 還原並開啟
+    const urlCheck = new URL(window.location.href);
+    const compareParam = urlCheck.searchParams.get('compare');
+    const isOpenTrigger = compareParam === 'open';
+    if (isOpenTrigger) {
+      urlCheck.searchParams.delete('compare');
+      history.replaceState(null, '', urlCheck.toString());
+    }
     const openedFromUrl = restoreSelection();
     updateBadge();
-    if (openedFromUrl) openModal();
+    if (openedFromUrl || (isOpenTrigger && selected.size > 0)) openModal();
 
     // ── 航空彈窗 ──
     const airlinesData: Array<{

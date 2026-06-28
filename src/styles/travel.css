@@ -1707,7 +1707,7 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 .compare-table__corner {
   position: sticky;
   left: 0;
-  z-index: 2;
+  z-index: 5;
   background: var(--travel-card-bg);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -1717,6 +1717,12 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   text-align: left;
   min-width: 100px;
   white-space: nowrap;
+}
+
+.compare-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 4;
 }
 
 .compare-table__card-head {
@@ -1777,31 +1783,33 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 }
 
 .compare-table__remove {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
-  background: color-mix(in srgb, var(--bg) 85%, var(--bg2));
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text) 15%, transparent);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
   color: color-mix(in srgb, var(--text) 50%, transparent);
   cursor: pointer;
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
   line-height: 1;
-  padding: 0;
   transition: all 0.2s ease;
+}
+
+.compare-table__remove span {
+  display: inline;
 }
 
 .compare-table__remove:hover {
   color: #fff;
   background: #d44;
   border-color: #d44;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 /* ── 底部導覽列比較按鈕 ─────────────────────────────── */
@@ -1979,6 +1987,12 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 .compare-modal__body .compare-table-wrap {
   border: none;
   background: transparent;
+  overflow: visible;
+}
+
+.compare-modal__body .compare-table thead th {
+  background: var(--bg);
+  box-shadow: 0 1px 0 var(--travel-card-border);
 }
 
 @media (max-width: 480px) {
@@ -2263,6 +2277,43 @@ html:not([data-theme]) .airline-tile:focus-visible img {
 .travel-detail__card3d {
   max-width: 400px;
   margin: 0 auto 1.25rem;
+}
+
+.travel-detail__compare-action {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.travel-detail__compare-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--travel-card-border);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.travel-detail__compare-btn:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  border-color: color-mix(in srgb, var(--text) 25%, transparent);
+}
+
+.travel-detail__compare-btn.is-selected {
+  background: var(--travel-accent);
+  border-color: var(--travel-accent);
+  color: var(--on-accent);
+}
+
+.travel-detail__compare-btn.is-selected:hover {
+  opacity: 0.85;
 }
 
 .cc3d__link {
