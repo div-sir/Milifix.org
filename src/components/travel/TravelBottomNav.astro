@@ -16,10 +16,10 @@ const base = travelPath(lang);
 const isDetailPage = !!current;
 
 const sections: DockSection[] = [
-  { id: 'cards', label: t.sectionCards, ...(isDetailPage ? { href: `${base}#cards` } : {}) },
-  { id: 'airlines', label: t.sectionAirlines, ...(isDetailPage ? { href: `${base}#airlines` } : {}) },
-  { id: 'lounges', label: t.sectionLounges, ...(isDetailPage ? { href: `${base}#lounges` } : {}) },
-  { id: 'programs', label: t.programs, ...(isDetailPage ? { href: `${base}#programs` } : {}) },
+  { id: 'cards', label: t.sectionCards, glyph: 'card', ...(isDetailPage ? { href: `${base}#cards` } : {}) },
+  { id: 'airlines', label: t.sectionAirlines, glyph: 'airline', ...(isDetailPage ? { href: `${base}#airlines` } : {}) },
+  { id: 'lounges', label: t.sectionLounges, glyph: 'lounge', ...(isDetailPage ? { href: `${base}#lounges` } : {}) },
+  { id: 'programs', label: t.programs, glyph: 'program', ...(isDetailPage ? { href: `${base}#programs` } : {}) },
 ];
 ---
 

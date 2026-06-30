@@ -208,6 +208,21 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
   overflow: hidden;
 }
 
+/* 區塊圖示：桌機隱藏（顯示文字），手機顯示（見下方 max-width:768px） */
+.dock-pill-nav__section-icon {
+  display: none;
+  position: relative;
+  z-index: 3;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: inherit;
+}
+
+.dock-pill-nav__section-icon svg {
+  display: block;
+}
+
 .dock-pill-nav__label {
   display: block;
   transition: transform 0.38s cubic-bezier(0.33, 1, 0.64, 1);
@@ -293,5 +308,20 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
     padding: 0 clamp(10px, 2.8vw, 14px);
     font-size: 8px;
     letter-spacing: 0.09em;
+  }
+
+  /* 帶 glyph 的區塊（旅遊）：手機改為純圖示，省寬度、避免橫向溢出 */
+  .dock-pill-nav__pill--glyph {
+    width: var(--dock-pill-h);
+    min-width: var(--dock-pill-h);
+    padding: 0;
+  }
+
+  .dock-pill-nav__pill--glyph .dock-pill-nav__label-stack {
+    display: none;
+  }
+
+  .dock-pill-nav__pill--glyph .dock-pill-nav__section-icon {
+    display: flex;
   }
 }

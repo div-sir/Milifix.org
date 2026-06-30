@@ -1,0 +1,74 @@
+---
+import type { DockSection } from './DockNav.astro';
+import DockSectionGlyph from './DockSectionGlyph.astro';
+
+interface Props {
+  section: DockSection;
+  /** scroll 模式：用 <button> 觸發捲動；否則 <a href="#id"> */
+  useScrollSections: boolean;
+}
+
+const { section: s, useScrollSections } = Astro.props;
+const isBack = s.icon === 'back';
+const pillClass = [
+  'dock-pill-nav__pill',
+  'dock-nav__section',
+  s.icon ? 'dock-pill-nav__pill--icon' : undefined,
+  s.glyph ? 'dock-pill-nav__pill--glyph' : undefined,
+];
+---
+
+<li class="dock-pill-nav__cell" role="none">
+  {
+    s.href ? (
+      <a class:list={pillClass} href={s.href} aria-label={isBack ? s.label : undefined}>
+        {isBack ? (
+          <span class="dock-pill-nav__home-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M14.5 4.5L7 12l7.5 7.5M7 12h12"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        ) : (
+          <>
+            <DockSectionGlyph glyph={s.glyph} />
+            <span class="dock-pill-nav__label-stack">
+              <span class="dock-pill-nav__label">{s.label}</span>
+              <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+                {s.label}
+              </span>
+            </span>
+          </>
+        )}
+        <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+      </a>
+    ) : useScrollSections ? (
+      <button type="button" class:list={pillClass} data-dock-scroll-id={s.id} aria-label={s.glyph ? s.label : undefined}>
+        <DockSectionGlyph glyph={s.glyph} />
+        <span class="dock-pill-nav__label-stack">
+          <span class="dock-pill-nav__label">{s.label}</span>
+          <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+            {s.label}
+          </span>
+        </span>
+        <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+      </button>
+    ) : (
+      <a class:list={pillClass} href={`#${s.id}`} aria-label={s.glyph ? s.label : undefined}>
+        <DockSectionGlyph glyph={s.glyph} />
+        <span class="dock-pill-nav__label-stack">
+          <span class="dock-pill-nav__label">{s.label}</span>
+          <span class="dock-pill-nav__label dock-pill-nav__label--hover" aria-hidden="true">
+            {s.label}
+          </span>
+        </span>
+        <span class="dock-pill-nav__active-dot" aria-hidden="true" />
+      </a>
+    )
+  }
+</li>

@@ -1,0 +1,45 @@
+---
+// 區塊圖示：桌機隱藏（顯示文字標籤），手機顯示（取代文字以節省寬度）。
+// glyph 未設定時不輸出任何內容（平台／空間頁區塊維持純文字）。
+interface Props {
+  glyph?: 'card' | 'airline' | 'lounge' | 'program';
+}
+const { glyph } = Astro.props;
+---
+{
+  glyph && (
+    <span class="dock-pill-nav__section-icon" aria-hidden="true">
+      {glyph === 'card' && (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.65" />
+          <path d="M3 10h18" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" />
+        </svg>
+      )}
+      {glyph === 'airline' && (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      )}
+      {glyph === 'lounge' && (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M5 18v2M19 18v2" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" />
+        </svg>
+      )}
+      {glyph === 'program' && (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.65" />
+          <path d="M3 12h18" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" />
+          <path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      )}
+    </span>
+  )
+}
