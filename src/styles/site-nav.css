@@ -560,7 +560,7 @@
     transform: translateX(0);
   }
 
-  /* 語言／主題在抽屜內：藥丸縮窄、左右各半 */
+  /* 語言切換在抽屜內：藥丸置中縮窄 */
   .site-nav__flyout .site-nav__tools {
     margin-top: 0.35rem;
     padding-top: 1.15rem;
@@ -574,7 +574,7 @@
 
   .site-nav__flyout .site-nav__toolbar {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     width: 100%;
     min-height: 46px;
     align-items: stretch;
@@ -593,13 +593,6 @@
     justify-content: center;
     padding-left: 10px;
     padding-right: 10px;
-  }
-
-  .site-nav__flyout .site-nav__theme {
-    width: 100%;
-    min-width: 0;
-    min-height: 46px;
-    box-sizing: border-box;
   }
 
   .site-nav__flyout .site-nav__lang-panel {
