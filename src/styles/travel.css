@@ -865,6 +865,11 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   gap: 1rem;
 }
 
+/* hidden 屬性需贏過上面的 display:flex，否則有卡片時空狀態仍會顯示 */
+.travel-empty[hidden] {
+  display: none;
+}
+
 .travel-empty--cards .card-filters__clear {
   font-size: 0.72rem;
   padding: 0.4rem 1rem;
