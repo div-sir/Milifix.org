@@ -84,10 +84,6 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
   align-items: stretch;
 }
 
-.dock-pill-nav__cell--theme {
-  flex-shrink: 0;
-}
-
 .dock-pill-nav__sep-cell {
   flex-shrink: 0;
   display: flex;
@@ -169,12 +165,6 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
 .dock-pill-nav__pill--top:hover .dock-pill-nav__home-icon,
 .dock-pill-nav__pill--top:focus-visible .dock-pill-nav__home-icon {
   color: var(--dock-pill-hover-text);
-}
-
-.dock-pill-nav__pill--theme {
-  width: var(--dock-pill-h);
-  min-width: var(--dock-pill-h);
-  padding: 0;
 }
 
 .dock-pill-nav__pill:focus-visible {
@@ -260,62 +250,6 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
   transform: translateY(0);
 }
 
-/* 主題鈕：圖示在 blob 之上，hover 時改深色 */
-.dock-pill-nav__theme-swap {
-  position: relative;
-  z-index: 3;
-  width: 17px;
-  height: 17px;
-  flex-shrink: 0;
-}
-
-.dock-pill-nav__theme-icon {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-  color: var(--dock-pill-text);
-  transition:
-    opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.48s cubic-bezier(0.33, 1.28, 0.64, 1),
-    color 0.28s ease;
-}
-
-.dock-pill-nav__pill--theme:hover .dock-pill-nav__theme-icon,
-.dock-pill-nav__pill--theme:focus-visible .dock-pill-nav__theme-icon {
-  color: var(--dock-pill-hover-text);
-}
-
-.dock-pill-nav__theme-icon svg {
-  display: block;
-}
-
-html[data-theme='dark'] .dock-pill-nav__theme-icon--sun,
-html:not([data-theme]) .dock-pill-nav__theme-icon--sun {
-  opacity: 0;
-  transform: scale(0.52) rotate(78deg);
-  pointer-events: none;
-}
-
-html[data-theme='dark'] .dock-pill-nav__theme-icon--moon,
-html:not([data-theme]) .dock-pill-nav__theme-icon--moon {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-}
-
-html[data-theme='light'] .dock-pill-nav__theme-icon--moon {
-  opacity: 0;
-  transform: scale(0.52) rotate(-78deg);
-  pointer-events: none;
-}
-
-html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-}
-
 .dock-pill-nav__active-dot {
   position: absolute;
   left: 50%;
@@ -344,21 +278,6 @@ html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
   opacity: 0.35;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dock-pill-nav__theme-icon {
-    transition: opacity 0.16s ease;
-  }
-
-  html[data-theme='dark'] .dock-pill-nav__theme-icon--sun,
-  html:not([data-theme]) .dock-pill-nav__theme-icon--sun,
-  html[data-theme='light'] .dock-pill-nav__theme-icon--moon,
-  html[data-theme='dark'] .dock-pill-nav__theme-icon--moon,
-  html:not([data-theme]) .dock-pill-nav__theme-icon--moon,
-  html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
-    transform: none;
-  }
-}
-
 @media (max-width: 768px) {
   .dock-pill-nav.dock-nav {
     --dock-pill-h: 36px;
@@ -374,10 +293,5 @@ html[data-theme='light'] .dock-pill-nav__theme-icon--sun {
     padding: 0 clamp(10px, 2.8vw, 14px);
     font-size: 8px;
     letter-spacing: 0.09em;
-  }
-
-  .dock-pill-nav__pill--theme {
-    width: var(--dock-pill-h);
-    min-width: var(--dock-pill-h);
   }
 }
