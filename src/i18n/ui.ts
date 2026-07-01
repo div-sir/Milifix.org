@@ -130,6 +130,9 @@ const STRINGS: Record<
       programTypeNames: Record<string, string>;
       highlights: string;
       website: string;
+      membershipTiers: string;
+      includedBenefits: string;
+      tierGranted: string;
     };
   }
 > = {
@@ -284,8 +287,8 @@ const STRINGS: Record<
       },
       backToTravel: '← Travel',
       matrix: 'Matrix',
-      programs: 'Programs',
-      programsDesc: 'Lounge networks, hotel programs, and airline alliances.',
+      programs: 'Hotels & Alliances',
+      programsDesc: 'Membership tiers and services across hotel programs and airline alliances.',
       programTypeNames: {
         'lounge-network': 'Lounge Networks',
         'hotel-program': 'Hotel Programs',
@@ -293,6 +296,9 @@ const STRINGS: Record<
       },
       highlights: 'Highlights',
       website: 'Official website',
+      membershipTiers: 'Membership tiers',
+      includedBenefits: 'Included benefits',
+      tierGranted: 'Card-granted',
     },
   },
   zh: {
@@ -442,8 +448,8 @@ const STRINGS: Record<
       },
       backToTravel: '← 旅遊',
       matrix: '對照表',
-      programs: '計畫與網路',
-      programsDesc: '貴賓室網路、飯店計畫、航空聯盟的完整介紹。',
+      programs: '飯店與航空聯盟',
+      programsDesc: '飯店計畫與航空聯盟的會籍等級與服務完整介紹。',
       programTypeNames: {
         'lounge-network': '貴賓室網路',
         'hotel-program': '飯店計畫',
@@ -451,6 +457,9 @@ const STRINGS: Record<
       },
       highlights: '重點特色',
       website: '官方網站',
+      membershipTiers: '會籍等級',
+      includedBenefits: '固定禮遇',
+      tierGranted: '白金卡贈送',
     },
   },
   ja: {

@@ -94,6 +94,10 @@ const programTypes = ['lounge-network', 'hotel-program', 'airline-alliance'] as 
 const programsByType = Object.fromEntries(
   programTypes.map((type) => [type, allPrograms.filter((p) => p.programType === type)])
 );
+// 貴賓室網路歸入「貴賓室」區塊；「飯店與航空聯盟」區塊只保留飯店＋航空聯盟
+const loungeNetworks = programsByType['lounge-network'] ?? [];
+const alliedProgramTypes = ['hotel-program', 'airline-alliance'] as const;
+const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type] ?? []).length > 0);
 
 ---
 
@@ -340,16 +344,33 @@ const programsByType = Object.fromEntries(
           ))}
         </div>
         <div class="travel-empty" id="lounge-empty" hidden>{t.noResults}</div>
+        {loungeNetworks.length > 0 && (
+          <div class="travel-networks">
+            <h3 class="travel-section__subtitle">{t.programTypeNames['lounge-network']}</h3>
+            <div class="travel-grid">
+              {loungeNetworks.map((p) => (
+                <a class="travel-card" href={programSlugPath(lang, p.slug)}>
+                  {p.logo?.url && (
+                    <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} loading="lazy" />
+                  )}
+                  <span class="travel-card__overline">{t.programTypeNames['lounge-network']}</span>
+                  <span class="travel-card__title">{p.name}</span>
+                  <span class="travel-card__subtitle">{p.summary?.slice(0, 80)}…</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     )}
 
-    <!-- ── 網路／計畫 ── -->
-    {allPrograms.length > 0 && (
+    <!-- ── 飯店與航空聯盟 ── -->
+    {hasAlliedPrograms && (
       <section class="travel-section" id="programs">
         <div class="travel-section__header">
           <h2 class="travel-section__title">{t.programs}</h2>
         </div>
-        {programTypes.map((type) => {
+        {alliedProgramTypes.map((type) => {
           const items = programsByType[type];
           if (!items?.length) return null;
           return (

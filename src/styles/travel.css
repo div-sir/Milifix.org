@@ -711,6 +711,13 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   margin-bottom: 0.5rem;
 }
 
+/* 貴賓室網路：貴賓室區塊底部的子群組 */
+.travel-networks {
+  margin-top: 2.75rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--travel-card-border);
+}
+
 .travel-section__link {
   font-family: var(--mono);
   font-size: 0.8rem;
