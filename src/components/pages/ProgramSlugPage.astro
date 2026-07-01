@@ -15,6 +15,7 @@ import type { Lang } from '../../i18n/types';
 import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { travelPath } from '../../i18n/routes';
+import { getProgramTierInfo } from '../../data/program-tiers';
 
 interface Props { lang: Lang; program: CmsProgram; }
 const { lang, program } = Astro.props;
@@ -24,6 +25,11 @@ const t = ui(lang).travel;
 const isLoungeNetwork = program.programType === 'lounge-network';
 const backSection = isLoungeNetwork ? 'lounges' : 'programs';
 const sectionContext = isLoungeNetwork ? t.sectionLounges : t.programs;
+
+// 整個計畫的說明與各會籍等級（本地參考資料，覆寫 CMS 的分等級名稱）
+const tierInfo = getProgramTierInfo(lang, program.slug);
+const displayName = tierInfo?.displayName ?? program.name;
+const introText = tierInfo?.intro ?? program.summary;
 
 const [allLounges, allPrograms] = await Promise.all([getLounges(), getPrograms()]);
 const programNameKeywords = program.name
@@ -107,8 +113,9 @@ const relatedCards = allCards.filter((card) =>
         <p class="travel-detail__overline">
           {t.programTypeNames[program.programType]}
         </p>
-        <h1 class="travel-detail__title">{program.name}</h1>
-        <p class="travel-detail__desc">{program.summary}</p>
+        <h1 class="travel-detail__title">{displayName}</h1>
+        <p class="travel-detail__desc">{introText}</p>
+        {tierInfo?.note && <p class="program-note">{tierInfo.note}</p>}
       </header>
 
       {program.logo?.url && (
@@ -124,6 +131,41 @@ const relatedCards = allCards.filter((card) =>
             </a>
           </span>
         </div>
+      )}
+
+      {tierInfo?.tiers && tierInfo.tiers.length > 0 && (
+        <section class="program-tiers" style="margin-top: 2.5rem;">
+          <h2 class="travel-related__title">{t.membershipTiers}</h2>
+          <div class="program-tiers__list">
+            {tierInfo.tiers.map((tier) => (
+              <div class:list={['program-tier', tier.granted && 'is-granted']}>
+                <div class="program-tier__head">
+                  <span class="program-tier__name">{tier.name}</span>
+                  {tier.granted && <span class="program-tier__badge">{t.tierGranted}</span>}
+                  {tier.qualify && <span class="program-tier__qualify">{tier.qualify}</span>}
+                </div>
+                <ul class="program-tier__services">
+                  {tier.services.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {tierInfo?.perks && tierInfo.perks.length > 0 && (
+        <section class="program-tiers" style="margin-top: 2.5rem;">
+          <h2 class="travel-related__title">{t.includedBenefits}</h2>
+          <div class="program-tier program-tier--flat">
+            <ul class="program-tier__services">
+              {tierInfo.perks.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
       )}
 
       {loungesByAirport.size > 0 && (

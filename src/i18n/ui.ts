@@ -618,6 +618,9 @@ const STRINGS: Record<
       },
       highlights: 'Highlights',
       website: 'Official website',
+      membershipTiers: 'Membership tiers',
+      includedBenefits: 'Included benefits',
+      tierGranted: 'Card-granted',
     },
   },
 };
