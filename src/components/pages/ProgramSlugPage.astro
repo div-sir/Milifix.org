@@ -31,6 +31,23 @@ const tierInfo = getProgramTierInfo(lang, program.slug);
 const displayName = tierInfo?.displayName ?? program.name;
 const introText = tierInfo?.intro ?? program.summary;
 
+// 等級邊框色：依等級由低到高遞進（銅 → 銀 → 金 → 白金藍）
+const TIER_RAMP: [number, number, number][] = [
+  [176, 124, 84], // 銅
+  [156, 164, 172], // 銀
+  [212, 175, 55], // 金
+  [122, 178, 224], // 白金／鑽石藍
+];
+function tierColor(i: number, n: number): string {
+  const p = n <= 1 ? 1 : i / (n - 1);
+  const seg = p * (TIER_RAMP.length - 1);
+  const lo = Math.floor(seg);
+  const hi = Math.min(lo + 1, TIER_RAMP.length - 1);
+  const f = seg - lo;
+  const c = TIER_RAMP[lo].map((v, k) => Math.round(v + (TIER_RAMP[hi][k] - v) * f));
+  return `rgb(${c[0]} ${c[1]} ${c[2]})`;
+}
+
 const [allLounges, allPrograms] = await Promise.all([getLounges(), getPrograms()]);
 const programNameKeywords = program.name
   .replace(/（.*?）/g, '')
@@ -136,15 +153,18 @@ const relatedCards = allCards.filter((card) =>
       {tierInfo?.tiers && tierInfo.tiers.length > 0 && (
         <section class="program-tiers" style="margin-top: 2.5rem;">
           <h2 class="travel-related__title">{t.membershipTiers}</h2>
-          <div class="program-tiers__list">
-            {tierInfo.tiers.map((tier) => (
-              <div class:list={['program-tier', tier.granted && 'is-granted']}>
-                <div class="program-tier__head">
-                  <span class="program-tier__name">{tier.name}</span>
-                  {tier.granted && <span class="program-tier__badge">{t.tierGranted}</span>}
-                  {tier.qualify && <span class="program-tier__qualify">{tier.qualify}</span>}
+          <div class="program-tiers__table" style={`--tier-cols: ${tierInfo.tiers.length}`}>
+            {tierInfo.tiers.map((tier, i) => (
+              <div
+                class:list={['program-tier-col', tier.granted && 'is-granted']}
+                style={`--tier-color: ${tierColor(i, tierInfo.tiers!.length)}`}
+              >
+                <div class="program-tier-col__head">
+                  <span class="program-tier-col__name">{tier.name}</span>
+                  {tier.granted && <span class="program-tier-col__badge">{t.tierGranted}</span>}
+                  {tier.qualify && <span class="program-tier-col__qualify">{tier.qualify}</span>}
                 </div>
-                <ul class="program-tier__services">
+                <ul class="program-tier-col__services">
                   {tier.services.map((s) => (
                     <li>{s}</li>
                   ))}

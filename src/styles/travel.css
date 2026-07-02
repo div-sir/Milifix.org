@@ -2091,57 +2091,112 @@ html:not([data-theme]) .airline-tile:focus-visible img {
   color: color-mix(in srgb, var(--text) 80%, transparent);
 }
 
-.program-tiers__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+/* 會籍等級比較表：等級並排為欄，邊框色隨等級遞進（--tier-color 由頁面注入） */
+.program-tiers__table {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(210px, 1fr);
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 
+.program-tier-col {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--tier-color) 38%, var(--travel-card-border));
+  border-top: 3px solid var(--tier-color);
+  border-radius: 10px;
+  background: var(--travel-card-bg);
+  overflow: hidden;
+}
+
+.program-tier-col.is-granted {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tier-color) 55%, transparent);
+}
+
+.program-tier-col__head {
+  padding: 0.9rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--travel-card-border);
+  background: color-mix(in srgb, var(--tier-color) 9%, transparent);
+}
+
+.program-tier-col__name {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.program-tier-col__badge {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border-radius: 100px;
+  color: color-mix(in srgb, var(--tier-color) 68%, var(--text));
+  background: color-mix(in srgb, var(--tier-color) 20%, transparent);
+}
+
+.program-tier-col__qualify {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text) 52%, transparent);
+}
+
+.program-tier-col__services {
+  list-style: none;
+  margin: 0;
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.program-tier-col__services li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text) 82%, transparent);
+}
+
+.program-tier-col__services li::before {
+  content: '';
+  position: absolute;
+  left: 0.1rem;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tier-color);
+}
+
+@media (max-width: 560px) {
+  .program-tiers__table {
+    grid-auto-columns: minmax(180px, 82%);
+  }
+}
+
+/* 固定禮遇（無等級計畫，如 AMEX FHR）沿用單卡列表 */
 .program-tier {
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--travel-card-border);
   border-radius: 12px;
   background: var(--travel-card-bg);
-}
-
-.program-tier.is-granted {
-  border-color: color-mix(in srgb, var(--travel-accent) 45%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--travel-accent) 22%, transparent);
-}
-
-.program-tier__head {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.program-tier__name {
-  font-family: var(--sans);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.program-tier__badge {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.5rem;
-  border-radius: 100px;
-  color: var(--travel-accent);
-  background: color-mix(in srgb, var(--travel-accent) 15%, transparent);
-}
-
-.program-tier__qualify {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--text) 52%, transparent);
 }
 
 .program-tier__services {
