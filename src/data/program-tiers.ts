@@ -13,6 +13,8 @@ export interface ProgramTier {
   granted?: boolean;
   /** 該等級提供的服務 */
   services: string[];
+  /** 對應等級色（覆寫預設遞進色），如 oneworld 紅寶石/藍寶石/翡翠 */
+  color?: string;
 }
 
 export interface ProgramTierInfo {
@@ -138,16 +140,20 @@ const zh: ProgramTierMap = {
       {
         name: 'Star Alliance Silver',
         qualify: '成員航空中階精英（如長榮金卡）',
+        color: 'rgb(156 164 172)',
         services: ['訂位候補優先', '機場候補優先'],
       },
       {
         name: 'Star Alliance Gold',
         qualify: '成員航空高階精英（如長榮鑽石卡）',
+        color: 'rgb(212 175 55)',
         services: [
-          '全球 Star Alliance 貴賓室使用',
-          '優先報到／登機／行李',
-          '額外托運行李額度',
-          '劃位與候補優先',
+          '全球 1,000+ 貴賓室使用（可攜 1 位同行賓客）',
+          '優先報到櫃檯',
+          '優先登機',
+          '額外托運行李（+20kg 或 +1 件）',
+          '行李優先處理',
+          '安檢／證照查驗快速通道（Gold Track，部分機場）',
         ],
       },
     ],
@@ -156,22 +162,42 @@ const zh: ProgramTierMap = {
     displayName: '寰宇一家（oneworld）',
     intro:
       '寰宇一家是全球第三大航空聯盟，13 家成員航空（重要夥伴：國泰航空、日本航空）。聯盟等級來自成員航空常客計畫的精英會籍。',
-    note: '等級由低至高分為 Ruby、Sapphire、Emerald 三級。',
+    note: '等級由低至高分為 Ruby、Sapphire、Emerald 三級，服務逐級累加。',
     tiers: [
       {
         name: 'oneworld Ruby',
         qualify: '成員航空初階精英',
-        services: ['商務艙報到櫃檯', '機場候補優先', '訂位候補優先'],
+        color: 'rgb(203 62 88)',
+        services: ['商務艙優先報到櫃檯', '優先／預選座位', '訂位候補與機場候補優先'],
       },
       {
         name: 'oneworld Sapphire',
         qualify: '成員航空中階精英',
-        services: ['商務艙貴賓室使用', '優先登機', '額外托運行李', '優先劃位'],
+        color: 'rgb(74 122 205)',
+        services: [
+          '商務艙貴賓室使用',
+          '商務艙優先報到櫃檯',
+          '優先登機',
+          '優先／預選座位',
+          '訂位候補與機場候補優先',
+          '行李優先處理',
+          '額外托運行李（+15kg 或 +1 件）',
+        ],
       },
       {
         name: 'oneworld Emerald',
         qualify: '成員航空高階精英',
-        services: ['頭等艙貴賓室使用', '部分機場快速安檢／通關', '最高階優先禮遇', '額外托運行李'],
+        color: 'rgb(42 170 116)',
+        services: [
+          '頭等艙與商務艙貴賓室使用',
+          '頭等艙優先報到櫃檯',
+          '快速通道／優先安檢（部分機場）',
+          '行李優先處理',
+          '額外托運行李（+20kg 或 +1 件）',
+          '優先登機',
+          '優先／預選座位',
+          '訂位候補與機場候補優先',
+        ],
       },
     ],
   },
@@ -179,21 +205,25 @@ const zh: ProgramTierMap = {
     displayName: '天合聯盟（SkyTeam）',
     intro:
       '天合聯盟是全球第二大航空聯盟，19 家成員航空（台灣代表：中華航空 華夏哩程會員）。聯盟等級來自成員航空常客計畫的精英會籍。',
-    note: '等級分為 Elite 與 Elite Plus 兩級。',
+    note: '等級分為 Elite 與 Elite Plus；Elite Plus 涵蓋 Elite 全部並多出貴賓室、更高行李額度與保證訂位。',
     tiers: [
       {
         name: 'SkyTeam Elite',
         qualify: '成員航空中階精英',
-        services: ['優先報到', '機場候補優先', '部分額外行李禮遇'],
+        color: 'rgb(120 170 214)',
+        services: ['SkyPriority 優先報到與登機', '額外托運行李（+10kg）', '訂位候補與機場候補優先'],
       },
       {
         name: 'SkyTeam Elite Plus',
         qualify: '成員航空高階精英',
+        color: 'rgb(30 90 168)',
         services: [
-          '全球 SkyTeam 貴賓室使用',
-          '優先報到／登機／行李',
-          '保證經濟艙訂位（部分航班）',
-          '額外托運行李',
+          '全球 SkyTeam 貴賓室使用（可攜 1 位同行賓客，國際航班）',
+          'SkyPriority 全套（報到／安檢／登機／轉機／證照查驗）',
+          '安檢／證照快速通道（部分機場）',
+          '額外托運行李（+20kg 或 +1 件）',
+          '行李優先處理',
+          '長程滿艙保證經濟艙訂位（起飛前 24 小時前訂位）',
         ],
       },
     ],
@@ -308,16 +338,20 @@ const en: ProgramTierMap = {
       {
         name: 'Star Alliance Silver',
         qualify: 'Mid-tier member-airline elite (e.g. EVA Gold)',
+        color: 'rgb(156 164 172)',
         services: ['Priority reservations waitlist', 'Airport standby priority'],
       },
       {
         name: 'Star Alliance Gold',
         qualify: 'Top-tier member-airline elite (e.g. EVA Diamond)',
+        color: 'rgb(212 175 55)',
         services: [
-          'Star Alliance lounge access worldwide',
-          'Priority check-in / boarding / baggage',
-          'Extra baggage allowance',
-          'Seat selection & waitlist priority',
+          'Access to 1,000+ lounges worldwide (+1 guest)',
+          'Priority check-in counters',
+          'Priority boarding',
+          'Extra baggage (+20kg or +1 piece)',
+          'Priority baggage handling',
+          'Fast-track security/immigration (Gold Track, select airports)',
         ],
       },
     ],
@@ -326,22 +360,42 @@ const en: ProgramTierMap = {
     displayName: 'oneworld',
     intro:
       "oneworld is the world's third-largest airline alliance with 13 members (key partners: Cathay Pacific, Japan Airlines). Alliance status comes from elite tiers in member-airline frequent-flyer programs.",
-    note: 'Three levels, low to high: Ruby, Sapphire, Emerald.',
+    note: 'Three levels, low to high: Ruby, Sapphire, Emerald — benefits accumulate at each level.',
     tiers: [
       {
         name: 'oneworld Ruby',
         qualify: 'Entry-level member-airline elite',
-        services: ['Business-class check-in desks', 'Airport standby priority', 'Reservations waitlist priority'],
+        color: 'rgb(203 62 88)',
+        services: ['Business-class priority check-in', 'Preferred or pre-reserved seating', 'Priority on waitlists and standby'],
       },
       {
         name: 'oneworld Sapphire',
         qualify: 'Mid-tier member-airline elite',
-        services: ['Business-class lounge access', 'Priority boarding', 'Extra baggage allowance', 'Preferred seating'],
+        color: 'rgb(74 122 205)',
+        services: [
+          'Business-class lounge access',
+          'Business-class priority check-in',
+          'Priority boarding',
+          'Preferred or pre-reserved seating',
+          'Priority on waitlists and standby',
+          'Priority baggage handling',
+          'Extra baggage (+15kg or +1 piece)',
+        ],
       },
       {
         name: 'oneworld Emerald',
         qualify: 'Top-tier member-airline elite',
-        services: ['First-class lounge access', 'Fast-track security/immigration (select airports)', 'Highest priority perks', 'Extra baggage allowance'],
+        color: 'rgb(42 170 116)',
+        services: [
+          'First & business-class lounge access',
+          'First-class priority check-in',
+          'Fast track / priority lane (select airports)',
+          'Priority baggage handling',
+          'Extra baggage (+20kg or +1 piece)',
+          'Priority boarding',
+          'Preferred or pre-reserved seating',
+          'Priority on waitlists and standby',
+        ],
       },
     ],
   },
@@ -349,21 +403,25 @@ const en: ProgramTierMap = {
     displayName: 'SkyTeam',
     intro:
       "SkyTeam is the world's second-largest airline alliance with 19 members (Taiwan: China Airlines Dynasty Flyer). Alliance status comes from elite tiers in member-airline frequent-flyer programs.",
-    note: 'Two levels: Elite and Elite Plus.',
+    note: 'Two levels: Elite and Elite Plus — Elite Plus includes everything in Elite plus lounges, higher baggage and guaranteed reservations.',
     tiers: [
       {
         name: 'SkyTeam Elite',
         qualify: 'Mid-tier member-airline elite',
-        services: ['Priority check-in', 'Airport standby priority', 'Some extra baggage perks'],
+        color: 'rgb(120 170 214)',
+        services: ['SkyPriority check-in & boarding', 'Extra baggage (+10kg)', 'Priority on waitlists and standby'],
       },
       {
         name: 'SkyTeam Elite Plus',
         qualify: 'Top-tier member-airline elite',
+        color: 'rgb(30 90 168)',
         services: [
-          'SkyTeam lounge access worldwide',
-          'Priority check-in / boarding / baggage',
-          'Guaranteed economy reservations (select flights)',
-          'Extra baggage allowance',
+          'SkyTeam lounge access worldwide (+1 guest, international)',
+          'Full SkyPriority (check-in / security / boarding / transfer / immigration)',
+          'Fast-track security/immigration (select airports)',
+          'Extra baggage (+20kg or +1 piece)',
+          'Priority baggage handling',
+          'Guaranteed economy reservation on sold-out long-haul (24h prior)',
         ],
       },
     ],

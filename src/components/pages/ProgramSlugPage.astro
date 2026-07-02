@@ -157,7 +157,7 @@ const relatedCards = allCards.filter((card) =>
             {tierInfo.tiers.map((tier, i) => (
               <div
                 class:list={['program-tier-col', tier.granted && 'is-granted']}
-                style={`--tier-color: ${tierColor(i, tierInfo.tiers!.length)}`}
+                style={`--tier-color: ${tier.color ?? tierColor(i, tierInfo.tiers!.length)}`}
               >
                 <div class="program-tier-col__head">
                   <span class="program-tier-col__name">{tier.name}</span>
