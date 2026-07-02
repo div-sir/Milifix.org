@@ -31,7 +31,7 @@ export interface ProgramTierInfo {
 type ProgramTierMap = Record<string, ProgramTierInfo>;
 
 const zh: ProgramTierMap = {
-  'hilton-honors-gold': {
+  'hilton-honors': {
     displayName: '希爾頓榮譽客會（Hilton Honors）',
     intro:
       '希爾頓榮譽客會是希爾頓旗下橫跨全球 8,000+ 間、22 個品牌（含 Waldorf Astoria、Conrad、DoubleTree 等）的常客計畫。以住宿與消費累積積分，並依年度住宿晚數／次數升等會籍，等級越高禮遇越多。',
@@ -65,7 +65,7 @@ const zh: ProgramTierMap = {
       },
     ],
   },
-  'marriott-bonvoy-gold': {
+  'marriott-bonvoy': {
     displayName: '萬豪旅享家（Marriott Bonvoy）',
     intro:
       '萬豪旅享家是萬豪國際旗下橫跨全球 9,000+ 間、30+ 個品牌（含 Ritz-Carlton、St. Regis、W、Sheraton 等）的會員計畫。依年度住宿晚數升等，等級提供延遲退房、房型升等、行政酒廊等禮遇。',
@@ -201,7 +201,7 @@ const zh: ProgramTierMap = {
 };
 
 const en: ProgramTierMap = {
-  'hilton-honors-gold': {
+  'hilton-honors': {
     displayName: 'Hilton Honors',
     intro:
       "Hilton Honors is Hilton's loyalty program spanning 8,000+ properties across 22 brands (Waldorf Astoria, Conrad, DoubleTree and more). Earn points on stays and spend, and unlock higher tiers by annual nights/stays — the higher the tier, the richer the perks.",
@@ -235,7 +235,7 @@ const en: ProgramTierMap = {
       },
     ],
   },
-  'marriott-bonvoy-gold': {
+  'marriott-bonvoy': {
     displayName: 'Marriott Bonvoy',
     intro:
       "Marriott Bonvoy is Marriott International's program spanning 9,000+ properties across 30+ brands (Ritz-Carlton, St. Regis, W, Sheraton and more). Tiers unlock by annual nights, offering late checkout, upgrades and executive lounge access.",
