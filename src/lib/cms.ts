@@ -1,11 +1,94 @@
 const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
 const CMS_API = `${CMS_URL}/api`
 
+/**
+ * 逃生旗標。CMS_ALLOW_EMPTY 為 '1' / 'true' 時，fetch 失敗維持寬鬆行為
+ * （回 [] / null 並 warn），供本地或 CI 在沒有 CMS 的環境仍能 build。
+ */
+const ALLOW_EMPTY = ['1', 'true'].includes(
+  String(import.meta.env.CMS_ALLOW_EMPTY ?? '').toLowerCase(),
+)
+
+/**
+ * fail-fast 邊界：只有在 build（import.meta.env.PROD）且未開逃生旗標時，
+ * fetch 失敗才 throw 讓 build 以非零 exit code 失敗，避免 CMS 停機時
+ * webhook rebuild 產出空站覆蓋正式站。dev 一律寬鬆、不 throw。
+ */
+const FAIL_FAST = Boolean(import.meta.env.PROD) && !ALLOW_EMPTY
+
 type FetchOptions = {
   where?: Record<string, unknown>
   limit?: number
   sort?: string
   depth?: number
+}
+
+type PayloadResponse<T> = { docs: T[]; totalDocs?: number }
+
+class CmsFetchError extends Error {
+  constructor(
+    readonly collection: string,
+    readonly status: number | null,
+    detail?: string,
+  ) {
+    const cause = status === null ? 'network error' : `HTTP ${status}`
+    super(
+      `[cms] fetch failed for collection "${collection}" (${cause})` +
+        (detail ? `: ${detail}` : ''),
+    )
+    this.name = 'CmsFetchError'
+  }
+}
+
+/**
+ * module-level memoization。key 為完整 request URL，已涵蓋
+ * collection + where + sort + depth + limit，因此能區分不同查詢。
+ * 快取的是 Promise，讓同一 build process 內對相同查詢的並發呼叫
+ * 共用同一次 HTTP。僅在 build（PROD）時啟用，避免長時間 dev server
+ * 快取造成內容過時。
+ */
+const requestCache = new Map<string, Promise<PayloadResponse<unknown>>>()
+
+async function requestJson<T>(
+  collection: string,
+  url: string,
+): Promise<PayloadResponse<T>> {
+  let res: Response
+  try {
+    res = await fetch(url)
+  } catch (err) {
+    throw new CmsFetchError(
+      collection,
+      null,
+      err instanceof Error ? err.message : String(err),
+    )
+  }
+  if (!res.ok) throw new CmsFetchError(collection, res.status)
+  return (await res.json()) as PayloadResponse<T>
+}
+
+function fetchJson<T>(
+  collection: string,
+  url: string,
+): Promise<PayloadResponse<T>> {
+  if (!import.meta.env.PROD) return requestJson<T>(collection, url)
+  const cached = requestCache.get(url)
+  if (cached) return cached as Promise<PayloadResponse<T>>
+  const pending = requestJson<T>(collection, url)
+  requestCache.set(url, pending as Promise<PayloadResponse<unknown>>)
+  return pending
+}
+
+/** Payload 回應含 totalDocs；被 limit 截斷時指名 collection 與差額。 */
+function warnIfTruncated(collection: string, data: PayloadResponse<unknown>) {
+  const total = data.totalDocs
+  const got = data.docs?.length ?? 0
+  if (typeof total === 'number' && total > got) {
+    console.warn(
+      `[cms] collection "${collection}" truncated: got ${got} of ${total} docs ` +
+        `(missing ${total - got}) — raise limit or paginate`,
+    )
+  }
 }
 
 async function fetchCollection<T>(collection: string, opts: FetchOptions = {}): Promise<T[]> {
@@ -14,14 +97,17 @@ async function fetchCollection<T>(collection: string, opts: FetchOptions = {}): 
   if (opts.sort) params.set('sort', opts.sort)
   if (opts.depth !== undefined) params.set('depth', String(opts.depth))
   if (opts.where) params.set('where', JSON.stringify(opts.where))
+  const url = `${CMS_API}/${collection}?${params}`
 
   try {
-    const res = await fetch(`${CMS_API}/${collection}?${params}`)
-    if (!res.ok) throw new Error(`CMS fetch failed: ${collection} (${res.status})`)
-    const data = await res.json()
-    return data.docs as T[]
-  } catch {
-    console.warn(`[cms] fetchCollection("${collection}") failed — returning []`)
+    const data = await fetchJson<T>(collection, url)
+    warnIfTruncated(collection, data)
+    return data.docs
+  } catch (err) {
+    if (FAIL_FAST) throw err
+    console.warn(
+      `${err instanceof Error ? err.message : String(err)} — returning [] (CMS_ALLOW_EMPTY / dev)`,
+    )
     return []
   }
 }
@@ -32,13 +118,15 @@ async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> 
     limit: '1',
     depth: '1',
   })
+  const url = `${CMS_API}/${collection}?${params}`
   try {
-    const res = await fetch(`${CMS_API}/${collection}?${params}`)
-    if (!res.ok) return null
-    const data = await res.json()
+    const data = await fetchJson<T>(collection, url)
     return (data.docs[0] ?? null) as T | null
-  } catch {
-    console.warn(`[cms] fetchDoc("${collection}", "${slug}") failed — returning null`)
+  } catch (err) {
+    if (FAIL_FAST) throw err
+    console.warn(
+      `${err instanceof Error ? err.message : String(err)} — returning null (CMS_ALLOW_EMPTY / dev)`,
+    )
     return null
   }
 }
