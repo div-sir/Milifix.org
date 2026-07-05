@@ -62,6 +62,18 @@ const STRINGS: Record<
       dockIntro: string;
       dockBuild: string;
       dockSpaces: string;
+      /** 首頁創作空間列表：BLOG / LUMIVEIL / TRAVEL 的簡介與計數單位 */
+      blogTagline: string;
+      lumiveilTagline: string;
+      travelTagline: string;
+      blogCountUnit: string;
+      cardsCountUnit: string;
+    };
+    blog: {
+      /** 文章頁側欄目錄 */
+      tocAria: string;
+      tocCollapse: string;
+      tocExpand: string;
     };
     work: {
       prev: string;
@@ -134,6 +146,58 @@ const STRINGS: Record<
       membershipTiers: string;
       includedBenefits: string;
       tierGranted: string;
+      /** Travel 首頁：統計數字單位 */
+      statCardsLabel: string;
+      statBanksLabel: string;
+      statAirlinesLabel: string;
+      statLoungesLabel: string;
+      /** Travel 首頁：區塊跳轉 nav aria */
+      jumpSectionAria: string;
+      /** Travel 首頁：卡片搜尋/排序/篩選 */
+      searchCardPlaceholder: string;
+      searchCardAria: string;
+      sortLabel: string;
+      sortDefault: string;
+      sortFeeAsc: string;
+      sortFeeDesc: string;
+      sortNameAsc: string;
+      sortMostBenefits: string;
+      bankFilterLabel: string;
+      benefitFilterLabel: string;
+      feeRangeLabel: string;
+      feeUnlimited: string;
+      feeMinAria: string;
+      feeMaxAria: string;
+      feeFree: string;
+      feeUnlimitedShort: string;
+      clearAllLabel: string;
+      noCardsMatch: string;
+      clearFiltersLabel: string;
+      searchLoungePlaceholder: string;
+      searchLoungeAria: string;
+      /** 信用卡詳情頁：相關連結區塊 */
+      relatedSectionTitle: string;
+      relatedAirlinesGroupLabel: string;
+      relatedLoungesGroupLabel: string;
+      relatedProgramsGroupLabel: string;
+      addToCompareLabel: string;
+      noAnnualFeeJsonLd: string;
+      supplementaryCardMax: (n: number) => string;
+      officialCardPage: (bank: string) => string;
+      largeAmountUnit: string;
+      colonSeparator: string;
+      /** 貴賓室詳情頁 */
+      locationLabel: string;
+      /** 比較 Modal */
+      compareModalTitle: string;
+      compareClearAllAria: string;
+      compareCopyLinkAria: string;
+      compareShareLabel: string;
+      compareEmptyHint: string;
+      /** 貴賓室卡片 */
+      airlineLoungeLabel: string;
+      /** 信用卡卡面 */
+      viewDetailsCta: string;
     };
   }
 > = {
@@ -205,6 +269,16 @@ const STRINGS: Record<
       dockIntro: 'Cover',
       dockBuild: 'Approach',
       dockSpaces: 'Spaces',
+      blogTagline: 'Travel data archive, indexes, and long-form notes',
+      lumiveilTagline: 'Reveal every step you have ever taken',
+      travelTagline: 'Taiwan credit card airline & lounge benefits',
+      blogCountUnit: 'Posts',
+      cardsCountUnit: 'Cards',
+    },
+    blog: {
+      tocAria: 'On this page',
+      tocCollapse: 'Collapse',
+      tocExpand: 'Expand',
     },
     work: {
       prev: '← Previous',
@@ -301,6 +375,50 @@ const STRINGS: Record<
       membershipTiers: 'Membership tiers',
       includedBenefits: 'Included benefits',
       tierGranted: 'Card-granted',
+      statCardsLabel: 'Cards',
+      statBanksLabel: 'Banks',
+      statAirlinesLabel: 'Airlines',
+      statLoungesLabel: 'Lounges',
+      jumpSectionAria: 'Jump to section',
+      searchCardPlaceholder: 'Search card or bank…',
+      searchCardAria: 'Search credit cards',
+      sortLabel: 'Sort',
+      sortDefault: 'Default',
+      sortFeeAsc: 'Fee low→high',
+      sortFeeDesc: 'Fee high→low',
+      sortNameAsc: 'Name A→Z',
+      sortMostBenefits: 'Most benefits',
+      bankFilterLabel: 'Bank',
+      benefitFilterLabel: 'Benefits',
+      feeRangeLabel: 'Annual fee',
+      feeUnlimited: 'All',
+      feeMinAria: 'Minimum annual fee',
+      feeMaxAria: 'Maximum annual fee',
+      feeFree: 'Free',
+      feeUnlimitedShort: '∞',
+      clearAllLabel: 'Clear all',
+      noCardsMatch: 'No cards match your filters',
+      clearFiltersLabel: 'Clear filters',
+      searchLoungePlaceholder: 'Search lounge, airport or code…',
+      searchLoungeAria: 'Search lounges',
+      relatedSectionTitle: 'Related',
+      relatedAirlinesGroupLabel: 'Airlines',
+      relatedLoungesGroupLabel: 'Lounges',
+      relatedProgramsGroupLabel: 'Programs',
+      addToCompareLabel: 'Add to compare',
+      noAnnualFeeJsonLd: 'No annual fee',
+      supplementaryCardMax: (n) => ` (max ${n})`,
+      officialCardPage: () => 'Official card page',
+      largeAmountUnit: 'M',
+      colonSeparator: ': ',
+      locationLabel: 'Location',
+      compareModalTitle: 'Compare Cards',
+      compareClearAllAria: 'Clear all cards',
+      compareCopyLinkAria: 'Copy compare link',
+      compareShareLabel: 'Share',
+      compareEmptyHint: 'Tap + on cards to compare (up to 4)',
+      airlineLoungeLabel: 'Airline Lounge',
+      viewDetailsCta: 'View details →',
     },
   },
   zh: {
@@ -367,6 +485,16 @@ const STRINGS: Record<
       dockIntro: '封面',
       dockBuild: '方法',
       dockSpaces: '空間',
+      blogTagline: '旅行資料、分類索引與長文筆記',
+      lumiveilTagline: '揭開你走過的每一步',
+      travelTagline: '台灣信用卡航空與貴賓室權益比較',
+      blogCountUnit: '篇文章',
+      cardsCountUnit: '張卡片',
+    },
+    blog: {
+      tocAria: '本篇章節',
+      tocCollapse: '收合',
+      tocExpand: '展開',
     },
     work: {
       prev: '← 上一則',
@@ -463,6 +591,50 @@ const STRINGS: Record<
       membershipTiers: '會籍等級',
       includedBenefits: '固定禮遇',
       tierGranted: '白金卡贈送',
+      statCardsLabel: '張信用卡',
+      statBanksLabel: '家銀行',
+      statAirlinesLabel: '家航空',
+      statLoungesLabel: '間貴賓室',
+      jumpSectionAria: '區塊快速跳轉',
+      searchCardPlaceholder: '搜尋卡名或銀行…',
+      searchCardAria: '搜尋信用卡',
+      sortLabel: '排序',
+      sortDefault: '預設',
+      sortFeeAsc: '年費 低→高',
+      sortFeeDesc: '年費 高→低',
+      sortNameAsc: '卡名 A→Z',
+      sortMostBenefits: '權益最多',
+      bankFilterLabel: '銀行',
+      benefitFilterLabel: '卡片特點',
+      feeRangeLabel: '年費區間',
+      feeUnlimited: '不限',
+      feeMinAria: '年費下限',
+      feeMaxAria: '年費上限',
+      feeFree: '免費',
+      feeUnlimitedShort: '不限',
+      clearAllLabel: '清除全部',
+      noCardsMatch: '找不到符合條件的卡片',
+      clearFiltersLabel: '清除篩選',
+      searchLoungePlaceholder: '搜尋貴賓室、機場或代碼…',
+      searchLoungeAria: '搜尋貴賓室',
+      relatedSectionTitle: '相關連結',
+      relatedAirlinesGroupLabel: '航空公司',
+      relatedLoungesGroupLabel: '機場貴賓室',
+      relatedProgramsGroupLabel: '旅遊計畫',
+      addToCompareLabel: '加入比較',
+      noAnnualFeeJsonLd: '免年費',
+      supplementaryCardMax: (n) => `（最多 ${n} 張）`,
+      officialCardPage: (bank) => `${bank}官方卡片介紹`,
+      largeAmountUnit: '萬',
+      colonSeparator: '：',
+      locationLabel: '位置',
+      compareModalTitle: '卡片比較',
+      compareClearAllAria: '清除所有卡片',
+      compareCopyLinkAria: '複製比較連結',
+      compareShareLabel: '複製連結',
+      compareEmptyHint: '點選卡片上的 ＋ 加入比較（最多 4 張）',
+      airlineLoungeLabel: '航空公司貴賓室',
+      viewDetailsCta: '查看詳情 →',
     },
   },
   ja: {
@@ -529,6 +701,16 @@ const STRINGS: Record<
       dockIntro: 'カバー',
       dockBuild: '進め方',
       dockSpaces: 'スペース',
+      blogTagline: '旅行データ、分類インデックス、長文ノート',
+      lumiveilTagline: '歩いてきた道を、光で明かす',
+      travelTagline: '台湾のクレジットカードによる航空・ラウンジ特典比較',
+      blogCountUnit: '記事',
+      cardsCountUnit: 'カード',
+    },
+    blog: {
+      tocAria: 'このページの見出し',
+      tocCollapse: '閉じる',
+      tocExpand: '開く',
     },
     work: {
       prev: '← 前へ',
@@ -625,6 +807,50 @@ const STRINGS: Record<
       membershipTiers: 'Membership tiers',
       includedBenefits: 'Included benefits',
       tierGranted: 'Card-granted',
+      statCardsLabel: 'カード',
+      statBanksLabel: '銀行',
+      statAirlinesLabel: '航空会社',
+      statLoungesLabel: 'ラウンジ',
+      jumpSectionAria: 'セクションへ移動',
+      searchCardPlaceholder: 'カード名や銀行で検索…',
+      searchCardAria: 'クレジットカードを検索',
+      sortLabel: '並び替え',
+      sortDefault: '既定',
+      sortFeeAsc: '年会費 安い→高い',
+      sortFeeDesc: '年会費 高い→安い',
+      sortNameAsc: 'カード名 A→Z',
+      sortMostBenefits: '特典が多い順',
+      bankFilterLabel: '銀行',
+      benefitFilterLabel: 'カードの特徴',
+      feeRangeLabel: '年会費の範囲',
+      feeUnlimited: '指定なし',
+      feeMinAria: '年会費の下限',
+      feeMaxAria: '年会費の上限',
+      feeFree: '無料',
+      feeUnlimitedShort: '∞',
+      clearAllLabel: 'すべてクリア',
+      noCardsMatch: '条件に一致するカードが見つかりません',
+      clearFiltersLabel: 'フィルターをクリア',
+      searchLoungePlaceholder: 'ラウンジ・空港・コードで検索…',
+      searchLoungeAria: 'ラウンジを検索',
+      relatedSectionTitle: '関連情報',
+      relatedAirlinesGroupLabel: '航空会社',
+      relatedLoungesGroupLabel: '空港ラウンジ',
+      relatedProgramsGroupLabel: 'プログラム',
+      addToCompareLabel: '比較に追加',
+      noAnnualFeeJsonLd: '年会費無料',
+      supplementaryCardMax: (n) => `（最大 ${n} 枚）`,
+      officialCardPage: (bank) => `${bank} 公式サイト`,
+      largeAmountUnit: '万',
+      colonSeparator: '：',
+      locationLabel: '場所',
+      compareModalTitle: 'カード比較',
+      compareClearAllAria: 'すべてのカードをクリア',
+      compareCopyLinkAria: '比較リンクをコピー',
+      compareShareLabel: '共有',
+      compareEmptyHint: 'カードの＋をタップして比較（最大4枚）',
+      airlineLoungeLabel: '航空会社直営ラウンジ',
+      viewDetailsCta: '詳細を見る →',
     },
   },
 };

@@ -8,6 +8,7 @@ import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
 import LexicalContent from '../../components/LexicalContent.astro';
 import { getPosts } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -22,9 +23,10 @@ const displayTitle = post.title;
 
 const hl = Astro.url.searchParams.get('hl');
 const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
-const tocAriaLabel = lang === 'en' ? 'On this page' : lang === 'ja' ? 'このページの見出し' : '本篇章節';
-const tocToggleUnpin = lang === 'en' ? 'Collapse' : lang === 'ja' ? '閉じる' : '收合';
-const tocTogglePin = lang === 'en' ? 'Expand' : lang === 'ja' ? '開く' : '展開';
+const B = ui(lang).blog;
+const tocAriaLabel = B.tocAria;
+const tocToggleUnpin = B.tocCollapse;
+const tocTogglePin = B.tocExpand;
 const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
   { id: 'back-to-blog', label: '返回', href: '/blog', icon: 'back' },
 ];

@@ -32,6 +32,12 @@ const DEFAULT_SEC1_VALUE_JA = 'Milifix';
 const DEFAULT_SEC2_LABEL_JA = '種別';
 const DEFAULT_SEC2_VALUE_JA = '統一発票';
 
+const DEFAULT_LOGO_TEXT: Record<Lang, string> = { zh: DEFAULT_LOGO_TEXT_ZH, en: DEFAULT_LOGO_TEXT_EN, ja: DEFAULT_LOGO_TEXT_JA };
+const DEFAULT_SEC1_LABEL: Record<Lang, string> = { zh: DEFAULT_SEC1_LABEL_ZH, en: DEFAULT_SEC1_LABEL_EN, ja: DEFAULT_SEC1_LABEL_JA };
+const DEFAULT_SEC1_VALUE: Record<Lang, string> = { zh: DEFAULT_SEC1_VALUE_ZH, en: DEFAULT_SEC1_VALUE_EN, ja: DEFAULT_SEC1_VALUE_JA };
+const DEFAULT_SEC2_LABEL: Record<Lang, string> = { zh: DEFAULT_SEC2_LABEL_ZH, en: DEFAULT_SEC2_LABEL_EN, ja: DEFAULT_SEC2_LABEL_JA };
+const DEFAULT_SEC2_VALUE: Record<Lang, string> = { zh: DEFAULT_SEC2_VALUE_ZH, en: DEFAULT_SEC2_VALUE_EN, ja: DEFAULT_SEC2_VALUE_JA };
+
 const t = {
   zh: {
     htmlTitle: 'Invoice Pass — 打造你的專屬發票載具卡',
@@ -284,7 +290,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           <button type="button" class="ip-icon-trigger" id="icon-trigger" title={copy.iconLabel}>
             <span class="ip-icon-trigger-preview" id="icon-trigger-preview"></span>
           </button>
-          <input id="logo-text-input" type="text" class="ip-input ip-input--title" value={lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN} maxlength="20" autocomplete="off" />
+          <input id="logo-text-input" type="text" class="ip-input ip-input--title" value={DEFAULT_LOGO_TEXT[lang]} maxlength="20" autocomplete="off" />
           <!-- Icon panel anchored to title-row -->
           <div class="ip-icon-panel" id="icon-panel" hidden>
             <div class="ip-icon-search-wrap">
@@ -300,7 +306,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <div class="ip-field">
         <span class="ip-label">{copy.sec1Label}</span>
         <div class="ip-inline-row">
-          <input id="sec1-label-input" type="text" class="ip-input ip-input--label" value={lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN} maxlength="20" autocomplete="off" />
+          <input id="sec1-label-input" type="text" class="ip-input ip-input--label" value={DEFAULT_SEC1_LABEL[lang]} maxlength="20" autocomplete="off" />
           <div class="ip-align-inline" data-field="sec1" data-subfield="label">
             <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
@@ -308,7 +314,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           </div>
         </div>
         <div class="ip-inline-row">
-          <input id="sec1-value-input" type="text" class="ip-input ip-input--value" value={lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN} maxlength="24" autocomplete="off" />
+          <input id="sec1-value-input" type="text" class="ip-input ip-input--value" value={DEFAULT_SEC1_VALUE[lang]} maxlength="24" autocomplete="off" />
           <div class="ip-align-inline" data-field="sec1" data-subfield="value">
             <button type="button" class="ip-aln ip-aln--active" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
@@ -321,7 +327,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
       <div class="ip-field">
         <span class="ip-label">{copy.sec2Label}</span>
         <div class="ip-inline-row">
-          <input id="sec2-label-input" type="text" class="ip-input ip-input--label" value={lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN} maxlength="20" autocomplete="off" />
+          <input id="sec2-label-input" type="text" class="ip-input ip-input--label" value={DEFAULT_SEC2_LABEL[lang]} maxlength="20" autocomplete="off" />
           <div class="ip-align-inline" data-field="sec2" data-subfield="label">
             <button type="button" class="ip-aln" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
@@ -329,7 +335,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           </div>
         </div>
         <div class="ip-inline-row">
-          <input id="sec2-value-input" type="text" class="ip-input ip-input--value" value={lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN} maxlength="24" autocomplete="off" />
+          <input id="sec2-value-input" type="text" class="ip-input ip-input--value" value={DEFAULT_SEC2_VALUE[lang]} maxlength="24" autocomplete="off" />
           <div class="ip-align-inline" data-field="sec2" data-subfield="value">
             <button type="button" class="ip-aln" data-align="left">&#8676;</button>
             <button type="button" class="ip-aln" data-align="center">&#8596;</button>
@@ -399,7 +405,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
           <input id="bg-image-input" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" />
         </label>
         <div class="ip-bg-preview-wrap" id="bg-preview-wrap" hidden>
-          <img id="bg-preview-img" class="ip-bg-preview-img" src="" alt="" />
+          <img id="bg-preview-img" class="ip-bg-preview-img" src="" alt="" width="58" height="70" loading="lazy" decoding="async" />
           <button type="button" class="ip-bg-clear" id="bg-clear">{copy.bgImageClear}</button>
         </div>
       </div>
@@ -451,7 +457,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
             <div class="ip-card-row ip-card-row--header">
               <div class="ip-card-logo-wrap">
                 <div class="ip-card-icon" id="card-icon"></div>
-                <span class="ip-card-logo-text" id="card-logo-text">{lang === 'zh' ? DEFAULT_LOGO_TEXT_ZH : lang === 'ja' ? DEFAULT_LOGO_TEXT_JA : DEFAULT_LOGO_TEXT_EN}</span>
+                <span class="ip-card-logo-text" id="card-logo-text">{DEFAULT_LOGO_TEXT[lang]}</span>
               </div>
             </div>
 
@@ -466,12 +472,12 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
             <!-- Row 3: secondaryFields (2 cols) -->
             <div class="ip-card-row ip-card-row--secondary" id="secondary-row">
               <div class="ip-card-field">
-                <span class="ip-card-flabel" id="sec1-label">{lang === 'zh' ? DEFAULT_SEC1_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC1_LABEL_JA : DEFAULT_SEC1_LABEL_EN}</span>
-                <span class="ip-card-fvalue" id="sec1-value">{lang === 'zh' ? DEFAULT_SEC1_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC1_VALUE_JA : DEFAULT_SEC1_VALUE_EN}</span>
+                <span class="ip-card-flabel" id="sec1-label">{DEFAULT_SEC1_LABEL[lang]}</span>
+                <span class="ip-card-fvalue" id="sec1-value">{DEFAULT_SEC1_VALUE[lang]}</span>
               </div>
               <div class="ip-card-field">
-                <span class="ip-card-flabel" id="sec2-label">{lang === 'zh' ? DEFAULT_SEC2_LABEL_ZH : lang === 'ja' ? DEFAULT_SEC2_LABEL_JA : DEFAULT_SEC2_LABEL_EN}</span>
-                <span class="ip-card-fvalue" id="sec2-value">{lang === 'zh' ? DEFAULT_SEC2_VALUE_ZH : lang === 'ja' ? DEFAULT_SEC2_VALUE_JA : DEFAULT_SEC2_VALUE_EN}</span>
+                <span class="ip-card-flabel" id="sec2-label">{DEFAULT_SEC2_LABEL[lang]}</span>
+                <span class="ip-card-fvalue" id="sec2-value">{DEFAULT_SEC2_VALUE[lang]}</span>
               </div>
             </div>
 
@@ -513,7 +519,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
 </main>
 
-<script define:vars={{ copyJson }}>
+<script is:inline define:vars={{ copyJson }}>
   const COPY = JSON.parse(copyJson);
 
   // ── State ──────────────────────────────────────────────────────────
@@ -521,7 +527,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   let currentFgColor = '#e2b565';
   let carrierId = '';
   let selectedIconId = 'receipt';
-  let currentGradient = '';
   let currentBgImage = null; // base64 dataURL string or null
   let currentPassStyle = 'eventTicket'; // 'eventTicket' | 'storeCard' | 'generic'
   // alignment per field × subfield (label / value)
@@ -1005,7 +1010,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
     selectedGradientId = theme.id;
     if (theme.css) {
       cardBg.style.background = theme.css;
-      currentGradient = theme.css;
       if (theme.from) {
         currentBgColor = theme.from;
         bgColorInput.value = theme.from;
@@ -1019,7 +1023,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
         updateBarcode();
       }
     } else {
-      currentGradient = '';
       cardBg.style.background = currentBgColor;
     }
     gradientSelect.value = theme.id;
@@ -1095,7 +1098,6 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   bgColorInput.addEventListener('input', () => {
     currentBgColor = bgColorInput.value;
     bgColorHex.textContent = currentBgColor;
-    currentGradient = '';
     selectedGradientId = 'none';
     cardBg.style.background = currentBgColor;
     gradientSelect.value = 'none';

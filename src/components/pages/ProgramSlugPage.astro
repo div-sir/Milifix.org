@@ -1,6 +1,6 @@
 ---
 import { getLounges, getAirlines, getCreditCards, getPrograms } from '../../lib/cms';
-import type { CmsLounge, CmsAirline, CmsCreditCard, CmsProgram } from '../../lib/cms';
+import type { CmsLounge, CmsProgram } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
@@ -119,7 +119,15 @@ const relatedCards = allCards.filter((card) =>
       </header>
 
       {program.logo?.url && (
-        <img class="travel-detail__image travel-detail__image--contain" src={program.logo.url} alt={program.name} />
+        <img
+          class="travel-detail__image travel-detail__image--contain"
+          src={program.logo.url}
+          alt={program.name}
+          width="720"
+          height="360"
+          loading="eager"
+          fetchpriority="high"
+        />
       )}
 
       {program.website && (

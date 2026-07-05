@@ -2,7 +2,7 @@
 import type { Lang } from '../../i18n/types';
 import type { CmsLounge, CmsProgram } from '../../lib/cms';
 import { ui } from '../../i18n/ui';
-import { loungeSlugPath, programSlugPath } from '../../i18n/routes';
+import { loungeSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -26,7 +26,7 @@ const networkKeywords: Record<string, string[]> = {
 // 航空公司自營貴賓室也算一種「貴賓室分類」（與 Priority Pass 等並列）
 const ALLIANCE_RE = /Alliance|oneworld|SkyTeam|星空聯盟|寰宇一家|天合聯盟/i;
 const AIRLINE_RE = /航空|全日空|Airlines?|Airways/i;
-const airlineLoungeLabel = lang === 'zh' ? '航空公司貴賓室' : 'Airline Lounge';
+const airlineLoungeLabel = t.airlineLoungeLabel;
 
 const networkText = lounge.network ?? '';
 const segments = networkText.split('/').map((s) => s.trim()).filter(Boolean);
@@ -53,7 +53,7 @@ const hasTags = isAirlineLounge || matchedPrograms.length > 0 || unmatchedParts.
 
 <a class="travel-card" href={href}>
   {thumb && (
-    <img class="travel-card__image" src={thumb} alt={lounge.name} loading="lazy" decoding="async" />
+    <img class="travel-card__image" src={thumb} alt={lounge.name} width="320" height="200" loading="lazy" decoding="async" />
   )}
   <span class="travel-card__overline">{lounge.airportCode}</span>
   <span class="travel-card__title">{lounge.name}</span>

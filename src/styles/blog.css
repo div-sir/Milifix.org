@@ -26,6 +26,9 @@ body {
   line-height: 1.75;
   position: relative;
   overflow-x: hidden;
+}
+
+html.has-custom-cursor body {
   cursor: none;
 }
 

@@ -1,5 +1,5 @@
 ---
-import { getWorks, workCoverUrl } from '../../lib/cms';
+import { getWorks, workCoverUrl, workCoverAlt } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import Quote from '../Quote.astro';
@@ -24,8 +24,7 @@ interface Props {
 const { lang, spaceParam } = Astro.props;
 
 if (!spaceParam || !isSpaceId(spaceParam)) {
-  const fallback = lang === 'en' ? '/' : `/${lang}/`;
-  return Astro.redirect(fallback);
+  return Astro.redirect(lang === 'en' ? '/' : `/${lang}/`);
 }
 
 const space = spaceParam as SpaceId;
@@ -129,7 +128,7 @@ const spaceDockSections = [
                 data-work-card
               >
                 <div class="work-item__inner">
-                  <img class="work-img" src={workCoverUrl(work)} alt="" width={800} height={600} loading="lazy" />
+                  <img class="work-img" src={workCoverUrl(work)} alt={workCoverAlt(work)} width={800} height={600} loading="lazy" decoding="async" />
                   <div class="work-overlay">
                     <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
                     <div class="work-title">{work.title}</div>

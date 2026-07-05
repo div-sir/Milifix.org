@@ -157,6 +157,11 @@ export function workCoverUrl(work: CmsWork): string {
   return work.cover?.url ?? work.coverUrl ?? ''
 }
 
+/** 封面圖 alt：CMS 有填寫時輸出，否則維持空字串（裝飾性圖片） */
+export function workCoverAlt(work: CmsWork): string {
+  return work.cover?.alt ?? ''
+}
+
 export const getWorks = (space?: 'solilium' | 'voidlane') =>
   fetchCollection<CmsWork>('works', {
     where: space ? { space: { equals: space } } : undefined,

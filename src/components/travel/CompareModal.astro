@@ -65,17 +65,17 @@ const compareLabelsData = {
   <div class="compare-modal__panel">
     <div class="compare-modal__header">
       <h2 class="compare-modal__title">
-        {lang === 'zh' ? '卡片比較' : 'Compare Cards'}
+        {t.compareModalTitle}
         <span class="compare-modal__count" id="compare-count">0</span>
       </h2>
       <div class="compare-modal__actions">
-        <button type="button" class="compare-modal__clear" id="compare-clear" aria-label={lang === 'zh' ? '清除所有卡片' : 'Clear all cards'} style="display:none">
+        <button type="button" class="compare-modal__clear" id="compare-clear" aria-label={t.compareClearAllAria} style="display:none">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          <span>{lang === 'zh' ? '清除全部' : 'Clear all'}</span>
+          <span>{t.clearAllLabel}</span>
         </button>
-        <button type="button" class="compare-modal__share" id="compare-share" aria-label={lang === 'zh' ? '複製比較連結' : 'Copy compare link'}>
+        <button type="button" class="compare-modal__share" id="compare-share" aria-label={t.compareCopyLinkAria}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          <span class="compare-modal__share-label">{lang === 'zh' ? '複製連結' : 'Share'}</span>
+          <span class="compare-modal__share-label">{t.compareShareLabel}</span>
         </button>
         <button type="button" class="compare-modal__close" id="compare-modal-close" aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -85,7 +85,7 @@ const compareLabelsData = {
     <div class="compare-modal__body" id="compare-scroll">
       <div id="compare-content"></div>
       <div class="compare-empty" id="compare-empty">
-        {lang === 'zh' ? '點選卡片上的 ＋ 加入比較（最多 4 張）' : 'Tap + on cards to compare (up to 4)'}
+        {t.compareEmptyHint}
       </div>
     </div>
   </div>
@@ -475,29 +475,33 @@ const compareLabelsData = {
 
     // 複製分享連結
     const shareBtn = document.getElementById('compare-share');
-    shareBtn?.addEventListener('click', async () => {
+    shareBtn?.addEventListener('click', () => {
       persistSelection();
       const link = window.location.href;
-      try {
-        await navigator.clipboard.writeText(link);
-      } catch (e) {
+
+      function showCopied() {
+        shareBtn!.classList.add('is-copied');
+        const label = shareBtn!.querySelector('.compare-modal__share-label');
+        const prev = label?.textContent ?? '';
+        if (label) label.textContent = isZh ? '已複製!' : 'Copied!';
+        setTimeout(() => {
+          shareBtn!.classList.remove('is-copied');
+          if (label) label.textContent = prev;
+        }, 1600);
+      }
+
+      navigator.clipboard.writeText(link).then(showCopied).catch(() => {
+        // 舊瀏覽器 fallback：保留 execCommand
         const ta = document.createElement('textarea');
         ta.value = link;
         ta.style.position = 'fixed';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); } catch (e2) { /* noop */ }
+        try { (document as any).execCommand('copy'); } catch (e2) { /* noop */ }
         document.body.removeChild(ta);
-      }
-      shareBtn.classList.add('is-copied');
-      const label = shareBtn.querySelector('.compare-modal__share-label');
-      const prev = label?.textContent ?? '';
-      if (label) label.textContent = isZh ? '已複製!' : 'Copied!';
-      setTimeout(() => {
-        shareBtn.classList.remove('is-copied');
-        if (label) label.textContent = prev;
-      }, 1600);
+        showCopied();
+      });
     });
 
     // 清除所有卡片

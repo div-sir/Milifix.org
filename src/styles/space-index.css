@@ -16,10 +16,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  cursor: none;
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100svh;
+}
+
+html.has-custom-cursor body {
+  cursor: none;
 }
 
 #cursor {
@@ -247,11 +250,13 @@ body[data-space='voidlane'] {
   position: relative;
   overflow: visible;
   background: var(--bg3);
-  cursor: none;
   display: block;
   text-decoration: none;
   color: inherit;
   transition: box-shadow 0.45s ease, transform 0.45s ease;
+}
+html.has-custom-cursor .work-item {
+  cursor: none;
 }
 .work-item--standard {
   grid-column: span 4;

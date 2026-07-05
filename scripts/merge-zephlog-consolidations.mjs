@@ -136,7 +136,8 @@ function mergeJr() {
     else loose.push(f);
   }
 
-  const ordered = [...curatedFirst, ...loose.sort(), ...fromJrTree.sort()];
+  loose.sort();
+  fromJrTree.sort();
 
   const lines = [
     '---',

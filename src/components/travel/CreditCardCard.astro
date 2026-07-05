@@ -29,7 +29,10 @@ const benefitTypes = [
       class="travel-card__image"
       src={card.image.url}
       alt={card.image.alt ?? card.name}
+      width="320"
+      height="200"
       loading="lazy"
+      decoding="async"
     />
   )}
   <span class="travel-card__overline">{card.bank}</span>

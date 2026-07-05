@@ -14,7 +14,7 @@ import { spacePath, workPath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import { getLocalizedSpace } from '../../i18n/space-locale';
 import { isSpaceId, type SpaceId } from '../../data/spaces';
-import { getWorks, workCoverUrl, type CmsWork } from '../../lib/cms';
+import { getWorks, workCoverUrl, workCoverAlt, type CmsWork } from '../../lib/cms';
 import LexicalContent from '../LexicalContent.astro';
 
 interface Props {
@@ -38,8 +38,7 @@ const {
 } = work;
 
 if (!spaceParam || !isSpaceId(spaceParam) || spaceParam !== workSpace) {
-  const fallback = lang === 'en' ? '/' : `/${lang}/`;
-  return Astro.redirect(fallback);
+  return Astro.redirect(lang === 'en' ? '/' : `/${lang}/`);
 }
 
 const space = spaceParam as SpaceId;
@@ -62,6 +61,7 @@ const workDockSections = [
 ];
 
 const coverUrl = workCoverUrl(work);
+const coverAlt = workCoverAlt(work);
 
 // 把 mediaGallery 轉成 WorkMediaGallery 期望的格式
 const mediaItems = mediaGallery.map((m) => ({
@@ -108,7 +108,7 @@ const mediaItems = mediaGallery.map((m) => ({
   >
     <div class="work-hero__media">
       {coverUrl && (
-        <img class="work-hero__img" src={coverUrl} alt="" width={1600} height={900} loading="eager" fetchpriority="high" />
+        <img class="work-hero__img" src={coverUrl} alt={coverAlt} width={1600} height={900} loading="eager" fetchpriority="high" />
       )}
       <div class="work-hero__gradient"></div>
     </div>

@@ -15,10 +15,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  cursor: none;
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100svh;
+}
+
+html.has-custom-cursor body {
+  cursor: none;
 }
 
 #cursor {

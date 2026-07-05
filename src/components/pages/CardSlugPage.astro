@@ -116,7 +116,7 @@ const jsonLd = {
   provider: { '@type': 'BankOrCreditUnion', name: card.bank },
   feesAndCommissionsSpecification:
     card.annualFee === 0
-      ? (lang === 'zh' ? '免年費' : 'No annual fee')
+      ? t.noAnnualFeeJsonLd
       : `NT$ ${card.annualFee.toLocaleString()}${card.annualFeeNote ? `（${card.annualFeeNote}）` : ''}`,
   ...(card.benefits.length
     ? { amenityFeature: card.benefits.map((b) => ({ '@type': 'LocationFeatureSpecification', name: b.title, value: true })) }
@@ -159,7 +159,7 @@ const jsonLd = {
       <div class="travel-detail__compare-action">
         <button type="button" class="travel-detail__compare-btn" id="detail-compare-btn" data-slug={card.slug}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span id="detail-compare-label">{lang === 'zh' ? '加入比較' : 'Add to compare'}</span>
+          <span id="detail-compare-label">{t.addToCompareLabel}</span>
         </button>
       </div>
 
@@ -169,7 +169,7 @@ const jsonLd = {
             <span class="travel-info__label">{t.supplementaryCard}</span>
             <span class="travel-info__value">
               {card.supplementaryCardFee === 0 ? t.supplementaryCardFree : `NT$ ${card.supplementaryCardFee.toLocaleString()}`}
-              {card.supplementaryCardMax != null && (lang === 'zh' ? `（最多 ${card.supplementaryCardMax} 張）` : ` (max ${card.supplementaryCardMax})`)}
+              {card.supplementaryCardMax != null && t.supplementaryCardMax(card.supplementaryCardMax)}
             </span>
           </div>
         )}
@@ -202,7 +202,7 @@ const jsonLd = {
           <span class="travel-info__label">{t.website}</span>
           <span class="travel-info__value">
             <a href={card.officialUrl} target="_blank" rel="noopener noreferrer" style="color: var(--travel-accent); text-decoration: none;">
-              {lang === 'zh' ? `${card.bank}官方卡片介紹` : 'Official card page'} ↗
+              {t.officialCardPage(card.bank)} ↗
             </a>
           </span>
         </div>
@@ -227,7 +227,7 @@ const jsonLd = {
                   const lounge = isPopulated(b.lounge) ? b.lounge : null;
                   const programs = getBenefitPrograms(b);
 
-                  const fmtWan = (n: number) => n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${lang === 'zh' ? '萬' : 'M'}` : `NT$ ${n.toLocaleString()}`;
+                  const fmtWan = (n: number) => n >= 10000000 ? `NT$ ${(n / 10000000).toLocaleString()} ${t.largeAmountUnit}` : `NT$ ${n.toLocaleString()}`;
                   const insFields = b.benefitType === 'insurance' ? [
                     b.insuranceTravel ? { l: t.insuranceTravel, v: fmtWan(b.insuranceTravel) } : null,
                     b.insuranceOverseas ? { l: t.insuranceOverseas, v: fmtWan(b.insuranceOverseas) } : null,
@@ -243,10 +243,10 @@ const jsonLd = {
                         <span class="card-benefit-item__desc">{b.description}</span>
                       )}
                       {b.conditions && (
-                        <span class="card-benefit-item__cond">{t.conditions}{lang === 'zh' ? '：' : ': '}{b.conditions}</span>
+                        <span class="card-benefit-item__cond">{t.conditions}{t.colonSeparator}{b.conditions}</span>
                       )}
                       {b.guestPolicy && (
-                        <span class="card-benefit-item__cond">{t.guestPolicy}{lang === 'zh' ? '：' : ': '}{b.guestPolicy}</span>
+                        <span class="card-benefit-item__cond">{t.guestPolicy}{t.colonSeparator}{b.guestPolicy}</span>
                       )}
 
                       {insFields.length > 0 && (
@@ -290,10 +290,10 @@ const jsonLd = {
 
       {hasRelated && (
         <section class="travel-related">
-          <h2 class="travel-benefits__title">{lang === 'zh' ? '相關連結' : 'Related'}</h2>
+          <h2 class="travel-benefits__title">{t.relatedSectionTitle}</h2>
           {relatedAirlines.length > 0 && (
             <div class="travel-related__group">
-              <span class="travel-related__label">{lang === 'zh' ? '航空公司' : 'Airlines'}</span>
+              <span class="travel-related__label">{t.relatedAirlinesGroupLabel}</span>
               <div class="travel-related__items">
                 {relatedAirlines.map((a) => (
                   <span class="travel-tag">
@@ -305,7 +305,7 @@ const jsonLd = {
           )}
           {relatedLounges.length > 0 && (
             <div class="travel-related__group">
-              <span class="travel-related__label">{lang === 'zh' ? '機場貴賓室' : 'Lounges'}</span>
+              <span class="travel-related__label">{t.relatedLoungesGroupLabel}</span>
               <div class="travel-related__items">
                 {relatedLounges.map((l) => (
                   <a class="travel-tag travel-tag--clickable travel-tag--network" href={loungeSlugPath(lang, l.slug)}>
@@ -317,7 +317,7 @@ const jsonLd = {
           )}
           {relatedPrograms.length > 0 && (
             <div class="travel-related__group">
-              <span class="travel-related__label">{lang === 'zh' ? '旅遊計畫' : 'Programs'}</span>
+              <span class="travel-related__label">{t.relatedProgramsGroupLabel}</span>
               <div class="travel-related__items">
                 {relatedPrograms.map((p) => (
                   <a class="travel-tag travel-tag--clickable travel-tag--alliance" href={programSlugPath(lang, p.slug)}>
