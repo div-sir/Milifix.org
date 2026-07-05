@@ -1,7 +1,14 @@
 // @ts-check
 import { randomUUID } from 'node:crypto';
 import { PKPass } from 'passkit-generator';
-import { checkOrigin, checkRateLimit, getClientIp, decodeImage } from './_pass-security.js';
+import {
+  checkOrigin,
+  checkRateLimit,
+  getClientIp,
+  decodeImage,
+  isValidCarrier,
+  isValidHexColor,
+} from './_pass-security.js';
 
 // Minimal 1x1 PNG — fallback when no icon provided
 const PLACEHOLDER_PNG = Buffer.from(
@@ -16,16 +23,6 @@ const TEAM_ID = process.env.APPLE_TEAM_ID ?? 'UZJ42KP5ND';
 // instance. Ephemeral by design: cold starts reset it (see _pass-security.js).
 /** @type {Map<string, number[]>} */
 const RATE_LIMIT_STORE = new Map();
-
-/** @param {string} id */
-function isValidCarrier(id) {
-  return /^\/[A-Z0-9+\-.]{7}$/.test(id);
-}
-
-/** @param {string} hex */
-function isValidHexColor(hex) {
-  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
-}
 
 /** @param {string} hex */
 function hexToRgb(hex) {

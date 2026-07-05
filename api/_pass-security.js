@@ -176,6 +176,27 @@ function decodeImage(value) {
   return buf;
 }
 
+// ---------------------------------------------------------------------------
+// Field format validation
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate a Taiwan e-invoice mobile carrier ID: `/` followed by 7 chars from
+ * the allowed alphabet (uppercase letters, digits, `+`, `-`, `.`).
+ * @param {string} id
+ */
+function isValidCarrier(id) {
+  return /^\/[A-Z0-9+\-.]{7}$/.test(id);
+}
+
+/**
+ * Validate a 6-digit hex color string, e.g. `#1a1a2e`.
+ * @param {string} hex
+ */
+function isValidHexColor(hex) {
+  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
+}
+
 export {
   isAllowedHost,
   hostFromHeader,
@@ -183,6 +204,8 @@ export {
   checkRateLimit,
   getClientIp,
   decodeImage,
+  isValidCarrier,
+  isValidHexColor,
   RATE_LIMIT_PER_MINUTE,
   RATE_LIMIT_PER_DAY,
   MAX_IMAGE_DIMENSION,
