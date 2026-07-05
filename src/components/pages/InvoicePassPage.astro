@@ -4,8 +4,8 @@ import '../../styles/portfolio-atmosphere.css';
 import SiteNav from '../SiteNav.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PortfolioChrome from '../PortfolioChrome.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 
 interface Props {
   lang: Lang;
@@ -213,20 +213,16 @@ const t = {
 };
 
 const copy = t[lang];
-const htmlLang = HTML_LANG[lang];
 const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1LabelPH: copy.sec1LabelPH, sec1ValuePH: copy.sec1ValuePH, sec2LabelPH: copy.sec2LabelPH, sec2ValuePH: copy.sec2ValuePH, adding: copy.adding, errorInvalid: copy.errorInvalid, errorServer: copy.errorServer, iosOnly: copy.iosOnly, logoTextPH: copy.logoTextPH });
 ---
 
-<!doctype html>
-<html lang={htmlLang} data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>{copy.htmlTitle}</title>
-  <meta name="description" content={copy.metaDesc} />
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={copy.htmlTitle}
+  description={copy.metaDesc}
+  canonicalPath={pathname}
+  htmlDataTheme="dark"
+>
 
 <AmbientBackdrop />
 <SiteNav variant="platform" lang={lang} pathname={pathname} />
@@ -1923,5 +1919,4 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
   .ip-back:hover { color: var(--text); }
 </style>
 
-</body>
-</html>
+</BaseLayout>

@@ -1,6 +1,6 @@
 ---
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { availableLangsForPath, spacePath, travelPath } from '../../i18n/routes';
 import { getWorks, getPosts, getCreditCards } from '../../lib/cms';
@@ -87,28 +87,13 @@ const dockSections = [
 ];
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-    <title>{labels.metaTitlePlatform}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-    <script is:inline>
-      (function () {
-        try {
-          var t = localStorage.getItem('portfolio-theme');
-          document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
-    <style>
+<BaseLayout
+  lang={lang}
+  title={labels.metaTitlePlatform}
+  description={labels.metaDescPlatform}
+  canonicalPath={Astro.url.pathname}
+>
+    <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
@@ -985,8 +970,7 @@ const dockSections = [
         mix-blend-mode: screen;
       }
     </style>
-  </head>
-  <body class="portfolio-atmo">
+
     <AmbientBackdrop />
     <PageTransition />
 
@@ -1179,5 +1163,4 @@ const dockSections = [
         setTimeout(triggerGlitch, 4200);
       }
     </script>
-  </body>
-</html>
+</BaseLayout>

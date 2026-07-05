@@ -2,6 +2,7 @@
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/blog.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
@@ -29,25 +30,14 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
 ];
 ---
 
-<!DOCTYPE html>
-<html lang={lang === 'zh' ? 'zh-Hant' : lang}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>{displayTitle} · Blog</title>
-    <meta name="description" content={post.description} />
-    <script is:inline>
-      (function () {
-        try {
-          var t = localStorage.getItem('portfolio-theme');
-          document.documentElement.dataset.theme =
-            t === 'light' ? 'light' : t === 'dark' ? 'dark' : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
-    <script is:inline>
+<BaseLayout
+  lang={lang}
+  title={`${displayTitle} · Blog`}
+  description={post.description}
+  canonicalPath={Astro.url.pathname}
+  hreflangAlternates={false}
+>
+    <script slot="head" is:inline>
       (function () {
         try {
           if (!sessionStorage.getItem('portfolio:lang-transition-v1')) return;
@@ -65,7 +55,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         } catch (e) {}
       })();
     </script>
-    <script is:inline>
+    <script slot="head" is:inline>
       (function () {
         try {
           var qs = new URLSearchParams(window.location.search);
@@ -78,8 +68,6 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         } catch (e) {}
       })();
     </script>
-  </head>
-  <body class="portfolio-atmo">
     <AmbientBackdrop />
     <div id="cursor"></div>
     <div id="cursor-ring"></div>
@@ -143,5 +131,4 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
 
       initBlogTranslate();
     </script>
-  </body>
-</html>
+</BaseLayout>

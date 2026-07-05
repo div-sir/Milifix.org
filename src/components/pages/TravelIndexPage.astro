@@ -16,8 +16,8 @@ import CompareModal from '../travel/CompareModal.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { programSlugPath } from '../../i18n/routes';
 
@@ -101,29 +101,12 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
 
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{t.metaTitle} — Milifix</title>
-  <meta name="description" content={t.heroDesc} />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${t.metaTitle} — Milifix`}
+  description={t.heroDesc}
+  canonicalPath={Astro.url.pathname}
+>
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -839,5 +822,4 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
     });
   </script>
   <TravelBottomNav lang={lang} />
-</body>
-</html>
+</BaseLayout>

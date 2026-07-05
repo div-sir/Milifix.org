@@ -4,6 +4,7 @@ const STRINGS: Record<
   Lang,
   {
     metaTitlePlatform: string;
+    metaDescPlatform: string;
     nav: {
       ariaNav: string;
       skip: string;
@@ -138,6 +139,7 @@ const STRINGS: Record<
 > = {
   en: {
     metaTitlePlatform: 'Milifix — Studio & creator spaces',
+    metaDescPlatform: 'Milifix — a studio of creator spaces, travel intelligence, and long-form notes on credit cards, lounges, airlines, and mileage.',
     nav: {
       ariaNav: 'Main navigation',
       skip: 'Skip to main content',
@@ -303,6 +305,7 @@ const STRINGS: Record<
   },
   zh: {
     metaTitlePlatform: 'Milifix — 工作室與創作空間',
+    metaDescPlatform: 'Milifix — 匯集創作空間、旅行資訊與長文筆記，涵蓋信用卡、貴賓室、航空與哩程指南。',
     nav: {
       ariaNav: '主要導覽',
       skip: '略過導覽列',
@@ -464,6 +467,7 @@ const STRINGS: Record<
   },
   ja: {
     metaTitlePlatform: 'Milifix — スタジオとクリエイタースペース',
+    metaDescPlatform: 'Milifix — クリエイタースペース、旅行情報、そしてカード・ラウンジ・航空・マイルの長文ノートを集めたスタジオ。',
     nav: {
       ariaNav: 'メインナビゲーション',
       skip: '本文へスキップ',

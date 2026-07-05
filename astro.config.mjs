@@ -4,10 +4,13 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import rehypeSlug from 'rehype-slug';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://milifix.org',
+
   vite: {
     plugins: [tailwindcss()]
   },
@@ -34,6 +37,10 @@ export default defineConfig({
   integrations: [
     react({
       babel: () => ({ plugins: [] })
+    }),
+    sitemap({
+      // linktree 為 noindex 頁，不納入 sitemap
+      filter: (page) => !/\/linktree\/?$/.test(page),
     })
   ]
 });

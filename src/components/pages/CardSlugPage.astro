@@ -10,8 +10,8 @@ import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import CompareModal from '../travel/CompareModal.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import {
   travelPath,
@@ -111,7 +111,7 @@ const jsonLd = {
   '@type': 'CreditCard',
   name: `${card.bank} ${card.name}`,
   ...(card.description ? { description: card.description } : {}),
-  url: Astro.url.href,
+  url: new URL(Astro.url.pathname, Astro.site).href,
   ...(card.officialUrl ? { sameAs: card.officialUrl } : {}),
   provider: { '@type': 'BankOrCreditUnion', name: card.bank },
   feesAndCommissionsSpecification:
@@ -124,31 +124,13 @@ const jsonLd = {
 };
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{card.name} — {t.sectionCards} — Milifix</title>
-  <meta name="description" content={card.description ?? ''} />
-  <link rel="canonical" href={Astro.url.href} />
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${card.name} — ${t.sectionCards} — Milifix`}
+  description={card.description}
+  canonicalPath={Astro.url.pathname}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -392,5 +374,4 @@ const jsonLd = {
     initCardTilt();
   </script>
   <TravelBottomNav lang={lang} current="cards" />
-</body>
-</html>
+</BaseLayout>

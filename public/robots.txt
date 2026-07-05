@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://milifix.org/sitemap-index.xml
