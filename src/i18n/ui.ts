@@ -74,6 +74,10 @@ const STRINGS: Record<
       tocAria: string;
       tocCollapse: string;
       tocExpand: string;
+      /** 首頁分類區塊標題 */
+      cats: { journey: string; projects: string; misc: string };
+      /** 分類 aria 計數單位 */
+      postUnit: string;
     };
     work: {
       prev: string;
@@ -279,6 +283,8 @@ const STRINGS: Record<
       tocAria: 'On this page',
       tocCollapse: 'Collapse',
       tocExpand: 'Expand',
+      cats: { journey: 'Travel · Life · Aviation', projects: 'Deep Dives · Tech', misc: 'Other' },
+      postUnit: 'posts',
     },
     work: {
       prev: '← Previous',
@@ -495,6 +501,8 @@ const STRINGS: Record<
       tocAria: '本篇章節',
       tocCollapse: '收合',
       tocExpand: '展開',
+      cats: { journey: '旅行·生活·航空', projects: '專題·技術', misc: '其他' },
+      postUnit: '篇',
     },
     work: {
       prev: '← 上一則',
@@ -711,6 +719,8 @@ const STRINGS: Record<
       tocAria: 'このページの見出し',
       tocCollapse: '閉じる',
       tocExpand: '開く',
+      cats: { journey: '旅行・生活・航空', projects: '特集・技術', misc: 'その他' },
+      postUnit: '記事',
     },
     work: {
       prev: '← 前へ',

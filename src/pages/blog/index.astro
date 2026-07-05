@@ -7,70 +7,60 @@ import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
 import { getPosts, type CmsPost } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import {
+  BLOG_CAT_ORDER,
+  BLOG_CAT_DOM_ID,
+  classifyBucket,
+  type BlogCatId,
+} from '../../data/blog-categories';
 
 const posts = await getPosts();
 const visiblePosts = posts.filter((p) => !p.hideInBlogIndex);
 
 type BlogPost = CmsPost;
 
-type TopCatId =
-  | 'journey'
-  | 'projects'
-  | 'misc';
+const hl = Astro.url.searchParams.get('hl');
+const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
+const B = ui(lang).blog;
 
-const topCatMeta: Record<TopCatId, { id: string; label: string }> = {
-  journey: { id: 'blog-cat-journey', label: '旅行·生活·航空' },
-  projects: { id: 'blog-cat-projects', label: '專題·技術' },
-  misc: { id: 'blog-cat-misc', label: '其他' },
-};
-
-const topCatOrder: TopCatId[] = [
-  'journey',
-  'projects',
-  'misc',
-];
-
-function bucketToTopCat(bucket: string): TopCatId {
-  if (
-    bucket.startsWith('鐵道·票券') ||
-    bucket.startsWith('遊記·足跡') ||
-    bucket.startsWith('食旅·指南') ||
-    bucket.startsWith('住宿') ||
-    bucket.startsWith('航空·哩程')
-  ) {
-    return 'journey';
-  }
-  if (bucket.startsWith('專題·技術')) return 'projects';
-  return 'misc';
-}
-
-const postsByTopCat: Record<TopCatId, BlogPost[]> = {
+const postsByTopCat: Record<BlogCatId, BlogPost[]> = {
   journey: [],
   projects: [],
   misc: [],
 };
 
+// 未匹配任何前綴的 bucket：build 時警示，避免文章被無聲歸進 fallback 分類。
+const unknownBuckets = new Set<string>();
 for (const p of visiblePosts) {
-  postsByTopCat[bucketToTopCat(p.bucket ?? '')].push(p);
+  const bucket = p.bucket ?? '';
+  const { cat, matched } = classifyBucket(bucket);
+  if (bucket && !matched) unknownBuckets.add(bucket);
+  postsByTopCat[cat].push(p);
+}
+if (unknownBuckets.size > 0) {
+  console.warn(
+    `[blog] 未知 bucket（已歸入 fallback 分類，請更新 src/data/blog-categories.ts）：` +
+      [...unknownBuckets].join('、'),
+  );
 }
 
-for (const k of topCatOrder) {
+for (const k of BLOG_CAT_ORDER) {
   postsByTopCat[k].sort((a, b) => b.date.localeCompare(a.date));
 }
 
-const activeTopCats = topCatOrder.filter((k) => postsByTopCat[k].length > 0);
+const activeTopCats = BLOG_CAT_ORDER.filter((k) => postsByTopCat[k].length > 0);
 
-const hl = Astro.url.searchParams.get('hl');
-const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
+const catLabel = (k: BlogCatId) => B.cats[k];
 const dockSections = activeTopCats.map((k) => ({
-  id: topCatMeta[k].id,
-  label: topCatMeta[k].label,
+  id: BLOG_CAT_DOM_ID[k],
+  label: catLabel(k),
 }));
 
 /** 選單內錨點：不含「頂部」，與 Dock 向上箭頭分工，避免兩個回頂部 */
 const blogAnchorLinks = activeTopCats.map((k) => ({
-  href: `#${topCatMeta[k].id}`,
-  label: topCatMeta[k].label,
+  href: `#${BLOG_CAT_DOM_ID[k]}`,
+  label: catLabel(k),
 }));
 
 ---
@@ -133,12 +123,12 @@ const blogAnchorLinks = activeTopCats.map((k) => ({
       {
         activeTopCats.map((k) => (
           <section
-            id={topCatMeta[k].id}
+            id={BLOG_CAT_DOM_ID[k]}
             class="blog-cat-region"
-            aria-label={`${topCatMeta[k].label}，共 ${postsByTopCat[k].length} 篇`}
+            aria-label={`${catLabel(k)} · ${postsByTopCat[k].length} ${B.postUnit}`}
           >
             <header class="blog-cat-head">
-              <h2 class="blog-cat-title">{topCatMeta[k].label}</h2>
+              <h2 class="blog-cat-title">{catLabel(k)}</h2>
             </header>
             <ul class="group-list">
               {postsByTopCat[k].map((p, idx) => (
