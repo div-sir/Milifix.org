@@ -11,10 +11,13 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
-    "astro": "astro"
+    "astro": "astro",
+    "fetch:rail": "tsx scripts/fetch-rail-geometry.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
+    "@turf/turf": "^7.3.5",
+    "tsx": "^4.23.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.2"
   },

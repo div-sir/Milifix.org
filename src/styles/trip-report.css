@@ -489,43 +489,69 @@
 .trip-stop:focus-visible .trip-stop__name { color: var(--travel-accent); }
 .trip-stop:focus-visible { outline: 2px solid color-mix(in srgb, var(--travel-accent) 55%, transparent); outline-offset: 4px; border-radius: 3px; }
 
-/* 兩景點之間：移動方式與預估時間 */
+/* ── 轉乘連接器：時刻表式卡片 ──────────────────────────
+   置於兩個 .trip-stop 之間，左側編號欄延伸出一條「軌道線」貫穿卡片，
+   卡片本身像時刻表的一列：圖示＋線名靠左，粗體時間靠右。 */
 .trip-connector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
-  padding: 0.3rem 0 0.3rem 3.2rem;
-  margin: -0.4rem 0;
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  padding: 0.5rem 0;
 }
-.trip-connector__leg {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  position: relative;
-  padding-left: 0.9rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  color: var(--trip-ink-soft);
-}
-.trip-connector__leg::before {
+.trip-connector::before {
+  /* 軌道線：延續 .trip-stop__index 那一欄的視覺軸線 */
   content: '';
-  position: absolute;
-  left: 0.32rem;
-  top: -0.55rem;
-  bottom: -0.55rem;
+  grid-column: 1;
+  justify-self: center;
   width: 1px;
-  border-left: 1px dashed color-mix(in srgb, var(--travel-accent) 45%, transparent);
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--travel-accent) 45%, transparent) 0,
+    color-mix(in srgb, var(--travel-accent) 45%, transparent) 4px,
+    transparent 4px,
+    transparent 8px
+  );
 }
-.trip-connector__icon { font-size: 0.9rem; line-height: 1; }
-.trip-connector__label { color: var(--trip-ink); }
-.trip-connector__time { color: var(--travel-accent); font-weight: 600; }
-.trip-connector--lead .trip-connector__leg,
-.trip-connector--trail .trip-connector__leg { font-style: normal; }
-.trip-connector--lead .trip-connector__leg::before,
-.trip-connector--trail .trip-connector__leg::before {
-  border-left-style: solid;
-  border-left-color: color-mix(in srgb, var(--travel-accent) 60%, transparent);
+.trip-connector__card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--trip-rule);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--travel-accent) 5%, var(--bg));
+  overflow: hidden;
+}
+.trip-connector__row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.8rem;
+}
+.trip-connector__row + .trip-connector__row {
+  border-top: 1px solid var(--trip-rule);
+}
+.trip-connector__row--night {
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+.trip-connector__icon { font-size: 0.95rem; line-height: 1; flex: none; }
+.trip-connector__label {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: var(--trip-ink);
+  flex: 1;
+  min-width: 0;
+}
+.trip-connector__time {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--travel-accent);
+  white-space: nowrap;
+  padding-left: 0.6rem;
+}
+.trip-connector--lead .trip-connector__card,
+.trip-connector--trail .trip-connector__card {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--travel-accent) 40%, transparent);
 }
 
 .trip-stop__index {
@@ -984,7 +1010,8 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
 }
 
 @media (max-width: 520px) {
-  .trip-stop { grid-template-columns: 2.4rem 1fr; }
+  .trip-stop,
+  .trip-connector { grid-template-columns: 2.4rem 1fr; }
   .trip-photos { gap: 0.4rem; }
 }
 

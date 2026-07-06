@@ -1,0 +1,32 @@
+---
+import type { TransportSegment } from '../../data/trips/types';
+
+interface Props {
+  segs: TransportSegment[];
+  /** 'lead'＝承前段（進入本日前）；'trail'＝本日結束後離開 */
+  variant?: 'lead' | 'trail';
+  /** 交通方式圖示 */
+  icons: Record<TransportSegment['mode'], string>;
+  /** 時間格式化（如「約 27 分」） */
+  fmtDur: (min?: number) => string;
+}
+
+const { segs, variant, icons, fmtDur } = Astro.props;
+if (segs.length === 0) return null;
+---
+
+<li class={`trip-connector${variant ? ` trip-connector--${variant}` : ''}`} aria-label="移動方式與預估時間">
+  <div class="trip-connector__card">
+    {
+      segs.map((seg) => (
+        <div class={`trip-connector__row${seg.mode === 'night-train' ? ' trip-connector__row--night' : ''}`}>
+          <span class="trip-connector__icon" aria-hidden="true">
+            {icons[seg.mode]}
+          </span>
+          <span class="trip-connector__label">{seg.label}</span>
+          {seg.durationMin ? <span class="trip-connector__time">{fmtDur(seg.durationMin)}</span> : null}
+        </div>
+      ))
+    }
+  </div>
+</li>
