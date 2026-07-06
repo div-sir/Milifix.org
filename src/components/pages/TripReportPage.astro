@@ -8,6 +8,7 @@ import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
 import { travelPath } from '../../i18n/routes';
 import type { TripReport, TripStop } from '../../data/trips/types';
+import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
@@ -30,6 +31,29 @@ interface TripLabels extends DayLabels {
   tileNote: string;
 }
 
+const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
+  airport: '機場',
+  station: '車站',
+  sight: '名勝',
+  shrine: '神社',
+  castle: '城郭',
+  garden: '庭園',
+  viewpoint: '展望',
+  facility: '設施',
+  area: '地區',
+};
+const KIND_LABELS_EN: DayLabels['kindLabels'] = {
+  airport: 'Airport',
+  station: 'Station',
+  sight: 'Landmark',
+  shrine: 'Shrine',
+  castle: 'Castle',
+  garden: 'Garden',
+  viewpoint: 'Viewpoint',
+  facility: 'Facility',
+  area: 'Area',
+};
+
 const LABELS: Record<Lang, TripLabels> = {
   zh: {
     reportTag: '旅行報告書',
@@ -49,6 +73,9 @@ const LABELS: Record<Lang, TripLabels> = {
     links: '實用連結',
     photos: '影像',
     passBadge: 'PASS',
+    stopsHeading: '沿途景點',
+    dossier: '行程手記',
+    kindLabels: KIND_LABELS_ZH,
   },
   en: {
     reportTag: 'Trip Report',
@@ -68,6 +95,9 @@ const LABELS: Record<Lang, TripLabels> = {
     links: 'Useful links',
     photos: 'Photos',
     passBadge: 'PASS',
+    stopsHeading: 'Along the way',
+    dossier: 'Field notes',
+    kindLabels: KIND_LABELS_EN,
   },
   ja: {
     reportTag: 'Trip Report',
@@ -87,6 +117,9 @@ const LABELS: Record<Lang, TripLabels> = {
     links: 'Useful links',
     photos: 'Photos',
     passBadge: 'PASS',
+    stopsHeading: 'Along the way',
+    dossier: 'Field notes',
+    kindLabels: KIND_LABELS_EN,
   },
 };
 
@@ -149,28 +182,31 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
   <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
 
   <main id="main-content">
-    <!-- ── Hero ── -->
+    <!-- ── Masthead（雜誌刊頭）── -->
     <header class="trip-hero">
       <a class="trip-back" href={reportsPath}>{t.back}</a>
-      <p class="trip-hero__overline" style="margin-top:0.75rem">
-        {t.reportTag} · {trip.country} {trip.year}
+      <p class="trip-hero__overline">
+        <span class="trip-hero__tag">{t.reportTag}</span>
+        <span class="trip-hero__dash" aria-hidden="true">—</span>
+        <span>{trip.country} · {trip.year}</span>
       </p>
       <h1 class="trip-hero__title" data-anime-splittext="chars">{trip.title}</h1>
       {trip.subtitle && <p class="trip-hero__subtitle">{trip.subtitle}</p>}
-      <p class="trip-hero__summary">{trip.summary}</p>
-
-      <div class="trip-stats">
-        {
-          stats.map((s) => (
-            <div class="trip-stats__item">
-              <span class="trip-stats__value">
-                {s.prefix && <span class="trip-stats__unit">{s.unit}</span>}
-                <span data-count-to={s.value}>0</span>
-              </span>
-              <span class="trip-stats__label">{s.label}</span>
-            </div>
-          ))
-        }
+      <div class="trip-hero__lead">
+        <p class="trip-hero__summary">{trip.summary}</p>
+        <div class="trip-stats">
+          {
+            stats.map((s) => (
+              <div class="trip-stats__item">
+                <span class="trip-stats__value">
+                  {s.prefix && <span class="trip-stats__unit">{s.unit}</span>}
+                  <span data-count-to={s.value}>0</span>
+                </span>
+                <span class="trip-stats__label">{s.label}</span>
+              </div>
+            ))
+          }
+        </div>
       </div>
     </header>
 

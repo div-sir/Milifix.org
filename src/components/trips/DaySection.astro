@@ -1,5 +1,5 @@
 ---
-import type { TripDay, TransportSegment } from '../../data/trips/types';
+import type { TripDay, TransportSegment, TripStop } from '../../data/trips/types';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 
 export interface DayLabels {
@@ -11,6 +11,12 @@ export interface DayLabels {
   links: string;
   photos: string;
   passBadge: string;
+  /** 「沿途」小標 */
+  stopsHeading: string;
+  /** 實用資訊 dossier 標題（如「行程手記」） */
+  dossier: string;
+  /** 景點類型標籤 */
+  kindLabels: Partial<Record<NonNullable<TripStop['kind']>, string>>;
 }
 
 interface Props {
@@ -38,48 +44,84 @@ const costs = day.costs ?? [];
 const tips = day.tips ?? [];
 const links = day.links ?? [];
 const photos = day.photos ?? [];
+const stops = day.stops ?? [];
+
+// 路線 dek：以景點名串成「A → B → C」
+const routeDek = stops.map((s) => s.name).join(' → ');
+// 兩位數編排（Day 02）
+const dayNum = String(day.day).padStart(2, '0');
 
 const fmtJpy = (n: number) => `¥${n.toLocaleString('en-US')}`;
+const kindLabel = (k?: TripStop['kind']) => (k ? labels.kindLabels[k] ?? '' : '');
+
+const hasDossier =
+  timeline.length > 0 || costs.length > 0 || links.length > 0 || day.activities.length > 0;
 ---
 
 <section class="trip-day" data-trip-day={day.day} aria-labelledby={`day-${day.day}-title`}>
-  <div class="trip-day__head">
-    <span class="trip-day__num">{labels.dayWord} {day.day}</span>
-    {day.regionLabel && <span class="trip-day__region">{day.regionLabel}</span>}
-  </div>
-
-  <h2
-    class="trip-day__title"
-    id={`day-${day.day}-title`}
-    data-anime-splittext="chars-inview"
-  >
-    {day.title}
-  </h2>
-
-  {
-    segments.length > 0 && (
-      <div class="trip-segments">
-        {segments.map((seg) => (
-          <span class={`trip-seg trip-seg--${seg.mode}`}>
-            <span class="trip-seg__icon" aria-hidden="true">
-              {MODE_ICON[seg.mode]}
+  <!-- ── 編輯式標頭 ── -->
+  <header class="trip-day__head">
+    <p class="trip-day__kicker">
+      <span class="trip-day__num">{labels.dayWord} {dayNum}</span>
+      {day.regionLabel && <span class="trip-day__region">{day.regionLabel}</span>}
+    </p>
+    <h2 class="trip-day__title" id={`day-${day.day}-title`} data-anime-splittext="chars-inview">
+      {day.title}
+    </h2>
+    {routeDek && <p class="trip-day__dek">{routeDek}</p>}
+    {
+      segments.length > 0 && (
+        <div class="trip-segments" aria-label="交通方式">
+          {segments.map((seg) => (
+            <span class={`trip-seg trip-seg--${seg.mode}`}>
+              <span class="trip-seg__icon" aria-hidden="true">
+                {MODE_ICON[seg.mode]}
+              </span>
+              <span class="trip-seg__label">{seg.label}</span>
             </span>
-            <span class="trip-seg__label">{seg.label}</span>
-          </span>
-        ))}
-      </div>
-    )
-  }
+          ))}
+        </div>
+      )
+    }
+  </header>
 
+  <!-- ── 沿途景點：各景點一條，供地圖逐點帶入 ── -->
   {
-    timeline.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.timeline}</div>
-        <ol class="trip-timeline">
-          {timeline.map((entry) => (
-            <li class="trip-timeline__item">
-              {entry.time && <span class="trip-timeline__time">{entry.time}</span>}
-              <span class="trip-timeline__text">{entry.text}</span>
+    stops.length > 0 && (
+      <div class="trip-stops">
+        <p class="trip-block__label trip-stops__heading">{labels.stopsHeading}</p>
+        <ol class="trip-stops__list">
+          {stops.map((stop, i) => (
+            <li
+              class={`trip-stop${i === 0 ? ' trip-stop--lead' : ''}`}
+              data-trip-stop={stop.id}
+              data-day={day.day}
+            >
+              <span class="trip-stop__index" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div class="trip-stop__body">
+                <h3 class="trip-stop__name">
+                  {stop.name}
+                  {kindLabel(stop.kind) && <span class="trip-stop__kind">{kindLabel(stop.kind)}</span>}
+                </h3>
+                {stop.desc && <p class="trip-stop__desc">{stop.desc}</p>}
+                {stop.note && (
+                  <p class="trip-stop__note">
+                    <span class="trip-stop__note-mark" aria-hidden="true">
+                      ✦
+                    </span>
+                    {stop.note}
+                  </p>
+                )}
+                {stop.photos && stop.photos.length > 0 && (
+                  <div class="trip-photos trip-photos--stop">
+                    {stop.photos.map((photo) => (
+                      <PhotoPlaceholder photo={photo} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </li>
           ))}
         </ol>
@@ -87,90 +129,109 @@ const fmtJpy = (n: number) => `¥${n.toLocaleString('en-US')}`;
     )
   }
 
-  {
-    day.activities.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.activities}</div>
-        <ul class="trip-activities">
-          {day.activities.map((a) => (
-            <li>{a}</li>
-          ))}
-        </ul>
-      </div>
-    )
-  }
-
-  {
-    costs.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.costs}</div>
-        <table class="trip-costs">
-          <tbody>
-            {costs.map((c) => (
-              <tr>
-                <td class="trip-costs__label">
-                  {c.label}
-                  {c.coveredByPass && <span class="trip-pass-badge">{labels.passBadge}</span>}
-                  {c.note && <span class="trip-costs__note">{c.note}</span>}
-                </td>
-                <td class="trip-costs__amt">
-                  {typeof c.amountJpy === 'number' ? fmtJpy(c.amountJpy) : c.coveredByPass ? '—' : ''}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-
+  <!-- ── 容易忽略的 → pull-quote ── -->
   {
     tips.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.tips}</div>
-        <div class="trip-tips">
-          <ul class="trip-tips__list">
-            {tips.map((tip) => (
-              <li>{tip}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <aside class="trip-pullquote" aria-label={labels.tips}>
+        <p class="trip-pullquote__eyebrow">{labels.tips}</p>
+        {tips.map((tip) => (
+          <p class="trip-pullquote__text">{tip}</p>
+        ))}
+      </aside>
     )
   }
 
+  <!-- ── 行程手記 dossier（時間、費用、連結、重點）── -->
   {
-    links.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.links}</div>
-        <div class="trip-links">
-          {links.map((link) =>
-            link.url ? (
-              <a class="trip-link" href={link.url} target="_blank" rel="noopener noreferrer">
-                {link.label}
-                <span class="trip-link__ext" aria-hidden="true">
-                  ↗
-                </span>
-              </a>
-            ) : (
-              <span class="trip-link trip-link--text">{link.label}</span>
-            )
+    hasDossier && (
+      <div class="trip-dossier">
+        <p class="trip-dossier__title">{labels.dossier}</p>
+        <div class="trip-dossier__grid">
+          {timeline.length > 0 && (
+            <div class="trip-block">
+              <div class="trip-block__label">{labels.timeline}</div>
+              <ol class="trip-timeline">
+                {timeline.map((entry) => (
+                  <li class="trip-timeline__item">
+                    {entry.time && <span class="trip-timeline__time">{entry.time}</span>}
+                    <span class="trip-timeline__text">{entry.text}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {day.activities.length > 0 && (
+            <div class="trip-block">
+              <div class="trip-block__label">{labels.activities}</div>
+              <ul class="trip-activities">
+                {day.activities.map((a) => (
+                  <li>{a}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {costs.length > 0 && (
+            <div class="trip-block trip-block--wide">
+              <div class="trip-block__label">{labels.costs}</div>
+              <table class="trip-costs">
+                <tbody>
+                  {costs.map((c) => (
+                    <tr>
+                      <td class="trip-costs__label">
+                        {c.label}
+                        {c.coveredByPass && <span class="trip-pass-badge">{labels.passBadge}</span>}
+                        {c.note && <span class="trip-costs__note">{c.note}</span>}
+                      </td>
+                      <td class="trip-costs__amt">
+                        {typeof c.amountJpy === 'number'
+                          ? fmtJpy(c.amountJpy)
+                          : c.coveredByPass
+                            ? '—'
+                            : ''}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {links.length > 0 && (
+            <div class="trip-block trip-block--wide">
+              <div class="trip-block__label">{labels.links}</div>
+              <div class="trip-links">
+                {links.map((link) =>
+                  link.url ? (
+                    <a class="trip-link" href={link.url} target="_blank" rel="noopener noreferrer">
+                      {link.label}
+                      <span class="trip-link__ext" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  ) : (
+                    <span class="trip-link trip-link--text">{link.label}</span>
+                  )
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>
     )
   }
 
+  <!-- ── 當日影像帶 ── -->
   {
     photos.length > 0 && (
-      <div class="trip-block">
-        <div class="trip-block__label">{labels.photos}</div>
+      <figure class="trip-day__photos">
         <div class="trip-photos">
           {photos.map((photo) => (
             <PhotoPlaceholder photo={photo} />
           ))}
         </div>
-      </div>
+      </figure>
     )
   }
 </section>
