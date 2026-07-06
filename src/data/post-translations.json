@@ -3550,11 +3550,1803 @@
   "zephlog/筆記/國際酒店集團與品牌筆記-萬豪ihg希爾頓等": {
     "en": {
       "title": "Notes on International Hotel Groups & Brands: Marriott, IHG, Hilton and More",
-      "description": "One of the world's largest hotel groups, with a well-developed loyalty program spanning brands from budget to luxury."
+      "description": "One of the world's largest hotel groups, with a well-developed loyalty program spanning brands from budget to luxury.",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Notes on International Hotel Groups & Brands: Marriott, IHG, Hilton and More",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **Marriott Bonvoy**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "One of the world's largest hotel groups, with a well-developed loyalty program spanning brands from budget to luxury.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 Luxury tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- The Ritz-Carlton: a symbol of top-tier luxury, with refined service, suited to high-end business travel and vacations. - St. Regis: aristocratic style with dedicated butler service, ideal for honeymoons or high-end travel. - JW Marriott: an elegant, understated luxury brand, balancing business and leisure. - Bulgari Hotels & Resorts: partnered with the luxury jewelry brand, taking a fashion-luxury line, with very few properties worldwide.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🎩 Premium select tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- W Hotel: emphasizes design, nightlife, and fashion, suited to young, stylish travelers. - Edition: lifestyle-oriented boutique hotels with a strong artistic atmosphere. - Luxury Collection: converted from classic cultural buildings, offering local cultural experiences. - Autograph Collection: distinctive themed boutique hotels, each with a vivid character.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 Full-service business & leisure",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Le Méridien: European modern design, culture- and art-oriented. - Renaissance: energetic, with a focus on social spaces and art shows. - Sheraton: a long-established full-service hotel, recently renovated to emphasize socializing and business. - Westin: a wellness-oriented brand emphasizing the \"Heavenly Bed\" and fitness facilities. - Marriott Hotels & Resorts: the group's core brand, a top choice for international business travelers.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏢 Mid-tier & extended-stay tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Courtyard by Marriott: targets the mid-priced business market, with flexible layouts. - Four Points by Sheraton: affordable and standardized, suited to independent travelers and small groups. - Moxy Hotels: a youthful line with strong social spaces and a lively style. - SpringHill Suites: spacious suite design, good for families or long stays. - Residence Inn: offers kitchens, designed for extended stays. - TownePlace Suites: a common extended-stay option in the U.S. - Fairfield Inn: simple, practical entry-level lodging.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **Hilton Honors**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Wins on consistent quality and a global footprint, with flexible member benefits; some brands offer great rewards through Amex partnerships.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 Luxury tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Waldorf Astoria: a classic luxury brand with long-standing royal-level service. - Conrad: a modern high-end style, combining business and high-end travel.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌿 Lifestyle & design tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Canopy by Hilton: strong community feel and lively design, offering experiences like local tours. - Curio Collection: independent boutique hotels around the world that keep their original architectural character. - Tapestry Collection: a design-hotel series, varied in style but consistent in service.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 Business & leisure mainstays",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Hilton Hotels & Resorts: the flagship brand, globally deployed, a top choice for business meetings. - DoubleTree by Hilton: known for warm service and chocolate-chip cookies, good for families and business. - Signia by Hilton: large convention-center-style hotels, an emerging brand under active development.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚪 Mid-price & extended-stay",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Hampton by Hilton: the most popular value brand, with free breakfast. - Homewood Suites: for extended-stay guests, with kitchen and living room. - Home2 Suites: a clean-design extended-stay option. - Tru by Hilton: an ultra-minimalist style aimed at young travelers. - Motto by Hilton: small spaces with big functionality, set in city centers. - Tempo by Hilton: functional lodging focused on efficiency and sleep quality.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **IHG**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The IHG system has many points promotions, and its brands are highly diverse, from resorts to budget hotels.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 Luxury & lifestyle",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- InterContinental: an established luxury name, focused on international business and high-end travelers. - Kimpton: pet-friendly, hipster-leaning, with a strong design sense. - Six Senses: a top-tier wellness resort brand, centered on mind-body-spirit healing. - Regent (acquired by IHG): has a property in Taipei too, elegant and classic. - Hotel Indigo: an art-design style that incorporates local culture.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 Business & full-service lodging",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Crowne Plaza: an upper-mid business hotel with strong meeting facilities. - Hualuxe: designed for the Chinese market, emphasizing Chinese etiquette and culture. - Voco: a new brand combining personality and comfort.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛌 Budget & express",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Holiday Inn / Holiday Inn Express: value options for families and business. - Avid: a minimalist-style budget hotel focused on basic comfort. - Staybridge Suites / Candlewood Suites: for extended-stay guests, with full kitchens.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **Hoshino Resorts**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "A strongly Japanese-style resort brand combining experiences and culture, aimed at high-end, family, and design-minded travelers.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- HOSHINOYA: top-tier Japanese hot-spring inns combining nature and local culture. - KAI: a hot-spring-inn series with clear regional-culture themes. - RISONARE: combines family, design, and activities, with a strong resort feel. - OMO 1/3/5/7: urban sightseeing lodging, with numbers indicating service level and amenities. - BEB: a social lodging space aimed at young people and friend trips.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **Accor Live Limitless**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Covers French luxury, boutique, business, and budget lines, and has rapidly expanded in the Asia-Pacific market in recent years.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 Luxury tier",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Raffles: a long-established top-tier brand with the utmost service. - Fairmont: balances luxury business and vacation, often incorporating local historic buildings. - Sofitel / Sofitel Legend: the face of French luxury, big on taste and art. - Banyan Tree: wellness resorts and private-villa style.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 Business & design hotels",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Pullman: business-oriented with modern facilities. - MGallery: design boutique hotels with diverse styles. - Mondrian / Delano: a trend-design and art-exhibition line.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛌 Mid-price & economy",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Grand Mercure: common in Asia-Pacific, with a touch of local culture. - Swissôtel: Swiss quality, focused on efficiency and comfort. - Mövenpick: a hotel line extended from the European dining brand, with quality food. - Novotel: fully equipped, suited to families and business. - Mercure: affordable with complete facilities. - ibis / ibis Styles / ibis Budget: the face of value brands, with many locations worldwide.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **Choice**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "A representative of U.S. mid-price and economy hotel groups, mainly along highways and in suburbs, suited to self-driving travelers and business extended stays.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Cambria Hotels: an upgraded business-traveler option with modern amenities. - Ascend Hotel Collection: a collection of independently run boutique hotels with diverse styles. - Clarion / Clarion Pointe: mid-price, focused on meeting facilities. - Comfort Inn / Comfort Suites: a family-travel mainstay, with breakfast. - Sleep Inn: minimalist style with a focus on quiet. - Quality Inn: a practical mid-to-low price option. - Econo Lodge: an economy hotel with basic facilities. - Rodeway Inn: the lowest price tier, good for an overnight rest. - MainStay Suites / Suburban Extended Stay: extended-stay brands with kitchen and work area. - WoodSpring Suites: basic facilities, extended-stay-oriented, very low price.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "国際ホテルグループとブランドのノート：マリオット、IHG、ヒルトンなど",
-      "description": "世界最大級のホテルグループの一つ。会員制度が充実し、手頃な価格帯から最高級まで幅広いブランドを擁する。"
+      "description": "世界最大級のホテルグループの一つ。会員制度が充実し、手頃な価格帯から最高級まで幅広いブランドを擁する。",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "国際ホテルグループとブランドのノート：マリオット、IHG、ヒルトンなど",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **マリオット Marriott Bonvoy**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "世界最大級のホテルグループの一つ。会員制度が充実し、手頃な価格帯から最高級まで幅広いブランドを擁する。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 ラグジュアリー系",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ザ・リッツ・カールトン The Ritz-Carlton：最高級ラグジュアリーの象徴。サービスは精緻で、ハイエンドの出張やリゾートに最適。 - セントレジス St. Regis：貴族的なスタイル、専属バトラーサービス。ハネムーンやハイエンド旅行にぴったり。 - JWマリオット JW Marriott：優雅で落ち着いたラグジュアリーブランド。ビジネスとレジャーを両立。 - ブルガリ ホテルズ＆リゾーツ Bulgari：高級ジュエリーブランドと提携し、ファッション・ラグジュアリー路線。世界的にごく少数。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🎩 プレミアムセレクト系",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Wホテル W Hotel：デザイン・ナイトライフ・ファッション性を重視。若くスタイリッシュな旅行者向け。 - エディション Edition：ライフスタイル系のブティックホテル。アートの雰囲気が濃い。 - ラグジュアリーコレクション Luxury Collection：歴史的建築を改修し、その土地の文化体験を訴求。 - オートグラフ コレクション Autograph Collection：個性的なテーマのブティックホテルで、各館のスタイルが際立つ。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 フルサービスのビジネス＆レジャー",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ル・メリディアン Le Méridien：ヨーロッパ風のモダンデザイン、文化とアート志向。 - ルネッサンス Renaissance：活気があり、社交空間とアート公演を重視。 - シェラトン Sheraton：歴史あるフルサービスホテル。近年の大改装で社交とビジネスを強調。 - ウェスティン Westin：ウェルネス志向のブランド。「ヘブンリーベッド」とフィットネス設備を強調。 - マリオット ホテル＆リゾート Marriott Hotels & Resorts：グループの中核ブランド。国際ビジネス客の第一候補。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏢 ミドル＆長期滞在系",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- コートヤード・バイ・マリオット Courtyard：中価格帯のビジネス市場が主力、柔軟な配置。 - フォーポイント・バイ・シェラトン Four Points：手頃で標準化。個人旅行や小グループ向け。 - モクシー Moxy Hotels：若者路線、社交空間が強く活発なスタイル。 - スプリングヒル スイーツ SpringHill Suites：広々としたスイート設計、家族や長期滞在に。 - レジデンス・イン Residence Inn：キッチン付き、長期滞在向け設計。 - タウンプレース スイーツ TownePlace Suites：米国でよく見る長期滞在の選択肢。 - フェアフィールド・イン Fairfield Inn：シンプルで実用的な入門クラス。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **ヒルトン Hilton Honors**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "安定した品質とグローバルな拠点で勝負。会員制度の特典は柔軟で、一部ブランドはAmexとの提携で還元が良い。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 ラグジュアリー系",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ウォルドーフ・アストリア Waldorf Astoria：クラシックなラグジュアリーブランド。歴史ある王室級のサービス。 - コンラッド Conrad：モダンでハイエンドなスタイル。ビジネスとハイエンド旅行を結びつける。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌿 ライフスタイル＆デザイン型",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- キャノピー・バイ・ヒルトン Canopy：コミュニティ感が強く活発なデザイン。地元ツアーなどの体験を提供。 - キュリオ・コレクション Curio Collection：世界各地の独立系ブティックホテルで、元の建築の特色を残す。 - タペストリー・コレクション Tapestry Collection：デザインホテルのシリーズ。スタイルは多様だがサービスは一貫。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 ビジネス＆レジャーの主力",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ヒルトン ホテル＆リゾート Hilton Hotels & Resorts：フラッグシップブランド。グローバル展開で、ビジネス会議の第一候補。 - ダブルツリー・バイ・ヒルトン DoubleTree：親しみやすいサービスとチョコチップクッキーが売り。家族やビジネスに。 - シグニア・バイ・ヒルトン Signia：大型会議センター型ホテル。新興ブランドで重点開発中。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚪 中価格＆長期滞在",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ハンプトン・バイ・ヒルトン Hampton：最も人気の手頃なブランド、朝食無料。 - ホームウッド スイーツ Homewood Suites：長期滞在向け、キッチンとリビング付き。 - ホーム2 スイーツ Home2 Suites：シンプルなデザインの長期滞在オプション。 - トゥルー・バイ・ヒルトン Tru：超ミニマルなスタイル、若者向け。 - モット・バイ・ヒルトン Motto：小空間で高機能、都心に出店。 - テンポ・バイ・ヒルトン Tempo：機能型の宿泊、効率と睡眠の質を重視。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **IHG（インターコンチネンタルホテルズグループ）**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "IHGはポイントプロモーションが多く、傘下ブランドは多様性に富み、リゾートから格安ホテルまで揃う。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 ラグジュアリー＆ライフスタイル",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- インターコンチネンタル InterContinental：老舗ラグジュアリー。国際ビジネスとハイエンド旅行者を重視。 - キンプトン Kimpton：ペットフレンドリー、カルチャー路線でデザイン性が強い。 - シックスセンシズ Six Senses：最高級のウェルネスリゾートブランド。心身の癒しが主軸。 - リージェント Regent（IHGが買収）：台北にも出店、優雅でクラシック。 - ホテルインディゴ Hotel Indigo：アートデザインのスタイルで、地域文化を取り入れる。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 ビジネス＆フルサービス宿泊",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- クラウンプラザ Crowne Plaza：中〜高級のビジネスホテル、会議機能が強い。 - ホアルクスー Hualuxe：華人市場向けに設計、中国式の礼儀と文化を重視。 - ヴォコ Voco：新ブランド、個性と快適さを両立。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛌 格安＆エクスプレス",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ホリデイ・イン Holiday Inn ／ ホリデイ・イン エクスプレス Holiday Inn Express：家族やビジネス向けの手頃な選択肢。 - アビッド Avid：ミニマルスタイルの格安ホテル、基本的な快適さが売り。 - ステイブリッジ スイーツ Staybridge Suites ／ キャンドルウッド スイーツ Candlewood Suites：長期滞在専用、フルキッチン付き。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **星野リゾート Hoshino Resorts**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "和のスタイルが濃いリゾートブランド。体験と文化を結びつけ、ハイエンド・家族・デザイン志向の旅行者が主対象。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 星のや HOSHINOYA：最高級の和風温泉宿。自然と地域文化を融合。 - 界 KAI：温泉旅館シリーズ、地域文化のテーマが明確。 - リゾナーレ RISONARE：親子・デザイン・アクティビティを結合、リゾート感が強い。 - OMO 1/3/5/7：都市観光型の宿泊、数字がサービス等級と設備を表す。 - BEB：若者や友人同士の旅向けの社交的な宿泊空間。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **アコー Accor Live Limitless**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "フランス系ラグジュアリー、ブティック、ビジネス、格安の各系列を網羅。近年アジア太平洋市場で急速に拡大。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💎 ラグジュアリー系",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ラッフルズ Raffles：歴史ある最高級ブランド、サービスは極致。 - フェアモント Fairmont：豪華なビジネスとリゾートを両立、地元の歴史的建築を取り込むことが多い。 - ソフィテル Sofitel ／ ソフィテル レジェンド Sofitel Legend：フランス式ラグジュアリーの代表、品位とアートにこだわる。 - バンヤンツリー Banyan Tree：ウェルネスリゾートとプライベートヴィラのスタイル。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌇 ビジネス＆デザインホテル",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- プルマン Pullman：ビジネス志向、設備はモダン。 - Mギャラリー MGallery：デザインブティックホテル、スタイルは多彩。 - モンドリアン Mondrian ／ デラノ Delano：トレンドデザインとアート展示の路線。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛌 中価格＆エコノミー",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- グランドメルキュール Grand Mercure：アジア太平洋でよく見る、地元文化を少し帯びる。 - スイスホテル Swissôtel：スイス品質、効率と快適さを重視。 - モーベンピック Mövenpick：欧州系の飲食ブランドから派生したホテル、食事が上質。 - ノボテル Novotel：機能が揃い、家族やビジネスに。 - メルキュール Mercure：手頃な価格で設備が充実。 - イビス ibis ／ イビス スタイルズ ibis Styles ／ イビス バジェット ibis Budget：格安ブランドの代表、世界に多数の拠点。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🏨 **チョイス Choice**",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "米国の中価格・エコノミーホテルグループの代表。高速道路沿いや郊外の拠点が中心で、自家用車の旅行者やビジネス長期滞在に適する。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- カンブリア ホテルズ Cambria Hotels：グレードアップしたビジネス客向けの選択肢、設備が新しい。 - アセンド ホテル コレクション Ascend Hotel Collection：独立経営のブティックホテルの集合、スタイルは多様。 - クラリオン Clarion ／ クラリオン ポイント Clarion Pointe：中価格、会議機能が中心。 - コンフォート イン Comfort Inn ／ コンフォート スイーツ Comfort Suites：家族旅行の主力、朝食付き。 - スリープ イン Sleep Inn：ミニマルなスタイル、静けさが売り。 - クオリティ イン Quality Inn：実用的な中〜低価格の選択肢。 - エコノ ロッジ Econo Lodge：エコノミーホテル、設備は簡素。 - ロードウェイ イン Rodeway Inn：最安価格帯、一泊の休息に。 - メインステイ スイーツ MainStay Suites ／ サバーバン エクステンデッド ステイ Suburban Extended Stay：長期滞在ブランド、キッチンとワークエリア付き。 - ウッドスプリング スイーツ WoodSpring Suites：基本設備、長期滞在向け、低価格。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/地下神殿!-首都圈外郭放水路": {
