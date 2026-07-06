@@ -182,12 +182,14 @@
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   gap: clamp(1.5rem, 3vw, 3rem);
-  align-items: start;
+  /* align-items 保留預設 stretch：地圖欄需撐滿整列高度，
+     sticky 面板才能在全部日程區間內持續吸附（否則只在第一天可見）。 */
 }
 
-/* 左：固定地圖欄 */
+/* 左：固定地圖欄（撐滿整列，內含 sticky 面板）*/
 .trip-map-col {
   position: relative;
+  height: 100%;
 }
 
 .trip-map-panel {
@@ -357,6 +359,35 @@
   border-bottom-color: color-mix(in srgb, var(--bg) 92%, var(--bg2));
 }
 .trip-map .maplibregl-popup-close-button { color: var(--text); }
+
+/* 地圖歸屬資訊：ODbL 授權要求保留，僅壓到最低調（收合的小 ⓘ）。
+   收合時透明無底、僅淡淡的 ⓘ；展開時才顯示低調的授權文字。 */
+.trip-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  min-height: 22px;
+  margin: 0 0 8px 8px;
+  border-radius: 999px;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+.trip-map .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) {
+  background: transparent;
+}
+.trip-map .maplibregl-ctrl-attrib-button {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+.trip-map .maplibregl-ctrl-attrib-button:hover { opacity: 0.85; }
+.trip-map .maplibregl-ctrl-attrib.maplibregl-compact-show {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.trip-map .maplibregl-ctrl-attrib-inner {
+  font-size: 10px;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+}
+.trip-map .maplibregl-ctrl-attrib-inner a {
+  color: color-mix(in srgb, var(--text) 62%, transparent);
+}
 
 /* ── 右：逐日 section ─────────────────────────────────── */
 
