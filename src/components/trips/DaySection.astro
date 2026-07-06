@@ -1,0 +1,176 @@
+---
+import type { TripDay, TransportSegment } from '../../data/trips/types';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+export interface DayLabels {
+  dayWord: string;
+  timeline: string;
+  activities: string;
+  costs: string;
+  tips: string;
+  links: string;
+  photos: string;
+  passBadge: string;
+}
+
+interface Props {
+  day: TripDay;
+  labels: DayLabels;
+}
+
+const { day, labels } = Astro.props;
+
+const MODE_ICON: Record<TransportSegment['mode'], string> = {
+  flight: '✈️',
+  shinkansen: '🚄',
+  'night-train': '🌙',
+  train: '🚃',
+  tram: '🚋',
+  monorail: '🚝',
+  ferry: '⛴️',
+  bus: '🚌',
+  walk: '🚶',
+};
+
+const segments = day.segments ?? [];
+const timeline = day.timeline ?? [];
+const costs = day.costs ?? [];
+const tips = day.tips ?? [];
+const links = day.links ?? [];
+const photos = day.photos ?? [];
+
+const fmtJpy = (n: number) => `¥${n.toLocaleString('en-US')}`;
+---
+
+<section class="trip-day" data-trip-day={day.day} aria-labelledby={`day-${day.day}-title`}>
+  <div class="trip-day__head">
+    <span class="trip-day__num">{labels.dayWord} {day.day}</span>
+    {day.regionLabel && <span class="trip-day__region">{day.regionLabel}</span>}
+  </div>
+
+  <h2
+    class="trip-day__title"
+    id={`day-${day.day}-title`}
+    data-anime-splittext="chars-inview"
+  >
+    {day.title}
+  </h2>
+
+  {
+    segments.length > 0 && (
+      <div class="trip-segments">
+        {segments.map((seg) => (
+          <span class={`trip-seg trip-seg--${seg.mode}`}>
+            <span class="trip-seg__icon" aria-hidden="true">
+              {MODE_ICON[seg.mode]}
+            </span>
+            <span class="trip-seg__label">{seg.label}</span>
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    timeline.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.timeline}</div>
+        <ol class="trip-timeline">
+          {timeline.map((entry) => (
+            <li class="trip-timeline__item">
+              {entry.time && <span class="trip-timeline__time">{entry.time}</span>}
+              <span class="trip-timeline__text">{entry.text}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+
+  {
+    day.activities.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.activities}</div>
+        <ul class="trip-activities">
+          {day.activities.map((a) => (
+            <li>{a}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    costs.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.costs}</div>
+        <table class="trip-costs">
+          <tbody>
+            {costs.map((c) => (
+              <tr>
+                <td class="trip-costs__label">
+                  {c.label}
+                  {c.coveredByPass && <span class="trip-pass-badge">{labels.passBadge}</span>}
+                  {c.note && <span class="trip-costs__note">{c.note}</span>}
+                </td>
+                <td class="trip-costs__amt">
+                  {typeof c.amountJpy === 'number' ? fmtJpy(c.amountJpy) : c.coveredByPass ? '—' : ''}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  {
+    tips.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.tips}</div>
+        <div class="trip-tips">
+          <ul class="trip-tips__list">
+            {tips.map((tip) => (
+              <li>{tip}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    links.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.links}</div>
+        <div class="trip-links">
+          {links.map((link) =>
+            link.url ? (
+              <a class="trip-link" href={link.url} target="_blank" rel="noopener noreferrer">
+                {link.label}
+                <span class="trip-link__ext" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            ) : (
+              <span class="trip-link trip-link--text">{link.label}</span>
+            )
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  {
+    photos.length > 0 && (
+      <div class="trip-block">
+        <div class="trip-block__label">{labels.photos}</div>
+        <div class="trip-photos">
+          {photos.map((photo) => (
+            <PhotoPlaceholder photo={photo} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+</section>

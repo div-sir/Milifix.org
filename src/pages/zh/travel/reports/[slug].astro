@@ -1,0 +1,13 @@
+---
+import TripReportPage from '../../../../components/pages/TripReportPage.astro';
+import { tripReports } from '../../../../data/trips/index';
+
+export async function getStaticPaths() {
+  return tripReports.map((trip) => ({
+    params: { slug: trip.slug },
+    props: { trip },
+  }));
+}
+---
+
+<TripReportPage lang="zh" trip={Astro.props.trip} />
