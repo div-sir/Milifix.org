@@ -12,6 +12,7 @@ import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import { SPACE_IDS, type SpaceId } from '../../data/spaces';
 import { getLocalizedSpace } from '../../i18n/space-locale';
+import { tripReports } from '../../data/trips/index';
 interface Props {
   lang: Lang;
 }
@@ -62,6 +63,18 @@ creators.push({
   countUnit: P.cardsCountUnit,
   idx: creators.length,
 });
+
+// 旅行報告書目前僅 zh 頁面，故一律連向 zh 路由
+if (tripReports.length > 0) {
+  creators.push({
+    name: 'REPORTS',
+    tagline: P.reportsTagline,
+    href: `${travelPath('zh')}/reports`,
+    workCount: tripReports.length,
+    countUnit: P.reportsCountUnit,
+    idx: creators.length,
+  });
+}
 
 const dockSections = [
   { id: 'platform-intro', label: P.dockIntro },

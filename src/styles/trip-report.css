@@ -1,174 +1,201 @@
 /* ──────────────────────────────────────────────────────────
-   旅行報告書 scrollytelling 頁面樣式
-   沿用 theme.css 變數與 travel.css 視覺語言（暖金 --accent、卡片圓角、深淺主題）
+   旅行報告書 — 雜誌編輯風格 + 地圖 scrollytelling
+   襯線標題（Fraunces）、首字下沉、pull-quote、細分隔線、大留白；
+   沿用 theme.css 變數與 travel.css 視覺語言（暖金 --accent、深淺主題）
    ────────────────────────────────────────────────────────── */
 
 :root {
   --trip-nav-h: 74px;
+  --serif: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
   --trip-route-muted: color-mix(in srgb, var(--text) 32%, transparent);
   --trip-panel-bg: color-mix(in srgb, var(--text) 4.5%, var(--bg));
   --trip-panel-border: color-mix(in srgb, var(--text) 11%, transparent);
+  --trip-rule: color-mix(in srgb, var(--text) 16%, transparent);
+  --trip-ink: color-mix(in srgb, var(--text) 92%, transparent);
+  --trip-ink-soft: color-mix(in srgb, var(--text) 66%, transparent);
+  --trip-measure: 34rem;
 }
 
-/* ── Hero ─────────────────────────────────────────────── */
+/* ── Masthead（刊頭）────────────────────────────────────── */
 
 .trip-hero {
   position: relative;
   z-index: 2;
   max-width: 1180px;
   margin: 0 auto;
-  padding: calc(var(--trip-nav-h) + clamp(1.5rem, 4vw, 3rem)) clamp(1rem, 4vw, 4rem)
-    clamp(1rem, 2vw, 1.75rem);
+  padding: calc(var(--trip-nav-h) + clamp(1.75rem, 5vw, 3.5rem)) clamp(1rem, 4vw, 4rem)
+    clamp(1.25rem, 2.5vw, 2rem);
 }
+
+.trip-back {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--travel-accent);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.trip-back:hover { opacity: 0.7; }
 
 .trip-hero__overline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0.9rem;
   font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--travel-accent);
-  margin-bottom: 0.5rem;
+  color: var(--trip-ink-soft);
 }
+.trip-hero__tag { color: var(--travel-accent); }
+.trip-hero__dash { opacity: 0.5; }
 
 .trip-hero__title {
-  font-family: var(--sans);
-  font-size: clamp(2.1rem, 5.5vw, 3.6rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--text) 34%, var(--travel-accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 540;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  color: var(--trip-ink);
+  margin-bottom: 0.6rem;
+  text-wrap: balance;
 }
 
 .trip-hero__subtitle {
-  font-size: clamp(1rem, 1.8vw, 1.25rem);
-  font-weight: 500;
-  color: color-mix(in srgb, var(--text) 80%, transparent);
-  margin-bottom: 0.75rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 380;
+  font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--trip-ink-soft);
+  max-width: 46rem;
+  margin-bottom: 1.6rem;
+}
+
+/* 導言：摘要（首字下沉）＋統計，雜誌雙欄 */
+.trip-hero__lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: start;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--trip-rule);
 }
 
 .trip-hero__summary {
-  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
-  line-height: 1.65;
-  color: color-mix(in srgb, var(--text) 68%, transparent);
-  max-width: 680px;
+  font-family: var(--serif);
+  font-weight: 360;
+  font-size: clamp(1.02rem, 1.5vw, 1.16rem);
+  line-height: 1.72;
+  color: var(--trip-ink);
+}
+.trip-hero__summary::first-letter {
+  float: left;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.82;
+  padding: 0.05em 0.12em 0 0;
+  color: var(--travel-accent);
 }
 
 /* 統計列 */
 .trip-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(1.25rem, 4vw, 2.75rem);
-  margin-top: 1.75rem;
-  padding-top: 1.4rem;
-  border-top: 1px solid var(--travel-card-border);
+  gap: 1.4rem 1.75rem;
 }
-
 .trip-stats__item {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 4.5rem;
 }
-
 .trip-stats__value {
-  font-family: var(--sans);
-  font-size: clamp(1.7rem, 4vw, 2.6rem);
-  font-weight: 600;
+  font-family: var(--serif);
+  font-weight: 560;
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
   letter-spacing: -0.02em;
   line-height: 1;
   color: var(--travel-accent);
   font-variant-numeric: tabular-nums;
 }
-
 .trip-stats__unit {
-  font-size: 0.6em;
-  margin-left: 0.15em;
+  font-size: 0.55em;
+  margin-right: 0.05em;
   color: color-mix(in srgb, var(--travel-accent) 75%, var(--text));
 }
-
 .trip-stats__label {
   font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.09em;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--text) 52%, transparent);
+  color: color-mix(in srgb, var(--text) 50%, transparent);
 }
 
-/* ── Essentials 區 ─────────────────────────────────────── */
+/* ── Essentials（核心票券）────────────────────────────── */
 
 .trip-essentials {
   position: relative;
   z-index: 2;
   max-width: 1180px;
   margin: 0 auto;
-  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 4vw, 4rem);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 4vw, 4rem);
 }
 
-.trip-essentials__title,
 .trip-section-label {
-  font-family: var(--sans);
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--trip-ink-soft);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
 }
-
 .trip-section-label::before {
   content: '';
-  display: inline-block;
-  width: 3px;
-  height: 1em;
+  width: 1.75rem;
+  height: 1px;
   background: var(--travel-accent);
-  border-radius: 2px;
 }
 
 .trip-essentials__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.9rem;
+  gap: 0;
+  border-top: 1px solid var(--trip-rule);
 }
-
 .trip-essential {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 1rem 1.1rem;
-  border-radius: 12px;
-  border: 1px solid var(--travel-card-border);
-  background: var(--travel-card-bg);
-  box-shadow: var(--travel-card-shadow);
-  transition: border-color 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.32, 1),
-    box-shadow 0.22s ease;
+  padding: 1.1rem 1.4rem 1.1rem 0;
+  border-bottom: 1px solid var(--trip-rule);
+  border-right: 1px solid var(--trip-rule);
+  padding-left: 1.4rem;
 }
-
-.trip-essential:hover {
-  border-color: color-mix(in srgb, var(--travel-accent) 32%, transparent);
-  box-shadow: var(--travel-card-shadow-hover);
-  transform: translateY(-3px);
-}
-
 .trip-essential__title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
+  font-family: var(--serif);
+  font-weight: 560;
+  font-size: 1.08rem;
+  color: var(--trip-ink);
 }
-
 .trip-essential__desc {
   font-size: 0.85rem;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--text) 66%, transparent);
+  line-height: 1.6;
+  color: var(--trip-ink-soft);
 }
-
 .trip-essential__links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 0.15rem;
+  margin-top: 0.35rem;
 }
 
 /* ── Scrollytelling 主體 ───────────────────────────────── */
@@ -178,15 +205,13 @@
   z-index: 2;
   max-width: 1360px;
   margin: 0 auto;
-  padding: 0 clamp(1rem, 3vw, 3rem);
+  padding: clamp(0.5rem, 2vw, 1.5rem) clamp(1rem, 3vw, 3rem) 0;
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(1.5rem, 3vw, 3rem);
-  /* align-items 保留預設 stretch：地圖欄需撐滿整列高度，
-     sticky 面板才能在全部日程區間內持續吸附（否則只在第一天可見）。 */
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  /* align-items 預設 stretch：地圖欄撐滿整列，sticky 面板全程吸附 */
 }
 
-/* 左：固定地圖欄（撐滿整列，內含 sticky 面板）*/
 .trip-map-col {
   position: relative;
   height: 100%;
@@ -196,11 +221,11 @@
   position: sticky;
   top: calc(var(--trip-nav-h) + 12px);
   height: calc(100vh - var(--trip-nav-h) - 28px);
-  border-radius: 18px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--trip-panel-border);
   background: var(--trip-panel-bg);
-  box-shadow: 0 18px 48px color-mix(in srgb, var(--shadow-card) 45%, transparent);
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--shadow-card) 42%, transparent);
 }
 
 .trip-map {
@@ -224,7 +249,7 @@
 }
 .trip-map .maplibregl-canvas-container { position: relative; z-index: 1; }
 
-/* 地圖上的「Day N ・ 標題」浮動徽章 */
+/* 地圖浮動徽章：Day N ・ 標題 */
 .trip-map-badge {
   position: absolute;
   top: 14px;
@@ -235,9 +260,9 @@
   gap: 0.55rem;
   max-width: calc(100% - 28px);
   padding: 0.5rem 0.85rem;
-  border-radius: 999px;
+  border-radius: 3px;
   border: 1px solid var(--travel-card-border);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
   backdrop-filter: blur(10px) saturate(1.1);
   -webkit-backdrop-filter: blur(10px) saturate(1.1);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--shadow-card) 40%, transparent);
@@ -246,12 +271,7 @@
   transition: opacity 0.35s ease, transform 0.35s ease;
   pointer-events: none;
 }
-
-.trip-map-badge.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.trip-map-badge.is-visible { opacity: 1; transform: translateY(0); }
 .trip-map-badge__day {
   font-family: var(--mono);
   font-size: 0.62rem;
@@ -264,22 +284,20 @@
   border-radius: 999px;
   white-space: nowrap;
 }
-
 .trip-map-badge__title {
-  font-family: var(--sans);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  font-weight: 540;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 地圖角落的 tile 錯誤提示（僅開發／受阻環境會顯示） */
 .trip-map-note {
   position: absolute;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   z-index: 3;
   font-family: var(--mono);
   font-size: 0.58rem;
@@ -287,48 +305,77 @@
   color: color-mix(in srgb, var(--text) 45%, transparent);
   background: color-mix(in srgb, var(--bg) 70%, transparent);
   padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  border-radius: 4px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 .trip-map-note.is-visible { opacity: 1; }
 
-/* ── 自訂 marker（DOM，脈衝動畫）─────────────────────── */
+/* ── 地圖 marker（常駐圓點＋名稱標籤）─────────────────── */
 
 .trip-marker {
   position: relative;
-  width: 14px;
-  height: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.trip-marker__dot {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  flex: none;
   border-radius: 50%;
   background: var(--trip-route-muted);
-  border: 2px solid color-mix(in srgb, var(--bg) 70%, var(--text));
+  border: 2px solid color-mix(in srgb, var(--bg) 72%, var(--text));
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
   transition: background 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.3s ease;
 }
-
-.trip-marker::before {
+.trip-marker__dot::before {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: -5px;
   border-radius: 50%;
   background: var(--accent);
   opacity: 0;
   transform: scale(0.6);
 }
-
-.trip-marker.is-active {
+.trip-marker__label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: color-mix(in srgb, var(--text) 78%, transparent);
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+/* 當日景點：顯示標籤 */
+.trip-marker.is-day .trip-marker__label { opacity: 0.9; transform: translateX(0); }
+.trip-marker.is-day .trip-marker__dot { background: color-mix(in srgb, var(--accent) 55%, var(--text)); }
+/* 目前聚焦景點：放大、脈衝、標籤高亮 */
+.trip-marker.is-active .trip-marker__dot {
   background: var(--accent);
   border-color: color-mix(in srgb, var(--bg) 40%, var(--accent));
-  transform: scale(1.5);
+  transform: scale(1.55);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent),
     0 2px 10px rgba(0, 0, 0, 0.45);
 }
-
-.trip-marker.is-active::before {
-  animation: tripMarkerPulse 1.9s ease-out infinite;
+.trip-marker.is-active .trip-marker__dot::before { animation: tripMarkerPulse 1.9s ease-out infinite; }
+.trip-marker.is-active .trip-marker__label {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 @keyframes tripMarkerPulse {
@@ -336,60 +383,13 @@
   80% { opacity: 0; transform: scale(2.4); }
   100% { opacity: 0; transform: scale(2.4); }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .trip-marker,
-  .trip-marker.is-active { transition: none; }
-  .trip-marker.is-active::before { animation: none; }
+  .trip-marker__dot,
+  .trip-marker__label { transition: none; }
+  .trip-marker.is-active .trip-marker__dot::before { animation: none; }
 }
 
-.trip-map .maplibregl-popup-content {
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text);
-  background: color-mix(in srgb, var(--bg) 92%, var(--bg2));
-  border: 1px solid var(--travel-card-border);
-  border-radius: 8px;
-  padding: 0.4rem 0.65rem;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-}
-.trip-map .maplibregl-popup-tip {
-  border-top-color: color-mix(in srgb, var(--bg) 92%, var(--bg2));
-  border-bottom-color: color-mix(in srgb, var(--bg) 92%, var(--bg2));
-}
-.trip-map .maplibregl-popup-close-button { color: var(--text); }
-
-/* 地圖歸屬資訊：ODbL 授權要求保留，僅壓到最低調（收合的小 ⓘ）。
-   收合時透明無底、僅淡淡的 ⓘ；展開時才顯示低調的授權文字。 */
-.trip-map .maplibregl-ctrl-attrib.maplibregl-compact {
-  min-height: 22px;
-  margin: 0 0 8px 8px;
-  border-radius: 999px;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--bg) 60%, transparent);
-}
-.trip-map .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) {
-  background: transparent;
-}
-.trip-map .maplibregl-ctrl-attrib-button {
-  opacity: 0.4;
-  transition: opacity 0.2s ease;
-}
-.trip-map .maplibregl-ctrl-attrib-button:hover { opacity: 0.85; }
-.trip-map .maplibregl-ctrl-attrib.maplibregl-compact-show {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.trip-map .maplibregl-ctrl-attrib-inner {
-  font-size: 10px;
-  color: color-mix(in srgb, var(--text) 50%, transparent);
-}
-.trip-map .maplibregl-ctrl-attrib-inner a {
-  color: color-mix(in srgb, var(--text) 62%, transparent);
-}
-
-/* ── 右：逐日 section ─────────────────────────────────── */
+/* ── 右：逐日 spread ──────────────────────────────────── */
 
 .trip-days {
   position: relative;
@@ -398,187 +398,297 @@
 }
 
 .trip-day {
-  padding: clamp(2.5rem, 8vh, 6rem) 0;
-  border-top: 1px dashed var(--travel-card-border);
-  scroll-margin-top: calc(var(--trip-nav-h) + 20px);
+  padding: clamp(3rem, 10vh, 7rem) 0 clamp(2rem, 6vh, 4rem);
+  border-top: 1px solid var(--trip-rule);
 }
-.trip-day:first-child { border-top: none; }
+.trip-day:first-child { border-top: none; padding-top: clamp(1rem, 3vh, 2.5rem); }
 
-.trip-day__head {
+.trip-day__head { margin-bottom: 1.75rem; scroll-margin-top: calc(var(--trip-nav-h) + 20px); }
+
+.trip-day__kicker {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.4rem;
-}
-
-.trip-day__num {
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
   font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--on-accent);
-  background: var(--travel-accent);
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
 }
-
+.trip-day__num { color: var(--travel-accent); font-weight: 700; }
 .trip-day__region {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--text) 55%, transparent);
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--travel-card-border);
-  border-radius: 999px;
+  color: var(--trip-ink-soft);
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--trip-rule);
 }
 
 .trip-day__title {
-  font-family: var(--sans);
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  margin: 0.35rem 0 1.1rem;
+  font-family: var(--serif);
+  font-weight: 540;
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  color: var(--trip-ink);
+  margin-bottom: 0.55rem;
+  text-wrap: balance;
 }
 
-/* segments chips */
+.trip-day__dek {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  line-height: 1.7;
+  color: var(--trip-ink-soft);
+  margin-bottom: 1rem;
+}
+
+/* 交通 chips */
 .trip-segments {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-bottom: 1.25rem;
 }
-
 .trip-seg {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.35rem 0.7rem;
+  padding: 0.32rem 0.65rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--travel-accent) 26%, transparent);
-  background: color-mix(in srgb, var(--travel-accent) 9%, transparent);
-  font-size: 0.78rem;
+  border: 1px solid color-mix(in srgb, var(--travel-accent) 24%, transparent);
+  background: color-mix(in srgb, var(--travel-accent) 8%, transparent);
+  font-size: 0.76rem;
   font-weight: 500;
   color: var(--text);
 }
-
-.trip-seg__icon {
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
+.trip-seg__icon { font-size: 0.95rem; line-height: 1; }
 .trip-seg--night-train {
   border-style: dashed;
-  border-color: color-mix(in srgb, var(--text) 30%, transparent);
+  border-color: color-mix(in srgb, var(--text) 28%, transparent);
   background: color-mix(in srgb, var(--text) 6%, transparent);
 }
 
-/* 各子區塊通用卡片 */
-.trip-block {
-  margin-bottom: 1.25rem;
+/* ── 沿途景點：編輯式編號條目 ─────────────────────────── */
+
+.trip-stops { margin-top: 1.75rem; }
+.trip-stops__heading { margin-bottom: 0.25rem; }
+
+.trip-stops__list { list-style: none; }
+
+.trip-stop {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  gap: 0.4rem 1rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--trip-rule);
+  scroll-margin-top: calc(var(--trip-nav-h) + 20px);
+  transition: opacity 0.4s ease;
+}
+.trip-stop:first-child { border-top: none; }
+
+.trip-stop__index {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--text) 26%, transparent);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+  padding-top: 0.15rem;
+}
+.trip-stop.is-active .trip-stop__index { color: var(--travel-accent); }
+
+.trip-stop__body { min-width: 0; max-width: var(--trip-measure); }
+
+.trip-stop__name {
+  font-family: var(--serif);
+  font-weight: 560;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: var(--trip-ink);
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.trip-stop__kind {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--trip-ink-soft);
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--trip-rule);
+  border-radius: 3px;
 }
 
-.trip-block__label {
+.trip-stop__desc {
+  font-family: var(--serif);
+  font-weight: 360;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--trip-ink);
+}
+/* 每日首個景點：首字下沉 */
+.trip-stop--lead .trip-stop__desc::first-letter {
+  float: left;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 2.8em;
+  line-height: 0.8;
+  padding: 0.06em 0.1em 0 0;
+  color: var(--travel-accent);
+}
+
+.trip-stop__note {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--trip-ink-soft);
+  padding: 0.5rem 0.7rem;
+  background: color-mix(in srgb, var(--travel-accent) 7%, transparent);
+  border-radius: 4px;
+}
+.trip-stop__note-mark { color: var(--travel-accent); flex: none; }
+
+.trip-photos--stop { margin-top: 0.8rem; }
+
+/* ── pull-quote（容易忽略的）───────────────────────────── */
+
+.trip-pullquote {
+  margin: 2rem 0 1.5rem;
+  padding: 0 0 0 1.5rem;
+  border-left: 2px solid var(--travel-accent);
+  max-width: var(--trip-measure);
+}
+.trip-pullquote__eyebrow {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--travel-accent);
+  margin-bottom: 0.6rem;
+}
+.trip-pullquote__text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 380;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  line-height: 1.5;
+  color: var(--trip-ink);
+}
+.trip-pullquote__text + .trip-pullquote__text { margin-top: 0.65rem; }
+
+/* ── 行程手記 dossier ─────────────────────────────────── */
+
+.trip-dossier {
+  margin: 2rem 0 1.5rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--trip-rule);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text) 3%, var(--bg));
+}
+.trip-dossier__title {
   font-family: var(--mono);
   font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--trip-ink-soft);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--trip-rule);
+}
+.trip-dossier__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem 1.5rem;
+}
+.trip-block { margin: 0; min-width: 0; }
+.trip-block--wide { grid-column: 1 / -1; }
+.trip-block__label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--travel-accent);
   margin-bottom: 0.55rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
 }
 
-/* timeline 直式時間軸 */
-.trip-timeline {
-  list-style: none;
-  position: relative;
-  padding-left: 1.15rem;
-}
+.trip-timeline { list-style: none; position: relative; padding-left: 1.05rem; }
 .trip-timeline::before {
   content: '';
   position: absolute;
-  left: 4px;
+  left: 3px;
   top: 0.35rem;
   bottom: 0.35rem;
   width: 1px;
-  background: var(--travel-card-border);
+  background: var(--trip-rule);
 }
 .trip-timeline__item {
   position: relative;
-  padding: 0 0 0.85rem 0.75rem;
-  font-size: 0.9rem;
-  line-height: 1.55;
+  padding: 0 0 0.7rem 0.7rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 .trip-timeline__item:last-child { padding-bottom: 0; }
 .trip-timeline__item::before {
   content: '';
   position: absolute;
-  left: -1.15rem;
-  top: 0.45rem;
-  width: 9px;
-  height: 9px;
+  left: -1.05rem;
+  top: 0.4rem;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--travel-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--travel-accent) 20%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--travel-accent) 18%, transparent);
 }
 .trip-timeline__time {
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--travel-accent);
-  margin-right: 0.5rem;
+  margin-right: 0.45rem;
 }
-.trip-timeline__text {
-  color: color-mix(in srgb, var(--text) 82%, transparent);
-}
+.trip-timeline__text { color: var(--trip-ink); }
 
-/* activities list */
-.trip-activities {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
+.trip-activities { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
 .trip-activities li {
   position: relative;
-  padding-left: 1.2rem;
-  font-size: 0.92rem;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--text) 86%, transparent);
+  padding-left: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--trip-ink);
 }
 .trip-activities li::before {
   content: '';
   position: absolute;
-  left: 0.15rem;
-  top: 0.6em;
-  width: 5px;
-  height: 5px;
+  left: 0.1rem;
+  top: 0.55em;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--text) 45%, transparent);
+  background: color-mix(in srgb, var(--text) 42%, transparent);
 }
 
-/* costs table */
 .trip-costs {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
-  border: 1px solid var(--travel-card-border);
-  border-radius: 10px;
-  overflow: hidden;
+  font-size: 0.83rem;
 }
 .trip-costs td {
-  padding: 0.5rem 0.7rem;
-  border-top: 1px solid color-mix(in srgb, var(--travel-card-border) 60%, transparent);
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--trip-rule);
   vertical-align: top;
 }
 .trip-costs tr:first-child td { border-top: none; }
-.trip-costs__label { color: color-mix(in srgb, var(--text) 82%, transparent); }
+.trip-costs__label { color: var(--trip-ink); padding-right: 0.8rem; }
 .trip-costs__amt {
   text-align: right;
   font-family: var(--mono);
@@ -588,58 +698,25 @@
 }
 .trip-costs__note {
   display: block;
-  font-size: 0.72rem;
-  color: color-mix(in srgb, var(--text) 52%, transparent);
+  font-size: 0.7rem;
+  color: var(--trip-ink-soft);
   margin-top: 0.1rem;
 }
 .trip-pass-badge {
   display: inline-block;
   font-family: var(--mono);
-  font-size: 0.56rem;
+  font-size: 0.54rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--on-accent);
   background: var(--travel-accent);
   padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  border-radius: 3px;
   margin-left: 0.4rem;
   vertical-align: middle;
 }
 
-/* tips — 醒目提示框 */
-.trip-tips {
-  border-left: 3px solid var(--travel-accent);
-  background: color-mix(in srgb, var(--travel-accent) 8%, transparent);
-  border-radius: 0 10px 10px 0;
-  padding: 0.85rem 1rem;
-}
-.trip-tips__list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-.trip-tips__list li {
-  position: relative;
-  padding-left: 1.4rem;
-  font-size: 0.86rem;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--text) 84%, transparent);
-}
-.trip-tips__list li::before {
-  content: '💡';
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.85rem;
-}
-
-/* links */
-.trip-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
+.trip-links { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .trip-link {
   display: inline-flex;
   align-items: center;
@@ -647,44 +724,34 @@
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.02em;
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  border-radius: 3px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
   color: var(--text);
   text-decoration: none;
-  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+  transition: border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
 }
-a.trip-link:hover {
-  border-color: var(--travel-accent);
-  color: var(--travel-accent);
-  transform: translateY(-1px);
-}
-.trip-link--text {
-  color: color-mix(in srgb, var(--text) 55%, transparent);
-  cursor: default;
-}
+a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-accent); transform: translateY(-1px); }
+.trip-link--text { color: var(--trip-ink-soft); cursor: default; }
 .trip-link__ext { opacity: 0.6; }
 
-/* photos grid */
+/* ── 影像 ─────────────────────────────────────────────── */
+
+.trip-day__photos { margin-top: 1.75rem; }
 .trip-photos {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.7rem;
+  gap: 0.5rem;
 }
 .trip-photo {
   aspect-ratio: 3 / 2;
-  border-radius: 10px;
+  border-radius: 3px;
   overflow: hidden;
   border: 1px solid var(--travel-card-border);
   background: color-mix(in srgb, var(--text) 4%, var(--bg));
 }
-.trip-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+.trip-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .trip-photo--placeholder {
   display: flex;
   flex-direction: column;
@@ -693,14 +760,14 @@ a.trip-link:hover {
   gap: 0.4rem;
   border-style: dashed;
   border-color: color-mix(in srgb, var(--text) 20%, transparent);
-  color: color-mix(in srgb, var(--text) 45%, transparent);
+  color: var(--trip-ink-soft);
   text-align: center;
   padding: 0.75rem;
 }
-.trip-photo__icon { font-size: 1.5rem; opacity: 0.7; }
+.trip-photo__icon { font-size: 1.4rem; opacity: 0.65; }
 .trip-photo__caption {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   letter-spacing: 0.03em;
   line-height: 1.4;
 }
@@ -725,20 +792,17 @@ a.trip-link:hover {
 }
 .trip-daynav__dot {
   position: relative;
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   padding: 0;
   border-radius: 50%;
   border: none;
-  background: color-mix(in srgb, var(--text) 28%, transparent);
+  background: color-mix(in srgb, var(--text) 26%, transparent);
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .trip-daynav__dot:hover { transform: scale(1.25); }
-.trip-daynav__dot.is-active {
-  background: var(--travel-accent);
-  transform: scale(1.35);
-}
+.trip-daynav__dot.is-active { background: var(--travel-accent); transform: scale(1.35); }
 .trip-daynav__dot::after {
   content: attr(data-label);
   position: absolute;
@@ -750,7 +814,7 @@ a.trip-link:hover {
   font-size: 0.6rem;
   letter-spacing: 0.05em;
   padding: 0.2rem 0.45rem;
-  border-radius: 6px;
+  border-radius: 4px;
   background: color-mix(in srgb, var(--bg) 90%, var(--bg2));
   border: 1px solid var(--travel-card-border);
   color: var(--text);
@@ -759,10 +823,7 @@ a.trip-link:hover {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .trip-daynav__dot:hover::after,
-.trip-daynav__dot:focus-visible::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
+.trip-daynav__dot:focus-visible::after { opacity: 1; transform: translateY(-50%) translateX(0); }
 
 /* ── Footer ───────────────────────────────────────────── */
 
@@ -772,21 +833,11 @@ a.trip-link:hover {
   text-align: center;
   padding: 2.5rem 1rem 3rem;
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--text) 45%, transparent);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trip-ink-soft);
 }
-
-.trip-back {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  color: var(--travel-accent);
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-.trip-back:hover { opacity: 0.7; }
 
 /* ── 報告書列表頁 ─────────────────────────────────────── */
 
@@ -797,19 +848,17 @@ a.trip-link:hover {
   margin: 0 auto;
   padding: 0 clamp(1rem, 4vw, 4rem) 3rem;
 }
-
 .trip-index__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.1rem;
 }
-
 .trip-index-card {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1.25rem 1.35rem;
-  border-radius: 14px;
+  padding: 1.35rem 1.45rem;
+  border-radius: 4px;
   border: 1px solid var(--travel-card-border);
   background: var(--travel-card-bg);
   box-shadow: var(--travel-card-shadow);
@@ -825,54 +874,57 @@ a.trip-link:hover {
 }
 .trip-index-card__overline {
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--text) 52%, transparent);
+  color: var(--trip-ink-soft);
 }
 .trip-index-card__title {
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 560;
   letter-spacing: -0.01em;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .trip-index-card:hover .trip-index-card__title { color: var(--travel-accent); }
 .trip-index-card__subtitle {
-  font-size: 0.9rem;
-  color: color-mix(in srgb, var(--text) 72%, transparent);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--trip-ink-soft);
 }
 .trip-index-card__summary {
   font-size: 0.85rem;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  line-height: 1.6;
+  color: var(--trip-ink-soft);
 }
-.trip-index-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.35rem;
-}
+.trip-index-card__meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.35rem; }
 .trip-index-card__chip {
   font-family: var(--mono);
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   letter-spacing: 0.05em;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   border: 1px solid var(--travel-card-border);
-  color: color-mix(in srgb, var(--text) 62%, transparent);
+  color: var(--trip-ink-soft);
 }
 
-/* ── 響應式：<900px 單欄，地圖 sticky 置頂 ─────────────── */
+/* ── 列表頁 hero（雜誌刊頭）────────────────────────────── */
+.trip-hero__title[data-anime-splittext] { font-family: var(--serif); }
+
+/* ── 響應式 ────────────────────────────────────────────── */
+
+@media (max-width: 1000px) {
+  .trip-hero__lead { grid-template-columns: 1fr; gap: 1.5rem; }
+}
 
 @media (max-width: 900px) {
-  .trip-scrolly {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
+  .trip-scrolly { grid-template-columns: 1fr; gap: 0; }
   .trip-map-col {
     position: sticky;
     top: var(--trip-nav-h);
     z-index: 5;
+    height: auto;
     margin: 0 calc(-1 * clamp(1rem, 3vw, 3rem)) 1rem;
   }
   .trip-map-panel {
@@ -885,12 +937,12 @@ a.trip-link:hover {
   }
   .trip-days { padding-bottom: 20vh; }
   .trip-daynav { display: none; }
-  .trip-photos { gap: 0.55rem; }
+  .trip-dossier__grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px) {
-  .trip-photos { grid-template-columns: 1fr 1fr; }
-  .trip-stats { gap: 1.1rem 1.75rem; }
+  .trip-stop { grid-template-columns: 2.4rem 1fr; }
+  .trip-photos { gap: 0.4rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -898,8 +950,8 @@ a.trip-link:hover {
   .trip-essential,
   .trip-index-card,
   .trip-link,
+  .trip-stop,
   .trip-daynav__dot { transition: none; }
-  .trip-essential:hover,
   .trip-index-card:hover { transform: none; }
 }
 
@@ -911,7 +963,4 @@ a.trip-link:hover {
   text-decoration: none;
   white-space: nowrap;
 }
-
-.travel-section__more:hover {
-  text-decoration: underline;
-}
+.travel-section__more:hover { text-decoration: underline; }

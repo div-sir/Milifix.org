@@ -25,7 +25,12 @@ export interface TripStop {
     | 'viewpoint'
     | 'facility'
     | 'area';
+  /** 景點簡介：一句雜誌式描述（地點本身，非行程動作）。用於各景點條目與地圖 popup。 */
+  desc?: string;
+  /** trip 專屬提醒：在此地點要做的事（如「兌換啟用 JR Pass」），與 desc 區隔。 */
   note?: string;
+  /** 該景點專屬照片；未填時條目不顯示照片（day.photos 仍作為當日影像帶）。 */
+  photos?: PhotoSlot[];
 }
 
 /** 交通段：地圖上畫成路線 */

@@ -66,8 +66,10 @@ const STRINGS: Record<
       blogTagline: string;
       lumiveilTagline: string;
       travelTagline: string;
+      reportsTagline: string;
       blogCountUnit: string;
       cardsCountUnit: string;
+      reportsCountUnit: string;
     };
     blog: {
       /** 文章頁側欄目錄 */
@@ -277,8 +279,10 @@ const STRINGS: Record<
       blogTagline: 'Travel data archive, indexes, and long-form notes',
       lumiveilTagline: 'Reveal every step you have ever taken',
       travelTagline: 'Taiwan credit card airline & lounge benefits',
+      reportsTagline: 'Illustrated travelogues with live route maps',
       blogCountUnit: 'Posts',
       cardsCountUnit: 'Cards',
+      reportsCountUnit: 'Reports',
     },
     blog: {
       tocAria: 'On this page',
@@ -496,8 +500,10 @@ const STRINGS: Record<
       blogTagline: '旅行資料、分類索引與長文筆記',
       lumiveilTagline: '揭開你走過的每一步',
       travelTagline: '台灣信用卡航空與貴賓室權益比較',
+      reportsTagline: '圖文旅行報告書，隨行程帶入即時地圖',
       blogCountUnit: '篇文章',
       cardsCountUnit: '張卡片',
+      reportsCountUnit: '篇報告',
     },
     blog: {
       tocAria: '本篇章節',
@@ -715,8 +721,10 @@ const STRINGS: Record<
       blogTagline: '旅行データ、分類インデックス、長文ノート',
       lumiveilTagline: '歩いてきた道を、光で明かす',
       travelTagline: '台湾のクレジットカードによる航空・ラウンジ特典比較',
+      reportsTagline: 'ライブ路線地図つきの旅行レポート',
       blogCountUnit: '記事',
       cardsCountUnit: 'カード',
+      reportsCountUnit: 'レポート',
     },
     blog: {
       tocAria: 'このページの見出し',

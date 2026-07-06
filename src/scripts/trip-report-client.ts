@@ -149,23 +149,28 @@ export function initTripReportClient(): void {
     if (noteEl) noteEl.classList.add('is-visible');
   });
 
-  // ── 自訂 DOM markers（脈衝動畫）──────────────────────
-  const dotByStop = new Map<string, HTMLElement>();
+  // ── 自訂 DOM markers（常駐圓點＋名稱標籤）──────────────
+  // 外層 div 由 MapLibre 控制定位；內層 .trip-marker 負責視覺與 is-day/is-active
+  const markerByStop = new Map<string, HTMLElement>();
   for (const stop of data.allStops) {
     const el = document.createElement('div');
+    const marker = document.createElement('div');
+    marker.className = 'trip-marker';
     const dot = document.createElement('div');
-    dot.className = 'trip-marker';
-    el.appendChild(dot);
-    dotByStop.set(stop.id, dot);
-    const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([
-      stop.coords.lng,
-      stop.coords.lat,
-    ]);
-    if (!reduce) marker.setPopup(new maplibregl.Popup({ offset: 16, closeButton: false }).setText(stop.name));
-    marker.addTo(map);
+    dot.className = 'trip-marker__dot';
+    const label = document.createElement('div');
+    label.className = 'trip-marker__label';
+    label.textContent = stop.name;
+    marker.append(dot, label);
+    el.appendChild(marker);
+    markerByStop.set(stop.id, marker);
+    new maplibregl.Marker({ element: el, anchor: 'left' })
+      .setLngLat([stop.coords.lng, stop.coords.lat])
+      .addTo(map);
   }
 
   let activeDay: number | null = null;
+  let activeStopKey: string | null = null;
 
   // ── 路線 source/layer（每次 style.load 重新加回）────────
   const addLayers = (): void => {
@@ -241,63 +246,33 @@ export function initTripReportClient(): void {
     }
   };
 
-  const flyToDay = (d: DayData): void => {
-    const stops = d.stopIds.map((id) => stopById.get(id)).filter((s): s is Stop => !!s);
-
-    if (d.camera?.center) {
-      move({
-        center: [d.camera.center.lng, d.camera.center.lat],
-        zoom: d.camera.zoom ?? 12,
-        pitch: d.camera.pitch ?? 45,
-        bearing: d.camera.bearing ?? 0,
-      });
-      return;
-    }
-    if (stops.length === 0) return;
-    if (stops.length === 1) {
-      const s = stops[0];
-      move({
-        center: [s.coords.lng, s.coords.lat],
-        zoom: zoomForKind(s.kind),
-        pitch: 45,
-        bearing: (d.day % 2 === 0 ? -1 : 1) * 18,
-      });
-      return;
-    }
-    // 多點 → 依 bounds 求鏡頭，再帶 pitch 電影感
-    const bounds = new maplibregl.LngLatBounds();
-    for (const s of stops) bounds.extend([s.coords.lng, s.coords.lat]);
-    const cam = map.cameraForBounds(bounds, { padding: boundsPadding(), maxZoom: 12 });
-    if (cam && cam.center) {
-      const c = maplibregl.LngLat.convert(cam.center);
-      move({ center: [c.lng, c.lat], zoom: cam.zoom ?? 11, pitch: 40, bearing: cam.bearing ?? 0 });
-    }
-  };
-
-  // ── 啟用某一天 ───────────────────────────────────────
+  // ── 徽章／導覽 DOM ───────────────────────────────────
   const badgeEl = document.querySelector<HTMLElement>('.trip-map-badge');
   const badgeDayEl = document.querySelector<HTMLElement>('.trip-map-badge__day');
   const badgeTitleEl = document.querySelector<HTMLElement>('.trip-map-badge__title');
   const dayWord = badgeEl?.dataset.dayWord || 'Day';
   const navDots = Array.from(document.querySelectorAll<HTMLElement>('.trip-daynav__dot'));
+  const stopEls = Array.from(document.querySelectorAll<HTMLElement>('.trip-stop'));
 
   const paintActiveRoute = (segs: Seg[]): void => {
     const src = map.getSource(SRC_ACTIVE) as maplibregl.GeoJSONSource | undefined;
     if (src) src.setData(toFeatures(segs));
   };
 
-  const setMarkers = (activeIds: Set<string>): void => {
-    for (const [id, dot] of dotByStop) dot.classList.toggle('is-active', activeIds.has(id));
+  // 標記某天全部景點（is-day）；清掉非當天者
+  const markDay = (dayIds: Set<string>): void => {
+    for (const [id, m] of markerByStop) m.classList.toggle('is-day', dayIds.has(id));
   };
 
-  const activate = (dayNum: number): void => {
+  // ── 進入某一天：畫出當天所有路徑、標記當天所有景點、更新徽章/導覽 ──
+  const activateDay = (dayNum: number): void => {
     if (activeDay === dayNum) return;
     activeDay = dayNum;
     const d = dayByNum.get(dayNum);
     if (!d) return;
 
-    setMarkers(new Set(d.stopIds));
     paintActiveRoute(d.segments);
+    markDay(new Set(d.stopIds));
 
     if (badgeEl && badgeDayEl && badgeTitleEl) {
       badgeDayEl.textContent = `${dayWord} ${d.day}`;
@@ -305,13 +280,42 @@ export function initTripReportClient(): void {
       badgeEl.classList.add('is-visible');
     }
     for (const dot of navDots) dot.classList.toggle('is-active', Number(dot.dataset.day) === dayNum);
+  };
 
-    flyToDay(d);
+  // ── 聚焦單一景點：放大該點、flyTo、標亮對應條目 ──
+  const focusStop = (stopId: string, dayNum: number, stopEl?: HTMLElement): void => {
+    activateDay(dayNum);
+
+    const key = `${dayNum}:${stopId}`;
+    if (activeStopKey === key) return;
+    activeStopKey = key;
+
+    // marker：清掉舊 active，設新的（保留 is-day）
+    for (const m of markerByStop.values()) m.classList.remove('is-active');
+    const marker = markerByStop.get(stopId);
+    marker?.classList.add('is-active');
+
+    // 條目：標亮目前
+    for (const el of stopEls) el.classList.remove('is-active');
+    stopEl?.classList.add('is-active');
+
+    const s = stopById.get(stopId);
+    if (s) {
+      move({
+        center: [s.coords.lng, s.coords.lat],
+        zoom: zoomForKind(s.kind),
+        pitch: 46,
+        bearing: (dayNum % 2 === 0 ? -1 : 1) * 16,
+      });
+    }
   };
 
   const resetDefault = (): void => {
     activeDay = null;
-    setMarkers(new Set());
+    activeStopKey = null;
+    markDay(new Set());
+    for (const m of markerByStop.values()) m.classList.remove('is-active');
+    for (const el of stopEls) el.classList.remove('is-active');
     paintActiveRoute([]);
     badgeEl?.classList.remove('is-visible');
     for (const dot of navDots) dot.classList.remove('is-active');
@@ -323,18 +327,31 @@ export function initTripReportClient(): void {
     });
   };
 
-  // ── ScrollTrigger 同步 ───────────────────────────────
-  const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-trip-day]'));
-  sections.forEach((sec, i) => {
+  // ── ScrollTrigger：每一天畫路徑、每一景點聚焦 ─────────
+  const daySections = Array.from(document.querySelectorAll<HTMLElement>('[data-trip-day]'));
+  daySections.forEach((sec, i) => {
     const dayNum = Number(sec.dataset.tripDay);
     ScrollTrigger.create({
       trigger: sec,
+      start: 'top 60%',
+      end: 'bottom 40%',
+      onEnter: () => activateDay(dayNum),
+      onEnterBack: () => activateDay(dayNum),
+      // 捲回第一天之前（回到刊頭/essentials）→ 全覽
+      onLeaveBack: i === 0 ? resetDefault : undefined,
+    });
+  });
+
+  stopEls.forEach((el) => {
+    const stopId = el.dataset.tripStop;
+    const dayNum = Number(el.dataset.day);
+    if (!stopId || !Number.isFinite(dayNum)) return;
+    ScrollTrigger.create({
+      trigger: el,
       start: 'top 55%',
       end: 'bottom 45%',
-      onEnter: () => activate(dayNum),
-      onEnterBack: () => activate(dayNum),
-      // 捲回第一天之前（回到 hero/essentials）→ 全覽
-      onLeaveBack: i === 0 ? resetDefault : undefined,
+      onEnter: () => focusStop(stopId, dayNum, el),
+      onEnterBack: () => focusStop(stopId, dayNum, el),
     });
   });
 
@@ -342,7 +359,7 @@ export function initTripReportClient(): void {
   for (const dot of navDots) {
     dot.addEventListener('click', () => {
       const dayNum = Number(dot.dataset.day);
-      const target = sections.find((s) => Number(s.dataset.tripDay) === dayNum);
+      const target = daySections.find((s) => Number(s.dataset.tripDay) === dayNum);
       target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
   }
@@ -350,10 +367,6 @@ export function initTripReportClient(): void {
 
 function emptyFC(): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [] };
-}
-
-function boundsPadding(): number {
-  return window.innerWidth < 900 ? 48 : 90;
 }
 
 function animateCounters(reduce: boolean): void {
