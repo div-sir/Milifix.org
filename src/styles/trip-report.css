@@ -482,8 +482,51 @@
   border-top: 1px solid var(--trip-rule);
   scroll-margin-top: calc(var(--trip-nav-h) + 20px);
   transition: opacity 0.4s ease;
+  cursor: pointer;
 }
 .trip-stop:first-child { border-top: none; }
+.trip-stop:hover .trip-stop__name,
+.trip-stop:focus-visible .trip-stop__name { color: var(--travel-accent); }
+.trip-stop:focus-visible { outline: 2px solid color-mix(in srgb, var(--travel-accent) 55%, transparent); outline-offset: 4px; border-radius: 3px; }
+
+/* 兩景點之間：移動方式與預估時間 */
+.trip-connector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  padding: 0.3rem 0 0.3rem 3.2rem;
+  margin: -0.4rem 0;
+}
+.trip-connector__leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+  padding-left: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--trip-ink-soft);
+}
+.trip-connector__leg::before {
+  content: '';
+  position: absolute;
+  left: 0.32rem;
+  top: -0.55rem;
+  bottom: -0.55rem;
+  width: 1px;
+  border-left: 1px dashed color-mix(in srgb, var(--travel-accent) 45%, transparent);
+}
+.trip-connector__icon { font-size: 0.9rem; line-height: 1; }
+.trip-connector__label { color: var(--trip-ink); }
+.trip-connector__time { color: var(--travel-accent); font-weight: 600; }
+.trip-connector--lead .trip-connector__leg,
+.trip-connector--trail .trip-connector__leg { font-style: normal; }
+.trip-connector--lead .trip-connector__leg::before,
+.trip-connector--trail .trip-connector__leg::before {
+  border-left-style: solid;
+  border-left-color: color-mix(in srgb, var(--travel-accent) 60%, transparent);
+}
 
 .trip-stop__index {
   font-family: var(--serif);

@@ -50,8 +50,10 @@ export interface TransportSegment {
   /** 起訖 stop id（可跨日引用其他天的 stop） */
   from: string;
   to: string;
-  /** 選填：路徑塑形用的中繼座標 */
+  /** 選填：路徑塑形用的中繼座標。鐵路段以真實沿線車站描繪走廊，使線條貼合實際鐵道走向。 */
   viaCoords?: GeoPoint[];
+  /** 選填：預估移動時間（分鐘），顯示於兩景點之間的轉乘標示。 */
+  durationMin?: number;
 }
 
 export interface TimelineEntry {

@@ -54,6 +54,39 @@ const dayNum = String(day.day).padStart(2, '0');
 const fmtJpy = (n: number) => `¥${n.toLocaleString('en-US')}`;
 const kindLabel = (k?: TripStop['kind']) => (k ? labels.kindLabels[k] ?? '' : '');
 
+// 預估移動時間 → 文字
+const fmtDur = (min?: number): string => {
+  if (!min || min <= 0) return '';
+  if (min < 60) return `約 ${min} 分`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `約 ${h} 小時 ${m} 分` : `約 ${h} 小時`;
+};
+
+// ── 把交通段對應到「兩景點之間」，供條目間顯示移動方式與時間 ──
+const stopIdSet = new Set(stops.map((s) => s.id));
+const usedSeg = new Set<TransportSegment>();
+// 相鄰景點之間（stops[i] → stops[i+1]）
+const betweenSegs: TransportSegment[][] = stops.map((_, i) => {
+  const a = stops[i]?.id;
+  const b = stops[i + 1]?.id;
+  if (i >= stops.length - 1 || !a || !b) return [];
+  const found = segments.filter((sg) => sg.from === a && sg.to === b);
+  found.forEach((sg) => usedSeg.add(sg));
+  return found;
+});
+// 進入本日前的銜接（他處 → 首站，如夜車／清晨返回）
+const firstId = stops[0]?.id;
+const leadingSegs = firstId
+  ? segments.filter((sg) => sg.to === firstId && !stopIdSet.has(sg.from) && !usedSeg.has(sg))
+  : [];
+leadingSegs.forEach((sg) => usedSeg.add(sg));
+// 本日結束後的離開（末站 → 他處，如夜車）
+const lastId = stops[stops.length - 1]?.id;
+const trailingSegs = lastId
+  ? segments.filter((sg) => sg.from === lastId && !usedSeg.has(sg))
+  : [];
+
 const hasDossier =
   timeline.length > 0 || costs.length > 0 || links.length > 0 || day.activities.length > 0;
 ---
@@ -69,20 +102,6 @@ const hasDossier =
       {day.title}
     </h2>
     {routeDek && <p class="trip-day__dek">{routeDek}</p>}
-    {
-      segments.length > 0 && (
-        <div class="trip-segments" aria-label="交通方式">
-          {segments.map((seg) => (
-            <span class={`trip-seg trip-seg--${seg.mode}`}>
-              <span class="trip-seg__icon" aria-hidden="true">
-                {MODE_ICON[seg.mode]}
-              </span>
-              <span class="trip-seg__label">{seg.label}</span>
-            </span>
-          ))}
-        </div>
-      )
-    }
   </header>
 
   <!-- ── 沿途景點：各景點一條，供地圖逐點帶入 ── -->
@@ -91,39 +110,77 @@ const hasDossier =
       <div class="trip-stops">
         <p class="trip-block__label trip-stops__heading">{labels.stopsHeading}</p>
         <ol class="trip-stops__list">
-          {stops.map((stop, i) => (
-            <li
-              class={`trip-stop${i === 0 ? ' trip-stop--lead' : ''}`}
-              data-trip-stop={stop.id}
-              data-day={day.day}
-            >
-              <span class="trip-stop__index" aria-hidden="true">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <div class="trip-stop__body">
-                <h3 class="trip-stop__name">
-                  {stop.name}
-                  {kindLabel(stop.kind) && <span class="trip-stop__kind">{kindLabel(stop.kind)}</span>}
-                </h3>
-                {stop.desc && <p class="trip-stop__desc">{stop.desc}</p>}
-                {stop.note && (
-                  <p class="trip-stop__note">
-                    <span class="trip-stop__note-mark" aria-hidden="true">
-                      ✦
-                    </span>
-                    {stop.note}
-                  </p>
-                )}
-                {stop.photos && stop.photos.length > 0 && (
-                  <div class="trip-photos trip-photos--stop">
-                    {stop.photos.map((photo) => (
-                      <PhotoPlaceholder photo={photo} />
-                    ))}
-                  </div>
-                )}
-              </div>
+          {leadingSegs.length > 0 && (
+            <li class="trip-connector trip-connector--lead" aria-label="承前段移動">
+              {leadingSegs.map((seg) => (
+                <span class="trip-connector__leg">
+                  <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
+                  <span class="trip-connector__label">{seg.label}</span>
+                  {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
+                </span>
+              ))}
             </li>
+          )}
+          {stops.map((stop, i) => (
+            <>
+              <li
+                class={`trip-stop${i === 0 ? ' trip-stop--lead' : ''}`}
+                data-trip-stop={stop.id}
+                data-day={day.day}
+                tabindex="0"
+                role="button"
+                aria-label={`在地圖聚焦 ${stop.name}`}
+              >
+                <span class="trip-stop__index" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div class="trip-stop__body">
+                  <h3 class="trip-stop__name">
+                    {stop.name}
+                    {kindLabel(stop.kind) && <span class="trip-stop__kind">{kindLabel(stop.kind)}</span>}
+                  </h3>
+                  {stop.desc && <p class="trip-stop__desc">{stop.desc}</p>}
+                  {stop.note && (
+                    <p class="trip-stop__note">
+                      <span class="trip-stop__note-mark" aria-hidden="true">
+                        ✦
+                      </span>
+                      {stop.note}
+                    </p>
+                  )}
+                  {stop.photos && stop.photos.length > 0 && (
+                    <div class="trip-photos trip-photos--stop">
+                      {stop.photos.map((photo) => (
+                        <PhotoPlaceholder photo={photo} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </li>
+              {betweenSegs[i].length > 0 && (
+                <li class="trip-connector" aria-label="移動方式與時間">
+                  {betweenSegs[i].map((seg) => (
+                    <span class="trip-connector__leg">
+                      <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
+                      <span class="trip-connector__label">{seg.label}</span>
+                      {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
+                    </span>
+                  ))}
+                </li>
+              )}
+            </>
           ))}
+          {trailingSegs.length > 0 && (
+            <li class="trip-connector trip-connector--trail" aria-label="離開本日移動">
+              {trailingSegs.map((seg) => (
+                <span class="trip-connector__leg">
+                  <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
+                  <span class="trip-connector__label">{seg.label}</span>
+                  {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
+                </span>
+              ))}
+            </li>
+          )}
         </ol>
       </div>
     )
