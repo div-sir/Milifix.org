@@ -1,6 +1,7 @@
 ---
 import type { TripDay, TransportSegment, TripStop } from '../../data/trips/types';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
+import TripConnector from './TripConnector.astro';
 
 export interface DayLabels {
   dayWord: string;
@@ -110,17 +111,7 @@ const hasDossier =
       <div class="trip-stops">
         <p class="trip-block__label trip-stops__heading">{labels.stopsHeading}</p>
         <ol class="trip-stops__list">
-          {leadingSegs.length > 0 && (
-            <li class="trip-connector trip-connector--lead" aria-label="承前段移動">
-              {leadingSegs.map((seg) => (
-                <span class="trip-connector__leg">
-                  <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
-                  <span class="trip-connector__label">{seg.label}</span>
-                  {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
-                </span>
-              ))}
-            </li>
-          )}
+          <TripConnector segs={leadingSegs} variant="lead" icons={MODE_ICON} fmtDur={fmtDur} />
           {stops.map((stop, i) => (
             <>
               <li
@@ -157,30 +148,10 @@ const hasDossier =
                   )}
                 </div>
               </li>
-              {betweenSegs[i].length > 0 && (
-                <li class="trip-connector" aria-label="移動方式與時間">
-                  {betweenSegs[i].map((seg) => (
-                    <span class="trip-connector__leg">
-                      <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
-                      <span class="trip-connector__label">{seg.label}</span>
-                      {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
-                    </span>
-                  ))}
-                </li>
-              )}
+              <TripConnector segs={betweenSegs[i]} icons={MODE_ICON} fmtDur={fmtDur} />
             </>
           ))}
-          {trailingSegs.length > 0 && (
-            <li class="trip-connector trip-connector--trail" aria-label="離開本日移動">
-              {trailingSegs.map((seg) => (
-                <span class="trip-connector__leg">
-                  <span class="trip-connector__icon" aria-hidden="true">{MODE_ICON[seg.mode]}</span>
-                  <span class="trip-connector__label">{seg.label}</span>
-                  {seg.durationMin ? <span class="trip-connector__time">· {fmtDur(seg.durationMin)}</span> : null}
-                </span>
-              ))}
-            </li>
-          )}
+          <TripConnector segs={trailingSegs} variant="trail" icons={MODE_ICON} fmtDur={fmtDur} />
         </ol>
       </div>
     )
