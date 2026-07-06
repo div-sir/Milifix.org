@@ -871,3 +871,16 @@ a.trip-link:hover {
   .trip-essential:hover,
   .trip-index-card:hover { transform: none; }
 }
+
+/* ── /travel 首頁的報告書入口區塊 ── */
+.travel-section__more {
+  font-family: var(--mono, monospace);
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.travel-section__more:hover {
+  text-decoration: underline;
+}

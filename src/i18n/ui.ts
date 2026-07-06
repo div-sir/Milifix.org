@@ -96,6 +96,7 @@ const STRINGS: Record<
       sectionCards: string;
       sectionLounges: string;
       sectionAirlines: string;
+      sectionReports: string;
       viewAll: string;
       cardListTitle: string;
       cardListDesc: string;
@@ -303,6 +304,7 @@ const STRINGS: Record<
       sectionCards: 'Credit Cards',
       sectionLounges: 'Lounges',
       sectionAirlines: 'Airlines',
+      sectionReports: 'Trip Reports',
       viewAll: 'View all →',
       cardListTitle: 'Credit Cards',
       cardListDesc: 'Browse all credit cards and their travel benefits.',
@@ -521,6 +523,7 @@ const STRINGS: Record<
       sectionCards: '信用卡',
       sectionLounges: '貴賓室',
       sectionAirlines: '航空公司',
+      sectionReports: '旅行報告書',
       viewAll: '查看全部 →',
       cardListTitle: '信用卡一覽',
       cardListDesc: '瀏覽所有信用卡及其旅遊權益。',
@@ -739,6 +742,7 @@ const STRINGS: Record<
       sectionCards: 'Credit Cards',
       sectionLounges: 'Lounges',
       sectionAirlines: 'Airlines',
+      sectionReports: 'Trip Reports',
       viewAll: 'View all →',
       cardListTitle: 'Credit Cards',
       cardListDesc: 'Browse all credit cards and their travel benefits.',
