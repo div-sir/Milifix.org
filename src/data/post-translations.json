@@ -2142,7 +2142,9 @@
           ],
           "direction": "ltr"
         }
-      }
+      },
+      "title": "A Full Record of the Split-Flap Display System Architecture | ESP32 + PCF8574 + TCA9548A + ULN2003 + 28BYJ-48",
+      "description": "I wanted to build a WiFi-controlled \"**mechanical split-flap wall**\" that takes text input from a phone — like those clattering letter boards at airports."
     },
     "ja": {
       "content": {
@@ -2744,7 +2746,9 @@
           ],
           "direction": "ltr"
         }
-      }
+      },
+      "title": "フラップ表示器システム構成の全記録｜ESP32 + PCF8574 + TCA9548A + ULN2003 + 28BYJ-48",
+      "description": "スマホから文字を入力し、WiFiで制御する「**機械式フラップウォール**」を作りたかった。空港にあるカタカタ音の文字板ウォールのようなものだ。"
     }
   },
   "zephlog/筆記/jr-pass-與參考票價-統整": {
