@@ -10,9 +10,14 @@
  * 之後網站永遠讀本地靜態資料，不再需要任何外部服務。
  *
  * 使用方式（需要在有網路存取的環境執行；資料檔為 .ts，需透過 tsx 載入）：
- *   npm install                       # 確保 tsx / @turf/turf 已安裝（devDependencies）
- *   npx tsx scripts/fetch-rail-geometry.mjs [tripSlug]
- *   # 或：npm run fetch:rail -- [tripSlug]
+ *   npm install                                        # 確保 tsx / @turf/turf 已安裝
+ *   npx tsx scripts/fetch-rail-geometry.mjs --verify-names   # ① 先驗證線名（數十秒，不改檔）
+ *   npx tsx scripts/fetch-rail-geometry.mjs [tripSlug]       # ② 名稱都對得上後再跑完整幾何
+ *   # 或用 npm script：npm run fetch:rail -- --verify-names / npm run fetch:rail -- [tripSlug]
+ *
+ * 建議兩步驟流程：先跑 --verify-names 確認 RAIL_ROUTES 裡的候選名稱能對應到 OSM
+ * relation（查無者會列出，到 openstreetmap.org / overpass-turbo.eu 查正確 name 後
+ * 更新候選名稱重驗）；名稱都綠了再跑完整幾何擷取，避免白花時間抓錯線。
  *
  * 不帶參數則處理 src/data/trips/index.ts 註冊的全部報告書。
  * 執行後請用 `git diff` 檢視 src/data/trips/*.ts 的變更，確認合理再 commit。
@@ -50,31 +55,51 @@ import distance from '@turf/distance';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TRIPS_DIR = path.join(__dirname, '../src/data/trips');
 
-// ── 段落 label → OSM route relation name（依地理順序，多條代表跨線）──────
-// 找不到對應項目時，會直接拿 label 本身當查詢名稱（去除中文說明性字尾）。
-const RAIL_NAME_OVERRIDES = {
-  '京急線・東急線': ['京急本線'],
-  'JR 橫須賀線 → 江之電': ['横須賀線'],
-  '江之電（江ノ島電鐵）': ['江ノ島電鉄線'],
-  '湘南單軌電車': ['湘南モノレール線'],
-  'JR 上野東京線': ['上野東京ライン'],
-  'JR 山手線': ['山手線'],
-  '上越新幹線': ['上越新幹線'],
-  '上越新幹線（清晨返回東京）': ['上越新幹線'],
-  '東武城市公園線': ['東武アーバンパークライン'],
-  '東武線・JR 線': ['東武アーバンパークライン', '武蔵野線'],
-  'Sunrise 寢台特急': ['東海道本線', '山陽本線'],
-  '山陽新幹線': ['山陽新幹線'],
-  '廣島電鐵路面電車': ['広島電鉄本線'],
-  'JR 山陽本線': ['山陽本線'],
+// ── 段落 label → 鐵路路線（依實際地理順序的「leg」陣列）───────────────
+//
+//   每個 leg 是一組「候選 OSM route relation 名稱」，會依序嘗試直到某個
+//   名稱查得到 relation（容忍 OSM 命名不一致）。多個 leg 代表該段跨越多條
+//   實體路線（例如夜車跨東海道本線＋山陽本線），依序串接成完整走廊。
+//
+//   線名來源：以 ekidata（open-data-jp-railway-lines）的正式 name_kanji 為主，
+//   再補上常見 OSM 變體作為後備候選。OSM 的 route relation `name` 標記與
+//   ekidata 未必完全一致，某些路面電車／機場支線／跨線接續仍可能需要人工微調；
+//   請先用 `--verify-names` 模式快速確認哪些候選名稱查得到，再跑完整幾何擷取。
+//
+//   值為 null：明確標記為非鐵路（如渡輪），略過不處理、不警告。
+//   未列出的 label：退回用 label 本身當單一候選名稱嘗試。
+const RAIL_ROUTES = {
+  // Day2
+  '京急線・東急線': [['京急空港線'], ['京急本線', '京浜急行電鉄本線']],
+  'JR 橫須賀線 → 江之電': [['横須賀線', 'JR横須賀線']],
+  '江之電（江ノ島電鐵）': [['江ノ島電鉄線', '江ノ島電鉄']],
+  '湘南單軌電車': [['湘南モノレール江の島線', '湘南モノレール'], ['東海道本線']],
+  // Day3
+  'JR 上野東京線': [['東海道本線'], ['東北本線', '宇都宮線']],
+  'JR 山手線': [['山手線', 'JR山手線']],
+  // '上越新幹線' 出現於 Day3（上野→燕三條）與 Day4（上野→大宮）兩段，label 相同；
+  // 上越新幹線 relation 通常涵蓋東京/大宮–新潟全段，兩段都能正確裁切，故共用單一候選。
+  '上越新幹線': [['上越新幹線']],
+  // Day4
+  '上越新幹線（清晨返回東京）': [['上越新幹線']],
+  '東武城市公園線': [['東武野田線', '東武アーバンパークライン', '野田線']],
+  '東武線・JR 線': [['東武野田線'], ['武蔵野線'], ['東北本線']],
+  'Sunrise 寢台特急': [['東海道本線'], ['山陽本線']],
+  // Day5
+  '山陽新幹線': [['山陽新幹線']],
+  '廣島電鐵路面電車': [['広電本線', '広電２号線(宮島線)', '広電１号線(宇品線)']],
+  'JR 山陽本線': [['山陽本線', 'JR山陽本線']],
   'JR 宮島渡輪': null, // 渡輪，非鐵路
-  '岡山電鐵路面電車（或步行）': ['岡山電気軌道東山本線'],
-  'JR 瀨戶大橋線': ['瀬戸大橋線'],
-  'JR 土讚線': ['土讃線'],
-  'JR 土讚線・瀨戶大橋線': ['土讃線', '瀬戸大橋線'],
-  'JR 山陽本線・山陽新幹線': ['山陽本線', '山陽新幹線'],
-  "N'EX 成田特快": ['成田線'],
-  'JR 山手線（承前日）': ['山手線'],
+  'JR 山陽本線・山陽新幹線': [['山陽本線'], ['山陽新幹線']],
+  // Day6
+  '岡山電鐵路面電車（或步行）': [['岡山電軌東山本線', '東山本線', '東山線']],
+  'JR 瀨戶大橋線': [['宇野線'], ['瀬戸大橋線', '本四備讃線'], ['予讃線']],
+  'JR 土讚線': [['予讃線'], ['土讃線', 'JR土讃線']],
+  'JR 土讚線・瀨戶大橋線': [['土讃線'], ['予讃線'], ['瀬戸大橋線', '本四備讃線'], ['宇野線']],
+  // Day7 沿用 'JR 山手線'
+  // Day8
+  "N'EX 成田特快": [['総武本線'], ['成田線', 'JR成田線'], ['成田線空港支線']],
+  'JR 山手線（承前日）': [['山手線', 'JR山手線']],
 };
 
 const RAIL_MODES = new Set(['shinkansen', 'train', 'tram', 'monorail', 'night-train']);
@@ -108,7 +133,7 @@ async function overpassQuery(ql) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** 依名稱找出鐵路 route relation id（取成員數最多者，通常代表最完整的路線） */
+/** 依單一名稱找出鐵路 route relation id（取成員數最多者，通常代表最完整的路線） */
 async function findRelationId(name) {
   const ql = `[out:json][timeout:60];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nout ids tags;`;
   const data = await overpassQuery(ql);
@@ -120,6 +145,23 @@ async function findRelationId(name) {
     if (!best || memberCount > (best.tags?.['member_count'] ?? 0)) best = el;
   }
   return (best ?? data.elements[0]).id;
+}
+
+/** 依候選名稱清單依序嘗試，回傳第一個查得到的 { name, relId }。
+ *  皆查無回傳 null；若因網路/服務錯誤而無法判定，回傳 { error }（讓上層區分
+ *  「名稱錯」與「連不到 Overpass」，避免把網路問題誤報成名稱需要調整）。 */
+async function resolveLeg(candidates) {
+  let sawError = null;
+  for (const name of candidates) {
+    try {
+      const relId = await findRelationId(name);
+      if (relId) return { name, relId };
+    } catch (err) {
+      sawError = err.message;
+    }
+    await sleep(1000); // 對公開 Overpass 服務保持禮貌節流
+  }
+  return sawError ? { error: sawError } : null;
 }
 
 /** 抓 relation 所有成員 way 的完整幾何（未縫合、未排序）*/
@@ -178,21 +220,26 @@ function stitchWays(ways) {
   return chain;
 }
 
-/** 依名稱清單依序抓取＋縫合＋串接成單一 corridor 折線 */
-async function buildCorridor(names) {
+/** 依「leg（候選名稱組）」清單依序抓取＋縫合＋串接成單一 corridor 折線。
+ *  每個 leg 會嘗試其候選名稱直到查到 relation；查無則跳過該 leg（記警告）。 */
+async function buildCorridor(legs) {
   let corridor = [];
-  for (const name of names) {
-    const relId = await findRelationId(name);
-    if (!relId) {
-      console.warn(`  ⚠ 查無 route relation：「${name}」`);
+  for (const candidates of legs) {
+    const resolved = await resolveLeg(candidates);
+    if (!resolved) {
+      console.warn(`  ⚠ 此段候選名稱皆查無 route relation：${candidates.join(' / ')}`);
       continue;
     }
-    await sleep(1200); // 對公開 Overpass 服務保持禮貌節流
-    const ways = await fetchRelationWays(relId);
+    if (resolved.error) {
+      // 連不到 Overpass 或查詢失敗：整段擷取交由上層 try/catch 中止，保留原有 viaCoords
+      throw new Error(`Overpass 查詢失敗（${resolved.error}）`);
+    }
+    console.log(`    · 使用路線「${resolved.name}」（relation ${resolved.relId}）`);
+    const ways = await fetchRelationWays(resolved.relId);
     await sleep(1200);
     const line = stitchWays(ways);
     if (line.length < 2) {
-      console.warn(`  ⚠ 「${name}」（relation ${relId}）縫合後點數不足`);
+      console.warn(`  ⚠ 「${resolved.name}」縫合後點數不足`);
       continue;
     }
     corridor = corridor.length === 0 ? line : corridor.concat(line);
@@ -275,15 +322,15 @@ async function processTripFile(filePath) {
         continue;
       }
 
-      const override = RAIL_NAME_OVERRIDES[seg.label];
-      if (override === null) continue; // 明確標記為非鐵路（如渡輪），略過不警告
-      const names = override ?? [seg.label];
+      const route = RAIL_ROUTES[seg.label];
+      if (route === null) continue; // 明確標記為非鐵路（如渡輪），略過不警告
+      const legs = route ?? [[seg.label]];
 
       console.log(`\nDay${day.day} [${seg.label}] ${from.name} → ${to.name}`);
-      console.log(`  查詢路線：${names.join(' → ')}`);
+      console.log(`  路線候選：${legs.map((l) => l.join('/')).join(' → ')}`);
 
       try {
-        const corridor = await buildCorridor(names);
+        const corridor = await buildCorridor(legs);
         if (corridor.length < 2) {
           console.warn('  ⚠ 未取得任何路線幾何，跳過（保留原有 viaCoords）');
           skipped++;
@@ -322,8 +369,58 @@ async function processTripFile(filePath) {
   console.log(`\n${path.basename(filePath)}：成功 ${ok} 段，略過 ${skipped} 段。請用 git diff 檢視後再 commit。`);
 }
 
+/**
+ * --verify-names 模式：只對對應表中所有候選名稱做輕量 `out ids` 查詢，
+ * 印出每個 leg「用了哪個候選 / 全部查無」，讓使用者在跑重量級幾何擷取前，
+ * 先花幾十秒確認名稱是否對得上 OSM，快速收斂需要人工調整的線名。
+ * 不觸碰任何資料檔。
+ */
+async function verifyNames() {
+  console.log('名稱驗證模式：逐一查詢對應表候選名稱是否存在於 OSM …\n');
+  let resolvedCount = 0;
+  let unresolved = [];
+  let networkErrors = 0;
+  for (const [label, route] of Object.entries(RAIL_ROUTES)) {
+    if (route === null) {
+      console.log(`◦ [${label}] 非鐵路，略過`);
+      continue;
+    }
+    console.log(`[${label}]`);
+    for (const candidates of route) {
+      const resolved = await resolveLeg(candidates);
+      if (resolved?.error) {
+        console.log(`  ⚠ 查詢失敗（${resolved.error}）：${candidates.join(' / ')}`);
+        networkErrors++;
+      } else if (resolved) {
+        console.log(`  ✓ ${resolved.name}（relation ${resolved.relId}）  ← 候選：${candidates.join(' / ')}`);
+        resolvedCount++;
+      } else {
+        console.log(`  ✗ 全部查無：${candidates.join(' / ')}`);
+        unresolved.push(`[${label}] ${candidates.join(' / ')}`);
+      }
+    }
+  }
+  if (networkErrors > 0) {
+    console.log(`\n⚠ 有 ${networkErrors} 個 leg 因網路/服務錯誤無法判定（非名稱問題）。請確認此環境能連到 Overpass 後重跑。`);
+  }
+  console.log(`\n── 完成：${resolvedCount} 個 leg 有對應 relation。`);
+  if (unresolved.length) {
+    console.log(`需要人工調整候選名稱的 leg（共 ${unresolved.length}）：`);
+    for (const u of unresolved) console.log(`  · ${u}`);
+    console.log('\n請到 https://www.openstreetmap.org 或 https://overpass-turbo.eu 查該路線的正確 name 標記，更新 RAIL_ROUTES 後重跑。');
+  } else {
+    console.log('全部候選名稱皆可對應，可直接執行完整幾何擷取。');
+  }
+}
+
 async function main() {
-  const arg = process.argv[2];
+  const args = process.argv.slice(2);
+  if (args.includes('--verify-names')) {
+    await verifyNames();
+    return;
+  }
+
+  const arg = args.find((a) => !a.startsWith('--'));
   const files = arg
     ? [path.join(TRIPS_DIR, `${arg}.ts`)]
     : readFileSync(path.join(TRIPS_DIR, 'index.ts'), 'utf-8')
