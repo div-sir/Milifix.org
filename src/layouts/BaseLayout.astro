@@ -21,7 +21,7 @@ interface Props {
   /** 強制指定 <html data-theme>（invoice-pass / linktree 固定 dark）。
    *  設定時會略過主題初始化 script，使該頁鎖定該主題。 */
   htmlDataTheme?: string;
-  /** 是否自動產生 hreflang 互指（blog 因採 ?hl 即時翻譯、無語系路由，須關閉） */
+  /** 是否自動產生 hreflang 互指（預設開啟；僅無語系路由的單頁需關閉） */
   hreflangAlternates?: boolean;
   /** 額外的 <body> 屬性（如 space 頁的 data-space） */
   bodyAttrs?: Record<string, string | number | boolean | undefined>;

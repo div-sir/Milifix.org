@@ -1,0 +1,100 @@
+---
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/blog.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../SiteNav.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import LexicalContent from '../LexicalContent.astro';
+import { localizedPost, type CmsPost } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { blogPath, blogSlugPath, homePath } from '../../i18n/routes';
+import type { Lang } from '../../i18n/types';
+
+interface Props {
+  lang: Lang;
+  post: CmsPost;
+}
+
+const { lang, post } = Astro.props;
+const { title, description, content } = localizedPost(post, lang);
+const pathname = blogSlugPath(lang, post.slug);
+const backToBlog = blogPath(lang);
+
+const B = ui(lang).blog;
+const tocAriaLabel = B.tocAria;
+const tocToggleUnpin = B.tocCollapse;
+const tocTogglePin = B.tocExpand;
+const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
+  { id: 'back-to-blog', label: '返回', href: backToBlog, icon: 'back' },
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${title} · Blog`}
+  description={description}
+  canonicalPath={pathname}
+>
+    <AmbientBackdrop />
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <SiteNav variant="platform" lang={lang} pathname={pathname} />
+    <PortfolioChrome
+      lang={lang}
+      pathname={pathname}
+      dockSections={dockSections}
+      dockOrder="sections-first"
+      dockHomeHref={homePath(lang)}
+      dockHomeLabel="Milifix"
+      dockHomeIcon="home"
+    />
+    <article class="article-wrap" id="main-content" tabindex="-1">
+      <a class="back" href={backToBlog}>← Blog</a>
+      <h1 class="post-title">{title}</h1>
+      <div class="prose">
+        <LexicalContent content={content} />
+      </div>
+    </article>
+    {
+      !post.hideToc && (
+        <aside id="blog-post-toc" class="blog-toc" aria-label={tocAriaLabel} hidden>
+          <div class="blog-toc__shell">
+            <div id="blog-toc-panel" class="blog-toc__panel">
+              <nav class="blog-toc__nav" aria-label={tocAriaLabel} />
+            </div>
+            <button
+              type="button"
+              class="blog-toc__toggle"
+              aria-expanded="false"
+              aria-controls="blog-toc-panel"
+              data-label-collapse={tocToggleUnpin}
+              data-label-expand={tocTogglePin}
+            >
+              <span class="blog-toc__toggle-chevron" aria-hidden="true">
+                <svg width="12" height="18" viewBox="0 0 11 18" fill="none" aria-hidden="true">
+                  <path
+                    d="M9.5 1L2 9l7.5 8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </aside>
+      )
+    }
+    <script>
+      import { initBlogPostToc } from '../../scripts/init-blog-post-toc';
+      import { initPretextLayout } from '../../scripts/init-pretext-layout';
+      import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+
+      initPortfolioCursor();
+      initPretextLayout();
+      initBlogPostToc();
+    </script>
+</BaseLayout>

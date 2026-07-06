@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { availableLangsForPath, spacePath, travelPath } from '../../i18n/routes';
+import { availableLangsForPath, blogPath, spacePath, travelPath } from '../../i18n/routes';
 import { getWorks, getPosts, getCreditCards } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
@@ -39,7 +39,7 @@ const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
 creators.push({
   name: 'BLOG',
   tagline: P.blogTagline,
-  href: '/blog',
+  href: blogPath(lang),
   workCount: allPosts.filter((p) => !p.draft).length,
   countUnit: P.blogCountUnit,
   idx: creators.length,

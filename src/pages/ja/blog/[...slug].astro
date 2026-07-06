@@ -1,6 +1,6 @@
 ---
-import BlogPostPage from '../../components/pages/BlogPostPage.astro';
-import { getPosts } from '../../lib/cms';
+import BlogPostPage from '../../../components/pages/BlogPostPage.astro';
+import { getPosts } from '../../../lib/cms';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -10,4 +10,4 @@ export async function getStaticPaths() {
   }));
 }
 ---
-<BlogPostPage lang="en" post={Astro.props.post} />
+<BlogPostPage lang="ja" post={Astro.props.post} />

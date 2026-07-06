@@ -1,0 +1,130 @@
+---
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/blog.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../SiteNav.astro';
+import PortfolioChrome from '../PortfolioChrome.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import { getPosts, localizedPost, type CmsPost } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
+import { blogPath, homePath } from '../../i18n/routes';
+import type { Lang } from '../../i18n/types';
+import {
+  BLOG_CAT_ORDER,
+  BLOG_CAT_DOM_ID,
+  classifyBucket,
+  type BlogCatId,
+} from '../../data/blog-categories';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const pathname = blogPath(lang);
+const B = ui(lang).blog;
+
+const posts = await getPosts();
+const visiblePosts = posts.filter((p) => !p.hideInBlogIndex);
+
+type BlogPost = CmsPost;
+
+const postsByTopCat: Record<BlogCatId, BlogPost[]> = {
+  journey: [],
+  projects: [],
+  misc: [],
+};
+
+// 未匹配任何前綴的 bucket：build 時警示，避免文章被無聲歸進 fallback 分類。
+const unknownBuckets = new Set<string>();
+for (const p of visiblePosts) {
+  const bucket = p.bucket ?? '';
+  const { cat, matched } = classifyBucket(bucket);
+  if (bucket && !matched) unknownBuckets.add(bucket);
+  postsByTopCat[cat].push(p);
+}
+if (unknownBuckets.size > 0) {
+  console.warn(
+    `[blog] 未知 bucket（已歸入 fallback 分類，請更新 src/data/blog-categories.ts）：` +
+      [...unknownBuckets].join('、'),
+  );
+}
+
+for (const k of BLOG_CAT_ORDER) {
+  postsByTopCat[k].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+const activeTopCats = BLOG_CAT_ORDER.filter((k) => postsByTopCat[k].length > 0);
+
+const catLabel = (k: BlogCatId) => B.cats[k];
+const dockSections = activeTopCats.map((k) => ({
+  id: BLOG_CAT_DOM_ID[k],
+  label: catLabel(k),
+}));
+
+/** 選單內錨點：不含「頂部」，與 Dock 向上箭頭分工，避免兩個回頂部 */
+const blogAnchorLinks = activeTopCats.map((k) => ({
+  href: `#${BLOG_CAT_DOM_ID[k]}`,
+  label: catLabel(k),
+}));
+---
+
+<BaseLayout
+  lang={lang}
+  title="Blog · Milifix"
+  description="Milifix 筆記與更新"
+  canonicalPath={pathname}
+>
+    <AmbientBackdrop />
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <SiteNav variant="platform" lang={lang} pathname={pathname} blogAnchorLinks={blogAnchorLinks} />
+    <PortfolioChrome
+      lang={lang}
+      pathname={pathname}
+      dockSections={dockSections}
+      dockSectionLinkMode="scroll"
+      dockHomeHref={homePath(lang)}
+      dockHomeLabel="Milifix"
+    />
+    <main class="blog-wrap" id="main-content" tabindex="-1">
+      <div id="blog-top" class="blog-page-head">
+        <a class="back" href={homePath(lang)}>← Milifix</a>
+        <h1 class="blog-page-title" data-anime-splittext="chars">Blog</h1>
+      </div>
+      {
+        activeTopCats.map((k) => (
+          <section
+            id={BLOG_CAT_DOM_ID[k]}
+            class="blog-cat-region"
+            aria-label={`${catLabel(k)} · ${postsByTopCat[k].length} ${B.postUnit}`}
+          >
+            <header class="blog-cat-head">
+              <h2 class="blog-cat-title">{catLabel(k)}</h2>
+            </header>
+            <ul class="group-list">
+              {postsByTopCat[k].map((p, idx) => (
+                <li class="post-item">
+                  <a href={`${pathname}/${p.slug}`}>
+                    <span class="post-index" aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+                    <div class="post-list-title">{localizedPost(p, lang).title}</div>
+                    <span class="post-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </main>
+    <script>
+      import { initPretextLayout } from '../../scripts/init-pretext-layout';
+      import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
+      import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+
+      initPortfolioCursor();
+      initPretextLayout();
+      initAnimeSplitText();
+    </script>
+</BaseLayout>

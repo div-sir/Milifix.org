@@ -1,3 +1,5 @@
+import type { Lang } from '../i18n/types'
+
 const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
 const CMS_API = `${CMS_URL}/api`
 
@@ -224,6 +226,15 @@ export type CmsPost = {
   bucket?: string
   cover?: { url: string; alt?: string }
   content: unknown
+  /** CMS 端新增的譯文欄位；draft 期間可能尚未填入，未填則 fallback 中文原文 */
+  translations?: {
+    title_en?: string
+    description_en?: string
+    content_en?: unknown
+    title_ja?: string
+    description_ja?: string
+    content_ja?: unknown
+  }
 }
 
 export const getPosts = (opts: { includeDrafts?: boolean } = {}) =>
@@ -234,6 +245,28 @@ export const getPosts = (opts: { includeDrafts?: boolean } = {}) =>
   })
 
 export const getPost = (slug: string) => fetchDoc<CmsPost>('posts', slug)
+
+/**
+ * 取單篇文章在指定語系的標題／摘要／內文。
+ * zh 直接回原文；en/ja 讀 translations，任一欄為空則 fallback 中文原文。
+ */
+export function localizedPost(
+  post: CmsPost,
+  lang: Lang,
+): { title: string; description: string; content: unknown } {
+  if (lang === 'zh') {
+    return { title: post.title, description: post.description, content: post.content }
+  }
+  const tr = post.translations
+  const title = tr?.[`title_${lang}`]
+  const description = tr?.[`description_${lang}`]
+  const content = tr?.[`content_${lang}`]
+  return {
+    title: title && title.trim() ? title : post.title,
+    description: description && description.trim() ? description : post.description,
+    content: content != null && content !== '' ? content : post.content,
+  }
+}
 
 // ── Pages ──────────────────────────────────────────────────
 
