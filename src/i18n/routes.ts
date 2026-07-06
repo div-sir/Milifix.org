@@ -48,13 +48,24 @@ export function equivalentUrl(targetLang: Lang, pathname: string): string {
 
 /**
  * 語言切換器只顯示該區塊實際存在的語系，避免直接導向 404：
- *  - /travel  僅 en + zh（無 ja 頁面，且非如 blog 由 JS 即時翻譯）
- *  - 其餘      en + zh + ja（blog 雖只有單一路由，但語言切換由前端 ?hl= 即時翻譯處理）
+ *  - /travel  僅 en + zh（無 ja 頁面）
+ *  - 其餘      en + zh + ja（含 blog：現為 build-time 多語靜態路由）
  */
 export function availableLangsForPath(pathname: string): Lang[] {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/travel' || logicalPath.startsWith('/travel/')) return ['en', 'zh'];
   return ['en', 'zh', 'ja'];
+}
+
+// ── Blog routes ───────────────────────────────────────────
+
+export function blogPath(lang: Lang): string {
+  const p = langPrefix(lang);
+  return p ? `${p}/blog` : '/blog';
+}
+
+export function blogSlugPath(lang: Lang, slug: string): string {
+  return `${blogPath(lang)}/${slug}`;
 }
 
 // ── Travel routes ─────────────────────────────────────────
