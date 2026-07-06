@@ -1,0 +1,25 @@
+---
+import type { PhotoSlot } from '../../data/trips/types';
+
+interface Props {
+  photo: PhotoSlot;
+}
+
+const { photo } = Astro.props;
+const hasSrc = typeof photo.src === 'string' && photo.src.length > 0;
+---
+
+{
+  hasSrc ? (
+    <figure class="trip-photo">
+      <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} loading="lazy" decoding="async" />
+    </figure>
+  ) : (
+    <div class="trip-photo trip-photo--placeholder">
+      <span class="trip-photo__icon" aria-hidden="true">
+        📷
+      </span>
+      {photo.caption && <span class="trip-photo__caption">{photo.caption}</span>}
+    </div>
+  )
+}

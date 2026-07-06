@@ -1,0 +1,262 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../SiteNav.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import PageTransition from '../PageTransition.astro';
+import DaySection from '../trips/DaySection.astro';
+import type { DayLabels } from '../trips/DaySection.astro';
+import type { Lang } from '../../i18n/types';
+import { travelPath } from '../../i18n/routes';
+import type { TripReport, TripStop } from '../../data/trips/types';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import '../../styles/trip-report.css';
+
+interface Props {
+  lang: Lang;
+  trip: TripReport;
+}
+
+interface TripLabels extends DayLabels {
+  reportTag: string;
+  essentials: string;
+  back: string;
+  statDays: string;
+  statStops: string;
+  statCost: string;
+  dayNavAria: string;
+  mapTitle: string;
+  tileNote: string;
+}
+
+const LABELS: Record<Lang, TripLabels> = {
+  zh: {
+    reportTag: '旅行報告書',
+    essentials: '核心票券與工具',
+    back: '← 返回報告書列表',
+    statDays: '天數',
+    statStops: '停靠點',
+    statCost: '費用合計',
+    dayNavAria: '每日行程導覽',
+    mapTitle: '行程地圖',
+    tileNote: '地圖圖磚載入受阻（正式環境正常）',
+    dayWord: 'Day',
+    timeline: '時間節點',
+    activities: '行程',
+    costs: '費用紀錄',
+    tips: '容易忽略的',
+    links: '實用連結',
+    photos: '影像',
+    passBadge: 'PASS',
+  },
+  en: {
+    reportTag: 'Trip Report',
+    essentials: 'Essential Passes & Tools',
+    back: '← Back to all reports',
+    statDays: 'Days',
+    statStops: 'Stops',
+    statCost: 'Total cost',
+    dayNavAria: 'Daily itinerary navigation',
+    mapTitle: 'Itinerary map',
+    tileNote: 'Map tiles blocked here (fine in production)',
+    dayWord: 'Day',
+    timeline: 'Timeline',
+    activities: 'What to do',
+    costs: 'Costs',
+    tips: 'Easy to miss',
+    links: 'Useful links',
+    photos: 'Photos',
+    passBadge: 'PASS',
+  },
+  ja: {
+    reportTag: 'Trip Report',
+    essentials: 'Essential Passes & Tools',
+    back: '← Back to all reports',
+    statDays: 'Days',
+    statStops: 'Stops',
+    statCost: 'Total cost',
+    dayNavAria: 'Daily itinerary navigation',
+    mapTitle: 'Itinerary map',
+    tileNote: 'Map tiles blocked here (fine in production)',
+    dayWord: 'Day',
+    timeline: 'Timeline',
+    activities: 'What to do',
+    costs: 'Costs',
+    tips: 'Easy to miss',
+    links: 'Useful links',
+    photos: 'Photos',
+    passBadge: 'PASS',
+  },
+};
+
+const { lang, trip } = Astro.props;
+const t = LABELS[lang];
+const dayLabels: DayLabels = t;
+
+// ── 統計 ──────────────────────────────────────────────
+const stopById = new Map<string, TripStop>();
+for (const d of trip.days) {
+  for (const s of d.stops) if (!stopById.has(s.id)) stopById.set(s.id, s);
+}
+const allStops = [...stopById.values()];
+
+let totalCost = 0;
+for (const d of trip.days) {
+  for (const c of d.costs ?? []) if (typeof c.amountJpy === 'number') totalCost += c.amountJpy;
+}
+
+const stats = [
+  { value: trip.durationDays, unit: '', label: t.statDays },
+  { value: allStops.length, unit: '', label: t.statStops },
+  { value: totalCost, unit: '¥', label: t.statCost, prefix: true },
+];
+
+// ── 地圖資料序列化 ─────────────────────────────────────
+const mapData = {
+  mapDefault: trip.mapDefault,
+  allStops: allStops.map((s) => ({ id: s.id, name: s.name, coords: s.coords, kind: s.kind })),
+  days: trip.days.map((d) => ({
+    day: d.day,
+    title: d.title,
+    stopIds: d.stops.map((s) => s.id),
+    segments: (d.segments ?? []).map((s) => ({
+      mode: s.mode,
+      from: s.from,
+      to: s.to,
+      viaCoords: s.viaCoords ?? [],
+    })),
+    camera: d.camera ?? null,
+  })),
+};
+
+const reportsPath = `${travelPath(lang)}/reports`;
+const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} — Milifix`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={metaTitle}
+  description={trip.summary}
+  canonicalPath={Astro.url.pathname}
+  hreflangAlternates={false}
+>
+  <AmbientBackdrop />
+  <PageTransition />
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+
+  <main id="main-content">
+    <!-- ── Hero ── -->
+    <header class="trip-hero">
+      <a class="trip-back" href={reportsPath}>{t.back}</a>
+      <p class="trip-hero__overline" style="margin-top:0.75rem">
+        {t.reportTag} · {trip.country} {trip.year}
+      </p>
+      <h1 class="trip-hero__title" data-anime-splittext="chars">{trip.title}</h1>
+      {trip.subtitle && <p class="trip-hero__subtitle">{trip.subtitle}</p>}
+      <p class="trip-hero__summary">{trip.summary}</p>
+
+      <div class="trip-stats">
+        {
+          stats.map((s) => (
+            <div class="trip-stats__item">
+              <span class="trip-stats__value">
+                {s.prefix && <span class="trip-stats__unit">{s.unit}</span>}
+                <span data-count-to={s.value}>0</span>
+              </span>
+              <span class="trip-stats__label">{s.label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </header>
+
+    <!-- ── Essentials ── -->
+    {
+      trip.essentials.length > 0 && (
+        <section class="trip-essentials">
+          <h2 class="trip-section-label">{t.essentials}</h2>
+          <div class="trip-essentials__grid">
+            {trip.essentials.map((e) => (
+              <article class="trip-essential">
+                <h3 class="trip-essential__title">{e.title}</h3>
+                {e.desc && <p class="trip-essential__desc">{e.desc}</p>}
+                {e.links && e.links.length > 0 && (
+                  <div class="trip-essential__links">
+                    {e.links.map((link) =>
+                      link.url ? (
+                        <a class="trip-link" href={link.url} target="_blank" rel="noopener noreferrer">
+                          {link.label}
+                          <span class="trip-link__ext" aria-hidden="true">
+                            ↗
+                          </span>
+                        </a>
+                      ) : (
+                        <span class="trip-link trip-link--text">{link.label}</span>
+                      )
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ── Scrollytelling ── -->
+    <div class="trip-scrolly">
+      <div class="trip-map-col">
+        <div class="trip-map-panel">
+          <div id="trip-map" class="trip-map" role="img" aria-label={t.mapTitle}></div>
+          <div class="trip-map-badge" data-day-word={t.dayWord} aria-live="polite">
+            <span class="trip-map-badge__day"></span>
+            <span class="trip-map-badge__title"></span>
+          </div>
+          <div id="trip-map-note" class="trip-map-note">{t.tileNote}</div>
+        </div>
+      </div>
+
+      <div class="trip-days">
+        {trip.days.map((day) => <DaySection day={day} labels={dayLabels} />)}
+      </div>
+    </div>
+
+    <!-- ── Day 導覽 ── -->
+    {
+      trip.days.length > 1 && (
+        <nav class="trip-daynav" aria-label={t.dayNavAria}>
+          {trip.days.map((day) => (
+            <button
+              type="button"
+              class="trip-daynav__dot"
+              data-day={day.day}
+              data-label={`${t.dayWord} ${day.day}`}
+              aria-label={`${t.dayWord} ${day.day} · ${day.title}`}
+            />
+          ))}
+        </nav>
+      )
+    }
+  </main>
+
+  <footer class="trip-footer">{trip.title} · Milifix</footer>
+
+  <!-- 地圖資料注入 -->
+  <script is:inline type="application/json" id="trip-map-data" set:html={JSON.stringify(mapData)}></script>
+
+  <script>
+    import { initPortfolioCursor } from '../../scripts/portfolio-cursor';
+    import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
+    import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
+    import { initTripReportClient } from '../../scripts/trip-report-client';
+
+    initPortfolioCursor();
+    initAnimeSplitText();
+    initAnimeOnScrollReveals();
+    initTripReportClient();
+  </script>
+</BaseLayout>
