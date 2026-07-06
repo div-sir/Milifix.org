@@ -1,0 +1,64 @@
+name: Translate blog posts
+
+# blog 內文／標題／摘要 AI 初譯（en/ja）。
+# 手動觸發：GitHub → Actions → 「Translate blog posts」→ Run workflow。
+# 需在 repo Settings → Secrets and variables → Actions 新增 secret：ANTHROPIC_API_KEY。
+#
+# 流程：讀 CMS 唯讀 API → Anthropic 翻譯 → 寫進 src/data/post-translations.json →
+#       有變更就 commit + push 到 main → Vercel 自動部署。
+# 完全不寫入 CMS、不改 schema。
+
+on:
+  workflow_dispatch:
+    inputs:
+      only_missing:
+        description: '只翻還沒翻過的（跳過已翻部分，較快、較省）'
+        type: boolean
+        default: true
+      dry_run:
+        description: '試跑：不呼叫 API、不寫檔，只列出會翻哪些'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: translate-blog
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run translation
+        run: |
+          node scripts/translate-posts.mjs \
+            ${{ inputs.only_missing && '--only-missing' || '' }} \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit & push if changed
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/post-translations.json
+          if git diff --staged --quiet; then
+            echo "沒有新譯文，略過 commit。"
+          else
+            git commit -m "feat(blog): AI 內文初譯 (en/ja) [skip ci]"
+            git push origin main
+            echo "已 push 譯文，Vercel 會自動部署。"
+          fi
