@@ -8,8 +8,8 @@ import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { travelPath } from '../../i18n/routes';
 import type { CmsAirline } from '../../lib/cms';
@@ -25,29 +25,12 @@ const t = ui(lang).travel;
 const relatedCards = await getCardsByAirline(airline.id);
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{airline.name} — {t.sectionAirlines} — Milifix</title>
-  <meta name="description" content={airline.description ?? ''} />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${airline.name} — ${t.sectionAirlines} — Milifix`}
+  description={airline.description}
+  canonicalPath={Astro.url.pathname}
+>
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -71,6 +54,10 @@ const relatedCards = await getCardsByAirline(airline.id);
         class="travel-detail__image travel-detail__image--contain"
         src={airline.logo?.url ?? `https://pics.avs.io/400/400/${airline.iataCode}.png`}
         alt={airline.name}
+        width="720"
+        height="360"
+        loading="eager"
+        fetchpriority="high"
       />
 
       <div class="travel-info">
@@ -103,5 +90,4 @@ const relatedCards = await getCardsByAirline(airline.id);
     initPortfolioCursor();
   </script>
   <TravelBottomNav lang={lang} current="airlines" />
-</body>
-</html>
+</BaseLayout>

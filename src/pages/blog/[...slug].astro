@@ -2,11 +2,13 @@
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/blog.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import PortfolioChrome from '../../components/PortfolioChrome.astro';
 import AmbientBackdrop from '../../components/AmbientBackdrop.astro';
 import LexicalContent from '../../components/LexicalContent.astro';
 import { getPosts } from '../../lib/cms';
+import { ui } from '../../i18n/ui';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -21,33 +23,23 @@ const displayTitle = post.title;
 
 const hl = Astro.url.searchParams.get('hl');
 const lang = hl === 'en' || hl === 'ja' || hl === 'zh' ? hl : 'zh';
-const tocAriaLabel = lang === 'en' ? 'On this page' : lang === 'ja' ? 'このページの見出し' : '本篇章節';
-const tocToggleUnpin = lang === 'en' ? 'Collapse' : lang === 'ja' ? '閉じる' : '收合';
-const tocTogglePin = lang === 'en' ? 'Expand' : lang === 'ja' ? '開く' : '展開';
+const B = ui(lang).blog;
+const tocAriaLabel = B.tocAria;
+const tocToggleUnpin = B.tocCollapse;
+const tocTogglePin = B.tocExpand;
 const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
   { id: 'back-to-blog', label: '返回', href: '/blog', icon: 'back' },
 ];
 ---
 
-<!DOCTYPE html>
-<html lang={lang === 'zh' ? 'zh-Hant' : lang}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>{displayTitle} · Blog</title>
-    <meta name="description" content={post.description} />
-    <script is:inline>
-      (function () {
-        try {
-          var t = localStorage.getItem('portfolio-theme');
-          document.documentElement.dataset.theme =
-            t === 'light' ? 'light' : t === 'dark' ? 'dark' : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
-    <script is:inline>
+<BaseLayout
+  lang={lang}
+  title={`${displayTitle} · Blog`}
+  description={post.description}
+  canonicalPath={Astro.url.pathname}
+  hreflangAlternates={false}
+>
+    <script slot="head" is:inline>
       (function () {
         try {
           if (!sessionStorage.getItem('portfolio:lang-transition-v1')) return;
@@ -65,7 +57,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         } catch (e) {}
       })();
     </script>
-    <script is:inline>
+    <script slot="head" is:inline>
       (function () {
         try {
           var qs = new URLSearchParams(window.location.search);
@@ -78,8 +70,6 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
         } catch (e) {}
       })();
     </script>
-  </head>
-  <body class="portfolio-atmo">
     <AmbientBackdrop />
     <div id="cursor"></div>
     <div id="cursor-ring"></div>
@@ -143,5 +133,4 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
 
       initBlogTranslate();
     </script>
-  </body>
-</html>
+</BaseLayout>

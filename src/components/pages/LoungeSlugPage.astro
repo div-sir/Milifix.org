@@ -8,8 +8,8 @@ import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { travelPath } from '../../i18n/routes';
 import type { CmsLounge } from '../../lib/cms';
@@ -26,29 +26,12 @@ const relatedCards = await getCardsByLounge(lounge.id);
 const heroImage = lounge.images?.[0]?.image?.url;
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{lounge.name} — {t.sectionLounges} — Milifix</title>
-  <meta name="description" content={lounge.description ?? ''} />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${lounge.name} — ${t.sectionLounges} — Milifix`}
+  description={lounge.description}
+  canonicalPath={Astro.url.pathname}
+>
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -73,6 +56,10 @@ const heroImage = lounge.images?.[0]?.image?.url;
           class="travel-detail__image"
           src={heroImage}
           alt={lounge.name}
+          width="720"
+          height="360"
+          loading="eager"
+          fetchpriority="high"
         />
       )}
 
@@ -89,7 +76,7 @@ const heroImage = lounge.images?.[0]?.image?.url;
 
         {lounge.location && (
           <>
-            <span class="travel-info__label">{lang === 'zh' ? '位置' : 'Location'}</span>
+            <span class="travel-info__label">{t.locationLabel}</span>
             <span class="travel-info__value">{lounge.location}</span>
           </>
         )}
@@ -116,7 +103,10 @@ const heroImage = lounge.images?.[0]?.image?.url;
               class="travel-card__image"
               src={img.image.url}
               alt={img.image.alt ?? lounge.name}
+              width="320"
+              height="200"
               loading="lazy"
+              decoding="async"
               style="border-radius: 10px;"
             />
           ))}
@@ -143,5 +133,4 @@ const heroImage = lounge.images?.[0]?.image?.url;
     initPortfolioCursor();
   </script>
   <TravelBottomNav lang={lang} current="lounges" />
-</body>
-</html>
+</BaseLayout>

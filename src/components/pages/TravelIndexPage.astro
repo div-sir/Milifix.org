@@ -16,10 +16,10 @@ import CompareModal from '../travel/CompareModal.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { programSlugPath } from '../../i18n/routes';
+import { programSlugPath, cardSlugPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -38,10 +38,10 @@ const [cards, lounges, airlines, allPrograms] = await Promise.all([
 // ── Stats ──
 const bankCount = new Set(cards.map((c) => c.bank)).size;
 const stats = [
-  { value: String(cards.length), label: lang === 'zh' ? '張信用卡' : 'Cards' },
-  { value: String(bankCount), label: lang === 'zh' ? '家銀行' : 'Banks' },
-  { value: String(airlines.length), label: lang === 'zh' ? '家航空' : 'Airlines' },
-  { value: String(lounges.length), label: lang === 'zh' ? '間貴賓室' : 'Lounges' },
+  { value: String(cards.length), label: t.statCardsLabel },
+  { value: String(bankCount), label: t.statBanksLabel },
+  { value: String(airlines.length), label: t.statAirlinesLabel },
+  { value: String(lounges.length), label: t.statLoungesLabel },
 ];
 
 // ── Card filters data ──
@@ -66,7 +66,6 @@ for (const c of cards) {
 }
 
 // ── 各航空對應的卡片（給航空彈窗用）──
-const cardPath = (slug: string) => `/${lang === 'en' ? '' : lang + '/'}travel/cards/${slug}`;
 const airlineCards: Record<string, { name: string; bank: string; href: string }[]> = {};
 for (const c of cards) {
   const slugs = new Set<string>();
@@ -75,7 +74,7 @@ for (const c of cards) {
     if (al && typeof al === 'object' && 'slug' in al) slugs.add(al.slug);
   }
   for (const s of slugs) {
-    (airlineCards[s] ??= []).push({ name: c.name, bank: c.bank, href: cardPath(c.slug) });
+    (airlineCards[s] ??= []).push({ name: c.name, bank: c.bank, href: cardSlugPath(lang, c.slug) });
   }
 }
 const airlinesData = airlines.map((a) => ({
@@ -101,29 +100,12 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
 
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{t.metaTitle} — Milifix</title>
-  <meta name="description" content={t.heroDesc} />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${t.metaTitle} — Milifix`}
+  description={t.heroDesc}
+  canonicalPath={Astro.url.pathname}
+>
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -145,7 +127,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           </div>
         ))}
       </div>
-      <nav class="travel-hero__jump" aria-label={lang === 'zh' ? '區塊快速跳轉' : 'Jump to section'}>
+      <nav class="travel-hero__jump" aria-label={t.jumpSectionAria}>
         <button type="button" class="travel-hero__jump-btn" data-tab="cards">{t.sectionCards}</button>
         <button type="button" class="travel-hero__jump-btn" data-tab="airlines">{t.sectionAirlines}</button>
         <button type="button" class="travel-hero__jump-btn" data-tab="lounges">{t.sectionLounges}</button>
@@ -166,25 +148,25 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
               type="search"
               id="card-search"
               class="card-toolbar__search-input"
-              placeholder={lang === 'zh' ? '搜尋卡名或銀行…' : 'Search card or bank…'}
+              placeholder={t.searchCardPlaceholder}
               autocomplete="off"
-              aria-label={lang === 'zh' ? '搜尋信用卡' : 'Search credit cards'}
+              aria-label={t.searchCardAria}
             />
           </div>
           <div class="card-toolbar__sort">
-            <label class="card-toolbar__sort-label" for="card-sort">{lang === 'zh' ? '排序' : 'Sort'}</label>
+            <label class="card-toolbar__sort-label" for="card-sort">{t.sortLabel}</label>
             <select id="card-sort" class="card-toolbar__sort-select">
-              <option value="default">{lang === 'zh' ? '預設' : 'Default'}</option>
-              <option value="fee-asc">{lang === 'zh' ? '年費 低→高' : 'Fee low→high'}</option>
-              <option value="fee-desc">{lang === 'zh' ? '年費 高→低' : 'Fee high→low'}</option>
-              <option value="name">{lang === 'zh' ? '卡名 A→Z' : 'Name A→Z'}</option>
-              <option value="benefits">{lang === 'zh' ? '權益最多' : 'Most benefits'}</option>
+              <option value="default">{t.sortDefault}</option>
+              <option value="fee-asc">{t.sortFeeAsc}</option>
+              <option value="fee-desc">{t.sortFeeDesc}</option>
+              <option value="name">{t.sortNameAsc}</option>
+              <option value="benefits">{t.sortMostBenefits}</option>
             </select>
           </div>
         </div>
         <div class="card-filters" id="card-filters">
           <div class="card-filters__section">
-            <span class="card-filters__label">{lang === 'zh' ? '銀行' : 'Bank'}</span>
+            <span class="card-filters__label">{t.bankFilterLabel}</span>
             <div class="card-filters__group">
               {banks.map((b) => (
                 <button type="button" class="card-filters__tag" data-filter="bank" data-value={b} aria-pressed="false">
@@ -194,7 +176,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
             </div>
           </div>
           <div class="card-filters__section">
-            <span class="card-filters__label">{lang === 'zh' ? '卡片特點' : 'Benefits'}</span>
+            <span class="card-filters__label">{t.benefitFilterLabel}</span>
             <div class="card-filters__group">
               {allBenefitTypes.map((bt) => {
                 const n = benefitCounts[bt] ?? 0;
@@ -215,9 +197,9 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           </div>
           <div class="card-filters__section card-filters__section--fee">
             <div class="fee-head">
-              <span class="card-filters__label">{lang === 'zh' ? '年費區間' : 'Annual fee'}</span>
+              <span class="card-filters__label">{t.feeRangeLabel}</span>
               <span class="fee-readout">
-                <span class="fee-readout__range" id="fee-value">{lang === 'zh' ? '不限' : 'All'}</span>
+                <span class="fee-readout__range" id="fee-value">{t.feeUnlimited}</span>
                 <span class="fee-readout__count" id="fee-match"></span>
               </span>
             </div>
@@ -232,7 +214,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
                 max={FEE_LAST}
                 value="0"
                 step="1"
-                aria-label={lang === 'zh' ? '年費下限' : 'Minimum annual fee'}
+                aria-label={t.feeMinAria}
               />
               <input
                 type="range"
@@ -242,15 +224,15 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
                 max={FEE_LAST}
                 value={FEE_LAST}
                 step="1"
-                aria-label={lang === 'zh' ? '年費上限' : 'Maximum annual fee'}
+                aria-label={t.feeMaxAria}
               />
               <div class="fee-slider__ticks">
                 {FEE_BUCKETS.map((v, i) => {
                   const pct = (i / FEE_LAST * 100).toFixed(2);
                   const label = v === 0
-                    ? (lang === 'zh' ? '免費' : 'Free')
+                    ? t.feeFree
                     : i === FEE_LAST
-                      ? (lang === 'zh' ? '不限' : '∞')
+                      ? t.feeUnlimitedShort
                       : v >= 1000 ? `$${v / 1000}K` : `$${v}`;
                   return (
                     <span class="fee-slider__tick" style={`left:${pct}%`}>
@@ -265,7 +247,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           <div class="card-filters__result">
             <span class="card-filters__count" id="card-result-count">{cards.length}</span>
             <button type="button" class="card-filters__clear" id="card-clear" hidden>
-              {lang === 'zh' ? '清除全部' : 'Clear all'}
+              {t.clearAllLabel}
             </button>
           </div>
         </div>
@@ -284,9 +266,9 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           ))}
         </div>
         <div class="travel-empty travel-empty--cards" id="card-empty" hidden>
-          <p>{lang === 'zh' ? '找不到符合條件的卡片' : 'No cards match your filters'}</p>
+          <p>{t.noCardsMatch}</p>
           <button type="button" class="card-filters__clear" id="card-empty-clear">
-            {lang === 'zh' ? '清除篩選' : 'Clear filters'}
+            {t.clearFiltersLabel}
           </button>
         </div>
       </section>
@@ -321,8 +303,8 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           <div class="card-toolbar__search">
             <svg class="card-toolbar__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="search" id="lounge-search" class="card-toolbar__search-input" autocomplete="off"
-              placeholder={lang === 'zh' ? '搜尋貴賓室、機場或代碼…' : 'Search lounge, airport or code…'}
-              aria-label={lang === 'zh' ? '搜尋貴賓室' : 'Search lounges'} />
+              placeholder={t.searchLoungePlaceholder}
+              aria-label={t.searchLoungeAria} />
           </div>
           <span class="card-filters__count" id="lounge-count">{lounges.length}</span>
         </div>
@@ -351,7 +333,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
               {loungeNetworks.map((p) => (
                 <a class="travel-card" href={programSlugPath(lang, p.slug)}>
                   {p.logo?.url && (
-                    <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} loading="lazy" />
+                    <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} width="240" height="160" loading="lazy" decoding="async" />
                   )}
                   <span class="travel-card__overline">{t.programTypeNames['lounge-network']}</span>
                   <span class="travel-card__title">{p.name}</span>
@@ -380,7 +362,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
                 {items.map((p) => (
                   <a class="travel-card" href={programSlugPath(lang, p.slug)}>
                     {p.logo?.url && (
-                      <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} loading="lazy" />
+                      <img class="travel-card__image travel-card__image--logo" src={p.logo.url} alt={p.name} width="240" height="160" loading="lazy" decoding="async" />
                     )}
                     <span class="travel-card__overline">{t.programTypeNames[p.programType]}</span>
                     <span class="travel-card__title">{p.name}</span>
@@ -405,7 +387,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <div class="airline-modal__head">
-          <img class="airline-modal__logo" id="airline-modal-logo" src="" alt="" />
+          <img class="airline-modal__logo" id="airline-modal-logo" src="" alt="" width="64" height="64" loading="lazy" decoding="async" />
           <div class="airline-modal__title-wrap">
             <span class="airline-modal__iata" id="airline-modal-iata"></span>
             <h2 class="airline-modal__name" id="airline-modal-name"></h2>
@@ -839,5 +821,4 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
     });
   </script>
   <TravelBottomNav lang={lang} />
-</body>
-</html>
+</BaseLayout>

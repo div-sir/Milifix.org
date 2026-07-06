@@ -1,10 +1,10 @@
-/** 自訂游標與延遲跟隨環（若 DOM 缺少 `#cursor` / `#cursor-ring` 則略過）；≤768px 停用 */
+/** 自訂游標與延遲跟隨環（若 DOM 缺少 `#cursor` / `#cursor-ring` 則略過）；僅精準指標（滑鼠）啟用，觸控/粗指標停用 */
 export function initPortfolioCursor() {
   const cursor = document.getElementById('cursor');
   const ring = document.getElementById('cursor-ring');
   if (!cursor || !ring) return;
 
-  const mq = window.matchMedia('(max-width: 768px)');
+  const mq = window.matchMedia('(pointer: fine)');
   const cursorEl = cursor;
   const ringEl = ring;
   let mx = 0;
@@ -33,19 +33,21 @@ export function initPortfolioCursor() {
     rafId = 0;
     cursorEl.style.display = 'none';
     ringEl.style.display = 'none';
+    document.documentElement.classList.remove('has-custom-cursor');
   }
 
   function enable() {
     disable();
     cursorEl.style.removeProperty('display');
     ringEl.style.removeProperty('display');
+    document.documentElement.classList.add('has-custom-cursor');
     document.addEventListener('mousemove', onMove);
     animateRing();
   }
 
   function sync() {
-    if (mq.matches) disable();
-    else enable();
+    if (mq.matches) enable();
+    else disable();
   }
 
   sync();

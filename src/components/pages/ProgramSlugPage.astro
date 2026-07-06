@@ -1,6 +1,6 @@
 ---
 import { getLounges, getAirlines, getCreditCards, getPrograms } from '../../lib/cms';
-import type { CmsLounge, CmsAirline, CmsCreditCard, CmsProgram } from '../../lib/cms';
+import type { CmsLounge, CmsProgram } from '../../lib/cms';
 import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
@@ -11,8 +11,8 @@ import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { travelPath } from '../../i18n/routes';
 import { getProgramTierInfo } from '../../data/program-tiers';
@@ -92,29 +92,12 @@ const relatedCards = allCards.filter((card) =>
 );
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <title>{program.name} — {sectionContext} — Milifix</title>
-  <meta name="description" content={program.summary} />
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo">
+<BaseLayout
+  lang={lang}
+  title={`${program.name} — ${sectionContext} — Milifix`}
+  description={program.summary}
+  canonicalPath={Astro.url.pathname}
+>
   <AmbientBackdrop />
   <PageTransition />
   <div id="cursor"></div>
@@ -136,7 +119,15 @@ const relatedCards = allCards.filter((card) =>
       </header>
 
       {program.logo?.url && (
-        <img class="travel-detail__image travel-detail__image--contain" src={program.logo.url} alt={program.name} />
+        <img
+          class="travel-detail__image travel-detail__image--contain"
+          src={program.logo.url}
+          alt={program.name}
+          width="720"
+          height="360"
+          loading="eager"
+          fetchpriority="high"
+        />
       )}
 
       {program.website && (
@@ -236,5 +227,4 @@ const relatedCards = allCards.filter((card) =>
     initPortfolioCursor();
   </script>
   <TravelBottomNav lang={lang} current={backSection} />
-</body>
-</html>
+</BaseLayout>

@@ -1,5 +1,5 @@
 ---
-import { getWorks, workCoverUrl } from '../../lib/cms';
+import { getWorks, workCoverUrl, workCoverAlt } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import Quote from '../Quote.astro';
@@ -8,8 +8,8 @@ import SiteNav from '../SiteNav.astro';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/space-index.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { workPath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import { getLocalizedSpace } from '../../i18n/space-locale';
@@ -24,8 +24,7 @@ interface Props {
 const { lang, spaceParam } = Astro.props;
 
 if (!spaceParam || !isSpaceId(spaceParam)) {
-  const fallback = lang === 'en' ? '/' : `/${lang}/`;
-  return Astro.redirect(fallback);
+  return Astro.redirect(lang === 'en' ? '/' : `/${lang}/`);
 }
 
 const space = spaceParam as SpaceId;
@@ -52,26 +51,13 @@ const spaceDockSections = [
 ];
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-  <title>{spaceDef.navLabel}</title>
-  <script is:inline>
-    (function () {
-      try {
-        var t = localStorage.getItem('portfolio-theme');
-        document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      } catch (e) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
-</head>
-<body class="portfolio-atmo" data-space={space}>
+<BaseLayout
+  lang={lang}
+  title={spaceDef.navLabel}
+  description={spaceDef.tagline}
+  canonicalPath={Astro.url.pathname}
+  bodyAttrs={{ 'data-space': space }}
+>
   <AmbientBackdrop />
   <PageTransition />
 
@@ -142,7 +128,7 @@ const spaceDockSections = [
                 data-work-card
               >
                 <div class="work-item__inner">
-                  <img class="work-img" src={workCoverUrl(work)} alt="" width={800} height={600} loading="lazy" />
+                  <img class="work-img" src={workCoverUrl(work)} alt={workCoverAlt(work)} width={800} height={600} loading="lazy" decoding="async" />
                   <div class="work-overlay">
                     <div class="work-id">{String(i + 1).padStart(2, '0')}</div>
                     <div class="work-title">{work.title}</div>
@@ -203,5 +189,4 @@ const spaceDockSections = [
     import { initSpaceHomeClient } from '../../scripts/space-home-client';
     initSpaceHomeClient();
   </script>
-</body>
-</html>
+</BaseLayout>

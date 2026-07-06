@@ -158,7 +158,7 @@ const page  = await getPage('home')        // 頁面文案
 
 `/invoice-pass` 頁面提供前端表單，讓使用者產生並下載 `.pkpass` 檔案，由 `api/generate-pass.js`（Vercel serverless function）使用 [passkit-generator](https://github.com/alexandercerutti/passkit-generator) 簽署產出。
 
-**靜態資源：** `pass-assets/`（icon、logo、背景圖，見其內 README；此目錄不進 git）
+**靜態資源：** `pass-assets/`（icon、logo、背景圖，見其內 README；此目錄已納入 git 版控）
 
 **環境變數（簽署憑證，僅伺服器端）：**
 
@@ -190,7 +190,7 @@ src/
 api/
 └── generate-pass.js    Apple Wallet pkpass 產生（Vercel serverless function）
 
-pass-assets/            Wallet pass 靜態圖片資源（不進 git）
+pass-assets/            Wallet pass 靜態圖片資源（已納入 git 版控）
 ```
 
 ---

@@ -1,6 +1,6 @@
 ---
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
-import { HTML_LANG } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
 import { availableLangsForPath, spacePath, travelPath } from '../../i18n/routes';
 import { getWorks, getPosts, getCreditCards } from '../../lib/cms';
@@ -36,48 +36,30 @@ const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
   };
 });
 
-const blogTaglineByLang: Record<Lang, string> = {
-  zh: '旅行資料、分類索引與長文筆記',
-  en: 'Travel data archive, indexes, and long-form notes',
-  ja: '旅行データ、分類インデックス、長文ノート',
-};
-
 creators.push({
   name: 'BLOG',
-  tagline: blogTaglineByLang[lang],
+  tagline: P.blogTagline,
   href: '/blog',
   workCount: allPosts.filter((p) => !p.draft).length,
-  countUnit: lang === 'zh' ? '篇文章' : lang === 'ja' ? '記事' : 'Posts',
+  countUnit: P.blogCountUnit,
   idx: creators.length,
 });
 
-const lumiveilTaglineByLang: Record<Lang, string> = {
-  zh: '揭開你走過的每一步',
-  en: 'Reveal every step you have ever taken',
-  ja: '歩いてきた道を、光で明かす',
-};
-
 creators.push({
   name: 'LUMIVEIL',
-  tagline: lumiveilTaglineByLang[lang],
+  tagline: P.lumiveilTagline,
   href: '/lumiveil',
   workCount: 0,
   countUnit: 'iOS App',
   idx: creators.length,
 });
 
-const travelTaglineByLang: Record<Lang, string> = {
-  zh: '台灣信用卡航空與貴賓室權益比較',
-  en: 'Taiwan credit card airline & lounge benefits',
-  ja: 'Taiwan credit card airline & lounge benefits',
-};
-
 creators.push({
   name: 'TRAVEL',
-  tagline: travelTaglineByLang[lang],
+  tagline: P.travelTagline,
   href: travelPath(availableLangsForPath('/travel').includes(lang) ? lang : 'en'),
   workCount: allCards.length,
-  countUnit: lang === 'zh' ? '張卡片' : lang === 'ja' ? 'カード' : 'Cards',
+  countUnit: P.cardsCountUnit,
   idx: creators.length,
 });
 
@@ -87,28 +69,13 @@ const dockSections = [
 ];
 ---
 
-<!DOCTYPE html>
-<html lang={HTML_LANG[lang]}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111318" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f2ea" />
-    <title>{labels.metaTitlePlatform}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-    <script is:inline>
-      (function () {
-        try {
-          var t = localStorage.getItem('portfolio-theme');
-          document.documentElement.dataset.theme = t === 'light' ? 'light' : t === 'dark' ? 'dark' : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
-    <style>
+<BaseLayout
+  lang={lang}
+  title={labels.metaTitlePlatform}
+  description={labels.metaDescPlatform}
+  canonicalPath={Astro.url.pathname}
+>
+    <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
@@ -127,9 +94,12 @@ const dockSections = [
         background: var(--bg);
         color: var(--text);
         font-family: var(--sans);
-        cursor: none;
         min-height: 100vh;
         min-height: 100svh;
+      }
+
+      html.has-custom-cursor body {
+        cursor: none;
       }
 
       #cursor {
@@ -985,8 +955,7 @@ const dockSections = [
         mix-blend-mode: screen;
       }
     </style>
-  </head>
-  <body class="portfolio-atmo">
+
     <AmbientBackdrop />
     <PageTransition />
 
@@ -1179,5 +1148,4 @@ const dockSections = [
         setTimeout(triggerGlitch, 4200);
       }
     </script>
-  </body>
-</html>
+</BaseLayout>

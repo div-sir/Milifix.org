@@ -1,5 +1,14 @@
 // @ts-check
+import { randomUUID } from 'node:crypto';
 import { PKPass } from 'passkit-generator';
+import {
+  checkOrigin,
+  checkRateLimit,
+  getClientIp,
+  decodeImage,
+  isValidCarrier,
+  isValidHexColor,
+} from './_pass-security.js';
 
 // Minimal 1x1 PNG — fallback when no icon provided
 const PLACEHOLDER_PNG = Buffer.from(
@@ -10,29 +19,10 @@ const PLACEHOLDER_PNG = Buffer.from(
 const PASS_TYPE_ID = 'pass.com.milifix.invoice';
 const TEAM_ID = process.env.APPLE_TEAM_ID ?? 'UZJ42KP5ND';
 
-/** @param {string} id */
-function isValidCarrier(id) {
-  return /^\/[A-Z0-9+\-.]{7}$/.test(id);
-}
-
-/** @param {string} hex */
-function isValidHexColor(hex) {
-  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
-}
-
-const MAX_IMAGE_BASE64_LENGTH = 1_500_000; // ~1.1MB decoded, well under Vercel's 4.5MB body limit
-
-/**
- * 驗證並解碼使用者上傳的 base64 圖片，超出大小限制或非法 base64 時回傳 null。
- * @param {unknown} value
- * @returns {Buffer | null}
- */
-function decodeImage(value) {
-  if (typeof value !== 'string' || value.length === 0) return null;
-  if (value.length > MAX_IMAGE_BASE64_LENGTH) return null;
-  if (!/^[A-Za-z0-9+/]+=*$/.test(value)) return null;
-  return Buffer.from(value, 'base64');
-}
+// In-memory rate-limit store, shared across requests on the same warm serverless
+// instance. Ephemeral by design: cold starts reset it (see _pass-security.js).
+/** @type {Map<string, number[]>} */
+const RATE_LIMIT_STORE = new Map();
 
 /** @param {string} hex */
 function hexToRgb(hex) {
@@ -45,6 +35,25 @@ function hexToRgb(hex) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  // --- Origin / Referer allowlist ---
+  // "Verify-if-present": a supplied Origin/Referer must be one of our hosts;
+  // if both are absent (some in-app browsers strip them) we allow through and
+  // rely on rate limiting instead. See checkOrigin() for the full rationale.
+  const origin = checkOrigin(req.headers ?? {});
+  if (!origin.allowed) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  // --- Rate limiting (best-effort, in-memory) ---
+  const clientIp = getClientIp(req);
+  const rl = checkRateLimit(RATE_LIMIT_STORE, clientIp);
+  if (rl.limited) {
+    res.setHeader('Retry-After', String(rl.retryAfter));
+    res.status(429).json({ error: 'Too many requests. Please try again later.' });
     return;
   }
 
@@ -97,9 +106,9 @@ export default async function handler(req, res) {
     const wwdr       = Buffer.from(wwdrBase64,  'base64');
 
     const safeLogoText = String(logoText).slice(0, 20) || 'Invoice Pass';
-    // Derive organizationName from sec1 value if provided
-    const sec1Val = Array.isArray(secFields) && secFields[0]?.value ? String(secFields[0].value).trim() : '';
-    const safeOrg = sec1Val.slice(0, 24) || 'Milifix';
+    // organizationName is fixed to our own name — never derived from user input,
+    // so a signed pass can't impersonate a third party (phishing mitigation).
+    const safeOrg = 'Milifix';
 
     const VALID_ALIGN = new Set(['PKTextAlignmentLeft', 'PKTextAlignmentCenter', 'PKTextAlignmentRight', 'PKTextAlignmentNatural']);
 
@@ -109,7 +118,7 @@ export default async function handler(req, res) {
       {
         passTypeIdentifier: PASS_TYPE_ID,
         teamIdentifier: TEAM_ID,
-        serialNumber: `inv-${Date.now()}`,
+        serialNumber: `inv-${randomUUID()}`,
         description: '台灣統一發票載具',
         organizationName: safeOrg,
         logoText: safeLogoText,
@@ -214,7 +223,8 @@ export default async function handler(req, res) {
     res.setHeader('Content-Length', pkpassBuffer.length);
     res.status(200).send(pkpassBuffer);
   } catch (err) {
+    // Log full detail server-side only; never leak internals to the client.
     console.error('[generate-pass]', err);
-    res.status(500).json({ error: 'Failed to generate pass', detail: err?.message });
+    res.status(500).json({ error: 'Failed to generate pass' });
   }
 }

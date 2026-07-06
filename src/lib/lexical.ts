@@ -1,0 +1,60 @@
+/**
+ * 把 Payload Lexical rich text JSON 渲染成 HTML
+ * 只處理基本節點：paragraph, heading, text（含 bold/italic/underline）
+ */
+
+export type LexicalText = {
+  type: 'text';
+  text: string;
+  format?: number; // bitmask: 1=bold 2=italic 8=underline 16=strikethrough 32=code
+};
+
+export type LexicalNode =
+  | { type: 'paragraph'; children: LexicalNode[] }
+  | { type: 'heading'; tag: string; children: LexicalNode[] }
+  | { type: 'list'; listType: 'bullet' | 'number'; children: LexicalNode[] }
+  | { type: 'listitem'; children: LexicalNode[] }
+  | { type: 'quote'; children: LexicalNode[] }
+  | { type: 'horizontalrule' }
+  | LexicalText;
+
+export type LexicalRoot = { root: { children: LexicalNode[] } };
+
+export function renderText(node: LexicalText): string {
+  let t = node.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (!node.format) return t;
+  if (node.format & 1) t = `<strong>${t}</strong>`;
+  if (node.format & 2) t = `<em>${t}</em>`;
+  if (node.format & 8) t = `<u>${t}</u>`;
+  if (node.format & 16) t = `<s>${t}</s>`;
+  if (node.format & 32) t = `<code>${t}</code>`;
+  return t;
+}
+
+export function renderChildren(nodes: LexicalNode[]): string {
+  return nodes.map(renderNode).join('');
+}
+
+export function renderNode(node: LexicalNode): string {
+  switch (node.type) {
+    case 'text':
+      return renderText(node);
+    case 'paragraph':
+      return `<p>${renderChildren(node.children)}</p>`;
+    case 'heading':
+      return `<${node.tag}>${renderChildren(node.children)}</${node.tag}>`;
+    case 'list': {
+      const tag = node.listType === 'number' ? 'ol' : 'ul';
+      return `<${tag}>${renderChildren(node.children)}</${tag}>`;
+    }
+    case 'listitem':
+      return `<li>${renderChildren(node.children)}</li>`;
+    case 'quote':
+      return `<blockquote>${renderChildren(node.children)}</blockquote>`;
+    case 'horizontalrule':
+      return `<hr />`;
+    default:
+      if ('children' in node) return renderChildren((node as any).children ?? []);
+      return '';
+  }
+}
