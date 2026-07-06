@@ -9,6 +9,1212 @@
       "description": "芸術祭は「見る」ものではなく「経験する」もの——2025 瀬戸内国際芸術祭の会期と実用メモ。"
     }
   },
+  "zephlog/筆記/esp32-機械翻牌牆系統架構": {
+    "en": {
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "A Full Record of the Split-Flap Display System Architecture | ESP32 + PCF8574 + TCA9548A + ULN2003 + 28BYJ-48",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🪧 Project background",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "I wanted to build a WiFi-controlled \"mechanical split-flap wall\" that takes text input from a phone — like those clattering letter boards at airports.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "This wall is made of many split-flap modules, each able to display one letter, with home-position sensing, address identification, and inter-module chaining.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "To make the system modular, scalable, and reliable, I designed a three-layer architecture using I²C expansion, GPIO control, and an ESP32 as the main controller.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "[User UI] ↓ [ESP32 main board] ↓ (I²C main bus) [Adapter-board zones (multiple)] ↓ (I²C zone channels) [Split-flap modules (up to 64+)]",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💡 Layer 1: ESP32 main board",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Control core: ESP32 (handles WiFi / Web UI / control logic) - Two TCA9548A I²C multiplexers     - each has 8 I²C channels     - controlling up to 16 module zones total - Paired with a 12V → 5V step-down module powering the ESP32 and TCA9548A - Each TCA channel outputs one SDA / SCL / GND set to the next-layer adapter board",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "⚡ Layer 2: Adapter board (module-zone management unit)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Function:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Handles power and I²C distribution for up to 8 split-flap modules in \"one zone\" - Needs SDA/SCL pull-up resistors for the downstream devices - Paired with one 12V → 5V step-down module (MP1584 / LM2596) - I²C distribution connectors (4-pin) output to chain the modules",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Address management:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Uses three 2-pin jumper headers (or solder points)     - to set the module address zone for that adapter board (e.g. starting at 0x20) - Combined with the module's preset address coding, modules don't need address changes — you only set the adapter board's start address",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🧱 Layer 3: Split-flap module (smallest display unit)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Each module contains the following parts:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Part | Function | | --- | --- | | PCF8574 | I²C GPIO expander, 4 bits drive the ULN2003A, 1 bit reads the sensor | | ULN2003A | Drives the 28BYJ-48 stepper motor | | 28BYJ-48 | Power source for the mechanical flap | | A3144 Hall sensor | Detects the flap's home position | | 4-pin I²C chain socket | For easy module-to-module daisy chaining | | 0.1μF filter capacitor | Stabilizes the power signal and resists interference |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🔋 Power design plan",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Main power: 110V AC → 12V DC switching supply - Each adapter board uses a step-down module to produce 5V for the modules - Peak power per module is about 1.2W (while turning)     - 8 modules ≈ 9.6W → a 12V 1A module recommended (with margin)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Recommended setup:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Module count | Recommended step-down module power | | --- | --- | | ≤ 4 | MP1584 / 5V 1A module | | ≤ 8 | LM2596 / 5V 2A module |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🧠 Address management & module configuration logic",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Level | Address management | | --- | --- | | ESP32 → TCA9548A | Master selects channels 0–7 | | Adapter board | Jumpers switch the module address start (e.g. from 0x20) | | Module | Preset address, fixed positions like 0x20, 0x21... |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "> ✅ Benefits of jumpers: adapter boards can be repositioned freely and modules configured without soldering — easy maintenance! >",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💻 Software logic overview",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1. ESP32 starts a WiFi AP and serves a Web UI 2. The user enters the content to display 3. ESP32 parses the text and maps each module's target letter 4. Control:     - switch the corresponding TCA9548A channel     - issue commands by module address (flip, home) 5. Module executes: motor turns, senses home position, reaches target",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛠 To-do & enhancement ideas (future plans)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ✅ Develop a module status-reporting mechanism (via interrupt pin or reply signal) - ✅ Add a module-side \"automatic address reporting\" mechanism (EEPROM ID or I²C scan map) - ✅ Design a test board and debug points (TP + LED indicators) - ✅ Modularize module wiring (choose FPC or JST connectors) - ✅ Support remote OTA updates",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✅ Closing",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "This split-flap wall design considered everything from module details to overall power management, address planning, and hardware scalability.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Through I²C expansion + TCA multiplexing, we control a large number of split-flap modules with very few GPIO. The whole system is modular, detachable, and easy to maintain — easily extensible in future for a clock wall, marquee, or word-game wall.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
+    },
+    "ja": {
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "フラップ表示器システム構成の全記録｜ESP32 + PCF8574 + TCA9548A + ULN2003 + 28BYJ-48",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🪧 プロジェクト背景",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "スマホから文字を入力し、WiFiで制御する「機械式フラップウォール」を作りたかった。空港にあるカタカタ音の文字板ウォールのようなものだ。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "このウォールは多数のフラップモジュールで構成され、各モジュールは英字1文字を表示でき、ゼロ点センシング・アドレス識別・モジュール間の連結機能を備える。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "システムにモジュール性・拡張性・信頼性を持たせるため、I²C拡張・GPIO制御、そしてESP32を主制御コアとする三層構成を設計した。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "[ユーザーUI] ↓ [ESP32主制御基板] ↓（I²Cメインバス） [転送基板ゾーン（複数）] ↓（I²Cゾーンチャンネル） [フラップモジュール（最大64以上）]",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💡 第一層：ESP32主制御基板",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 制御コア：ESP32（WiFi／Web UI／制御ロジックを担当） - TCA9548A I²Cマルチプレクサを2個使用     - 各8つのI²Cチャンネル     - 合計で最大16のモジュールゾーンを制御 - 12V→5V降圧モジュールを併用し、ESP32とTCA9548Aに給電 - 各TCAチャンネルが1組のSDA／SCL／GNDを次層の転送基板へ出力",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "⚡ 第二層：転送基板（モジュールゾーン管理ユニット）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "機能：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 「1ゾーン」最大8個のフラップモジュールへの給電とI²C分配を担当 - 下位機器のためにSDA/SCLプルアップ抵抗が必要 - 12V→5V降圧モジュール（MP1584／LM2596）を1個併用 - I²C分配コネクタ（4ピン）でモジュールを連結出力",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "アドレス管理：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 3組の2ピンジャンパヘッダ（またははんだ点）を使用     - その転送基板のモジュールアドレスゾーンを設定（例：0x20から開始） - モジュールのプリセットアドレス符号と組み合わせ、モジュールのアドレス変更は不要、転送基板の開始アドレスを設定するだけでよい",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🧱 第三層：フラップモジュール（最小表示ユニット）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "各モジュールは以下の部品を含む：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 部品 | 機能 | | --- | --- | | PCF8574 | I²C GPIO拡張、4ビットでULN2003Aを制御、1ビットでセンサーを読取 | | ULN2003A | 28BYJ-48ステッピングモーターを駆動 | | 28BYJ-48 | 機械式フラップの動力源 | | A3144ホールセンサー | フラップのゼロ点を検出 | | 4ピンI²C連結ソケット | モジュール間のデイジーチェーン連結に便利 | | 0.1μFフィルタコンデンサ | 電源信号を安定させノイズに強くする |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🔋 電源設計プラン",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 主電源：110V AC → 12V DC スイッチング電源 - 各転送基板は降圧モジュールで5Vを生成しモジュールに供給 - モジュール1個の最大消費電力は約1.2W（回転中）     - 8モジュール≈9.6W → 12V 1Aモジュールを推奨（マージン込み）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "推奨構成：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| モジュール数 | 推奨降圧モジュール電力 | | --- | --- | | ≤ 4 | MP1584／5V 1Aモジュール | | ≤ 8 | LM2596／5V 2Aモジュール |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🧠 アドレス管理とモジュール構成ロジック",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 階層 | アドレス管理方法 | | --- | --- | | ESP32 → TCA9548A | マスターがチャンネル0〜7を選択 | | 転送基板 | ジャンパでモジュールアドレスの起点を切替（例：0x20から） | | モジュール | プリセットアドレス、0x20、0x21…のように固定配置 |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "> ✅ ジャンパの利点：転送基板は自由に配置換えでき、モジュールははんだ付けなしで設定可能、メンテナンスが容易！ >",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💻 ソフトウェアロジック概要",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1. ESP32がWiFi APを起動しWeb UIを構築 2. ユーザーが表示したい内容を入力 3. ESP32が文字を解析し、各モジュールの目標文字に対応付け 4. 制御：     - 対応するTCA9548Aチャンネルを切替     - モジュールアドレスに応じて指令（フラップ、ゼロ点復帰） 5. モジュールが実行：モーター回転、ゼロ点をセンシング、所定位置へ",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🛠 TODOと強化案（今後の計画）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- ✅ モジュール状態の報告機構を開発（割込ピンまたは応答信号経由） - ✅ モジュール側に「アドレス自動報告」機構を追加（EEPROM IDまたはI²Cスキャンマップ） - ✅ テスト基板とデバッグポイントを設計（TP＋LEDインジケータ） - ✅ モジュール配線のモジュール化（FPCまたはJSTコネクタを選択） - ✅ リモートOTA更新に対応",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✅ 結び",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "今回のフラップウォール設計は、モジュールの細部から全体の電源管理、アドレス計画、ハードウェア拡張性まで一貫して考慮した。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "I²C拡張＋TCAマルチプレクサにより、ごく少ないGPIOで多数のフラップモジュールを制御した。システム全体はモジュール式で着脱可能、メンテナンスも容易。将来は時計ウォール、マーキー、単語ゲームウォールなども容易に拡張できる。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
+    }
+  },
   "zephlog/筆記/jr-pass-與參考票價-統整": {
     "en": {
       "title": "JR Pass & Reference Fares",
@@ -5390,11 +6596,1439 @@
   "zephlog/筆記/阿拉斯加航空mileage-plan哩程規則與兌換整理": {
     "en": {
       "title": "Alaska Airlines Mileage Plan: Earning Rules & Redemption Guide",
-      "description": "Alaska Airlines Mileage Plan essentials: earning, redemption, taxes & fees, stopovers, and partner-airline award availability."
+      "description": "Alaska Airlines Mileage Plan essentials: earning, redemption, taxes & fees, stopovers, and partner-airline award availability.",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Alaska Airlines' Mileage Plan lets frequent flyers earn miles by flying, redeemable for free flights, upgrades, and other rewards. The program offers flexible reward options and pricing, making every flight more valuable.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Key points",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Mileage requirement: the miles shown are the starting price for a nonstop flight; multi-segment itineraries may require more. - Mixed-cabin itineraries: if your trip includes different cabins (e.g. economy and business), the miles required are calculated at the highest cabin (e.g. business). - Taxes & fees: each ticket incurs taxes and airline charges, starting at $5.60 per person per segment. Partner segments add a non-refundable $12.50 (USD) per person per segment. - Stopovers & connections: international flights allow up to a 14-day stopover on a one-way; round trips allow one stopover in each direction. - Infant policy: international partner flights don't accept lap infants, but U.S. domestic flights or Alaska Airlines flights can be booked under the standard infant policy. - International booking requirement: if both origin and destination are outside the U.S., you must book at least 72 hours in advance. - Cancel before departure to refund miles and taxes/fees (but the service fee is non-refundable).",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💰 Taxes/fees: U.S. domestic one-way $5.60; international taxes/fees are higher",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💰 Additional fees:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- $15 phone booking fee (non-refundable) - $12.50 partner-airline award fee (per segment/person, non-refundable)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "autolink",
+                  "fields": {
+                    "url": "https://www.alaskaair.com/",
+                    "linkType": "custom"
+                  },
+                  "format": "",
+                  "indent": 0,
+                  "version": 2,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "https://www.alaskaair.com/",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": null
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Asia-Pacific award chart",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Distance (miles) | Economy | Premium Eco | Business | First | | --- | --- | --- | --- | --- | | Under 1,500 | 7,500 | 10,000 | 15,000 | 22,500 | | 1,501–3,000 | 25,000 | 32,500 | 50,000 | 75,000 | | 5,001–7,000 | 37,500 | 50,000 | 75,000 | 110,000 | | 7,001–10,000 | 42,500 | 55,000 | 85,000 | 130,000 |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1,500 miles is roughly Taiwan–Japan, excluding Sapporo",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Taiwan–U.S. falls in the 5,000–7,000 band",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Taiwan–Europe falls in the 7,000–10,000 band",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Since everything under 1,500 miles is the same price, Taiwan–Hong Kong isn't worthwhile, but Taipei–Tokyo in a 15k business-class seat is a great deal",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Asia-region taxes are about $28 per trip",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Trans-Pacific is about $46",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Buying miles",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Alaska miles go on sale almost every month, with bonuses ranging roughly 40–60% per person. If you have a past purchase record, you're more likely to be offered 60%; you can also stack credit-card or cash-back offers to get even more miles",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "autolink",
+                  "fields": {
+                    "url": "https://www.alaskaair.com/content/mileage-plan/use-miles/share-gift-miles",
+                    "linkType": "custom"
+                  },
+                  "format": "",
+                  "indent": 0,
+                  "version": 2,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "https://www.alaskaair.com/content/mileage-plan/use-miles/share-gift-miles",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": null
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Pre-revamp pricing",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Standard price 1K: $27.5",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "40% bonus 1K: $19.6",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "50% bonus* 1K: $18.3",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "60% bonus 1K: $17.2",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "70% bonus 1K: $16.5",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "100% bonus* 1K: $13.75",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "*Before Hawaiian Airlines fully merged, nearly every sale offered everyone 50%",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "*Only appears during the big Hawaiian Airlines merger promo",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "A Taiwan–Japan 15K business seat is only $294 even at just 40% — under ten thousand (TWD)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "A Taiwan–U.S. 75K business seat is $1,470 — only a bit more than premium economy",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Calculating at 100% bonus:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Taiwan–Japan business: $206 + $28 = $235",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Taiwan–U.S. business: $1,031 + $46 = $1,080",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Currently JAL, Cathay Pacific, and STARLUX all release plenty of seats for Alaska mile redemption, and JAL in particular has released lots of Taiwan–Japan tickets (NGO and NRT)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- JAL award-release pattern:          clears inventory within two weeks          releases 2 business seats when booking opens",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "アラスカ航空 Mileage Plan：マイル規則と特典交換まとめ",
-      "description": "アラスカ航空 Mileage Plan の要点：積算、特典交換、税・手数料、ストップオーバー、提携航空会社の特典枠など。"
+      "description": "アラスカ航空 Mileage Plan の要点：積算、特典交換、税・手数料、ストップオーバー、提携航空会社の特典枠など。",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "アラスカ航空のマイレージプラン（Mileage Plan）は、フライト搭乗でマイルを貯め、無料航空券・アップグレード・その他の特典に交換できる。柔軟な特典オプションと価格設定で、一回一回のフライトをより価値あるものにする。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "ポイント整理",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 必要マイル：表示のマイル数は直行便の開始価格。複数区間の行程では、必要マイルが増える場合がある。 - 混合クラスの行程：異なるクラス（エコノミーとビジネスなど）を含む場合、必要マイルは最上位クラス（例：ビジネス）で計算される。 - 税金・手数料：航空券ごとに税金と航空会社の手数料がかかり、1人1区間あたり$5.60から。提携区間を含む場合、1人1区間あたり$12.50（米ドル）の返金不可手数料が別途かかる。 - ストップオーバー・乗り継ぎ：国際線は片道で最大14日のストップオーバー可；往復では各方向1回ずつ可。 - 幼児の扱い：国際提携便は膝上幼児を受け付けないが、米国内線やアラスカ航空便は標準の幼児規定で予約可。 - 国際線予約の条件：出発地と目的地がともに米国外の場合、最低72時間前までに予約が必要。 - 出発前にキャンセルすればマイルと税金・手数料は返還される（ただし手数料は返金不可）。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💰 税・手数料：米国内片道$5.60、国際線は税・手数料が高め",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "💰 追加費用：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- $15 電話予約手数料（返金不可） - $12.50 提携航空会社の特典手数料（片道／1人、返金不可）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "autolink",
+                  "fields": {
+                    "url": "https://www.alaskaair.com/",
+                    "linkType": "custom"
+                  },
+                  "format": "",
+                  "indent": 0,
+                  "version": 2,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "https://www.alaskaair.com/",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": null
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "アジア太平洋 特典交換表",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 距離（マイル） | Economy | Premium Eco | Business | First | | --- | --- | --- | --- | --- | | 1,500以下 | 7,500 | 10,000 | 15,000 | 22,500 | | 1,501–3,000 | 25,000 | 32,500 | 50,000 | 75,000 | | 5,001–7,000 | 37,500 | 50,000 | 75,000 | 110,000 | | 7,001–10,000 | 42,500 | 55,000 | 85,000 | 130,000 |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1,500マイルはおよそ台湾〜日本（札幌を除く）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台湾〜米国は5,000〜7,000の区間",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台湾〜欧州は7,000〜10,000の区間",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1,500マイル以下はすべて同一価格なので、台湾〜香港は割に合わないが、台北〜東京で15kのビジネスクラスがあれば非常にお得",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "アジア圏の税金は1回あたり約$28",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "太平洋横断は約$46",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "マイル購入",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "アラスカのマイルはほぼ毎月セールがあり、各人おおむね40〜60%のボーナス。過去に購入履歴があれば60%が当たる確率が高い。さらにクレジットカードやキャッシュバックの特典と組み合わせれば、より多くのマイルを獲得できる",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "autolink",
+                  "fields": {
+                    "url": "https://www.alaskaair.com/content/mileage-plan/use-miles/share-gift-miles",
+                    "linkType": "custom"
+                  },
+                  "format": "",
+                  "indent": 0,
+                  "version": 2,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "https://www.alaskaair.com/content/mileage-plan/use-miles/share-gift-miles",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": null
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "改定前の価格",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "標準価格 1K：$27.5",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "40%ボーナス 1K：$19.6",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "50%ボーナス* 1K：$18.3",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "60%ボーナス 1K：$17.2",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "70%ボーナス 1K：$16.5",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "100%ボーナス* 1K：$13.75",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "*ハワイアン航空の完全合併前は、ほぼ毎回のセールで全員が50%だった",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "*ハワイアン航空の合併大セール時のみ出現",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台日路線の15Kビジネスクラスは、たとえ40%でも$294だけ、1万（台湾ドル）にも満たない",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台米線の75Kビジネスクラスも$1,470、プレミアムエコノミーより少し高い程度",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "100%ボーナスで計算すると",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台日ビジネス：$206＋$28＝$235",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "台米ビジネス：$1,031＋$46＝$1,080",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "現在、日本航空JAL・キャセイパシフィック航空・スターラックス航空はいずれもアラスカのマイル交換に多くの座席を開放しており、中でもJALは台日路線の特典枠を多数（NGOとNRT）放出している",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- JALの特典枠放出パターン：          2週間以内に在庫を一掃          予約開放時にビジネスクラスを2席放出",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   }
 }
