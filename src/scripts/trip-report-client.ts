@@ -363,6 +363,31 @@ export function initTripReportClient(): void {
       target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
   }
+
+  // ── 點擊控制地圖：點景點條目 → 立即聚焦該點；點地圖標記 → 捲到對應條目 ──
+  stopEls.forEach((el) => {
+    const stopId = el.dataset.tripStop;
+    const dayNum = Number(el.dataset.day);
+    if (!stopId || !Number.isFinite(dayNum)) return;
+    const go = (): void => focusStop(stopId, dayNum, el);
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) return; // 不攔截連結點擊
+      go();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        go();
+      }
+    });
+  });
+
+  for (const [id, marker] of markerByStop) {
+    marker.addEventListener('click', () => {
+      const target = stopEls.find((el) => el.dataset.tripStop === id);
+      target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    });
+  }
 }
 
 function emptyFC(): GeoJSON.FeatureCollection {
