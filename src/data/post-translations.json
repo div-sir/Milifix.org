@@ -964,11 +964,1097 @@
   "zephlog/筆記/成田機場到東京市區的交通全攻略｜電車・巴士・費用・時刻一覽": {
     "en": {
       "title": "Complete Guide from Narita Airport to Central Tokyo | Trains · Buses · Fares · Timetables",
-      "description": "Narita International Airport (NRT) is Tokyo's main international gateway, about 60 km from the city. Whether it's your first visit or you're a seasoned traveler, choosing the right transport makes a big difference…"
+      "description": "Narita International Airport (NRT) is Tokyo's main international gateway, about 60 km from the city. Whether it's your first visit or you're a seasoned traveler, choosing the right transport makes a big difference…",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Complete Guide from Narita Airport to Central Tokyo | Trains · Buses · Fares · Timetables",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Narita International Airport (NRT) is Tokyo's main international gateway, about 60 km from central Tokyo. Whether it's your first visit or you're a seasoned traveler, choosing the right transport can greatly improve your trip. This article compiles the various ways to get from Narita Airport to central Tokyo — trains, buses, travel times, fares, frequencies, and other practical info.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ Trains 🚋",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "① Narita Express (N'EX)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Terminals: Tokyo, Shinjuku, Shinagawa, Ikebukuro, Yokohama, etc. - Time: about 50–65 min (to Tokyo Station) - Fare: ordinary-car reserved seat ¥3,070 (Narita Airport ➝ Tokyo Station) / round trip ¥5,000 (within 14 days) - Frequency: about every 30 min - First train: about 06:44 - Last train: about 21:44 - Pros: comfortable, luggage space, JR Pass valid - Cons: stops only at some major stations",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "② Keisei Skyliner",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Terminals: Nippori, Ueno - Time: about 41 min (to Nippori) - Fare: ¥2,570 (incl. Skyliner limited-express ticket) - Frequency: every 20–40 min - First train: about 07:26 - Last train: about 22:30 - Pros: ultra-fast and direct, ideal for transferring to the Yamanote Line - Cons: requires a transfer to other areas",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "③ Keisei Main Line Access Express / Main Line Limited Express",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Terminals: Nippori, Asakusa, Nihonbashi, etc. - Time: about 60–80 min - Fare: about ¥1,050 (varies slightly by station) - Frequency: about every 20 min - First train: about 05:00 - Last train: about 23:00 - Pros: affordable, direct to many city spots - Cons: you may have to stand, handle your own luggage - Keisei network / Skyliner route map (PDF): [keisei.co.jp transit info](https://www.keisei.co.jp/keisei/tetudou/skyliner/tc/traffic/pdf/railmap.pdf)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ Buses 🚌",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "① LCB Low-Cost Bus",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The budget top pick for going straight from Narita Airport to major Tokyo destinations!",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Main routes and fares:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Destination | Fare (adult) | Travel time | | --- | --- | --- | | Tokyo Station / Ginza | ¥1,500 (except late night) | about 65 min | | Ikebukuro | ¥2,300 (¥1,900 online) | about 100–120 min | | Kawaguchi / Akabane | ¥1,800 | about 90–100 min | | Toyosu Market | ¥1,800 | about 90 min | | Shin-Kiba | ¥1,500 (¥1,400 online) | about 70 min |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Frequency and timetable:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Toward Tokyo Station / Ginza:     - First: about 07:30     - Last: about 23:20     - Interval: about every 20 min - Toward Ikebukuro:     - First: about 06:00     - Last: about 22:00     - Interval: about every 60 min",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "How to buy tickets:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- On-site: LCB ticket counters in each terminal (open 08:30–19:00) - Online: some routes offer web-discount fares (advance booking recommended) - Late-night services: buy from staff on-site",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Baggage rules:",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- One checked bag free per person; extra pieces may incur a charge",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "② Airport Limousine Bus",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Serves: major city hotels (Shinjuku, Odaiba, Ginza, Ikebukuro, etc.) - Time: 75–120 min - Fare: about ¥3,200 - Frequency: every 30–60 min - First: about 07:00 - Last: about 23:00 - Pros: direct to hotels, good for families and elderly travelers",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "③ AIRPORT BUS TYO-NRT",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Serves: Tokyo Station Yaesu exit - Time: about 65 min - Fare: ¥1,300 (reserved) or ¥1,500 (on-site) - Frequency: every 20–30 min - First: about 06:00 - Last: about 23:00 - Pros: affordable, frequent service - Cons: one bag only; traffic may affect timing",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ Summary comparison",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Transport | Main destinations | Time | Fare | Best for | | --- | --- | --- | --- | --- | | N'EX | Tokyo/Shinjuku/Yokohama | 50–65 min | ¥3,070 | Comfortable budget, luggage, JR Pass | | Keisei Skyliner | Ueno/Nippori | 36–41 min | ¥2,470 | Fast to the city, easy transfers | | Keisei Access Express | Asakusa/Nihonbashi, etc. | 60–85 min | about ¥1,050 | Budget travelers | | Airport Limousine Bus | Direct to hotels | 70–120 min | ¥3,100–¥3,600 | Elderly, families, groups | | AIRPORT BUS TYO-NRT | Tokyo Station | about 65 min | ¥1,500+ | Affordable, frequent |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "成田空港から東京都心へのアクセス完全ガイド｜電車・バス・料金・時刻一覧",
-      "description": "成田国際空港（NRT）は東京の主要な国際玄関口で、都心から約60km。初めての方も旅慣れた方も、最適な交通手段を選ぶことで旅の質が大きく変わります…"
+      "description": "成田国際空港（NRT）は東京の主要な国際玄関口で、都心から約60km。初めての方も旅慣れた方も、最適な交通手段を選ぶことで旅の質が大きく変わります…",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "成田空港から東京都心へのアクセス完全ガイド｜電車・バス・料金・時刻一覧",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "成田国際空港（Narita International Airport、NRT）は東京の主要な国際玄関口で、都心から約60km。初めての来日でも、旅慣れた人でも、適切な交通手段を選べば旅の質は大きく高まる。本記事では成田空港から東京都心へ向かうさまざまな交通手段——電車、バス、所要時間、運賃、便数などの実用情報をまとめた。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ 電車編🚋",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "① 成田エクスプレス N'EX（Narita Express）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 終点駅：東京、新宿、品川、池袋、横浜など - 所要時間：約50〜65分（東京駅まで） - 運賃：普通車指定席 ¥3,070（成田空港 ➝ 東京駅）／往復 ¥5,000（14日以内） - 便数：約30分に1本 - 始発：約06:44 - 終電：約21:44 - 利点：快適、荷物スペースあり、JRパス利用可 - 欠点：一部の主要駅のみ停車",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "② 京成スカイライナー",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 終点駅：日暮里、上野 - 所要時間：約41分（日暮里まで） - 運賃：¥2,570（スカイライナー特急券込み） - 便数：20〜40分に1本 - 始発：約07:26 - 終電：約22:30 - 利点：超高速で直通、山手線への乗り換えに便利 - 欠点：他エリアへは乗り換えが必要",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "③ 京成本線 アクセス特急／本線特急",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 終点駅：日暮里、浅草、日本橋など - 所要時間：約60〜80分 - 運賃：約¥1,050（下車駅により多少異なる） - 便数：20分に1本程度 - 始発：約05:00 - 終電：約23:00 - 利点：手頃な価格で、都心の多くの地点へ直通 - 欠点：立つ場合あり、荷物は自分で管理 - 京成路線網／スカイライナー路線図（PDF）：[keisei.co.jp 交通資料](https://www.keisei.co.jp/keisei/tetudou/skyliner/tc/traffic/pdf/railmap.pdf)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ バス編🚌",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "① LCB 格安高速バス（Low-Cost Bus）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "成田空港から東京の主要地点へ直行する、格安の第一候補！",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "主な路線と運賃：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 目的地 | 運賃（大人） | 所要時間 | | --- | --- | --- | | 東京駅／銀座 | ¥1,500（深夜除く） | 約65分 | | 池袋 | ¥2,300（ネット購入¥1,900） | 約100–120分 | | 川口／赤羽 | ¥1,800 | 約90–100分 | | 豊洲市場 | ¥1,800 | 約90分 | | 新木場 | ¥1,500（ネット購入¥1,400） | 約70分 |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "便数と時刻：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 東京駅／銀座方面：     - 始発：約07:30     - 終便：約23:20     - 間隔：約20分に1本 - 池袋方面：     - 始発：約06:00     - 終便：約22:00     - 間隔：約60分に1本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "購入方法：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 現地購入：各ターミナルのLCB発券カウンター（営業時間08:30〜19:00） - オンライン予約：一部路線はネット割引あり（事前予約推奨） - 深夜便：現地でスタッフから購入",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "手荷物の規定：",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 一人につき1個まで無料で預け入れ可、超過分は追加料金の場合あり",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "② リムジンバス（Airport Limousine Bus）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 運行先：主要な都心ホテル（新宿、台場、銀座、池袋など） - 所要時間：75〜120分 - 運賃：約¥3,200 - 便数：30〜60分ごと - 始発：約07:00 - 終便：約23:00 - 利点：ホテルへ直行、家族や年配の方に最適",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "③ AIRPORT BUS TYO-NRT",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 運行先：東京駅八重洲口 - 所要時間：約65分 - 運賃：¥1,300（予約）または¥1,500（現地） - 便数：20〜30分ごと - 始発：約06:00 - 終便：約23:00 - 利点：手頃な価格、高頻度 - 欠点：荷物1個まで、交通状況で時間が変わる場合あり",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "✦ まとめ比較",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 交通手段 | 主な目的地 | 時間 | 費用 | 向いている人 | | --- | --- | --- | --- | --- | | N'EX | 東京/新宿/横浜 | 50–65分 | ¥3,070 | 予算に余裕、荷物あり、JRパス | | 京成スカイライナー | 上野/日暮里 | 36–41分 | ¥2,470 | 早く都心へ、乗り換え便利 | | 京成アクセス特急 | 浅草/日本橋など | 60–85分 | 約¥1,050 | 予算重視の旅行者 | | リムジンバス | ホテル直行 | 70–120分 | ¥3,100〜¥3,600 | 年配・親子・団体 | | AIRPORT BUS TYO-NRT | 東京駅 | 約65分 | ¥1,500〜 | 手頃で高頻度 |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/拉麵系流派介紹-一碗風土一系風格六大門派": {
@@ -1772,11 +2858,841 @@
   "zephlog/筆記/日本經典自行車道路線精選-島波海道筑波霞浦": {
     "en": {
       "title": "Japan's Classic Cycling Routes: Shimanami Kaidō, Tsukuba & Kasumigaura",
-      "description": "Starting from Onomichi, riding across Innoshima, Ōmishima, Ikuchijima and more — dedicated cycle lanes along the way make it safe and enjoyable."
+      "description": "Starting from Onomichi, riding across Innoshima, Ōmishima, Ikuchijima and more — dedicated cycle lanes along the way make it safe and enjoyable.",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Japan's Classic Cycling Routes: Shimanami Kaidō, Tsukuba & Kasumigaura",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1. Shimanami Kaidō (しまなみ海道)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Starting from Onomichi, you cross Innoshima, Ōmishima, Ikuchijima and more, with dedicated separated cycle lanes the whole way for high safety.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Every bridge has a gentle-gradient approach, so even beginners can take it on with confidence. The views are wide open and crisp: sea and sky as one, sailboats dotting the water, fishing villages and lemon groves scattered between. No need for words — this road is the scenery itself.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Onomichi (Hiroshima) – Imabari (Ehime) - Start: Onomichi / Imabari - Length: about 70 km - Highlights: spanning six islands of the Seto Inland Sea and crossing many bridges, it's Japan's most iconic sea-view cycling road. The calm sea and island silhouettes make it a pilgrimage route for many cyclists.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "2. Tsukuba Kasumigaura Rinrin Road",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Formerly the old Tsukuba Railway, it was rebuilt into a flat, straight cycle path. It's perfect for those who don't want a challenge, just quiet riding and scenery. A gentle breeze drifts off the lake, endless paddies and farmhouses line the road — everything at once modern and rural, like riding into a landscape painting.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Lake Kasumigaura is Japan's second-largest lake, with a lakeside route stretching 90 km; its surface shifts with the sky, now calm, now shimmering. The Mt. Tsukuba section has some gradient, suited to riders wanting more of a challenge.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Ibaraki Prefecture - Start: Tsuchiura - Length: about 180 km - Highlights: a former railway line rebuilt into a flat, easy-riding path circling Japan's second-largest lake, Kasumigaura. A leisurely ride weaving through paddies, countryside, and lake views.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "3. Lake Biwa Cycling (Biwaichi)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "\"Biwaichi\" means \"a lap of Lake Biwa\" — cycling all the way around the lake. As Japan's largest lake, Biwa boasts magnificent water scenery, set against continuous mountain ranges like Mt. Hiei and the Hira Mountains, forming a stunning blend of nature and history.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The route is gently graded overall, almost entirely on well-paved cycle paths, suitable for riders of all ages and experience levels. The lakeshore is dotted with well-appointed \"Biwaichi Support Stations,\" including rest areas, air pumps, tool loans, and even inns that allow \"bikes in the room.\"",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "What's more, Lake Biwa is not only a lake of nature but also of history. Along the way you can visit cultural spots like Shirahige Shrine, Hikone Castle, and the old castle town of Ōmi-Hachiman — a lap that combines sightseeing with relaxation.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Shiga Prefecture - Start: Ōtsu / Kusatsu / Ōmi-Hachiman - Length: about 193 km (around the lake) - Highlights: circling Japan's largest lake, Biwa. Open waterfront views, excellent facilities, rest stops and bike-friendly amenities — a top pick for family rides.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "4. Pacific Cycling Road",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Chōshi (Chiba) – Wakayama (Wakayama) - Length: about 1,400 km - Highlights: Japan's longest cycling road, running through the Tōkaidō and stretching along the Pacific coast. Highly varied scenery — from cities and beaches to mountain villages — suited to long-distance challenges.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "5. Toyama Bay Cycling Route",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Toyama Prefecture - Highlights: distant views of the Tateyama Mountain Range while riding between coastline and fishing villages. Nature and history interwoven — one of the Hokuriku region's most iconic routes.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "6. North Kumamoto · Aso Outer-Rim Route (Asobō no Michi)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Area: Kumamoto Prefecture - Highlights: riding among the outer rim of the Aso volcano, with sweeping views of dramatic volcanic terrain and grassland scenery — a mountain route combining challenge and healing.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚴 Riding tips",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Obey traffic rules: in Japan, bicycles are treated as vehicles and must follow the relevant traffic laws. - Safety gear: a helmet is recommended, and use lights when riding at night. - Easy rentals: most route trailheads offer bike rentals, and some allow convenient one-way pickup and drop-off.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "日本の定番サイクリングロード精選：しまなみ海道・筑波・霞ヶ浦",
-      "description": "尾道を起点に、因島・大三島・生口島などを渡っていく。専用の分離レーンが整備され、安全性が高いルート。"
+      "description": "尾道を起点に、因島・大三島・生口島などを渡っていく。専用の分離レーンが整備され、安全性が高いルート。",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "日本の定番サイクリングロード精選：しまなみ海道・筑波・霞ヶ浦",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "1. しまなみ海道（Shimanami Kaidō）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "尾道を起点に、因島・大三島・生口島などを渡っていく。沿道には自転車専用の分離レーンが整備され、安全性が高い。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "どの橋にも緩やかな勾配の設計があり、初心者でも安心して挑戦できる。視界は開け、風景は澄み渡る——海と空が一色になり、帆船が点々と浮かび、漁村とレモン畑が点在する。多くを語る必要はない、この道そのものが風景だ。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：広島県尾道市－愛媛県今治市 - 起点：尾道／今治 - 距離：約70km - 特徴：瀬戸内海の六つの島を横断し、多くの橋を渡る、日本を代表する海景サイクリングロード。穏やかな海面と島影は、多くのサイクリストの巡礼路。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "2. つくば霞ヶ浦りんりんロード（Tsukuba Kasumigaura Rinrin Road）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "旧筑波鉄道を前身とし、平坦でまっすぐなサイクリングロードに改修された。挑戦を求めず、静かに走って景色を楽しみたい人に最適。湖畔の風が緩やかに吹き、道端には果てしない水田と農家が広がる。近代的でありながら田園的で、まるで風景画の中へ走り込む体験だ。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "霞ヶ浦は日本第二の湖で、湖を巡る区間は90kmに及ぶ。湖面は空模様によって変化し、時に静かに、時にきらめく。筑波山区間はやや勾配があり、さらに挑戦したいライダー向け。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：茨城県 - 起点：土浦 - 距離：約180km - 特徴：旧鉄道線を平坦で走りやすい道に改修し、日本第二の湖・霞ヶ浦を一周。沿道は水田・田舎・湖景が交錯するゆったりライドの道。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "3. びわ湖サイクリング（ビワイチ）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "「ビワイチ」とは「びわ湖一周」の意で、自転車で琵琶湖をぐるりと巡ること。日本最大の湖・琵琶湖は雄大な水景を誇り、比叡山や比良山などの連なる山々と映え合い、自然と歴史が織りなす絶景をなす。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "全体の勾配は緩やかで、沿線はほぼ全て整備の行き届いたサイクリングロード。年齢や経験を問わず楽しめる。湖岸には充実した「Biwaichi Support Stations」が設けられ、休憩所・空気入れ・工具貸出、さらには「自転車を部屋に持ち込める」宿もある。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "さらに琵琶湖は自然の湖であると同時に歴史の湖でもある。走行途中には白鬚神社、彦根城、近江八幡の古い城下町などの文化スポットを訪ねられ、観光と癒しを兼ねた一周旅になる。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：滋賀県 - 起点：大津／草津／近江八幡 - 距離：約193km（湖一周） - 特徴：日本最大の湖・琵琶湖を一周。水辺の眺めは開放的で施設も充実、休憩所や便利なサイクリスト向け設備も整い、親子ライドの第一候補。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "4. 太平洋岸自転車道（Pacific Cycling Road）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：銚子（千葉県）－和歌山（和歌山県） - 距離：約1,400km - 特徴：日本最長の自転車道。東海道を貫き、太平洋岸に沿って延びる。都市・ビーチから山村まで多彩な景観で、長距離チャレンジ向け。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "5. 富山湾岸サイクリングコース（Toyama Bay Cycling Route）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：富山県 - 特徴：立山連峰を遠望しつつ、海岸線と漁村の間を走る。自然景観と歴史文化が織り交ざる、北陸地域を代表するルートの一つ。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h3",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "6. 北熊本・阿蘇外輪山ルート（阿蘇望の道）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- エリア：熊本県 - 特徴：阿蘇火山の外輪山を走り、雄大な火山地形と草原の風景を望む。挑戦と癒しを兼ねた山系ルート。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚴 ライドの豆知識",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 交通ルールを守る：日本では自転車は車両とみなされ、関連の交通ルールに従う必要がある。 - 安全装備：ヘルメットの着用を推奨、夜間はライトを点灯。 - レンタルが便利：多くのルートの起点にレンタサイクルがあり、一部は乗り捨て（別の場所で返却）にも対応。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/日本觀光列車總覽-路線業者官網與分車種錨點": {
