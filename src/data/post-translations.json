@@ -334,11 +334,621 @@
   "zephlog/筆記/大阪愛媛夜間渡輪-橙色orange-ferry航線設施與訂票": {
     "en": {
       "title": "Osaka–Ehime Overnight Ferry: Orange Ferry Routes, Facilities & Booking",
-      "description": "Orange Ferry (Shikoku Kaihatsu Ferry) — overnight routes, onboard facilities, and how to book."
+      "description": "Orange Ferry (Shikoku Kaihatsu Ferry) — overnight routes, onboard facilities, and how to book.",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Osaka–Ehime Overnight Ferry: Orange Ferry Routes, Facilities & Booking",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "[Orange Ferry | Shikoku Kaihatsu Ferry Co., Ltd.](https://www.orange-ferry.co.jp/)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚢 About Orange Ferry",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Orange Ferry is operated by Shikoku Kaihatsu Ferry Co., Ltd., founded in 1970 and headquartered in Saijō, Ehime Prefecture. The company runs scheduled ferry services connecting Shikoku, Kansai, and Kyushu, committed to a safe, comfortable, and fast voyage.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌉 Routes & services",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Shikoku Orange Ferry (Kansai route)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Route: Tōyo Port (Saijō, Ehime) ↔ Osaka Nankō (South Port) - Duration: about 8 hours - Schedule: boarding opens daily at 20:00, departs 22:00, arrives 06:00 the next day, and you can rest on board until 08:00 - Ships: \"Orange Osaka\" and \"Orange Ehime\" - Onboard facilities:     - Large public bath with sea views     - A variety of cabin choices, both Japanese- and Western-style     - A restaurant serving fresh local ingredients     - Comfortable public lounge areas",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The Kansai route is ideal for travelers planning to visit Shikoku spots like Matsuyama and Dōgo Onsen — you get the quiet of a night crossing while saving a night's accommodation. For cycling lovers, Orange Ferry is also a great way to reach the stunning \"Shimanami Kaidō\" cycling route.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "> If you long for a journey where the travel itself — not just the getting there — is the draw, Orange Ferry's Kansai route is a tender touch in the quiet of the night. Setting off gently from Osaka's South Port, by nightfall you're already in a little maritime universe bound for Shikoku. Whether you're headed for the healing trip of Matsuyama and Dōgo Onsen, or cycling between sea and sky along the \"Shimanami Kaidō,\" this night crossing is a unique kind of passage — quiet, easy on the wallet, yet full of poetry and anticipation. >",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Kyūshi route (Kyushu route)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Route: Yawatahama Port (Ehime) ↔ Usuki Port (Ōita) - Duration: about 2 hours 20–25 minutes - Frequency: 7 round trips daily (14 sailings) - Ships: \"Orange Shikoku\" and \"Orange Kyushu\" - Facilities:     - Barrier-free facilities     - A vehicle deck that accommodates large vehicles     - Light-meal service",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "This route is an important link between Shikoku and Kyushu, well suited to self-driving travelers and local residents.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "📅 Booking & fare information",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Booking: reserve online via the official website; some pages offer an English interface. - Payment: credit cards accepted, with password verification required. - Fares: vary by route, cabin class, and whether you bring a vehicle — refer to the fare table on the official website.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Tōyo–Osaka",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Cabin type | Period C | Period B | Period A | Capacity | | --- | --- | --- | --- | --- | | Royal Suite | ¥17,800 | ¥20,400 | ¥21,200 | 2 | | Suite | ¥12,700 | ¥14,500 | ¥15,100 | 2 (Japanese-style up to 4) | | Deluxe Single | ¥10,000 | ¥11,400 | ¥11,900 | 1 | | Single / Single+ | ¥8,200 | ¥9,300 | ¥9,700 | 1 / 2 | | With-Pet Room | *extra usage fee ¥6,000 | - | - | - |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "大阪〜愛媛の夜行フェリー：オレンジフェリーの航路・設備・予約",
-      "description": "オレンジフェリー（四国開発フェリー株式会社）——航路、船内設備、予約方法。"
+      "description": "オレンジフェリー（四国開発フェリー株式会社）——航路、船内設備、予約方法。",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "大阪〜愛媛の夜行フェリー：オレンジフェリーの航路・設備・予約",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "[オレンジフェリー | 四国開発フェリー株式会社](https://www.orange-ferry.co.jp/)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚢 オレンジフェリー概要",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "オレンジフェリーは「四国開発フェリー株式会社」が運営し、1970年設立、本社は愛媛県西条市。四国・関西・九州を結ぶ定期フェリーを提供し、安全・快適・迅速な航海を目指している。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🌉 航路とサービス",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "四国オレンジフェリー（関西航路）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 航路：東予港（愛媛県西条市） ↔ 大阪南港 - 所要時間：約8時間 - 発着時間：毎日20:00乗船開始、22:00出航、翌06:00到着、船内で08:00まで休憩可 - 船舶：「おれんじ大阪」と「おれんじ愛媛」 - 船内設備：     - 海を望める大浴場     - 和室・洋室など多様な客室     - 地元の新鮮な食材を使ったレストラン     - 快適な公共休憩スペース",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "関西航路は松山や道後温泉など四国の観光地へ向かう旅行者にぴったり。夜間航海の静けさを味わえるうえ、宿泊一泊分を節約できる。自転車旅行が好きな人にとって、オレンジフェリーは絶景のサイクリングロード「しまなみ海道」への格好のアクセス手段でもある。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "> 単なる移動ではなく、旅そのものが憧れであるような旅を望むなら、オレンジフェリーの関西航路は静かな夜のひとすじの優しさだ。大阪南港からゆっくりと出航し、夜の帳が下りる頃には四国へ向かう海上の小宇宙に身を置いている。松山・道後温泉の癒しの旅へ向かうにせよ、「しまなみ海道」で海と空の間を自転車で駆けるにせよ、この夜航は独特の移ろい——静かで、宿代を節約でき、それでいて詩情と期待に満ちている。 >",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "九四航路（九州航路）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 航路：八幡浜港（愛媛県） ↔ 臼杵港（大分県） - 所要時間：約2時間20分〜2時間25分 - 便数：毎日7往復（計14便） - 船舶：「おれんじ四国」と「おれんじ九州」 - 設備の特徴：     - バリアフリー設備     - 大型車両も積める車両甲板     - 軽食サービス",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "この航路は四国と九州を結ぶ重要なルートで、自家用車の旅行者や地元住民に適している。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "📅 予約と運賃情報",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 予約方法：公式サイトからオンライン予約が可能、一部ページは英語表示に対応。 - 支払方法：クレジットカード払い可、パスワード認証が必要。 - 運賃：航路・客室クラス・車両の有無で異なるため、公式サイトの運賃表を参照。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "東予-大阪",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 客室種類 | C期間 | B期間 | A期間 | 定員 | | --- | --- | --- | --- | --- | | ロイヤル | ¥17,800 | ¥20,400 | ¥21,200 | 2名 | | スイート | ¥12,700 | ¥14,500 | ¥15,100 | 2名（和室最大4名） | | デラックスシングル | ¥10,000 | ¥11,400 | ¥11,900 | 1名 | | シングル／シングル＋ | ¥8,200 | ¥9,300 | ¥9,700 | 1名／2名 | | ウィズペットルーム | *別途利用料 ¥6,000 | - | - | - |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/大阪萬博2025-完全攻略": {
@@ -602,11 +1212,683 @@
   "zephlog/筆記/金屬工藝聖地打鐵體驗!-來燕三条打造自己專屬的刀": {
     "en": {
       "title": "Blacksmithing in the Home of Metalcraft! Forge Your Own Knife in Tsubame-Sanjō",
-      "description": "Tags: Japan"
+      "description": "Tags: Japan",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Blacksmithing in the Home of Metalcraft! Forge Your Own Knife in Tsubame-Sanjō",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Tags: Japan",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Tsubame-Sanjō (つばめさんじょう) is the collective name for two neighboring cities, Tsubame (つばめ) and Sanjō (さんじょう), known for their abundance of metalworking products. For this trip I set aside a full day in the area, with the main itinerary being a sword-forging experience at the Sanjō Blacksmith Dojo (this article), a copper-raising experience at the Tsubame-Sanjō Local Products & History Museum, and the Tsubame-Sanjō Regional Industry Center Products Hall — three articles in all.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚥 Getting there",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "For this whole Japan trip I chose Tokyo's Ueno as my hub station — convenient for both the city and the Shinkansen, and not as crowded as Tokyo Station. Tsubame-Sanjō is in Niigata Prefecture, reached mainly by Shinkansen or by driving.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Jōetsu Shinkansen timetables and route maps can be checked on [Jorudan](https://www.jorudan.co.jp/). Trains stopping at Tsubame-Sanjō include the Toki (とき) and Tanigawa (たにがわ); any train departing Tokyo bound for Niigata that stops at Tsubame-Sanjō will do (always confirm the actual stops and platform notices on site).",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Local transport is mainly buses, taxis, and the JR Yahiko Line.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "This article heads to the Sanjō Blacksmith Dojo (it may appear as *Sanjo Blacksmith Dojo* on maps), about a 3-minute walk from Kita-Sanjō Station on the Yahiko Line.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The Yahiko Line is a single-track, bidirectional line with headways often exceeding 30 minutes, so be sure to check the timetable against your Shinkansen connection in advance to avoid a long wait.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The Sanjō Blacksmith Dojo mainly offers three experiences: knife sharpening (包丁研ぎ, bring your own kitchen knife), Japanese-nail making (和釘づくり), and forging a Japanese nail into a letter opener (ペーパーナイフづくり).",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "The prices are ¥300 / ¥500 / ¥1,000 respectively — even forging your own blade is only ¥1,000, which is a real bargain!",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Since I'd rarely make it to Niigata, of course I went straight for the priciest experience (which isn't even that pricey -.-).",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "All in all it was a great experience — chances to forge your own knife with a professional master craftsman by your side aren't that common.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Since the Edo period, the Tsubame-Sanjō area has been the leader of metalworking in Japan.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Today, with an aging population and young people leaving for the big cities, the bustle of the old days is no more.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "In recent years, though, the local chamber of commerce has been actively reviving these crafts, and young people are gradually returning to carry on their fathers' skills.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "I hope more people come to know these master craftsmen who have devoted their whole lives to metalcraft.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "If you can, next time you go skiing at Gala Yuzawa or in Niigata, set aside some time to experience this craftsman spirit for yourself!",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "金属工芸の聖地で鍛冶体験！燕三条で自分だけのナイフを打つ",
-      "description": "タグ：日本"
+      "description": "タグ：日本",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "金属工芸の聖地で鍛冶体験！燕三条で自分だけのナイフを打つ",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "タグ：日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "燕三条（つばめさんじょう）は、隣接する燕市（つばめ）と三条市（さんじょう）の二市を合わせた呼び名で、金属加工製品が数多くあるのが特徴。今回の旅では筆者はこの地域に一日を充て、主な行程は三条鍛冶道場での鍛刀体験（本編）、燕三条物産史料館での鎚起銅器体験、燕三条地場産業振興センター物産館の三編。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "🚥 交通",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "今回の日本旅行全体で、筆者は東京・上野をハブ駅に選んだ。都内も新幹線も便利で、しかも東京駅ほど混まない！ 燕三条は新潟県にあり、主なアクセスは新幹線か自家用車。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "上越新幹線の時刻と路線図は[ジョルダン](https://www.jorudan.co.jp/)で確認できる。燕三条に停車する列車はToki（とき）、Tanigawa（たにがわ）など。東京発・新潟方面行きで燕三条に停まる列車ならいずれも乗車可（現地の停車・ホーム案内を必ず確認のこと）。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "市内交通はバス、タクシー、JR弥彦線が中心。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "本編で向かうのは三条鍛冶道場（地図上では *Sanjo Blacksmith Dojo* と表示される場合あり）。弥彦線・北三条駅から徒歩約3分。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "弥彦線は単線で双方向運行、運転間隔が30分以上に及ぶことも多い。時刻表と新幹線の接続を事前に照合し、長時間の待ちを避けたい。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "三条鍛冶道場では主に3つの体験を提供：包丁研ぎ（要・包丁持参）、和釘づくり、和釘をレターオープナーに鍛えるペーパーナイフづくり。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "料金はそれぞれ300¥／500¥／1000¥。鍛冶で刀を打っても1000¥だけ、本当にお得！",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "せっかく新潟まで来たので、当然いちばん高い体験を選択（といっても大して高くない-.-）。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "総じて良い体験だった。プロの老職人がそばで付き添いながら自分だけの刀を打てる機会は、そう多くない。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "江戸時代から燕三条地域は日本の金属加工の筆頭格。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "今では高齢化と若者の大都市への流出により、かつての繁栄は影を潜めている。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "しかし近年は地元の商工会もこれらの技を積極的に復興させており、若者も少しずつ戻ってきて父世代の技術を受け継いでいる。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "金属工芸に一生懸命を捧げてきたこれらの老職人を、より多くの人に知ってほしい。",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "できれば、次にGALA湯沢や新潟でスキーをする際に、時間を作って職人の精神を自ら感じてみてほしい！",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/阿拉斯加航空mileage-plan哩程規則與兌換整理": {
