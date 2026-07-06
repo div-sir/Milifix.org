@@ -38,12 +38,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUT_FILE = path.resolve(__dirname, '../src/data/post-translations.json')
 
 const die = (m) => { console.error(`✗ ${m}`); process.exit(1) }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+// CMS 在 Render 免費方案會休眠，冷啟動首次請求可能 5xx／逾時。
+// 對 5xx、429 與網路錯誤退避重試（Render 冷啟動可能要 30-60 秒才醒）。
+async function fetchRetry(url, opts = {}, tries = 6) {
+  let last
+  for (let i = 0; i < tries; i++) {
+    try {
+      const r = await fetch(url, opts)
+      if (r.ok || (r.status < 500 && r.status !== 429)) return r
+      last = new Error(`HTTP ${r.status}`)
+    } catch (e) { last = e }
+    if (i < tries - 1) {
+      const wait = Math.min(15000, 3000 * (i + 1))
+      console.log(`  … CMS 未就緒（${last?.message ?? '?'}），${wait / 1000}s 後重試（${i + 1}/${tries - 1}）`)
+      await sleep(wait)
+    }
+  }
+  throw last ?? new Error('fetch failed')
+}
 
 async function maybeToken() {
   if (process.env.CMS_TOKEN) return process.env.CMS_TOKEN
   const { CMS_EMAIL, CMS_PASSWORD } = process.env
   if (!CMS_EMAIL || !CMS_PASSWORD) return null // 無憑證：只翻公開（非草稿）文章
-  const r = await fetch(`${CMS}/api/users/login`, {
+  const r = await fetchRetry(`${CMS}/api/users/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: CMS_EMAIL, password: CMS_PASSWORD }),
@@ -56,7 +76,7 @@ async function fetchAllPosts(headers) {
   const out = []
   let page = 1
   for (;;) {
-    const r = await fetch(`${CMS}/api/posts?limit=100&page=${page}&depth=1`, { headers })
+    const r = await fetchRetry(`${CMS}/api/posts?limit=100&page=${page}&depth=1`, { headers })
     if (!r.ok) die(`取得文章失敗（${r.status}）`)
     const data = await r.json()
     out.push(...(data.docs ?? []))
