@@ -1,4 +1,5 @@
 import type { Lang } from '../i18n/types'
+import postTranslations from '../data/post-translations.json'
 
 const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
 const CMS_API = `${CMS_URL}/api`
@@ -226,15 +227,6 @@ export type CmsPost = {
   bucket?: string
   cover?: { url: string; alt?: string }
   content: unknown
-  /** CMS 端新增的譯文欄位；draft 期間可能尚未填入，未填則 fallback 中文原文 */
-  translations?: {
-    title_en?: string
-    description_en?: string
-    content_en?: unknown
-    title_ja?: string
-    description_ja?: string
-    content_ja?: unknown
-  }
 }
 
 export const getPosts = (opts: { includeDrafts?: boolean } = {}) =>
@@ -247,8 +239,19 @@ export const getPosts = (opts: { includeDrafts?: boolean } = {}) =>
 export const getPost = (slug: string) => fetchDoc<CmsPost>('posts', slug)
 
 /**
+ * 譯文以前端 repo 的 src/data/post-translations.json 承載（不動 CMS schema）。
+ * 形狀：{ [slug]: { en?: {title,description,content}, ja?: {title,description,content} } }
+ * content 為 Lexical JSON。由 scripts/translate-posts.mjs（AI 初譯）產生並 commit。
+ */
+type PostTranslation = { title?: string; description?: string; content?: unknown }
+const POST_TRANSLATIONS = postTranslations as Record<
+  string,
+  Partial<Record<'en' | 'ja', PostTranslation>>
+>
+
+/**
  * 取單篇文章在指定語系的標題／摘要／內文。
- * zh 直接回原文；en/ja 讀 translations，任一欄為空則 fallback 中文原文。
+ * zh 直接回原文；en/ja 讀 post-translations.json，任一欄為空則 fallback 中文原文。
  */
 export function localizedPost(
   post: CmsPost,
@@ -257,14 +260,11 @@ export function localizedPost(
   if (lang === 'zh') {
     return { title: post.title, description: post.description, content: post.content }
   }
-  const tr = post.translations
-  const title = tr?.[`title_${lang}`]
-  const description = tr?.[`description_${lang}`]
-  const content = tr?.[`content_${lang}`]
+  const t = POST_TRANSLATIONS[post.slug]?.[lang]
   return {
-    title: title && title.trim() ? title : post.title,
-    description: description && description.trim() ? description : post.description,
-    content: content != null && content !== '' ? content : post.content,
+    title: t?.title && t.title.trim() ? t.title : post.title,
+    description: t?.description && t.description.trim() ? t.description : post.description,
+    content: t?.content != null && t.content !== '' ? t.content : post.content,
   }
 }
 
