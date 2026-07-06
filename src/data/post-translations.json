@@ -1,1 +1,172 @@
-{}
+{
+  "zephlog/筆記/jr-pass-與參考票價-統整": {
+    "en": {
+      "title": "JR Pass & Reference Fares",
+      "description": "A consolidated table of JR Passes, regional passes, and reference fares for Shinkansen / limited express trains (West Japan · Shikoku, East Japan, and sample fares)."
+    },
+    "ja": {
+      "title": "JRパスと参考運賃",
+      "description": "JRパス・周遊券と新幹線／特急の参考運賃まとめ表（西日本・四国、東日本、区間参考価）。"
+    }
+  },
+  "zephlog/筆記/全球三大航空聯盟整理-星空天合寰宇": {
+    "en": {
+      "title": "The Three Global Airline Alliances (Star Alliance / SkyTeam / Oneworld)",
+      "description": "A member-airline roster of Star Alliance, SkyTeam, and Oneworld (ANA and more)."
+    },
+    "ja": {
+      "title": "世界三大航空アライアンスまとめ（スターアライアンス／スカイチーム／ワンワールド）",
+      "description": "スターアライアンス・スカイチーム・ワンワールドの加盟航空会社一覧（ANA ほか）。"
+    }
+  },
+  "zephlog/筆記/大阪愛媛夜間渡輪-橙色orange-ferry航線設施與訂票": {
+    "en": {
+      "title": "Osaka–Ehime Overnight Ferry: Orange Ferry Routes, Facilities & Booking",
+      "description": "Orange Ferry (Shikoku Kaihatsu Ferry) — overnight routes, onboard facilities, and how to book."
+    },
+    "ja": {
+      "title": "大阪〜愛媛の夜行フェリー：オレンジフェリーの航路・設備・予約",
+      "description": "オレンジフェリー（四国開発フェリー株式会社）——航路、船内設備、予約方法。"
+    }
+  },
+  "zephlog/筆記/成田機場到東京市區的交通全攻略｜電車・巴士・費用・時刻一覽": {
+    "en": {
+      "title": "Complete Guide from Narita Airport to Central Tokyo | Trains · Buses · Fares · Timetables",
+      "description": "Narita International Airport (NRT) is Tokyo's main international gateway, about 60 km from the city. Whether it's your first visit or you're a seasoned traveler, choosing the right transport makes a big difference…"
+    },
+    "ja": {
+      "title": "成田空港から東京都心へのアクセス完全ガイド｜電車・バス・料金・時刻一覧",
+      "description": "成田国際空港（NRT）は東京の主要な国際玄関口で、都心から約60km。初めての方も旅慣れた方も、最適な交通手段を選ぶことで旅の質が大きく変わります…"
+    }
+  },
+  "zephlog/筆記/日本經典自行車道路線精選-島波海道筑波霞浦": {
+    "en": {
+      "title": "Japan's Classic Cycling Routes: Shimanami Kaidō, Tsukuba & Kasumigaura",
+      "description": "Starting from Onomichi, riding across Innoshima, Ōmishima, Ikuchijima and more — dedicated cycle lanes along the way make it safe and enjoyable."
+    },
+    "ja": {
+      "title": "日本の定番サイクリングロード精選：しまなみ海道・筑波・霞ヶ浦",
+      "description": "尾道を起点に、因島・大三島・生口島などを渡っていく。専用の分離レーンが整備され、安全性が高いルート。"
+    }
+  },
+  "zephlog/筆記/日本觀光列車總覽-路線業者官網與分車種錨點": {
+    "en": {
+      "title": "Overview of Japan's Sightseeing Trains: Routes, Operator Sites & Per-Train Anchors",
+      "description": "A master list of sightseeing trains (routes, operators, official sites) plus per-route anchors grouped by company; merged from sub-folders."
+    },
+    "ja": {
+      "title": "日本の観光列車まとめ：路線・運営会社公式サイト・車種別アンカー",
+      "description": "観光列車の一覧表（路線・運営会社・公式サイト）と、会社別に分類した各路線のアンカー。サブフォルダから統合。"
+    }
+  },
+  "zephlog/筆記/東京隱藏景點-陽光60瞭望台": {
+    "en": {
+      "title": "A Tokyo Hidden Gem — Sunshine 60 Observatory",
+      "description": "Tags: Japan"
+    },
+    "ja": {
+      "title": "東京の隠れ名所——サンシャイン60展望台",
+      "description": "タグ：日本"
+    }
+  },
+  "zephlog/筆記/機場貴賓室進出四途-信用卡艙等聯盟高卡與付費": {
+    "en": {
+      "title": "Four Ways into an Airport Lounge: Credit Cards, Cabin Class, Alliance Elite Status & Paid Entry",
+      "description": "A rundown of the four mainstream ways to get into an airport lounge."
+    },
+    "ja": {
+      "title": "空港ラウンジへ入る4つの方法：クレジットカード・搭乗クラス・アライアンス上級会員・有料入場",
+      "description": "現在主流の、ラウンジへ入る4つの方法のまとめ。"
+    }
+  },
+  "zephlog/筆記/歐洲鐵路夜車與eurail筆記整理": {
+    "en": {
+      "title": "Europe Night Trains & Eurail Notes",
+      "description": "Tags: Transport, Europe"
+    },
+    "ja": {
+      "title": "ヨーロッパの夜行列車とユーレイル（Eurail）ノート",
+      "description": "タグ：交通、ヨーロッパ"
+    }
+  },
+  "zephlog/筆記/拉麵系流派介紹-一碗風土一系風格六大門派": {
+    "en": {
+      "title": "A Guide to Ramen Styles: One Bowl, One Terroir — the Six Great Schools",
+      "description": "🍜 One bowl, one terroir — exploring the six great schools of Japanese ramen."
+    },
+    "ja": {
+      "title": "ラーメンの系統ガイド：一杯に風土、一系に個性——六大流派",
+      "description": "🍜 一杯に風土、一系に個性——日本のラーメン六大流派を探る。"
+    }
+  },
+  "zephlog/筆記/起司大解密：從製作到品嚐，一篇搞懂各種起司的差異！": {
+    "en": {
+      "title": "Cheese Decoded: From Making to Tasting — Understand Every Cheese in One Read!",
+      "description": "Cheese is a dairy product with a long history and endlessly varied flavors — from Italian Parmesan to French Camembert, each has its own character. This article takes you deep into how different cheeses are made…"
+    },
+    "ja": {
+      "title": "チーズ大解剖：製造から味わいまで、これ一本で各種チーズの違いがわかる！",
+      "description": "チーズは長い歴史と千変万化の風味を持つ乳製品。イタリアのパルミジャーノからフランスのカマンベールまで、それぞれに個性がある。本記事では各チーズの製法を深掘りします…"
+    }
+  },
+  "zephlog/筆記/金屬工藝聖地打鐵體驗!-來燕三条打造自己專屬的刀": {
+    "en": {
+      "title": "Blacksmithing in the Home of Metalcraft! Forge Your Own Knife in Tsubame-Sanjō",
+      "description": "Tags: Japan"
+    },
+    "ja": {
+      "title": "金属工芸の聖地で鍛冶体験！燕三条で自分だけのナイフを打つ",
+      "description": "タグ：日本"
+    }
+  },
+  "zephlog/筆記/阿拉斯加航空mileage-plan哩程規則與兌換整理": {
+    "en": {
+      "title": "Alaska Airlines Mileage Plan: Earning Rules & Redemption Guide",
+      "description": "Alaska Airlines Mileage Plan essentials: earning, redemption, taxes & fees, stopovers, and partner-airline award availability."
+    },
+    "ja": {
+      "title": "アラスカ航空 Mileage Plan：マイル規則と特典交換まとめ",
+      "description": "アラスカ航空 Mileage Plan の要点：積算、特典交換、税・手数料、ストップオーバー、提携航空会社の特典枠など。"
+    }
+  },
+  "zephlog/筆記/國際酒店集團與品牌筆記-萬豪ihg希爾頓等": {
+    "en": {
+      "title": "Notes on International Hotel Groups & Brands: Marriott, IHG, Hilton and More",
+      "description": "One of the world's largest hotel groups, with a well-developed loyalty program spanning brands from budget to luxury."
+    },
+    "ja": {
+      "title": "国際ホテルグループとブランドのノート：マリオット、IHG、ヒルトンなど",
+      "description": "世界最大級のホテルグループの一つ。会員制度が充実し、手頃な価格帯から最高級まで幅広いブランドを擁する。"
+    }
+  },
+  "zephlog/筆記/大阪萬博2025-完全攻略": {
+    "en": {
+      "title": "[EXPO 2025 Osaka Complete Guide] Pavilion Reviews × Visit Notes × Reservation Tips | With Recommendations",
+      "description": "As EXPO 2025 Osaka·Kansai approaches, planning your route in advance and mastering the pavilions and reservation system is key to a better visit. This piece compiles hands-on notes on 100+ pavilions…"
+    },
+    "ja": {
+      "title": "【大阪・関西万博2025 完全攻略】パビリオン評価×観覧ノート×予約のコツ｜おすすめリスト付き",
+      "description": "2025年大阪・関西万博（EXPO 2025）を前に、ルートの事前計画とパビリオン・予約制度の把握が観覧体験の鍵。本記事は100以上のパビリオンの実地レビューをまとめました…"
+    }
+  },
+  "zephlog/筆記/地下神殿!-首都圈外郭放水路": {
+    "en": {
+      "title": "The Underground Temple! Metropolitan Area Outer Underground Discharge Channel",
+      "description": "Tags: Japan"
+    },
+    "ja": {
+      "title": "地下神殿！首都圏外郭放水路",
+      "description": "タグ：日本"
+    }
+  },
+  "zephlog/筆記/2025瀨戶內海國際藝術祭-春夏秋展期與跳島筆記": {
+    "en": {
+      "title": "Setouchi Triennale 2025: Spring/Summer/Autumn Sessions & Island-Hopping Notes",
+      "description": "An art festival isn't something to look at — it's something to live through. Setouchi Triennale 2025 session dates and practical tips."
+    },
+    "ja": {
+      "title": "瀬戸内国際芸術祭2025：春・夏・秋の会期と島めぐりノート",
+      "description": "芸術祭は「見る」ものではなく「経験する」もの——2025 瀬戸内国際芸術祭の会期と実用メモ。"
+    }
+  }
+}
