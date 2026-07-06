@@ -1,0 +1,28 @@
+---
+import type { TripReport } from '../../data/trips/types';
+
+interface Props {
+  report: TripReport;
+  /** 連往單篇報告書的 href */
+  href: string;
+  /** 「天」「days」 */
+  daysLabel: string;
+  /** 「個停靠點」「stops」 */
+  stopsLabel: string;
+}
+
+const { report, href, daysLabel, stopsLabel } = Astro.props;
+
+const stopCount = new Set(report.days.flatMap((d) => d.stops.map((s) => s.id))).size;
+---
+
+<a class="trip-index-card" href={href}>
+  <span class="trip-index-card__overline">{report.country} · {report.year}</span>
+  <span class="trip-index-card__title">{report.title}</span>
+  {report.subtitle && <span class="trip-index-card__subtitle">{report.subtitle}</span>}
+  <span class="trip-index-card__summary">{report.summary}</span>
+  <span class="trip-index-card__meta">
+    <span class="trip-index-card__chip">{report.durationDays} {daysLabel}</span>
+    <span class="trip-index-card__chip">{stopCount} {stopsLabel}</span>
+  </span>
+</a>

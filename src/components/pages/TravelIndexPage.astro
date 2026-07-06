@@ -13,13 +13,16 @@ import LoungeCard from '../travel/LoungeCard.astro';
 import AirlineDome from '../travel/AirlineDome.jsx';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import CompareModal from '../travel/CompareModal.astro';
+import TripReportCard from '../trips/TripReportCard.astro';
+import { tripReports } from '../../data/trips/index';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
+import '../../styles/trip-report.css';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { programSlugPath, cardSlugPath } from '../../i18n/routes';
+import { programSlugPath, cardSlugPath, travelPath } from '../../i18n/routes';
 
 interface Props {
   lang: Lang;
@@ -27,6 +30,11 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = ui(lang).travel;
+
+// 旅行報告書：目前僅出 zh 頁面，其他語系不顯示入口
+const showReports = lang === 'zh' && tripReports.length > 0;
+const reportsBase = `${travelPath(lang)}/reports`;
+const reportsCardLabels = { days: '天', stops: '個停靠點' };
 
 const [cards, lounges, airlines, allPrograms] = await Promise.all([
   getCreditCards(),
@@ -132,6 +140,9 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
         <button type="button" class="travel-hero__jump-btn" data-tab="airlines">{t.sectionAirlines}</button>
         <button type="button" class="travel-hero__jump-btn" data-tab="lounges">{t.sectionLounges}</button>
         <button type="button" class="travel-hero__jump-btn" data-tab="programs">{t.programs}</button>
+        {showReports && (
+          <button type="button" class="travel-hero__jump-btn" data-tab="reports">{t.sectionReports}</button>
+        )}
       </nav>
     </header>
 
@@ -373,6 +384,26 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
             </div>
           );
         })}
+      </section>
+    )}
+
+    <!-- ── 旅行報告書 ── -->
+    {showReports && (
+      <section class="travel-section" id="reports">
+        <div class="travel-section__header">
+          <h2 class="travel-section__title">{t.sectionReports}</h2>
+          <a class="travel-section__more" href={reportsBase}>{t.viewAll}</a>
+        </div>
+        <div class="trip-index__grid">
+          {tripReports.map((report) => (
+            <TripReportCard
+              report={report}
+              href={`${reportsBase}/${report.slug}`}
+              daysLabel={reportsCardLabels.days}
+              stopsLabel={reportsCardLabels.stops}
+            />
+          ))}
+        </div>
       </section>
     )}
 
@@ -672,7 +703,10 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
     initCardTilt();
 
     // ── 頁內分頁：帶動畫的 tab 切換 ──
-    const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs'];
+    // reports 分頁僅在該語系有報告書時渲染（目前 zh），故以 DOM 是否存在決定
+    const TAB_IDS = ['cards', 'airlines', 'lounges', 'programs'].concat(
+      document.getElementById('reports') ? ['reports'] : []
+    );
     const sections = TAB_IDS.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const pills = document.querySelectorAll<HTMLElement>('.dock-nav__section');
     const jumpBtns = document.querySelectorAll<HTMLElement>('.travel-hero__jump-btn');

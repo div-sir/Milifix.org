@@ -4,6 +4,7 @@ import SiteNav from '../SiteNav.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import TravelBottomNav from '../travel/TravelBottomNav.astro';
+import TripReportCard from '../trips/TripReportCard.astro';
 import type { Lang } from '../../i18n/types';
 import { travelPath } from '../../i18n/routes';
 import { tripReports } from '../../data/trips/index';
@@ -55,12 +56,6 @@ const LABELS: Record<Lang, IndexLabels> = {
 const { lang } = Astro.props;
 const t = LABELS[lang];
 const base = `${travelPath(lang)}/reports`;
-
-const countStops = (report: (typeof tripReports)[number]): number => {
-  const ids = new Set<string>();
-  for (const d of report.days) for (const s of d.stops) ids.add(s.id);
-  return ids.size;
-};
 ---
 
 <BaseLayout
@@ -89,22 +84,12 @@ const countStops = (report: (typeof tripReports)[number]): number => {
         tripReports.length > 0 ? (
           <div class="trip-index__grid">
             {tripReports.map((report) => (
-              <a class="trip-index-card" href={`${base}/${report.slug}`}>
-                <span class="trip-index-card__overline">
-                  {report.country} · {report.year}
-                </span>
-                <span class="trip-index-card__title">{report.title}</span>
-                {report.subtitle && <span class="trip-index-card__subtitle">{report.subtitle}</span>}
-                <span class="trip-index-card__summary">{report.summary}</span>
-                <span class="trip-index-card__meta">
-                  <span class="trip-index-card__chip">
-                    {report.durationDays} {t.days}
-                  </span>
-                  <span class="trip-index-card__chip">
-                    {countStops(report)} {t.stops}
-                  </span>
-                </span>
-              </a>
+              <TripReportCard
+                report={report}
+                href={`${base}/${report.slug}`}
+                daysLabel={t.days}
+                stopsLabel={t.stops}
+              />
             ))}
           </div>
         ) : (
