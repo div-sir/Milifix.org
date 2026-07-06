@@ -49,22 +49,61 @@ class CmsFetchError extends Error {
  */
 const requestCache = new Map<string, Promise<PayloadResponse<unknown>>>()
 
+// 逐次逾時與重試上限。Render 免費方案的 CMS 會休眠，冷啟動可能先回 5xx 或
+// 讓連線久候；因此對「網路錯誤 / 408 / 429 / 5xx」等暫時性失敗做退避重試，
+// 只有連續失敗到上限才視為真失敗（在 build 觸發 fail-fast）。4xx（非 408/429）
+// 屬確定性錯誤，不重試。
+const REQUEST_TIMEOUT_MS = 30_000
+const MAX_ATTEMPTS = 4
+const RETRY_BASE_DELAY_MS = 1_500
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const isRetryableStatus = (s: number) => s === 408 || s === 429 || s >= 500
+
 async function requestJson<T>(
   collection: string,
   url: string,
 ): Promise<PayloadResponse<T>> {
-  let res: Response
-  try {
-    res = await fetch(url)
-  } catch (err) {
-    throw new CmsFetchError(
-      collection,
-      null,
-      err instanceof Error ? err.message : String(err),
-    )
+  let lastErr: CmsFetchError | null = null
+  // 只有真正的 build（fail-fast）才需要為冷啟動重試；dev / CMS_ALLOW_EMPTY
+  // 反正會 fallback 空值，單次嘗試即可，避免無謂拖慢。
+  const attempts = FAIL_FAST ? MAX_ATTEMPTS : 1
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    let res: Response
+    try {
+      res = await fetch(url, { signal: controller.signal })
+    } catch (err) {
+      // 網路錯誤或逾時（abort）——暫時性，可重試
+      lastErr = new CmsFetchError(
+        collection,
+        null,
+        err instanceof Error ? err.message : String(err),
+      )
+      if (attempt < attempts) {
+        await sleep(RETRY_BASE_DELAY_MS * attempt)
+        continue
+      }
+      throw lastErr
+    } finally {
+      clearTimeout(timer)
+    }
+
+    if (res.ok) return (await res.json()) as PayloadResponse<T>
+
+    // 非 2xx：暫時性狀態才重試，其餘立即拋出
+    if (isRetryableStatus(res.status) && attempt < attempts) {
+      lastErr = new CmsFetchError(collection, res.status)
+      await sleep(RETRY_BASE_DELAY_MS * attempt)
+      continue
+    }
+    throw new CmsFetchError(collection, res.status)
   }
-  if (!res.ok) throw new CmsFetchError(collection, res.status)
-  return (await res.json()) as PayloadResponse<T>
+
+  // 迴圈理論上必在上面 return/throw；保底
+  throw lastErr ?? new CmsFetchError(collection, null, 'unknown')
 }
 
 function fetchJson<T>(
