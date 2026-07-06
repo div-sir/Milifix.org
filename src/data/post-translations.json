@@ -12010,11 +12010,2321 @@
   "zephlog/筆記/日本觀光列車總覽-路線業者官網與分車種錨點": {
     "en": {
       "title": "Overview of Japan's Sightseeing Trains: Routes, Operator Sites & Per-Train Anchors",
-      "description": "A master list of sightseeing trains (routes, operators, official sites) plus per-route anchors grouped by company; merged from sub-folders."
+      "description": "A master list of sightseeing trains (routes, operators, official sites) plus per-route anchors grouped by company; merged from sub-folders.",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Overview of Japan's Sightseeing Trains: Routes, Operator Sites & Per-Train Anchors",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Overview",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| Name | Route (approx.) | Operator | Official site | | --- | --- | --- | --- | | Ametsuchi | Izumo–Tottori/Yonago | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/kankoutrain/ametuchi/) | | etSETOra | Hiroshima–Kure–Mihara–Onomichi–Fukuyama | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/kankoutrain/etsetora/) | | Hanaakari | Osaka–Onomichi | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/hanaakari/) | | La Malle de Bois | Okayama–Mihara/Kotohira/Uno | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/kankoutrain/lamalledebois/#page-link-operation) | | Mahoroba | Shin-Osaka–Nara | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/mahorobalimitedexpress/) | | Sea Spica | Hiroshima Port–Onomichi Port | JR West | [Setouchi Palette](https://www.jr-odekake.net/setouchi-palette/en/cruise/newship/) | | WEST EXPRESS Ginga | Kyoto–Izumo | JR West | [JR Odekake](https://www.jr-odekake.net/railroad/westexginga/) | | Mizukaze | Cruise / sightseeing train (see official site) | JR West | [Mizukaze site](https://www.twilightexpress-mizukaze.jp/) | | Kairi | Niigata–Tsuruoka–Sakata | JR East | [JR East](https://www.jreast.co.jp/multi/zh-CHT/joyful/kairi.html) | | Koshi no Shu*Kura | Jōetsu-Myōkō–Niigata/Echigo-Yuzawa | JR East | [JR East](https://www.jreast.co.jp/multi/zh-CHT/joyful/shukura.html) | | Yufuin no Mori | Beppu–Yufuin–Hakata | JR Kyushu | [JR Kyushu](https://www.jrkyushu.co.jp/chinese/train/yufuin_no_mori.html) | | Ibusuki no Tamatebako | Kagoshima-Chūō–Ibusuki | JR Kyushu | [JR Kyushu](https://www.jrkyushu.co.jp/chinese/train/ibutama.html) | | Iyonada Monogatari | Matsuyama–Yawatahama | JR Shikoku | [JR Shikoku](https://www.jr-eki.com/global/en/travel/iyonada_top/index.html) | | Shikoku Mannaka Sennen Monogatari | Tadotsu–Kotohira–Ōboke | JR Shikoku | [JR Shikoku](https://www.jr-eki.com/global/en/travel/sennen_top/index.html) | | Shikoku Tosa Jidai no Yoake no Monogatari | Kōchi–Tosa-Kure–Kubokawa | JR Shikoku | [JR Shikoku](https://www.jr-shikoku.co.jp/yoakenomonogatari/index.html) | | Aoniyoshi | Osaka-Namba–Nara–Kyoto | Kintetsu | [kintetsu.co.jp](https://www.kintetsu.co.jp/foreign/chinese-han/aoniyoshi/) | | Hinotori | Namba–Nagoya | Kintetsu | [Kintetsu Ltd. Express](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | Shimakaze | Namba/Kyoto/Nagoya–Ise-Shima | Kintetsu | [Kintetsu Ltd. Express](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | Blue Symphony | Osaka-Abenobashi–Yoshino | Kintetsu | [Kintetsu Ltd. Express](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | Kyo-train Garaku | Osaka-Umeda–Kyoto-Kawaramachi | Hankyu Railway | [Hankyu](https://www.hankyu.co.jp/kyotrain-garaku/zh-tw/) | | Tango Kuromatsu | Fukuchiyama–Amanohashidate–Nishi-Maizuru | Kyoto Tango Railway | [WILLER TRAVEL](https://travel.willer.co.jp/train/tantetsu/) | | Setsugekka | Jōetsu-Myōkō–Myōkō-Kōgen–Itoigawa | Echigo Tokimeki Railway | [Echigo Tokimeki](https://www.echigo-tokimeki.co.jp/setsugekka/reserve.html) |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-ametsuchi\">Ametsuchi</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/kankoutrain/ametuchi/ - Route: Izumo–Tottori/Yonago - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-etsetora\">etSETOra</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/kankoutrain/etsetora/ - Route: Hiroshima–Kure–Mihara–Onomichi–Fukuyama - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-hanaakari\">Hanaakari</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/hanaakari/ - Route: Osaka–Onomichi - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-la-malle-de-bois\">La Malle de Bois</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/kankoutrain/lamalledebois/#page-link-operation - Route: Okayama–Mihara/Kotohira/Uno - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-mahoroba\">Mahoroba</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/mahorobalimitedexpress/ - Route: Shin-Osaka–Nara - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-sea-spica\">Sea Spica</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/setouchi-palette/en/cruise/newship/ - Route: Hiroshima Port–Onomichi Port - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-west-express-ginga\">WEST EXPRESS Ginga</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-odekake.net/railroad/westexginga/ - Route: Kyoto–Izumo - Operator: JR West",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"瑞風-Mizukaze\">Mizukaze</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.twilightexpress-mizukaze.jp/ - Operator: JR West (TWILIGHT EXPRESS Mizukaze)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR East",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"海里號\">Kairi</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jreast.co.jp/multi/zh-CHT/joyful/kairi.html - Route: Niigata–Tsuruoka–Sakata - Operator: JR East",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"越乃-ShuKura號\">Koshi no Shu*Kura</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jreast.co.jp/multi/zh-CHT/joyful/shukura.html - Route: Jōetsu-Myōkō–Niigata/Echigo-Yuzawa - Operator: JR East",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR Kyushu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"yufuin-no-mori\">Yufuin no Mori</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jrkyushu.co.jp/chinese/train/yufuin_no_mori.html - Route: Beppu–Yufuin–Hakata - Operator: JR Kyushu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"指宿之玉手箱\">Ibusuki no Tamatebako</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jrkyushu.co.jp/chinese/train/ibutama.html - Route: Kagoshima-Chūō–Ibusuki - Operator: JR Kyushu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR Shikoku",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-iyonada-monogatari\">Iyonada Monogatari</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-eki.com/global/en/travel/iyonada_top/index.html - Route: Matsuyama–Yawatahama - Operator: JR Shikoku",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"四國真中千年物語\">Shikoku Mannaka Sennen Monogatari</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-eki.com/global/en/travel/sennen_top/index.html - Route: Tadotsu–Kotohira–Ōboke - Operator: JR Shikoku",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"志国土佐-時代黎明物語\">Shikoku Tosa Jidai no Yoake no Monogatari</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.jr-shikoku.co.jp/yoakenomonogatari/index.html - Route: Kōchi–Tosa-Kure–Kubokawa - Operator: JR Shikoku",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Kintetsu (Kinki Nippon Railway)",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"aoniyoshi-train\">Aoniyoshi</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.kintetsu.co.jp/foreign/chinese-han/aoniyoshi/ - Route: Osaka-Namba–Nara–Kyoto - Operator: Kintetsu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-hinotori-firebird\">Hinotori</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - Route: Namba–Nagoya - Operator: Kintetsu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-shimakaze\">Shimakaze</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - Route: Namba/Kyoto/Nagoya–Ise-Shima - Operator: Kintetsu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"青之交響曲\">Blue Symphony</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - Route: Osaka-Abenobashi–Yoshino - Operator: Kintetsu",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Hankyu Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-kyotrain-garaku\">Kyo-train Garaku</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.hankyu.co.jp/kyotrain-garaku/zh-tw/ - Route: Osaka-Umeda–Kyoto-Kawaramachi - Operator: Hankyu Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Kyoto Tango Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-tango-kuromatsu\">Tango Kuromatsu</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://travel.willer.co.jp/train/tantetsu/ - Route: Fukuchiyama–Amanohashidate–Nishi-Maizuru - Operator: Kyoto Tango Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Echigo Tokimeki Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"雪月花\">Setsugekka</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- Official site: https://www.echigo-tokimeki.co.jp/setsugekka/reserve.html - Route: Jōetsu-Myōkō–Myōkō-Kōgen–Itoigawa - Operator: Echigo Tokimeki Railway",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     },
     "ja": {
       "title": "日本の観光列車まとめ：路線・運営会社公式サイト・車種別アンカー",
-      "description": "観光列車の一覧表（路線・運営会社・公式サイト）と、会社別に分類した各路線のアンカー。サブフォルダから統合。"
+      "description": "観光列車の一覧表（路線・運営会社・公式サイト）と、会社別に分類した各路線のアンカー。サブフォルダから統合。",
+      "content": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "tag": "h1",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "日本の観光列車まとめ：路線・運営会社公式サイト・車種別アンカー",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "総覧",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "| 名称 | 路線（概略） | 運営 | 公式サイト | | --- | --- | --- | --- | | あめつち | 出雲—鳥取／米子 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/kankoutrain/ametuchi/) | | etSETOra エトセトラ | 広島—呉—三原—尾道—福山 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/kankoutrain/etsetora/) | | はなあかり | 大阪—尾道 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/hanaakari/) | | La Malle de Bois | 岡山—三原／琴平／宇野 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/kankoutrain/lamalledebois/#page-link-operation) | | まほろば | 新大阪—奈良 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/mahorobalimitedexpress/) | | Sea Spica | 広島港—尾道港 | JR西日本 | [Setouchi Palette](https://www.jr-odekake.net/setouchi-palette/en/cruise/newship/) | | WEST EXPRESS 銀河 | 京都—出雲 | JR西日本 | [JRおでかけ](https://www.jr-odekake.net/railroad/westexginga/) | | 瑞風 Mizukaze | 周遊／観光列車（公式サイト参照） | JR西日本 | [瑞風公式サイト](https://www.twilightexpress-mizukaze.jp/) | | 海里 | 新潟—鶴岡—酒田 | JR東日本 | [JR東日本](https://www.jreast.co.jp/multi/zh-CHT/joyful/kairi.html) | | 越乃Shu*Kura | 上越妙高—新潟／越後湯沢 | JR東日本 | [JR東日本](https://www.jreast.co.jp/multi/zh-CHT/joyful/shukura.html) | | ゆふいんの森 | 別府—由布院—博多 | JR九州 | [JR九州](https://www.jrkyushu.co.jp/chinese/train/yufuin_no_mori.html) | | 指宿のたまて箱 | 鹿児島中央—指宿 | JR九州 | [JR九州](https://www.jrkyushu.co.jp/chinese/train/ibutama.html) | | 伊予灘ものがたり | 松山—八幡浜 | JR四国 | [JR四国](https://www.jr-eki.com/global/en/travel/iyonada_top/index.html) | | 四国まんなか千年ものがたり | 多度津—琴平—大歩危 | JR四国 | [JR四国](https://www.jr-eki.com/global/en/travel/sennen_top/index.html) | | 志国土佐 時代の夜明けのものがたり | 高知—土佐久礼—窪川 | JR四国 | [JR四国](https://www.jr-shikoku.co.jp/yoakenomonogatari/index.html) | | あをによし | 大阪難波—奈良—京都 | 近鉄 | [kintetsu.co.jp](https://www.kintetsu.co.jp/foreign/chinese-han/aoniyoshi/) | | ひのとり | 難波—名古屋 | 近鉄 | [近鉄特急](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | しまかぜ | 難波／京都／名古屋—伊勢志摩 | 近鉄 | [近鉄特急](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | 青の交響曲（シンフォニー） | 大阪阿部野橋—吉野 | 近鉄 | [近鉄特急](https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze) | | 京トレイン雅洛 | 大阪梅田—京都河原町 | 阪急電鉄 | [阪急](https://www.hankyu.co.jp/kyotrain-garaku/zh-tw/) | | 丹後くろまつ号 | 福知山—天橋立—西舞鶴 | 京都丹後鉄道 | [WILLER TRAVEL](https://travel.willer.co.jp/train/tantetsu/) | | 雪月花 | 上越妙高—妙高高原—糸魚川 | えちごトキめき鉄道 | [えちごトキめき](https://www.echigo-tokimeki.co.jp/setsugekka/reserve.html) |",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-ametsuchi\">あめつち</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/kankoutrain/ametuchi/ - 路線： 出雲—鳥取／米子 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-etsetora\">etSETOra エトセトラ</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/kankoutrain/etsetora/ - 路線： 広島—呉—三原—尾道—福山 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-hanaakari\">はなあかり</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/hanaakari/ - 路線： 大阪—尾道 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-la-malle-de-bois\">La Malle de Bois</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/kankoutrain/lamalledebois/#page-link-operation - 路線： 岡山—三原／琴平／宇野 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-mahoroba\">まほろば</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/mahorobalimitedexpress/ - 路線： 新大阪—奈良 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-sea-spica\">Sea Spica</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/setouchi-palette/en/cruise/newship/ - 路線： 広島港—尾道港 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-west-express-ginga\">WEST EXPRESS 銀河</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-odekake.net/railroad/westexginga/ - 路線： 京都—出雲 - 運営： JR西日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"瑞風-Mizukaze\">瑞風 Mizukaze</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.twilightexpress-mizukaze.jp/ - 運営： JR西日本（TWILIGHT EXPRESS 瑞風）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR東日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"海里號\">海里</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jreast.co.jp/multi/zh-CHT/joyful/kairi.html - 路線： 新潟—鶴岡—酒田 - 運営： JR東日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"越乃-ShuKura號\">越乃Shu*Kura</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jreast.co.jp/multi/zh-CHT/joyful/shukura.html - 路線： 上越妙高—新潟／越後湯沢 - 運営： JR東日本",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR九州",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"yufuin-no-mori\">ゆふいんの森</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jrkyushu.co.jp/chinese/train/yufuin_no_mori.html - 路線： 別府—由布院—博多 - 運営： JR九州",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"指宿之玉手箱\">指宿のたまて箱</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jrkyushu.co.jp/chinese/train/ibutama.html - 路線： 鹿児島中央—指宿 - 運営： JR九州",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "JR四国",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-iyonada-monogatari\">伊予灘ものがたり</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-eki.com/global/en/travel/iyonada_top/index.html - 路線： 松山—八幡浜 - 運営： JR四国",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"四國真中千年物語\">四国まんなか千年ものがたり</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-eki.com/global/en/travel/sennen_top/index.html - 路線： 多度津—琴平—大歩危 - 運営： JR四国",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"志国土佐-時代黎明物語\">志国土佐 時代の夜明けのものがたり</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.jr-shikoku.co.jp/yoakenomonogatari/index.html - 路線： 高知—土佐久礼—窪川 - 運営： JR四国",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "近鉄（近畿日本鉄道）",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"aoniyoshi-train\">あをによし</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.kintetsu.co.jp/foreign/chinese-han/aoniyoshi/ - 路線： 大阪難波—奈良—京都 - 運営： 近鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-hinotori-firebird\">ひのとり</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - 路線： 難波—名古屋 - 運営： 近鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-shimakaze\">しまかぜ</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - 路線： 難波／京都／名古屋—伊勢志摩 - 運営： 近鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"青之交響曲\">青の交響曲（シンフォニー）</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.kintetsu.co.jp/foreign/chinese-han/about/limited_express/type.html#shimakaze - 路線： 大阪阿部野橋—吉野 - 運営： 近鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "阪急電鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-kyotrain-garaku\">京トレイン雅洛</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.hankyu.co.jp/kyotrain-garaku/zh-tw/ - 路線： 大阪梅田—京都河原町 - 運営： 阪急電鉄",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "京都丹後鉄道",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"train-tango-kuromatsu\">丹後くろまつ号</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://travel.willer.co.jp/train/tantetsu/ - 路線： 福知山—天橋立—西舞鶴 - 運営： 京都丹後鉄道",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "---",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "tag": "h2",
+              "type": "heading",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "えちごトキめき鉄道",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "<h3 id=\"雪月花\">雪月花</h3>",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            },
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "- 公式サイト： https://www.echigo-tokimeki.co.jp/setsugekka/reserve.html - 路線： 上越妙高—妙高高原—糸魚川 - 運営： えちごトキめき鉄道",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr"
+            }
+          ],
+          "direction": "ltr"
+        }
+      }
     }
   },
   "zephlog/筆記/東京隱藏景點-陽光60瞭望台": {
