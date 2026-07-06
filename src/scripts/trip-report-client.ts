@@ -134,10 +134,14 @@ export function initTripReportClient(): void {
     zoom: data.mapDefault.zoom,
     pitch: 0,
     bearing: 0,
-    attributionControl: { compact: true },
+    // 預設歸屬控制關閉，改於左下角自行加入 compact 版本（見下），
+    // 收合成小 ⓘ 以最低調呈現 OSM 授權標示，同時避開右下角縮放鈕。
+    attributionControl: false,
     cooperativeGestures: true,
   });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  // OSM／OpenFreeMap 授權標示為 ODbL 要求，保留但壓到最低調（compact 小 ⓘ）
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
   // tile 載入失敗（沙箱 proxy 擋 tiles.openfreemap.org）不應中斷其餘功能
   const noteEl = document.getElementById('trip-map-note');
