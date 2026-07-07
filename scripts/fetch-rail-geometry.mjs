@@ -443,8 +443,8 @@ function patchSegmentLine(fileText, from, to, viaCoordsLiteral) {
     if (/viaCoords:\s*\[[^\]]*\]/.test(line)) {
       return line.replace(/viaCoords:\s*\[[^\]]*\]/, `viaCoords: [${viaCoordsLiteral}]`);
     }
-    // 尚無 viaCoords：插入在結尾 ` },` 之前
-    return line.replace(/\s*\},\s*$/, ` viaCoords: [${viaCoordsLiteral}] },`);
+    // 尚無 viaCoords：插入在結尾 ` },` 之前（前面補逗號銜接既有欄位）
+    return line.replace(/\s*\},\s*$/, `, viaCoords: [${viaCoordsLiteral}] },`);
   });
   return { text: out.join('\n'), patchedCount };
 }
@@ -636,4 +636,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
 }
 
-export { stitchWays, sliceBetween, buildCorridor, haversineKm, candidatesToNameRegex };
+export { stitchWays, sliceBetween, buildCorridor, haversineKm, candidatesToNameRegex, patchSegmentLine };
