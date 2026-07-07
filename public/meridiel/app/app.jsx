@@ -40,11 +40,42 @@ function App() {
     localStorage.removeItem("fa-account");
   };
 
-  /* ---- flights ---- */
-  const [extra, setExtra] = useStateA(loadFlights);   // user-added flights, saved to this browser
+  /* ---- flights (cached in this browser + synced to Google Drive) ---- */
+  const [extra, setExtra] = useStateA(loadFlights);   // user-added flights
+  const [syncStatus, setSyncStatus] = useStateA("local"); // local | syncing | synced | offline
+  const extraRef = useRefA(extra);
+  const cloudLoaded = useRefA(false);
+  extraRef.current = extra;
+  const cloudSync = !!(window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
+
+  // On sign-in, pull the atlas from Drive (or seed the cloud with local data).
+  useEffectA(() => {
+    if (!account || !cloudSync) return;
+    let cancelled = false;
+    setSyncStatus("syncing");
+    window.MeridielStore.load().then((data) => {
+      if (cancelled) return;
+      if (Array.isArray(data)) setExtra(data);
+      else window.MeridielStore.save(extraRef.current).catch(() => {});
+      cloudLoaded.current = true;
+      setSyncStatus("synced");
+    }).catch(() => { if (!cancelled) setSyncStatus("offline"); });
+    return () => { cancelled = true; };
+  }, [account]);
+
+  // Always cache locally; debounce-push to Drive once the cloud copy is loaded.
   useEffectA(() => {
     localStorage.setItem("fa-flights", JSON.stringify(extra));
+    if (!cloudLoaded.current || !cloudSync) return;
+    setSyncStatus("syncing");
+    const t = setTimeout(() => {
+      window.MeridielStore.save(extra)
+        .then(() => setSyncStatus("synced"))
+        .catch(() => setSyncStatus("offline"));
+    }, 800);
+    return () => clearTimeout(t);
   }, [extra]);
+
   const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
   const chrono = useMemoA(
     () => [...flightsAll].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)),
@@ -279,6 +310,14 @@ function App() {
                       <small>{account.email || account.handle}</small>
                     </div>
                   </div>
+                  {cloudSync && (
+                    <div className={"am-sync am-sync--" + syncStatus}>
+                      {syncStatus === "synced" ? "✓ Synced to Google Drive"
+                        : syncStatus === "syncing" ? "Syncing to Google Drive…"
+                        : syncStatus === "offline" ? "Offline · saved on this device"
+                        : "Saved on this device"}
+                    </div>
+                  )}
                   <button className="am-item" onClick={() => { toggleTheme(); }}>
                     {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}

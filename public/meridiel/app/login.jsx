@@ -1,22 +1,13 @@
 /* ============================================================
    MERIDIEL — Google Sign-in Gate
    Real Google sign-in via Google Identity Services (client-side,
-   no backend). Set GOOGLE_CLIENT_ID below to enable it; if left
-   empty the built-in demo account is used so the app still runs.
+   no backend). The Client ID and the auth/Drive plumbing live in
+   store.js (window.MeridielAuth); if it's disabled the built-in
+   demo account is used so the app still runs.
    ============================================================ */
 const { useState: useStateL, useEffect: useEffectL } = React;
 
-/* ------------------------------------------------------------------
-   Paste your OAuth **Web application** Client ID here.
-   Google Cloud Console → APIs & Services → Credentials → OAuth client.
-   Add your site to "Authorized JavaScript origins", e.g.
-     https://milifix.org
-     http://localhost:4321   (local dev)
-   Leave this empty ("") to fall back to the demo account below.
------------------------------------------------------------------- */
-const GOOGLE_CLIENT_ID = "827299294563-uika95bhd5g8foi4ins9jo5f3oi2hqgp.apps.googleusercontent.com";
-
-/* Demo account — used only when GOOGLE_CLIENT_ID is empty. */
+/* Demo account — used only when Google auth is disabled (no Client ID). */
 const DEMO_ACCOUNT = {
   name: "Avery Lin",
   email: "avery.lin@gmail.com",
@@ -29,7 +20,7 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
   const acct = DEMO_ACCOUNT;
-  const realAuth = !!GOOGLE_CLIENT_ID;
+  const realAuth = !!(window.MeridielAuth && window.MeridielAuth.enabled);
 
   // Build an account object from a Google userinfo payload.
   const acctFromProfile = (p) => {
@@ -43,48 +34,19 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
     };
   };
 
-  // Real Google sign-in (OAuth token model → userinfo).
+  // Real Google sign-in (token with Drive scope → userinfo), via store.js.
   const realSignIn = () => {
     setError("");
-    if (!window.google || !google.accounts || !google.accounts.oauth2) {
-      setError("Google sign-in didn’t load. Check your connection and try again.");
-      return;
-    }
     setSigningName("");
     setStep("connecting");
-    try {
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: "openid email profile",
-        callback: async (resp) => {
-          if (resp.error || !resp.access_token) {
-            setStep("signin");
-            setError("Sign-in was cancelled.");
-            return;
-          }
-          try {
-            const r = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-              headers: { Authorization: "Bearer " + resp.access_token },
-            });
-            if (!r.ok) throw new Error("userinfo " + r.status);
-            const p = await r.json();
-            setSigningName(p.name || p.email || "");
-            onLogin(acctFromProfile(p));
-          } catch (e) {
-            setStep("signin");
-            setError("Couldn’t load your Google profile. Please try again.");
-          }
-        },
-        error_callback: () => {
-          setStep("signin");
-          setError("Sign-in was cancelled.");
-        },
-      });
-      client.requestAccessToken();
-    } catch (e) {
+    window.MeridielAuth.signIn().then((p) => {
+      setSigningName(p.name || p.email || "");
+      onLogin(acctFromProfile(p));
+    }).catch((err) => {
       setStep("signin");
-      setError("Google sign-in couldn’t start. Please try again.");
-    }
+      const cancelled = err && (err.type === "popup_closed" || err.type === "popup_failed_to_open");
+      setError(cancelled ? "Sign-in was cancelled." : "Google sign-in didn’t complete. Please try again.");
+    });
   };
 
   // Entry point for the "Sign in with Google" button.
