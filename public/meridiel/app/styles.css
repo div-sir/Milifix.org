@@ -1,0 +1,210 @@
+/* ============================================================
+   MERIDIEL — Vintage Travel-Poster Design System
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  /* Paper / ink */
+  --paper:      #EBDFC6;   /* aged cream */
+  --paper-2:    #E2D2B2;   /* deeper paper */
+  --paper-3:    #F3EAD6;   /* light highlight paper */
+  --ink:        #20323D;   /* deep teal-navy ink */
+  --ink-soft:   #43545E;
+  --ink-faint:  rgba(32,50,61,0.55);
+
+  /* Accents (shared chroma, varied hue — vintage poster palette) */
+  --vermilion:  #C24A33;   /* faded travel red */
+  --ochre:      #D29A3C;   /* mustard / gold */
+  --teal:       #2C7A72;   /* sea teal */
+  --sky:        #6E9AA1;   /* faded sky */
+  --plum:       #7B4B57;   /* muted plum */
+
+  /* Lines */
+  --line:       rgba(32,50,61,0.20);
+  --line-soft:  rgba(32,50,61,0.10);
+
+  /* Globe */
+  --ocean:      #15303A;
+  --land:       #E3CE9E;
+  --land-edge:  #B79A63;
+
+  --shadow:     0 18px 50px -22px rgba(20,32,38,0.55);
+  --shadow-sm:  0 6px 20px -10px rgba(20,32,38,0.4);
+
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono:  'Space Mono', 'SFMono-Regular', Menlo, monospace;
+
+  /* paper-texture overlay tints (re-defined in dark) */
+  --tex-hi:  rgba(255,255,255,0.35);
+  --tex-lo:  rgba(120,90,40,0.10);
+  --tex-op:  0.05;
+
+  /* globe space backdrop */
+  --space-1: #20323D; --space-2: #16262F; --space-3: #0E191F; --space-4: #0A1318;
+}
+
+/* ============= DARK MODE ============= */
+[data-theme="dark"] {
+  --paper:      #1C2A31;   /* dark slate "paper" */
+  --paper-2:    #16242B;   /* deeper */
+  --paper-3:    #243741;   /* lighter surface */
+  --ink:        #ECE0C7;   /* warm cream ink */
+  --ink-soft:   #C3BAA4;
+  --ink-faint:  rgba(236,224,199,0.52);
+
+  --vermilion:  #E06A4F;   /* lifted for dark contrast */
+  --ochre:      #E0B158;
+  --teal:       #45A89C;
+  --sky:        #8FB8BF;
+  --plum:       #B07A86;
+
+  --line:       rgba(236,224,199,0.22);
+  --line-soft:  rgba(236,224,199,0.10);
+
+  --land:       #C7B27E;
+  --land-edge:  #8A7448;
+
+  --shadow:     0 22px 60px -22px rgba(0,0,0,0.7);
+  --shadow-sm:  0 8px 24px -12px rgba(0,0,0,0.6);
+
+  --tex-hi:  rgba(255,255,255,0.04);
+  --tex-lo:  rgba(0,0,0,0.18);
+  --tex-op:  0.04;
+
+  --space-1: #16252D; --space-2: #0F1D24; --space-3: #0A151B; --space-4: #060D11;
+}
+
+html { transition: background .4s ease; }
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--ink);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+/* Paper texture used on light surfaces */
+.paper-tex {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 18% 12%, var(--tex-hi), transparent 40%),
+    radial-gradient(circle at 85% 88%, var(--tex-lo), transparent 45%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ----- Typography helpers ----- */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.display {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.serif-num { font-family: var(--serif); font-weight: 400; }
+.mono { font-family: var(--mono); }
+
+/* Dashed rule like a flight path */
+.dash-rule {
+  height: 0; border: none;
+  border-top: 1.5px dashed var(--line);
+  margin: 0;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(32,50,61,0.25);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(32,50,61,0.4); background-clip: padding-box; }
+
+/* ----- Buttons ----- */
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 11px 18px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+  border-radius: 2px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.btn-solid { background: var(--ink); color: var(--paper); }
+.btn-solid:hover { background: var(--vermilion); border-color: var(--vermilion); }
+.btn-accent { background: var(--vermilion); border-color: var(--vermilion); color: var(--paper-3); }
+.btn-ghost { border-color: var(--line); color: var(--ink-soft); }
+
+.icon-btn {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all .18s ease;
+}
+.icon-btn:hover { background: var(--ink); color: var(--paper); }
+
+/* Perforated edge (boarding-pass divider) */
+.perf {
+  position: relative;
+}
+.perf::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 1px;
+  background-image: radial-gradient(circle, var(--ink) 1.2px, transparent 1.4px);
+  background-size: 12px 2px;
+  opacity: 0.4;
+}
+
+/* Stamp */
+.stamp {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  border: 2px solid var(--vermilion);
+  color: var(--vermilion);
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 11px;
+  transform: rotate(-7deg);
+  display: inline-block;
+  opacity: 0.9;
+}
+
+/* Fade/utility — note: NO `both` fill-mode. The resting state must be the
+   visible end-state so content still shows if the CSS animation never runs
+   (e.g. background/hidden tab pauses the keyframe engine). */
+.fade-in { animation: fadeIn .5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001s !important; transition-duration: .001s !important; }
+}
