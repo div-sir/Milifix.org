@@ -19,6 +19,11 @@
  * relation（查無者會列出，到 openstreetmap.org / overpass-turbo.eu 查正確 name 後
  * 更新候選名稱重驗）；名稱都綠了再跑完整幾何擷取，避免白花時間抓錯線。
  *
+ * 關於速度：公開 Overpass 服務有 slot 配額與限流（429）。本腳本會查 /api/status
+ * 等待空檔、遇 429/5xx 指數退避重試，並快取重複線路，因此完整擷取可能需要數分鐘，
+ * 過程中看到「等待 Overpass 空檔…」「Overpass 429…等待後重試」是正常的，請耐心等候，
+ * 不要中斷。若持續大量 429，可稍後離峰再跑。
+ *
  * 不帶參數則處理 src/data/trips/index.ts 註冊的全部報告書。
  * 執行後請用 `git diff` 檢視 src/data/trips/*.ts 的變更，確認合理再 commit。
  *
@@ -104,73 +109,138 @@ const RAIL_ROUTES = {
 
 const RAIL_MODES = new Set(['shinkansen', 'train', 'tram', 'monorail', 'night-train']);
 
+// Overpass 公開伺服器。overpass-api.de 有明確的 slot 配額機制（/api/status），
+// 優先使用它並遵守其空檔；kumi.systems 作為備援。
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
 ];
+const OVERPASS_MAX_ATTEMPTS = 8; // 每次查詢的重試上限（含 429 退避）
+const OVERPASS_MIN_SPACING_MS = 1500; // 相鄰請求的全域最小間隔，避免瞬間灌爆
+const OVERPASS_TIMEOUT_MS = 180_000; // 單次請求逾時（含伺服器端 timeout）
 
 const SNAP_WARN_KM = 3; // 起訖站與 corridor 最近點距離超過此值，視為對不上、跳過
 const STITCH_GAP_KM = 0.3; // 就近端點縫合的容許間隙
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+let lastRequestAt = 0;
+async function globalSpacing() {
+  const wait = OVERPASS_MIN_SPACING_MS - (Date.now() - lastRequestAt);
+  if (wait > 0) await sleep(wait);
+  lastRequestAt = Date.now();
+}
+
+/**
+ * 查詢 overpass-api.de 的 /api/status，若目前沒有可用 slot 就等到有空檔為止，
+ * 這是避免 429（限流）最正規的做法。status 查不到時直接返回、交由退避處理。
+ */
+async function waitForSlot(interpreterUrl) {
+  const statusUrl = interpreterUrl.replace('/interpreter', '/status');
+  try {
+    const res = await fetch(statusUrl, { signal: AbortSignal.timeout(30_000) });
+    const txt = await res.text();
+    if (/slots? available now/i.test(txt) || !/Slot available after/i.test(txt)) return;
+    const waits = [...txt.matchAll(/in (\d+) seconds/g)].map((m) => Number(m[1]));
+    if (waits.length) {
+      const w = Math.min(...waits);
+      if (w > 0) {
+        console.log(`    · 等待 Overpass 空檔約 ${w}s…`);
+        await sleep((w + 2) * 1000);
+      }
+    }
+  } catch {
+    /* status 端點查不到就略過，直接嘗試查詢 */
+  }
+}
+
+/**
+ * 送出 Overpass QL 查詢，內建：全域間隔節流、slot 等待、429／5xx 指數退避重試、
+ * 尊重 Retry-After、端點輪替、逾時保護。多次重試仍失敗才 throw。
+ */
 async function overpassQuery(ql) {
+  let endpointIdx = 0;
   let lastErr;
-  for (const endpoint of OVERPASS_ENDPOINTS) {
+  for (let attempt = 1; attempt <= OVERPASS_MAX_ATTEMPTS; attempt++) {
+    const endpoint = OVERPASS_ENDPOINTS[endpointIdx % OVERPASS_ENDPOINTS.length];
+    await globalSpacing();
+    if (endpoint.includes('overpass-api.de')) await waitForSlot(endpoint);
+
+    let res;
     try {
-      const res = await fetch(endpoint, {
+      res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: ql,
+        signal: AbortSignal.timeout(OVERPASS_TIMEOUT_MS),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
     } catch (err) {
+      // 網路錯誤／逾時：屬暫時性，退避後重試
       lastErr = err;
-      await sleep(1500);
+      if (attempt === OVERPASS_MAX_ATTEMPTS) break;
+      const backoff = Math.min(90_000, 5000 * 2 ** (attempt - 1));
+      console.log(`    · 連線失敗（${err.message}），等待 ${Math.round(backoff / 1000)}s 後重試（${attempt}/${OVERPASS_MAX_ATTEMPTS}）…`);
+      endpointIdx++;
+      await sleep(backoff);
+      continue;
     }
+
+    // 429（限流）／504／5xx：暫時性，退避後重試
+    if (res.status === 429 || res.status === 504 || res.status >= 500) {
+      const retryAfter = Number(res.headers.get('retry-after')) || 0;
+      const backoff = retryAfter * 1000 || Math.min(90_000, 5000 * 2 ** (attempt - 1));
+      console.log(`    · Overpass ${res.status}（限流/忙碌），等待 ${Math.round(backoff / 1000)}s 後重試（${attempt}/${OVERPASS_MAX_ATTEMPTS}）…`);
+      endpointIdx++; // 換另一個端點
+      lastErr = new Error(`HTTP ${res.status}`);
+      await sleep(backoff);
+      continue;
+    }
+
+    // 其餘非 2xx（4xx，如 400 查詢錯、403 政策阻擋）：確定性錯誤，不重試、立即拋出
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
   }
   throw lastErr ?? new Error('Overpass 查詢失敗');
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 線名 → way 幾何 的快取：同一條線（山手線、上越新幹線…）跨多段重複出現時，
+// 只查一次 Overpass，大幅降低請求數與被限流的機率。
+const lineWaysCache = new Map();
 
-/** 依單一名稱找出鐵路 route relation id（取成員數最多者，通常代表最完整的路線） */
-async function findRelationId(name) {
-  const ql = `[out:json][timeout:60];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nout ids tags;`;
+/** 一次查詢取得某線名對應 route relation 的所有 way 幾何（合併 id 解析與幾何抓取）。
+ *  查無該線名時回傳空陣列。結果依線名快取。 */
+async function fetchLineWays(name) {
+  if (lineWaysCache.has(name)) return lineWaysCache.get(name);
+  const ql = `[out:json][timeout:120];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nway(r);\nout geom;`;
   const data = await overpassQuery(ql);
-  if (!data.elements?.length) return null;
-  // 部分路線有「上行／下行」兩個 relation，member 數最多者通常最完整
-  let best = null;
-  for (const el of data.elements) {
-    const memberCount = el.tags?.['member_count'] ?? 0;
-    if (!best || memberCount > (best.tags?.['member_count'] ?? 0)) best = el;
-  }
-  return (best ?? data.elements[0]).id;
+  const ways = (data.elements ?? [])
+    .filter((el) => el.type === 'way' && el.geometry?.length > 1)
+    .map((el) => el.geometry.map((g) => [g.lon, g.lat]));
+  lineWaysCache.set(name, ways);
+  return ways;
 }
 
-/** 依候選名稱清單依序嘗試，回傳第一個查得到的 { name, relId }。
+/** 輕量檢查某線名是否存在對應 route relation（--verify-names 用，只取 id 不抓幾何）*/
+async function relationExists(name) {
+  const ql = `[out:json][timeout:60];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nout ids;`;
+  const data = await overpassQuery(ql);
+  return (data.elements?.length ?? 0) > 0;
+}
+
+/** 依候選名稱清單依序嘗試，回傳第一個查得到幾何的 { name, ways }。
  *  皆查無回傳 null；若因網路/服務錯誤而無法判定，回傳 { error }（讓上層區分
  *  「名稱錯」與「連不到 Overpass」，避免把網路問題誤報成名稱需要調整）。 */
 async function resolveLeg(candidates) {
   let sawError = null;
   for (const name of candidates) {
     try {
-      const relId = await findRelationId(name);
-      if (relId) return { name, relId };
+      const ways = await fetchLineWays(name);
+      if (ways.length > 0) return { name, ways };
     } catch (err) {
       sawError = err.message;
     }
-    await sleep(1000); // 對公開 Overpass 服務保持禮貌節流
   }
   return sawError ? { error: sawError } : null;
-}
-
-/** 抓 relation 所有成員 way 的完整幾何（未縫合、未排序）*/
-async function fetchRelationWays(relationId) {
-  const ql = `[out:json][timeout:90];\nrelation(${relationId});\nway(r);\nout geom;`;
-  const data = await overpassQuery(ql);
-  return (data.elements ?? [])
-    .filter((el) => el.type === 'way' && el.geometry?.length > 1)
-    .map((el) => el.geometry.map((g) => [g.lon, g.lat]));
 }
 
 function haversineKm([lng1, lat1], [lng2, lat2]) {
@@ -234,14 +304,12 @@ async function buildCorridor(legs) {
       // 連不到 Overpass 或查詢失敗：整段擷取交由上層 try/catch 中止，保留原有 viaCoords
       throw new Error(`Overpass 查詢失敗（${resolved.error}）`);
     }
-    console.log(`    · 使用路線「${resolved.name}」（relation ${resolved.relId}）`);
-    const ways = await fetchRelationWays(resolved.relId);
-    await sleep(1200);
-    const line = stitchWays(ways);
+    const line = stitchWays(resolved.ways);
     if (line.length < 2) {
       console.warn(`  ⚠ 「${resolved.name}」縫合後點數不足`);
       continue;
     }
+    console.log(`    · 使用路線「${resolved.name}」（${line.length} 點）`);
     corridor = corridor.length === 0 ? line : corridor.concat(line);
   }
   return corridor;
@@ -387,13 +455,25 @@ async function verifyNames() {
     }
     console.log(`[${label}]`);
     for (const candidates of route) {
-      const resolved = await resolveLeg(candidates);
-      if (resolved?.error) {
-        console.log(`  ⚠ 查詢失敗（${resolved.error}）：${candidates.join(' / ')}`);
-        networkErrors++;
-      } else if (resolved) {
-        console.log(`  ✓ ${resolved.name}（relation ${resolved.relId}）  ← 候選：${candidates.join(' / ')}`);
+      // 輕量檢查：逐一候選名稱查是否存在對應 relation（只取 id，不抓幾何）
+      let hit = null;
+      let sawError = null;
+      for (const name of candidates) {
+        try {
+          if (await relationExists(name)) {
+            hit = name;
+            break;
+          }
+        } catch (err) {
+          sawError = err.message;
+        }
+      }
+      if (hit) {
+        console.log(`  ✓ ${hit}  ← 候選：${candidates.join(' / ')}`);
         resolvedCount++;
+      } else if (sawError) {
+        console.log(`  ⚠ 查詢失敗（${sawError}）：${candidates.join(' / ')}`);
+        networkErrors++;
       } else {
         console.log(`  ✗ 全部查無：${candidates.join(' / ')}`);
         unresolved.push(`[${label}] ${candidates.join(' / ')}`);
@@ -420,13 +500,18 @@ async function main() {
     return;
   }
 
+  // 從 index.ts 收集報告書資料檔；排除非資料模組（types / index）
+  const NON_DATA = new Set(['types', 'index']);
   const arg = args.find((a) => !a.startsWith('--'));
   const files = arg
     ? [path.join(TRIPS_DIR, `${arg}.ts`)]
-    : readFileSync(path.join(TRIPS_DIR, 'index.ts'), 'utf-8')
-        .match(/from '\.\/([a-z0-9-]+)'/g)
-        ?.map((m) => path.join(TRIPS_DIR, `${m.match(/'\.\/(.+)'/)[1]}.ts`))
-        .filter((p) => !p.endsWith('index.ts')) ?? [];
+    : [
+        ...new Set(
+          (readFileSync(path.join(TRIPS_DIR, 'index.ts'), 'utf-8').match(/from '\.\/([a-z0-9-]+)'/g) ?? [])
+            .map((m) => m.match(/'\.\/(.+)'/)[1])
+            .filter((slug) => !NON_DATA.has(slug))
+        ),
+      ].map((slug) => path.join(TRIPS_DIR, `${slug}.ts`));
 
   if (files.length === 0) {
     console.error('找不到任何報告書資料檔。');
