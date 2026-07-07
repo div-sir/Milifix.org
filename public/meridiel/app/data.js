@@ -34,44 +34,7 @@
   };
 
   // ---- Flights (chronological). dist/dur derived where dur omitted ----
-  const RAW = [
-    { date: "2016-03-12", o: "SFO", d: "JFK", airline: "United",            craft: "Boeing 737-900", seat: "14A" },
-    { date: "2016-06-28", o: "SFO", d: "LHR", airline: "Virgin Atlantic",   craft: "Boeing 787-9",   seat: "8K", fav: true },
-    { date: "2016-07-04", o: "LHR", d: "CDG", airline: "Air France",        craft: "Airbus A320",    seat: "3C" },
-    { date: "2016-07-12", o: "CDG", d: "FCO", airline: "ITA Airways",       craft: "Airbus A321",    seat: "21F" },
-    { date: "2016-07-20", o: "FCO", d: "SFO", airline: "United",            craft: "Boeing 777-200", seat: "30A" },
-    { date: "2017-01-15", o: "SFO", d: "HNL", airline: "Hawaiian",          craft: "Airbus A330",    seat: "12L" },
-    { date: "2017-01-22", o: "HNL", d: "SFO", airline: "Hawaiian",          craft: "Airbus A330",    seat: "12L" },
-    { date: "2017-09-05", o: "SFO", d: "NRT", airline: "ANA",               craft: "Boeing 787-9",   seat: "7A", fav: true },
-    { date: "2017-09-14", o: "NRT", d: "ICN", airline: "Korean Air",        craft: "Airbus A330",    seat: "33H" },
-    { date: "2017-09-20", o: "ICN", d: "HKG", airline: "Cathay Pacific",    craft: "Airbus A350",    seat: "19D" },
-    { date: "2017-09-27", o: "HKG", d: "SFO", airline: "Cathay Pacific",    craft: "Boeing 777-300", seat: "45K" },
-    { date: "2018-05-10", o: "SFO", d: "FRA", airline: "Lufthansa",         craft: "Airbus A340",    seat: "16A" },
-    { date: "2018-05-18", o: "FRA", d: "IST", airline: "Turkish Airlines",  craft: "Airbus A321",    seat: "9C" },
-    { date: "2018-05-25", o: "IST", d: "DXB", airline: "Emirates",          craft: "Boeing 777",     seat: "24A" },
-    { date: "2018-06-01", o: "DXB", d: "SFO", airline: "Emirates",          craft: "Airbus A380",    seat: "61A", fav: true },
-    { date: "2018-11-20", o: "SFO", d: "MEX", airline: "Aeroméxico",        craft: "Boeing 737-800", seat: "11F" },
-    { date: "2018-11-27", o: "MEX", d: "SFO", airline: "Aeroméxico",        craft: "Boeing 737-800", seat: "11F" },
-    { date: "2019-02-14", o: "SFO", d: "SIN", airline: "Singapore Airlines",craft: "Airbus A350",    seat: "52A", fav: true },
-    { date: "2019-02-22", o: "SIN", d: "BKK", airline: "Singapore Airlines",craft: "Boeing 787",     seat: "40C" },
-    { date: "2019-03-01", o: "BKK", d: "DEL", airline: "Thai Airways",      craft: "Airbus A330",    seat: "27A" },
-    { date: "2019-03-09", o: "DEL", d: "SFO", airline: "Air India",         craft: "Boeing 777",     seat: "34K" },
-    { date: "2019-08-03", o: "SFO", d: "KEF", airline: "Icelandair",        craft: "Boeing 757",     seat: "6A" },
-    { date: "2019-08-10", o: "KEF", d: "AMS", airline: "Icelandair",        craft: "Boeing 737-MAX", seat: "14F" },
-    { date: "2019-08-17", o: "AMS", d: "SFO", airline: "KLM",               craft: "Boeing 777-300", seat: "20A" },
-    { date: "2022-04-09", o: "SFO", d: "TPE", airline: "EVA Air",           craft: "Boeing 777-300", seat: "32A", fav: true },
-    { date: "2022-04-18", o: "TPE", d: "SYD", airline: "Qantas",            craft: "Airbus A330",    seat: "44A" },
-    { date: "2022-04-28", o: "SYD", d: "AKL", airline: "Air New Zealand",   craft: "Airbus A320",    seat: "8C" },
-    { date: "2022-05-05", o: "AKL", d: "SFO", airline: "Air New Zealand",   craft: "Boeing 787-9",   seat: "5A" },
-    { date: "2023-10-12", o: "SFO", d: "GRU", airline: "United",            craft: "Boeing 777",     seat: "28A" },
-    { date: "2023-10-20", o: "GRU", d: "EZE", airline: "Aerolíneas Arg.",   craft: "Boeing 737",     seat: "12A" },
-    { date: "2023-10-28", o: "EZE", d: "SFO", airline: "United",            craft: "Boeing 767",     seat: "19A" },
-    { date: "2024-06-15", o: "SFO", d: "CDG", airline: "French Bee",        craft: "Airbus A350",    seat: "30K" },
-    { date: "2024-06-22", o: "CDG", d: "CAI", airline: "EgyptAir",          craft: "Boeing 737-800", seat: "16A" },
-    { date: "2024-06-29", o: "CAI", d: "CPT", airline: "Ethiopian",         craft: "Boeing 787",     seat: "22A", fav: true },
-    { date: "2024-07-09", o: "CPT", d: "BCN", airline: "Iberia",            craft: "Airbus A330",    seat: "26A" },
-    { date: "2024-07-15", o: "BCN", d: "SFO", airline: "Level",             craft: "Airbus A330",    seat: "31A" },
-  ];
+  const RAW = [];  // your own flights are added in-app and saved to your browser
 
   // ---- Haversine (km) ----
   function distKm(a, b) {
@@ -133,9 +96,21 @@
 
   const YEARS = [...new Set(FLIGHTS.map((f) => f.year))].sort();
 
+  // Derive identity from the actual flights instead of hard-coded demo values.
+  function sinceOf(flights) {
+    return flights.length ? Math.min(...flights.map((f) => f.year)) : new Date().getFullYear();
+  }
+  function homeOf(flights) {
+    if (!flights.length) return "—";
+    const count = {};
+    flights.forEach((f) => { count[f.o] = (count[f.o] || 0) + 1; });
+    return Object.keys(count).sort((a, b) => count[b] - count[a])[0];
+  }
+
   window.ATLAS = {
     AIRPORTS, FLIGHTS, YEARS,
-    statsFor, countryList, distKm, durMin,
-    profile: { name: "Avery Lin", handle: "@averyflies", home: "SFO", since: 2016 },
+    statsFor, countryList, distKm, durMin, sinceOf, homeOf,
+    // name/handle fall back to these only when not signed in; a Google login overrides them.
+    profile: { name: "Traveler", handle: "@traveler", home: "—", since: new Date().getFullYear() },
   };
 })();

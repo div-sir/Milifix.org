@@ -48,7 +48,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
             <div className="sc-top">
               <div>
                 <div className="ttl">{name}'s<br />Meridiel</div>
-                <div className="sub">{handle} · {window.ATLAS.profile.since}–{new Date().getFullYear()} · HOME {prof.home}</div>
+                <div className="sub">{handle} · {window.ATLAS.sinceOf(flights)}–{new Date().getFullYear()} · HOME {window.ATLAS.homeOf(flights)}</div>
               </div>
               <svg className="seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <circle cx="12" cy="12" r="10" />

@@ -65,6 +65,7 @@ const STRINGS: Record<
       /** 首頁創作空間列表：BLOG / LUMIVEIL / TRAVEL 的簡介與計數單位 */
       blogTagline: string;
       lumiveilTagline: string;
+      meridielTagline: string;
       travelTagline: string;
       reportsTagline: string;
       blogCountUnit: string;
@@ -278,6 +279,7 @@ const STRINGS: Record<
       dockSpaces: 'Spaces',
       blogTagline: 'Travel data archive, indexes, and long-form notes',
       lumiveilTagline: 'Reveal every step you have ever taken',
+      meridielTagline: 'Every flight you have ever taken, drawn across a living globe',
       travelTagline: 'Taiwan credit card airline & lounge benefits',
       reportsTagline: 'Illustrated travelogues with live route maps',
       blogCountUnit: 'Posts',
@@ -499,6 +501,7 @@ const STRINGS: Record<
       dockSpaces: '空間',
       blogTagline: '旅行資料、分類索引與長文筆記',
       lumiveilTagline: '揭開你走過的每一步',
+      meridielTagline: '把你飛過的每一段航線，畫上一顆會呼吸的地球',
       travelTagline: '台灣信用卡航空與貴賓室權益比較',
       reportsTagline: '圖文旅行報告書，隨行程帶入即時地圖',
       blogCountUnit: '篇文章',
@@ -720,6 +723,7 @@ const STRINGS: Record<
       dockSpaces: 'スペース',
       blogTagline: '旅行データ、分類インデックス、長文ノート',
       lumiveilTagline: '歩いてきた道を、光で明かす',
+      meridielTagline: 'これまでの全フライトを、生きた地球儀に描く',
       travelTagline: '台湾のクレジットカードによる航空・ラウンジ特典比較',
       reportsTagline: 'ライブ路線地図つきの旅行レポート',
       blogCountUnit: '記事',

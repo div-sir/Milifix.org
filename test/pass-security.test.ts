@@ -69,15 +69,15 @@ describe('decodeImage', () => {
 
 describe('isAllowedHost', () => {
   it('allows the apex domain', () => {
-    expect(isAllowedHost('milifix.org')).toBe(true);
+    expect(isAllowedHost('milifix.com')).toBe(true);
   });
 
   it('allows subdomains of the apex', () => {
-    expect(isAllowedHost('www.milifix.org')).toBe(true);
+    expect(isAllowedHost('www.milifix.com')).toBe(true);
   });
 
   it('rejects a lookalike host with the apex as a prefix', () => {
-    expect(isAllowedHost('milifix.org.evil.com')).toBe(false);
+    expect(isAllowedHost('milifix.com.evil.com')).toBe(false);
   });
 
   it('rejects an unrelated host', () => {
@@ -91,13 +91,13 @@ describe('isAllowedHost', () => {
 
 describe('checkOrigin', () => {
   it('allows a request whose Origin is our own domain', () => {
-    const result = checkOrigin({ origin: 'https://milifix.org' });
+    const result = checkOrigin({ origin: 'https://milifix.com' });
     expect(result.allowed).toBe(true);
     expect(result.present).toBe(true);
   });
 
   it('rejects a request whose Origin is a lookalike domain', () => {
-    const result = checkOrigin({ origin: 'https://milifix.org.evil.com' });
+    const result = checkOrigin({ origin: 'https://milifix.com.evil.com' });
     expect(result.allowed).toBe(false);
   });
 

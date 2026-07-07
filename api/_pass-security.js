@@ -12,14 +12,14 @@
 
 /**
  * Decide whether a hostname is one of ours.
- * Allowed: milifix.org and any subdomain, *.vercel.app preview domains,
+ * Allowed: milifix.com and any subdomain, *.vercel.app preview domains,
  * and localhost / 127.0.0.1 / *.local for local dev.
  * @param {string} host bare hostname (no scheme, no port)
  */
 function isAllowedHost(host) {
   if (!host) return false;
   const h = host.toLowerCase();
-  if (h === 'milifix.org' || h.endsWith('.milifix.org')) return true;
+  if (h === 'milifix.com' || h.endsWith('.milifix.com')) return true;
   if (h.endsWith('.vercel.app')) return true; // Vercel preview / prod deployments
   if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return true;
   if (h.endsWith('.local') || h.endsWith('.localhost')) return true; // dev hostnames

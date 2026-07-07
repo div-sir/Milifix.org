@@ -9,7 +9,7 @@ import rehypeSlug from 'rehype-slug';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://milifix.org',
+  site: 'https://milifix.com',
 
   vite: {
     plugins: [tailwindcss()]
