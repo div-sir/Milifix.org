@@ -153,7 +153,6 @@ const OVERPASS_MIN_SPACING_MS = 1500; // 相鄰請求的全域最小間隔，避
 const OVERPASS_TIMEOUT_MS = 180_000; // 單次請求逾時（含伺服器端 timeout）
 
 const SNAP_WARN_KM = 3; // 起訖站與 corridor 最近點距離超過此值，視為對不上、跳過
-const STITCH_GAP_KM = 0.3; // 就近端點縫合的容許間隙
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -345,46 +344,28 @@ function haversineKm([lng1, lat1], [lng2, lat2]) {
   return distance(point([lng1, lat1]), point([lng2, lat2]), { units: 'kilometers' });
 }
 
-/** 就近端點縫合：把一批未排序、方向不一的 way 座標串成最長的連續折線 */
+/**
+ * 縫合 relation 的成員 way 為單一連續折線。
+ *
+ * 做法：信任 Overpass 對 `relation(id); way(r); out geom;` 回傳的 way 順序
+ * ——這對大眾運輸 route relation 而言即代表沿線行進順序（Overpass 保留
+ * relation member 順序是廣為採用的標準技巧）。逐一依序接上每個 way，只依
+ * 端點距離決定該 way 要不要反轉方向，「絕不」因為與前一段距離較遠就丟棄
+ * ——避免在資料有缺口（複雜轉轍區、路段邊界）時提早截斷，只留下一小段
+ * 離目的地很遠的碎片（實測發現的真實問題：查到正確路線卻因提早截斷，
+ * 裁切時算出離站點數十公里遠而被誤判為「查無」）。少數地圖資料缺口造成
+ * 的小段落跳躍，在行程地圖的縮放層級下不影響可讀性。
+ */
 function stitchWays(ways) {
   if (ways.length === 0) return [];
-  const remaining = ways.map((w) => w.slice());
-  let chain = remaining.shift();
-
-  while (remaining.length > 0) {
-    const head = chain[0];
+  let chain = ways[0].slice();
+  for (let i = 1; i < ways.length; i++) {
+    const w = ways[i];
     const tail = chain[chain.length - 1];
-    let bestIdx = -1;
-    let bestDist = Infinity;
-    let bestMode = null; // 'append-forward' | 'append-reverse' | 'prepend-forward' | 'prepend-reverse'
-
-    remaining.forEach((w, idx) => {
-      const wHead = w[0];
-      const wTail = w[w.length - 1];
-      const candidates = [
-        { d: haversineKm(tail, wHead), mode: 'append-forward' },
-        { d: haversineKm(tail, wTail), mode: 'append-reverse' },
-        { d: haversineKm(head, wTail), mode: 'prepend-forward' },
-        { d: haversineKm(head, wHead), mode: 'prepend-reverse' },
-      ];
-      for (const c of candidates) {
-        if (c.d < bestDist) {
-          bestDist = c.d;
-          bestIdx = idx;
-          bestMode = c.mode;
-        }
-      }
-    });
-
-    if (bestDist > STITCH_GAP_KM) break; // 沒有夠近的可縫合，視為已達最長連續段
-
-    const w = remaining.splice(bestIdx, 1)[0];
-    if (bestMode === 'append-forward') chain = chain.concat(w);
-    else if (bestMode === 'append-reverse') chain = chain.concat(w.slice().reverse());
-    else if (bestMode === 'prepend-forward') chain = w.concat(chain);
-    else chain = w.slice().reverse().concat(chain);
+    const dHead = haversineKm(tail, w[0]);
+    const dTail = haversineKm(tail, w[w.length - 1]);
+    chain = dTail < dHead ? chain.concat(w.slice().reverse()) : chain.concat(w);
   }
-
   return chain;
 }
 
