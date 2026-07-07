@@ -89,16 +89,29 @@ function StatsRail({ flights, allFlights, className }) {
 window.StatsRail = StatsRail;
 
 /* ---------- Flight Detail (replaces rail when a flight is picked) ---------- */
-function FlightDetail({ flight, onClose, className }) {
+function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
   if (!flight) return null;
   const f = flight;
+  const remove = () => {
+    if (window.confirm(`Delete the ${f.from.code} → ${f.to.code} flight? This can't be undone.`)) {
+      onDelete(f.id);
+    }
+  };
   return (
     <section className={"panel rail " + (className || "")} style={{ background: "var(--paper)" }}>
       <div className="panel-head" style={{ background: "var(--paper-3)" }}>
         <h3>Boarding Pass</h3>
-        <button className="icon-btn" onClick={onClose} style={{ width: 30, height: 30 }}>
-          <window.Icon.x />
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button className="icon-btn" onClick={() => onEdit(f)} title="Edit flight" style={{ width: 30, height: 30 }}>
+            <window.Icon.edit />
+          </button>
+          <button className="icon-btn" onClick={remove} title="Delete flight" style={{ width: 30, height: 30 }}>
+            <window.Icon.trash />
+          </button>
+          <button className="icon-btn" onClick={onClose} style={{ width: 30, height: 30 }}>
+            <window.Icon.x />
+          </button>
+        </div>
       </div>
       <div className="panel-body">
         <div className="detail-hero">

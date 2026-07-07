@@ -91,20 +91,23 @@ function ShareModal({ flights, account, onClose, pushToast }) {
 }
 window.ShareModal = ShareModal;
 
-/* ---------- Add Flight modal ---------- */
-function AddFlightModal({ onClose, onAdd, pushToast }) {
+/* ---------- Add / Edit Flight modal ----------
+   Pass `initial` (an existing flight) to edit it in place; omit it to add a new one. */
+function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
+  const isEdit = !!initial;
   const codes = Object.keys(window.ATLAS.AIRPORTS).sort();
   const [tab, setTab] = React.useState("manual");
-  const [form, setForm] = React.useState({
-    o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10),
-    airline: "", craft: "", seat: "",
-  });
+  const [form, setForm] = React.useState(() => (
+    initial
+      ? { o: initial.o, d: initial.d, date: initial.date, airline: initial.airline, craft: initial.craft, seat: initial.seat }
+      : { o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "" }
+  ));
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const submit = () => {
     if (form.o === form.d) { pushToast("Origin and destination must differ"); return; }
-    onAdd(form);
-    pushToast("Flight added to your log ✓");
+    onSubmit(form);
+    pushToast(isEdit ? "Flight updated ✓" : "Flight added to your log ✓");
     onClose();
   };
 
@@ -112,17 +115,19 @@ function AddFlightModal({ onClose, onAdd, pushToast }) {
     <div className="backdrop" onClick={onClose}>
       <div className="modal paper-tex" onClick={(e) => e.stopPropagation()} style={{ width: "min(480px, 94vw)" }}>
         <div className="modal-head">
-          <h2>Add a flight</h2>
+          <h2>{isEdit ? "Edit flight" : "Add a flight"}</h2>
           <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><window.Icon.x /></button>
         </div>
         <div className="modal-body">
-          <div className="tab-row">
-            <button className={tab === "manual" ? "on" : ""} onClick={() => setTab("manual")}>Manual</button>
-            <button className={tab === "import" ? "on" : ""} onClick={() => setTab("import")}>Import CSV</button>
-            <button className={tab === "sync" ? "on" : ""} onClick={() => setTab("sync")}>Sync app</button>
-          </div>
+          {!isEdit && (
+            <div className="tab-row">
+              <button className={tab === "manual" ? "on" : ""} onClick={() => setTab("manual")}>Manual</button>
+              <button className={tab === "import" ? "on" : ""} onClick={() => setTab("import")}>Import CSV</button>
+              <button className={tab === "sync" ? "on" : ""} onClick={() => setTab("sync")}>Sync app</button>
+            </div>
+          )}
 
-          {tab === "manual" && (
+          {(isEdit || tab === "manual") && (
             <React.Fragment>
               <div className="field-row">
                 <div className="field">
@@ -157,12 +162,12 @@ function AddFlightModal({ onClose, onAdd, pushToast }) {
                 <input placeholder="e.g. 14A" value={form.seat} onChange={set("seat")} />
               </div>
               <button className="btn btn-solid" style={{ width: "100%", justifyContent: "center", marginTop: 4 }} onClick={submit}>
-                <window.Icon.plus /> Add to log
+                {isEdit ? <React.Fragment><window.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><window.Icon.plus /> Add to log</React.Fragment>}
               </button>
             </React.Fragment>
           )}
 
-          {tab === "import" && (
+          {!isEdit && tab === "import" && (
             <div>
               <p className="hint">Drop a CSV with columns <b>date, from, to, airline, aircraft, seat</b>. Airport codes are matched to coordinates automatically.</p>
               <div className="detail-photo" style={{ height: 120, marginTop: 14, borderRadius: 3, border: "1.5px dashed var(--line)" }}>
@@ -172,7 +177,7 @@ function AddFlightModal({ onClose, onAdd, pushToast }) {
             </div>
           )}
 
-          {tab === "sync" && (
+          {!isEdit && tab === "sync" && (
             <div>
               <p className="hint">Connect a flight-log service to import history automatically:</p>
               <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
