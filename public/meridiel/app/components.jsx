@@ -1,0 +1,104 @@
+/* ============================================================
+   MERIDIEL — Small UI components & icons (React, global)
+   ============================================================ */
+const { useState, useEffect, useRef } = React;
+
+/* ---------- Inline icons ---------- */
+const Icon = {
+  plane: (p) => (
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}>
+      <path d="M3.5 13.5l17-6-3 9-4.5-1.5-3 4-1-4.5-5.5-1z" />
+    </svg>
+  ),
+  planeFill: (p) => (
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" {...p}>
+      <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" />
+    </svg>
+  ),
+  play: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" {...p}><path d="M7 5l12 7-12 7z" /></svg>),
+  pause: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" {...p}><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>),
+  share: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.1 10.9l7.8-4.6M8.1 13.1l7.8 4.6"/></svg>),
+  plus: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...p}><path d="M12 5v14M5 12h14"/></svg>),
+  x: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...p}><path d="M6 6l12 12M18 6L6 18"/></svg>),
+  download: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>),
+  present: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M12 17v3M8 20h8"/></svg>),
+  link: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1"/></svg>),
+  compass: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.4" {...p}><circle cx="12" cy="12" r="9"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeLinecap="round"/><path d="M15.5 8.5L13 13l-4.5 2.5L11 11z" fill="currentColor" stroke="none"/></svg>),
+  globe: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.5" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"/></svg>),
+  rotate: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 12a9 9 0 11-3-6.7M21 4v4h-4"/></svg>),
+  moon: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 12.8A8.5 8.5 0 1111.2 3a6.6 6.6 0 009.8 9.8z"/></svg>),
+  sun: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>),
+  logout: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>),
+  chevron: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M6 9l6 6 6-6"/></svg>),
+  google: (p) => (
+    <svg viewBox="0 0 48 48" width="1em" height="1em" {...p}>
+      <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2 5.1-4.4 6.7v5.5h7.1c4.2-3.8 6.6-9.5 6.6-16.2z"/>
+      <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.4 46 24 46z"/>
+      <path fill="#FBBC05" d="M11.8 28.3c-.4-1.3-.7-2.7-.7-4.3s.2-3 .7-4.3v-5.7H4.5C3 17 2 20.4 2 24s1 7 2.5 10z"/>
+      <path fill="#EA4335" d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.1 29.9 2 24 2 15.4 2 8.1 6.9 4.5 14l7.3 5.7c1.7-5.2 6.5-8.9 12.2-8.9z"/>
+    </svg>
+  ),
+};
+window.Icon = Icon;
+
+/* ---------- Flag (circle-flags via CDN) ---------- */
+function Flag({ cc, label, size }) {
+  const src = `https://cdn.jsdelivr.net/gh/HatScripts/circle-flags/flags/${cc}.svg`;
+  return (
+    <span className="flag" style={size ? { width: size, height: size } : null}>
+      <img src={src} alt={label || cc} loading="lazy" />
+      {label && <span className="tip">{label}</span>}
+    </span>
+  );
+}
+window.Flag = Flag;
+
+/* ---------- Animated number (GSAP count-up) ---------- */
+function StatNum({ value, suffix = "", decimals = 0 }) {
+  const ref = useRef(null);
+  const prev = useRef(0);
+  useEffect(() => {
+    const obj = { n: prev.current };
+    const el = ref.current;
+    if (!el) return;
+    if (window.gsap) {
+      window.gsap.to(obj, {
+        n: value, duration: 1.1, ease: "power2.out",
+        onUpdate: () => { el.textContent = fmt(obj.n, decimals) + suffix; },
+      });
+    } else { el.textContent = fmt(value, decimals) + suffix; }
+    prev.current = value;
+  }, [value]);
+  return <span ref={ref}>{fmt(value, decimals) + suffix}</span>;
+}
+function fmt(n, d) {
+  return d ? (+n).toFixed(d) : Math.round(n).toLocaleString();
+}
+window.StatNum = StatNum;
+
+/* ---------- Toast system ---------- */
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const push = (msg) => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts((t) => [...t, { id, msg }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2600);
+  };
+  const node = (
+    <div className="toast-wrap">
+      {toasts.map((t) => <div key={t.id} className="toast">{t.msg}</div>)}
+    </div>
+  );
+  return [push, node];
+}
+window.useToast = useToast;
+
+/* ---------- Format helpers ---------- */
+window.fmtDur = (min) => {
+  const h = Math.floor(min / 60), m = min % 60;
+  return `${h}h ${String(m).padStart(2, "0")}m`;
+};
+window.fmtDate = (iso) => {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+};

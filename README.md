@@ -28,6 +28,7 @@ Astro build（Vercel）
   ├── /solilium             攝影作品集
   ├── /voidlane             實驗動態作品集
   ├── /lumiveil             Lumiveil iOS App 介紹頁
+  ├── /meridiel             Meridiel 飛行足跡互動地球儀（public/ 靜態 App）
   ├── /blog                 部落格列表
   ├── /blog/[slug]          部落格文章頁
   └── /travel               台灣信用卡旅遊權益（卡片／航空／貴賓室／網路／比較表）
@@ -98,6 +99,7 @@ const page  = await getPage('home')        // 頁面文案
 | `/blog` | 部落格列表，依 bucket 分三大類 |
 | `/blog/[slug]` | 文章頁，含側邊浮動目錄 |
 | `/lumiveil` | Lumiveil iOS App 介紹頁 |
+| `/meridiel` | Meridiel 飛行足跡互動地球儀（`public/meridiel/` 靜態 App）|
 | `/linktree` | 連結樹 |
 | `/invoice-pass` | Apple Wallet 發票卡片產生器 |
 | `/travel` | 台灣信用卡旅遊權益首頁（卡片／航空／貴賓室精選） |

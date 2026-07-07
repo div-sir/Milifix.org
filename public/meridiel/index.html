@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Meridiel — Where I've Flown</title>
+  <link rel="stylesheet" href="app/styles.css" />
+  <link rel="stylesheet" href="app/layout.css" />
+
+  <!-- Globe (open-source, no token) — globe.gl bundles its own Three.js -->
+  <script src="https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js"></script>
+  <!-- GSAP -->
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <!-- html2canvas for PNG export -->
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- Google Identity Services (real sign-in; set a Client ID in app/login.jsx) -->
+  <script src="https://accounts.google.com/gsi/client" async></script>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- data first (plain JS) -->
+  <script src="app/data.js"></script>
+  <!-- React components (babel) -->
+  <script type="text/babel" src="app/components.jsx"></script>
+  <script type="text/babel" src="app/globe.jsx"></script>
+  <script type="text/babel" src="app/panels.jsx"></script>
+  <script type="text/babel" src="app/modals.jsx"></script>
+  <script type="text/babel" src="app/login.jsx"></script>
+  <script type="text/babel" src="app/app.jsx"></script>
+</body>
+</html>
