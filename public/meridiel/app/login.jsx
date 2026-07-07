@@ -14,7 +14,7 @@ const { useState: useStateL, useEffect: useEffectL } = React;
      http://localhost:4321   (local dev)
    Leave this empty ("") to fall back to the demo account below.
 ------------------------------------------------------------------ */
-const GOOGLE_CLIENT_ID = "";
+const GOOGLE_CLIENT_ID = "827299294563-uika95bhd5g8foi4ins9jo5f3oi2hqgp.apps.googleusercontent.com";
 
 /* Demo account — used only when GOOGLE_CLIENT_ID is empty. */
 const DEMO_ACCOUNT = {
