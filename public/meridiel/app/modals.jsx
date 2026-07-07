@@ -20,7 +20,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
         scale: 2, backgroundColor: null, useCORS: true, logging: false,
       });
       const a = document.createElement("a");
-      a.download = `flight-atlas-${handle.replace("@", "")}.png`;
+      a.download = `meridiel-${handle.replace("@", "")}.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
       pushToast("Saved your share card ✓");

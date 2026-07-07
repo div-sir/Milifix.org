@@ -4,33 +4,39 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap');
 
+/* ------------------------------------------------------------
+   Palette aligned to milifix.org — warm ochre/gold accent on a
+   neutral paper-cream (light) / charcoal (dark) base, with the
+   site's periwinkle blue as the secondary accent. Token names are
+   kept so the whole poster design system re-tints from here.
+   ------------------------------------------------------------ */
 :root {
-  /* Paper / ink */
-  --paper:      #EBDFC6;   /* aged cream */
-  --paper-2:    #E2D2B2;   /* deeper paper */
-  --paper-3:    #F3EAD6;   /* light highlight paper */
-  --ink:        #20323D;   /* deep teal-navy ink */
-  --ink-soft:   #43545E;
-  --ink-faint:  rgba(32,50,61,0.55);
+  /* Paper / ink — mirrors site --bg / --bg2 / --text / --muted */
+  --paper:      #F4F2EC;   /* site --bg (warm paper) */
+  --paper-2:    #E9E6DE;   /* site --bg2 */
+  --paper-3:    #FBFAF5;   /* light highlight */
+  --ink:        #16181D;   /* site --text (neutral, no teal cast) */
+  --ink-soft:   #3A3F47;   /* site --muted */
+  --ink-faint:  rgba(22,24,29,0.55);
 
-  /* Accents (shared chroma, varied hue — vintage poster palette) */
-  --vermilion:  #C24A33;   /* faded travel red */
-  --ochre:      #D29A3C;   /* mustard / gold */
-  --teal:       #2C7A72;   /* sea teal */
-  --sky:        #6E9AA1;   /* faded sky */
+  /* Accents (vintage poster palette, tuned to site identity) */
+  --vermilion:  #B04A30;   /* faded travel red */
+  --ochre:      #B07D24;   /* site warm gold, darkened for cream */
+  --teal:       #2F7D68;   /* site --travel-alliance */
+  --sky:        #3949A8;   /* site --nav-accent (periwinkle) */
   --plum:       #7B4B57;   /* muted plum */
 
-  /* Lines */
-  --line:       rgba(32,50,61,0.20);
-  --line-soft:  rgba(32,50,61,0.10);
+  /* Lines — mirrors site --line / --line-soft */
+  --line:       rgba(20,22,26,0.14);
+  --line-soft:  rgba(20,22,26,0.07);
 
   /* Globe */
-  --ocean:      #15303A;
-  --land:       #E3CE9E;
+  --ocean:      #182029;
+  --land:       #E2D7C1;
   --land-edge:  #B79A63;
 
-  --shadow:     0 18px 50px -22px rgba(20,32,38,0.55);
-  --shadow-sm:  0 6px 20px -10px rgba(20,32,38,0.4);
+  --shadow:     0 18px 50px -22px rgba(12,14,18,0.5);
+  --shadow-sm:  0 6px 20px -10px rgba(12,14,18,0.38);
 
   --serif: 'DM Serif Display', Georgia, serif;
   --sans:  'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -41,27 +47,27 @@
   --tex-lo:  rgba(120,90,40,0.10);
   --tex-op:  0.05;
 
-  /* globe space backdrop */
-  --space-1: #20323D; --space-2: #16262F; --space-3: #0E191F; --space-4: #0A1318;
+  /* globe space backdrop (deep neutral so the globe reads) */
+  --space-1: #1C2029; --space-2: #141821; --space-3: #0E121A; --space-4: #090C11;
 }
 
-/* ============= DARK MODE ============= */
+/* ============= DARK MODE (mirrors site dark tokens) ============= */
 [data-theme="dark"] {
-  --paper:      #1C2A31;   /* dark slate "paper" */
-  --paper-2:    #16242B;   /* deeper */
-  --paper-3:    #243741;   /* lighter surface */
-  --ink:        #ECE0C7;   /* warm cream ink */
-  --ink-soft:   #C3BAA4;
-  --ink-faint:  rgba(236,224,199,0.52);
+  --paper:      #171B22;   /* site --bg2 (panel over #111318) */
+  --paper-2:    #1E242E;   /* site --bg3 */
+  --paper-3:    #232A35;   /* lighter surface */
+  --ink:        #E9EBEF;   /* site --text */
+  --ink-soft:   #9AA3AD;   /* site --muted */
+  --ink-faint:  rgba(233,235,239,0.52);
 
   --vermilion:  #E06A4F;   /* lifted for dark contrast */
-  --ochre:      #E0B158;
-  --teal:       #45A89C;
-  --sky:        #8FB8BF;
+  --ochre:      #E2B565;   /* site --accent (dark) */
+  --teal:       #79C4AE;   /* site --travel-alliance (dark) */
+  --sky:        #A3B8FF;   /* site --nav-accent (dark) */
   --plum:       #B07A86;
 
-  --line:       rgba(236,224,199,0.22);
-  --line-soft:  rgba(236,224,199,0.10);
+  --line:       rgba(255,255,255,0.12);
+  --line-soft:  rgba(255,255,255,0.06);
 
   --land:       #C7B27E;
   --land-edge:  #8A7448;
@@ -73,7 +79,7 @@
   --tex-lo:  rgba(0,0,0,0.18);
   --tex-op:  0.04;
 
-  --space-1: #16252D; --space-2: #0F1D24; --space-3: #0A151B; --space-4: #060D11;
+  --space-1: #111318; --space-2: #0D0F14; --space-3: #0A0B0E; --space-4: #070809;
 }
 
 html { transition: background .4s ease; }

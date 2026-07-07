@@ -1,11 +1,23 @@
 /* ============================================================
-   MERIDIEL — Google OAuth Login Gate (mock flow)
-   Two-step: sign-in card → account chooser → connecting → app.
+   MERIDIEL — Google Sign-in Gate
+   Real Google sign-in via Google Identity Services (client-side,
+   no backend). Set GOOGLE_CLIENT_ID below to enable it; if left
+   empty the built-in demo account is used so the app still runs.
    ============================================================ */
 const { useState: useStateL, useEffect: useEffectL } = React;
 
-/* The account that "Google" offers — feels real, fully client-side. */
-const GOOGLE_ACCOUNT = {
+/* ------------------------------------------------------------------
+   Paste your OAuth **Web application** Client ID here.
+   Google Cloud Console → APIs & Services → Credentials → OAuth client.
+   Add your site to "Authorized JavaScript origins", e.g.
+     https://milifix.org
+     http://localhost:4321   (local dev)
+   Leave this empty ("") to fall back to the demo account below.
+------------------------------------------------------------------ */
+const GOOGLE_CLIENT_ID = "";
+
+/* Demo account — used only when GOOGLE_CLIENT_ID is empty. */
+const DEMO_ACCOUNT = {
   name: "Avery Lin",
   email: "avery.lin@gmail.com",
   handle: "@averyflies",
@@ -14,9 +26,76 @@ const GOOGLE_ACCOUNT = {
 
 function LoginGate({ theme, onToggleTheme, onLogin }) {
   const [step, setStep] = useStateL("signin"); // signin | choose | connecting
-  const acct = GOOGLE_ACCOUNT;
+  const [error, setError] = useStateL("");
+  const [signingName, setSigningName] = useStateL("");
+  const acct = DEMO_ACCOUNT;
+  const realAuth = !!GOOGLE_CLIENT_ID;
 
+  // Build an account object from a Google userinfo payload.
+  const acctFromProfile = (p) => {
+    const nm = (p.name || p.email || "Explorer").trim();
+    return {
+      name: nm,
+      email: p.email || "",
+      handle: p.email ? "@" + p.email.split("@")[0] : "",
+      initial: (nm[0] || "?").toUpperCase(),
+      picture: p.picture || "",
+    };
+  };
+
+  // Real Google sign-in (OAuth token model → userinfo).
+  const realSignIn = () => {
+    setError("");
+    if (!window.google || !google.accounts || !google.accounts.oauth2) {
+      setError("Google sign-in didn’t load. Check your connection and try again.");
+      return;
+    }
+    setSigningName("");
+    setStep("connecting");
+    try {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "openid email profile",
+        callback: async (resp) => {
+          if (resp.error || !resp.access_token) {
+            setStep("signin");
+            setError("Sign-in was cancelled.");
+            return;
+          }
+          try {
+            const r = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: { Authorization: "Bearer " + resp.access_token },
+            });
+            if (!r.ok) throw new Error("userinfo " + r.status);
+            const p = await r.json();
+            setSigningName(p.name || p.email || "");
+            onLogin(acctFromProfile(p));
+          } catch (e) {
+            setStep("signin");
+            setError("Couldn’t load your Google profile. Please try again.");
+          }
+        },
+        error_callback: () => {
+          setStep("signin");
+          setError("Sign-in was cancelled.");
+        },
+      });
+      client.requestAccessToken();
+    } catch (e) {
+      setStep("signin");
+      setError("Google sign-in couldn’t start. Please try again.");
+    }
+  };
+
+  // Entry point for the "Sign in with Google" button.
+  const onSignInClick = () => {
+    if (realAuth) realSignIn();
+    else setStep("choose");
+  };
+
+  // Demo connect (mock account chooser path).
   const connect = () => {
+    setSigningName(acct.name);
     setStep("connecting");
     setTimeout(() => onLogin(acct), 1500);
   };
@@ -65,11 +144,12 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
 
         {step === "signin" && (
           <React.Fragment>
-            <button className="gbtn" onClick={() => setStep("choose")}>
+            <button className="gbtn" onClick={onSignInClick}>
               <span className="gbtn-g"><window.Icon.google /></span>
               <span>Sign in with Google</span>
             </button>
-            <div className="login-or"><span>secure · client-side · nothing leaves your browser</span></div>
+            {error && <div className="login-err">{error}</div>}
+            <div className="login-or"><span>secure · Google sign-in · your data stays in your browser</span></div>
             <div className="login-meta">
               <span>EST. 2016</span><span className="dot">•</span><span>NO PASSWORD STORED</span>
             </div>
@@ -80,7 +160,7 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
           <div className="gchoose">
             <div className="gchoose-head">
               <span className="gword">Google</span>
-              <span className="gchoose-sub">Choose an account <em>to continue to Flight&nbsp;Atlas</em></span>
+              <span className="gchoose-sub">Choose an account <em>to continue to Meridiel</em></span>
             </div>
             <button className="gacct" onClick={connect}>
               <span className="gacct-av">{acct.initial}</span>
@@ -103,7 +183,9 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
         {step === "connecting" && (
           <div className="login-connecting">
             <div className="spin" />
-            <div className="lc-name">Signing in as <b>{acct.name}</b></div>
+            <div className="lc-name">
+              {signingName ? <React.Fragment>Signing in as <b>{signingName}</b></React.Fragment> : "Signing you in…"}
+            </div>
             <div className="lc-sub">Boarding your atlas…</div>
           </div>
         )}

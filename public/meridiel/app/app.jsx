@@ -258,7 +258,7 @@ function App() {
             </div>
 
             <div className="top-owner btn-like" onClick={() => setAcctMenu((v) => !v)}>
-              <div className="avatar">{account.initial || account.name[0]}</div>
+              <div className="avatar">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</div>
               <div className="who">
                 <b>{account.name}</b>
                 <small>{account.handle}</small>
@@ -267,7 +267,7 @@ function App() {
               {acctMenu && (
                 <div className="acct-menu paper-tex" onClick={(e) => e.stopPropagation()}>
                   <div className="am-head">
-                    <div className="am-av">{account.initial || account.name[0]}</div>
+                    <div className="am-av">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</div>
                     <div className="am-id">
                       <b>{account.name}</b>
                       <small>{account.email || account.handle}</small>
