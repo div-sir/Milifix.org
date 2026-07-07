@@ -60,51 +60,76 @@ import distance from '@turf/distance';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TRIPS_DIR = path.join(__dirname, '../src/data/trips');
 
-// ── 段落 label → 鐵路路線（依實際地理順序的「leg」陣列）───────────────
+// ── 段落 label → 鐵路路線 ───────────────────────────────────────────
 //
-//   每個 leg 是一組「候選 OSM route relation 名稱」，會依序嘗試直到某個
-//   名稱查得到 relation（容忍 OSM 命名不一致）。多個 leg 代表該段跨越多條
-//   實體路線（例如夜車跨東海道本線＋山陽本線），依序串接成完整走廊。
+//   值為 { routeTypes?, legs } 或 null（明確非鐵路，如渡輪，略過不警告）。
+//
+//   - routeTypes：OSM route relation 的 route=* 值清單，預設 ['railway']。
+//     OSM 把「一般鐵路」「路面電車」「單軌電車」分成不同的 route 值：
+//     一般鐵路／新幹線 route=railway；路面電車 route=tram（部分也用
+//     route=light_rail）；單軌電車 route=monorail。查錯分類會完全找不到，
+//     不是名稱錯誤，這是實測踩到的坑，務必依實際運具種類指定。
+//   - legs：依實際地理順序的候選名稱陣列，每個 leg 依序嘗試候選直到查到
+//     relation。多個 leg 代表該段跨越多條實體路線（如夜車跨東海道本線＋
+//     山陽本線），依序串接成完整走廊。部分 JR 線在 OSM 只有英文 name
+//     （如武蔵野線的 relation name 記為 "JR Musashino Line"），故補上
+//     常見英文候選作為後備。
 //
 //   線名來源：以 ekidata（open-data-jp-railway-lines）的正式 name_kanji 為主，
-//   再補上常見 OSM 變體作為後備候選。OSM 的 route relation `name` 標記與
-//   ekidata 未必完全一致，某些路面電車／機場支線／跨線接續仍可能需要人工微調；
-//   請先用 `--verify-names` 模式快速確認哪些候選名稱查得到，再跑完整幾何擷取。
+//   實跑後依 --verify-names 結果與已知 OSM 命名慣例（英文 name／tram vs
+//   railway 分類）校正。仍查無的段落用 `--verify-names` 快速定位再人工調整。
 //
-//   值為 null：明確標記為非鐵路（如渡輪），略過不處理、不警告。
-//   未列出的 label：退回用 label 本身當單一候選名稱嘗試。
+//   未列出的 label：退回用 label 本身、route=railway 當單一候選嘗試。
 const RAIL_ROUTES = {
   // Day2
-  '京急線・東急線': [['京急空港線'], ['京急本線', '京浜急行電鉄本線']],
-  'JR 橫須賀線 → 江之電': [['横須賀線', 'JR横須賀線']],
-  '江之電（江ノ島電鐵）': [['江ノ島電鉄線', '江ノ島電鉄']],
-  '湘南單軌電車': [['湘南モノレール江の島線', '湘南モノレール'], ['東海道本線']],
+  '京急線・東急線': { legs: [['京急空港線', 'Keikyu Airport Line'], ['京急本線', '京浜急行電鉄本線', 'Keikyu Main Line']] },
+  'JR 橫須賀線 → 江之電': { legs: [['横須賀線', 'JR横須賀線']] },
+  '江之電（江ノ島電鐵）': {
+    routeTypes: ['tram', 'light_rail', 'railway'],
+    legs: [['江ノ島電鉄線', '江ノ島電鉄', 'Enoshima Electric Railway', 'Enoden']],
+  },
+  '湘南單軌電車': {
+    routeTypes: ['monorail', 'railway'],
+    legs: [['湘南モノレール江の島線', '湘南モノレール', 'Shonan Monorail'], ['東海道本線']],
+  },
   // Day3
-  'JR 上野東京線': [['東海道本線'], ['東北本線', '宇都宮線']],
-  'JR 山手線': [['山手線', 'JR山手線']],
+  'JR 上野東京線': { legs: [['東海道本線'], ['東北本線', '宇都宮線']] },
+  'JR 山手線': { legs: [['山手線', 'JR山手線', 'JR Yamanote Line']] },
   // '上越新幹線' 出現於 Day3（上野→燕三條）與 Day4（上野→大宮）兩段，label 相同；
   // 上越新幹線 relation 通常涵蓋東京/大宮–新潟全段，兩段都能正確裁切，故共用單一候選。
-  '上越新幹線': [['上越新幹線']],
+  '上越新幹線': { legs: [['上越新幹線']] },
   // Day4
-  '上越新幹線（清晨返回東京）': [['上越新幹線']],
-  '東武城市公園線': [['東武野田線', '東武アーバンパークライン', '野田線']],
-  '東武線・JR 線': [['東武野田線'], ['武蔵野線'], ['東北本線']],
-  'Sunrise 寢台特急': [['東海道本線'], ['山陽本線']],
+  '上越新幹線（清晨返回東京）': { legs: [['上越新幹線']] },
+  '東武城市公園線': { legs: [['東武野田線', '東武アーバンパークライン', '野田線', 'Tobu Urban Park Line']] },
+  '東武線・JR 線': { legs: [['東武野田線', 'Tobu Urban Park Line'], ['武蔵野線', 'JR Musashino Line'], ['東北本線']] },
+  'Sunrise 寢台特急': { legs: [['東海道本線'], ['山陽本線']] },
   // Day5
-  '山陽新幹線': [['山陽新幹線']],
-  '廣島電鐵路面電車': [['広電本線', '広電２号線(宮島線)', '広電１号線(宇品線)']],
-  'JR 山陽本線': [['山陽本線', 'JR山陽本線']],
+  '山陽新幹線': { legs: [['山陽新幹線']] },
+  '廣島電鐵路面電車': {
+    routeTypes: ['tram', 'light_rail'],
+    legs: [['広電本線', '広電２号線(宮島線)', '広電１号線(宇品線)', 'Hiroshima Electric Railway', 'Hiroden']],
+  },
+  'JR 山陽本線': { legs: [['山陽本線', 'JR山陽本線']] },
   'JR 宮島渡輪': null, // 渡輪，非鐵路
-  'JR 山陽本線・山陽新幹線': [['山陽本線'], ['山陽新幹線']],
+  'JR 山陽本線・山陽新幹線': { legs: [['山陽本線'], ['山陽新幹線']] },
   // Day6
-  '岡山電鐵路面電車（或步行）': [['岡山電軌東山本線', '東山本線', '東山線']],
-  'JR 瀨戶大橋線': [['宇野線'], ['瀬戸大橋線', '本四備讃線'], ['予讃線']],
-  'JR 土讚線': [['予讃線'], ['土讃線', 'JR土讃線']],
-  'JR 土讚線・瀨戶大橋線': [['土讃線'], ['予讃線'], ['瀬戸大橋線', '本四備讃線'], ['宇野線']],
+  '岡山電鐵路面電車（或步行）': {
+    routeTypes: ['tram', 'light_rail'],
+    legs: [['岡山電軌東山本線', '東山本線', '東山線', 'Okayama Electric Tramway']],
+  },
+  'JR 瀨戶大橋線': { legs: [['宇野線', 'JR宇野線', 'Uno Line'], ['瀬戸大橋線', '本四備讃線'], ['予讃線']] },
+  'JR 土讚線': { legs: [['予讃線'], ['土讃線', 'JR土讃線']] },
+  'JR 土讚線・瀨戶大橋線': { legs: [['土讃線'], ['予讃線'], ['瀬戸大橋線', '本四備讃線'], ['宇野線', 'JR宇野線', 'Uno Line']] },
   // Day7 沿用 'JR 山手線'
   // Day8
-  "N'EX 成田特快": [['総武本線'], ['成田線', 'JR成田線'], ['成田線空港支線']],
-  'JR 山手線（承前日）': [['山手線', 'JR山手線']],
+  "N'EX 成田特快": {
+    legs: [
+      ['総武本線'],
+      ['成田線', 'JR成田線', 'JR Narita Line'],
+      ['成田線空港支線', '成田空港線', 'Narita Line (Narita Airport Branch)', 'Narita Airport Line'],
+    ],
+  },
+  'JR 山手線（承前日）': { legs: [['山手線', 'JR山手線', 'JR Yamanote Line']] },
 };
 
 const RAIL_MODES = new Set(['shinkansen', 'train', 'tram', 'monorail', 'night-train']);
@@ -214,26 +239,36 @@ async function overpassQuery(ql) {
   throw lastErr ?? new Error('Overpass 查詢失敗');
 }
 
+const DEFAULT_ROUTE_TYPES = ['railway'];
+
+/** 針對某名稱，依序對每個 route= 值組一個 relation 篩選子句，Overpass 用
+ *  union block 一次查詢全部（比逐一分開查詢省請求數）。 */
+function routeRelationClauses(name, routeTypes) {
+  const esc = name.replace(/"/g, '\\"');
+  return routeTypes.map((rt) => `relation["type"="route"]["route"="${rt}"]["name"="${esc}"];`).join('\n');
+}
+
 // 線名 → way 幾何 的快取：同一條線（山手線、上越新幹線…）跨多段重複出現時，
-// 只查一次 Overpass，大幅降低請求數與被限流的機率。
+// 只查一次 Overpass，大幅降低請求數與被限流的機率。key 含 routeTypes 避免混用。
 const lineWaysCache = new Map();
 
-/** 一次查詢取得某線名對應 route relation 的所有 way 幾何（合併 id 解析與幾何抓取）。
- *  查無該線名時回傳空陣列。結果依線名快取。 */
-async function fetchLineWays(name) {
-  if (lineWaysCache.has(name)) return lineWaysCache.get(name);
-  const ql = `[out:json][timeout:120];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nway(r);\nout geom;`;
+/** 一次查詢取得某線名對應 route relation 的所有 way 幾何（合併 id 解析與幾何抓取，
+ *  routeTypes 多值時用 union block 一次查完）。查無回傳空陣列。結果依 key 快取。 */
+async function fetchLineWays(name, routeTypes = DEFAULT_ROUTE_TYPES) {
+  const key = `${routeTypes.join(',')}::${name}`;
+  if (lineWaysCache.has(key)) return lineWaysCache.get(key);
+  const ql = `[out:json][timeout:120];\n(\n${routeRelationClauses(name, routeTypes)}\n);\nway(r);\nout geom;`;
   const data = await overpassQuery(ql);
   const ways = (data.elements ?? [])
     .filter((el) => el.type === 'way' && el.geometry?.length > 1)
     .map((el) => el.geometry.map((g) => [g.lon, g.lat]));
-  lineWaysCache.set(name, ways);
+  lineWaysCache.set(key, ways);
   return ways;
 }
 
 /** 輕量檢查某線名是否存在對應 route relation（--verify-names 用，只取 id 不抓幾何）*/
-async function relationExists(name) {
-  const ql = `[out:json][timeout:60];\nrelation["type"="route"]["route"="railway"]["name"="${name}"];\nout ids;`;
+async function relationExists(name, routeTypes = DEFAULT_ROUTE_TYPES) {
+  const ql = `[out:json][timeout:60];\n(\n${routeRelationClauses(name, routeTypes)}\n);\nout ids;`;
   const data = await overpassQuery(ql);
   return (data.elements?.length ?? 0) > 0;
 }
@@ -241,11 +276,11 @@ async function relationExists(name) {
 /** 依候選名稱清單依序嘗試，回傳第一個查得到幾何的 { name, ways }。
  *  皆查無回傳 null；若因網路/服務錯誤而無法判定，回傳 { error }（讓上層區分
  *  「名稱錯」與「連不到 Overpass」，避免把網路問題誤報成名稱需要調整）。 */
-async function resolveLeg(candidates) {
+async function resolveLeg(candidates, routeTypes = DEFAULT_ROUTE_TYPES) {
   let sawError = null;
   for (const name of candidates) {
     try {
-      const ways = await fetchLineWays(name);
+      const ways = await fetchLineWays(name, routeTypes);
       if (ways.length > 0) return { name, ways };
     } catch (err) {
       sawError = err.message;
@@ -302,11 +337,12 @@ function stitchWays(ways) {
 }
 
 /** 依「leg（候選名稱組）」清單依序抓取＋縫合＋串接成單一 corridor 折線。
- *  每個 leg 會嘗試其候選名稱直到查到 relation；查無則跳過該 leg（記警告）。 */
-async function buildCorridor(legs) {
+ *  每個 leg 會嘗試其候選名稱直到查到 relation；查無則跳過該 leg（記警告）。
+ *  routeTypes：該路線在 OSM 的 route=* 分類（railway/tram/monorail…）。 */
+async function buildCorridor(legs, routeTypes = DEFAULT_ROUTE_TYPES) {
   let corridor = [];
   for (const candidates of legs) {
-    const resolved = await resolveLeg(candidates);
+    const resolved = await resolveLeg(candidates, routeTypes);
     if (!resolved) {
       console.warn(`  ⚠ 此段候選名稱皆查無 route relation：${candidates.join(' / ')}`);
       continue;
@@ -409,13 +445,14 @@ async function processTripFile(filePath) {
 
       const route = RAIL_ROUTES[seg.label];
       if (route === null) continue; // 明確標記為非鐵路（如渡輪），略過不警告
-      const legs = route ?? [[seg.label]];
+      const legs = route?.legs ?? [[seg.label]];
+      const routeTypes = route?.routeTypes ?? DEFAULT_ROUTE_TYPES;
 
       console.log(`\nDay${day.day} [${seg.label}] ${from.name} → ${to.name}`);
-      console.log(`  路線候選：${legs.map((l) => l.join('/')).join(' → ')}`);
+      console.log(`  路線候選（${routeTypes.join('/')}）：${legs.map((l) => l.join('/')).join(' → ')}`);
 
       try {
-        const corridor = await buildCorridor(legs);
+        const corridor = await buildCorridor(legs, routeTypes);
         if (corridor.length < 2) {
           console.warn('  ⚠ 未取得任何路線幾何，跳過（保留原有 viaCoords）');
           skipped++;
@@ -470,14 +507,15 @@ async function verifyNames() {
       console.log(`◦ [${label}] 非鐵路，略過`);
       continue;
     }
-    console.log(`[${label}]`);
-    for (const candidates of route) {
+    const routeTypes = route.routeTypes ?? DEFAULT_ROUTE_TYPES;
+    console.log(`[${label}]（route=${routeTypes.join('/')}）`);
+    for (const candidates of route.legs) {
       // 輕量檢查：逐一候選名稱查是否存在對應 relation（只取 id，不抓幾何）
       let hit = null;
       let sawError = null;
       for (const name of candidates) {
         try {
-          if (await relationExists(name)) {
+          if (await relationExists(name, routeTypes)) {
             hit = name;
             break;
           }
