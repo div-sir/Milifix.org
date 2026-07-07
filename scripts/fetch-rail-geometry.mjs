@@ -115,7 +115,15 @@ const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
 ];
-const OVERPASS_MAX_ATTEMPTS = 8; // 每次查詢的重試上限（含 429 退避）
+const OVERPASS_MAX_ATTEMPTS = 5; // 每次查詢的重試上限（含 429 退避）
+// Overpass 使用政策要求識別身分的 User-Agent；部分公開端點的前置 CDN／
+// bot 防護（如 Cloudflare）也會對缺少 Accept/User-Agent 的「無臉」腳本
+// 請求直接回 406，補上這兩個標頭可避免被誤判。
+const OVERPASS_HEADERS = {
+  'Content-Type': 'text/plain; charset=UTF-8',
+  Accept: 'application/json, */*;q=0.8',
+  'User-Agent': 'milifix-trip-report-rail-geometry/1.0 (one-time data bake script; https://github.com/div-sir/Milifix.org)',
+};
 const OVERPASS_MIN_SPACING_MS = 1500; // 相鄰請求的全域最小間隔，避免瞬間灌爆
 const OVERPASS_TIMEOUT_MS = 180_000; // 單次請求逾時（含伺服器端 timeout）
 
@@ -138,7 +146,10 @@ async function globalSpacing() {
 async function waitForSlot(interpreterUrl) {
   const statusUrl = interpreterUrl.replace('/interpreter', '/status');
   try {
-    const res = await fetch(statusUrl, { signal: AbortSignal.timeout(30_000) });
+    const res = await fetch(statusUrl, {
+      headers: { 'User-Agent': OVERPASS_HEADERS['User-Agent'] },
+      signal: AbortSignal.timeout(30_000),
+    });
     const txt = await res.text();
     if (/slots? available now/i.test(txt) || !/Slot available after/i.test(txt)) return;
     const waits = [...txt.matchAll(/in (\d+) seconds/g)].map((m) => Number(m[1]));
@@ -170,7 +181,7 @@ async function overpassQuery(ql) {
     try {
       res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
+        headers: OVERPASS_HEADERS,
         body: ql,
         signal: AbortSignal.timeout(OVERPASS_TIMEOUT_MS),
       });
@@ -178,18 +189,18 @@ async function overpassQuery(ql) {
       // 網路錯誤／逾時：屬暫時性，退避後重試
       lastErr = err;
       if (attempt === OVERPASS_MAX_ATTEMPTS) break;
-      const backoff = Math.min(90_000, 5000 * 2 ** (attempt - 1));
+      const backoff = Math.min(60_000, 4000 * 2 ** (attempt - 1));
       console.log(`    · 連線失敗（${err.message}），等待 ${Math.round(backoff / 1000)}s 後重試（${attempt}/${OVERPASS_MAX_ATTEMPTS}）…`);
       endpointIdx++;
       await sleep(backoff);
       continue;
     }
 
-    // 429（限流）／504／5xx：暫時性，退避後重試
-    if (res.status === 429 || res.status === 504 || res.status >= 500) {
+    // 429（限流）／406（常見於前置 CDN 對無 UA 請求的誤判）／504／5xx：視為暫時性，退避後重試
+    if (res.status === 429 || res.status === 406 || res.status === 504 || res.status >= 500) {
       const retryAfter = Number(res.headers.get('retry-after')) || 0;
-      const backoff = retryAfter * 1000 || Math.min(90_000, 5000 * 2 ** (attempt - 1));
-      console.log(`    · Overpass ${res.status}（限流/忙碌），等待 ${Math.round(backoff / 1000)}s 後重試（${attempt}/${OVERPASS_MAX_ATTEMPTS}）…`);
+      const backoff = retryAfter * 1000 || Math.min(60_000, 4000 * 2 ** (attempt - 1));
+      console.log(`    · Overpass ${res.status}（限流/忙碌/暫時性阻擋），等待 ${Math.round(backoff / 1000)}s 後重試（${attempt}/${OVERPASS_MAX_ATTEMPTS}）…`);
       endpointIdx++; // 換另一個端點
       lastErr = new Error(`HTTP ${res.status}`);
       await sleep(backoff);
@@ -364,7 +375,13 @@ function patchSegmentLine(fileText, from, to, viaCoordsLiteral) {
 }
 
 async function processTripFile(filePath) {
-  const mod = await import(`${pathToFileURL(filePath).href}?t=${Date.now()}`);
+  let mod;
+  try {
+    mod = await import(`${pathToFileURL(filePath).href}?t=${Date.now()}`);
+  } catch (err) {
+    console.warn(`跳過：無法載入 ${path.basename(filePath)}（${err.message}）`);
+    return;
+  }
   const trip = Object.values(mod).find((v) => v && typeof v === 'object' && Array.isArray(v.days));
   if (!trip) {
     console.warn(`跳過 ${filePath}：找不到 TripReport 匯出`);
@@ -503,6 +520,11 @@ async function main() {
   // 從 index.ts 收集報告書資料檔；排除非資料模組（types / index）
   const NON_DATA = new Set(['types', 'index']);
   const arg = args.find((a) => !a.startsWith('--'));
+  if (arg && !/^[a-z0-9-]+$/i.test(arg)) {
+    console.error(`參數「${arg}」不是有效的報告書 slug（只能是英數字與連字號）。`);
+    console.error('提示：若貼上的指令含有 zsh 不支援的行內「#」註解，「#」可能被誤當成參數。');
+    process.exit(1);
+  }
   const files = arg
     ? [path.join(TRIPS_DIR, `${arg}.ts`)]
     : [
