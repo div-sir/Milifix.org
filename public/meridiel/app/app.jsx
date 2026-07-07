@@ -10,6 +10,9 @@ function loadAccount() {
 function loadTheme() {
   return localStorage.getItem("fa-theme") || "light";
 }
+function loadFlights() {
+  try { return JSON.parse(localStorage.getItem("fa-flights") || "[]"); } catch (e) { return []; }
+}
 
 function App() {
   const ALL = window.ATLAS.FLIGHTS;
@@ -38,7 +41,10 @@ function App() {
   };
 
   /* ---- flights ---- */
-  const [extra, setExtra] = useStateA([]);            // user-added flights
+  const [extra, setExtra] = useStateA(loadFlights);   // user-added flights, saved to this browser
+  useEffectA(() => {
+    localStorage.setItem("fa-flights", JSON.stringify(extra));
+  }, [extra]);
   const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
   const chrono = useMemoA(
     () => [...flightsAll].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)),
@@ -199,7 +205,7 @@ function App() {
         <React.Fragment>
           <div className="present-ui present-title">
             <b>{account.name}'s Meridiel</b>
-            <small>{currentFlight ? currentFlight.date : `${window.ATLAS.profile.since} — ${new Date().getFullYear()}`}</small>
+            <small>{currentFlight ? currentFlight.date : `${window.ATLAS.sinceOf(flightsAll)} — ${new Date().getFullYear()}`}</small>
           </div>
 
           {/* countries visited so far */}
