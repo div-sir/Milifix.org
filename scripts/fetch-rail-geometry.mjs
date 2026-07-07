@@ -273,6 +273,58 @@ async function relationExists(name, routeTypes = DEFAULT_ROUTE_TYPES) {
   return (data.elements?.length ?? 0) > 0;
 }
 
+const FUZZY_RADIUS_M = 60_000; // 地理模糊比對：在起訖站周邊此半徑內找符合名稱關鍵字的路線
+
+/** 將候選名稱轉為 Overpass name~ 用的正規表示式（跳脫 regex 特殊字元；
+ *  取「核心詞」——去掉常見後綴與括號補充——以提高不同命名變體的命中率）。 */
+function candidatesToNameRegex(candidates) {
+  const cores = new Set();
+  for (const c of candidates) {
+    // 去掉括號補充（如「広電１号線(宇品線)」→「広電１号線」）與英文的括號說明
+    const core = c.replace(/[(（].*?[)）]/g, '').trim();
+    if (!core) continue;
+    cores.add(core);
+    // 額外加入「首個數字前的品牌前綴」：如「広電２号線」→「広電」，
+    // 讓半形/全形數字差異（広電2号線 vs 広電２号線）不影響命中；
+    // 由 route= 類型與地理範圍把關，前綴過寬的風險有限。
+    const prefix = core.match(/^[^\d０-９]+(?=[\d０-９])/)?.[0]?.trim();
+    if (prefix && prefix.length >= 2) cores.add(prefix);
+  }
+  // 跳脫 regex 特殊字元，用 | 串成 alternation
+  return [...cores]
+    .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+}
+
+/**
+ * 地理範圍內的名稱模糊比對後備：當精確名稱皆查無時，在指定 anchors（該段起訖
+ * 站座標）周邊 FUZZY_RADIUS_M 內，找 route=routeTypes 且 name 含候選關鍵字的
+ * relation，回傳其 way 幾何。範圍限定可避免誤抓遠方同名線；最終仍由 sliceBetween
+ * 的距離檢查（>SNAP_WARN_KM 拒絕）把關。查無回傳 null，錯誤回傳 { error }。
+ */
+async function resolveLegFuzzy(candidates, routeTypes, anchors) {
+  if (!anchors?.length) return null;
+  const regex = candidatesToNameRegex(candidates);
+  if (!regex) return null;
+  const clauses = routeTypes
+    .flatMap((rt) =>
+      anchors.map(
+        (a) => `relation["type"="route"]["route"="${rt}"]["name"~"${regex}"](around:${FUZZY_RADIUS_M},${a.lat},${a.lng});`
+      )
+    )
+    .join('\n');
+  const ql = `[out:json][timeout:120];\n(\n${clauses}\n);\nway(r);\nout geom;`;
+  try {
+    const data = await overpassQuery(ql);
+    const ways = (data.elements ?? [])
+      .filter((el) => el.type === 'way' && el.geometry?.length > 1)
+      .map((el) => el.geometry.map((g) => [g.lon, g.lat]));
+    return ways.length > 0 ? { name: `~${regex}（範圍內模糊比對）`, ways } : null;
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
 /** 依候選名稱清單依序嘗試，回傳第一個查得到幾何的 { name, ways }。
  *  皆查無回傳 null；若因網路/服務錯誤而無法判定，回傳 { error }（讓上層區分
  *  「名稱錯」與「連不到 Overpass」，避免把網路問題誤報成名稱需要調整）。 */
@@ -337,19 +389,25 @@ function stitchWays(ways) {
 }
 
 /** 依「leg（候選名稱組）」清單依序抓取＋縫合＋串接成單一 corridor 折線。
- *  每個 leg 會嘗試其候選名稱直到查到 relation；查無則跳過該 leg（記警告）。
- *  routeTypes：該路線在 OSM 的 route=* 分類（railway/tram/monorail…）。 */
-async function buildCorridor(legs, routeTypes = DEFAULT_ROUTE_TYPES) {
+ *  每個 leg 先試精確名稱；皆查無時，若有 anchors 再試地理範圍內名稱模糊比對。
+ *  routeTypes：該路線在 OSM 的 route=* 分類（railway/tram/monorail…）。
+ *  anchors：該段起訖站座標，供模糊比對限定搜尋範圍。 */
+async function buildCorridor(legs, routeTypes = DEFAULT_ROUTE_TYPES, anchors = null) {
   let corridor = [];
   for (const candidates of legs) {
-    const resolved = await resolveLeg(candidates, routeTypes);
-    if (!resolved) {
-      console.warn(`  ⚠ 此段候選名稱皆查無 route relation：${candidates.join(' / ')}`);
-      continue;
-    }
-    if (resolved.error) {
+    let resolved = await resolveLeg(candidates, routeTypes);
+    if (resolved?.error) {
       // 連不到 Overpass 或查詢失敗：整段擷取交由上層 try/catch 中止，保留原有 viaCoords
       throw new Error(`Overpass 查詢失敗（${resolved.error}）`);
+    }
+    if (!resolved) {
+      // 精確名稱皆查無 → 地理範圍內名稱模糊比對後備
+      resolved = await resolveLegFuzzy(candidates, routeTypes, anchors);
+      if (resolved?.error) throw new Error(`Overpass 查詢失敗（${resolved.error}）`);
+    }
+    if (!resolved) {
+      console.warn(`  ⚠ 此段精確與模糊比對皆查無 route relation：${candidates.join(' / ')}`);
+      continue;
     }
     const line = stitchWays(resolved.ways);
     if (line.length < 2) {
@@ -452,7 +510,8 @@ async function processTripFile(filePath) {
       console.log(`  路線候選（${routeTypes.join('/')}）：${legs.map((l) => l.join('/')).join(' → ')}`);
 
       try {
-        const corridor = await buildCorridor(legs, routeTypes);
+        const anchors = [from.coords, to.coords];
+        const corridor = await buildCorridor(legs, routeTypes, anchors);
         if (corridor.length < 2) {
           console.warn('  ⚠ 未取得任何路線幾何，跳過（保留原有 viaCoords）');
           skipped++;
@@ -540,9 +599,13 @@ async function verifyNames() {
   }
   console.log(`\n── 完成：${resolvedCount} 個 leg 有對應 relation。`);
   if (unresolved.length) {
-    console.log(`需要人工調整候選名稱的 leg（共 ${unresolved.length}）：`);
+    console.log(`精確名稱查無的 leg（共 ${unresolved.length}）：`);
     for (const u of unresolved) console.log(`  · ${u}`);
-    console.log('\n請到 https://www.openstreetmap.org 或 https://overpass-turbo.eu 查該路線的正確 name 標記，更新 RAIL_ROUTES 後重跑。');
+    console.log(
+      '\n注意：這些在「完整幾何擷取」時仍會嘗試「起訖站周邊名稱模糊比對」後備，' +
+        '多數能自動命中，不一定要人工調整。若擷取後某段仍失敗，再到 ' +
+        'https://overpass-turbo.eu 查正確 name 更新 RAIL_ROUTES。'
+    );
   } else {
     console.log('全部候選名稱皆可對應，可直接執行完整幾何擷取。');
   }
@@ -592,4 +655,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
 }
 
-export { stitchWays, sliceBetween, buildCorridor, haversineKm };
+export { stitchWays, sliceBetween, buildCorridor, haversineKm, candidatesToNameRegex };
