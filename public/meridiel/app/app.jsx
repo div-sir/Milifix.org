@@ -1,7 +1,7 @@
 /* ============================================================
    MERIDIEL — Main App
    ============================================================ */
-const { useState: useStateA, useEffect: useEffectA, useMemo: useMemoA, useRef: useRefA } = React;
+const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
 
 /* ---------- persisted helpers ---------- */
 function loadAccount() {
@@ -14,6 +14,18 @@ function loadFlights() {
   try { return JSON.parse(localStorage.getItem("fa-flights") || "[]"); } catch (e) { return []; }
 }
 
+/* ---------- theme toggle: circular reveal from the click point, matching the rest of milifix.org ---------- */
+function setThemeTransitionOrigin(ev) {
+  const x = ev && Number.isFinite(ev.clientX) && ev.clientX >= 0 ? ev.clientX : window.innerWidth / 2;
+  const y = ev && Number.isFinite(ev.clientY) && ev.clientY >= 0 ? ev.clientY : window.innerHeight / 2;
+  document.documentElement.style.setProperty("--theme-vt-x", x + "px");
+  document.documentElement.style.setProperty("--theme-vt-y", y + "px");
+}
+function supportsThemeViewTransition() {
+  return typeof document.startViewTransition === "function" &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 function App() {
   const ALL = window.ATLAS.FLIGHTS;
   const YEARS = window.ATLAS.YEARS;
@@ -23,12 +35,22 @@ function App() {
   const [theme, setTheme] = useStateA(loadTheme);
   const [acctMenu, setAcctMenu] = useStateA(false);
 
-  useEffectA(() => {
+  // useLayoutEffect (not useEffect) so the DOM attribute flips synchronously —
+  // required for the view-transition screenshot below to capture the new theme.
+  useLayoutEffectA(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("fa-theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleTheme = (ev) => {
+    setThemeTransitionOrigin(ev);
+    const flip = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+    if (supportsThemeViewTransition()) {
+      document.startViewTransition(() => ReactDOM.flushSync(flip));
+    } else {
+      flip();
+    }
+  };
 
   const onLogin = (acct) => {
     setAccount(acct);
@@ -88,7 +110,8 @@ function App() {
   const [playing, setPlaying] = useStateA(false);
   const [autoRotate, setAutoRotate] = useStateA(true);
   const [loading, setLoading] = useStateA(true);
-  const [modal, setModal] = useStateA(null);          // 'share' | 'add' | null
+  const [modal, setModal] = useStateA(null);          // 'share' | 'add' | 'edit' | null
+  const [editingFlight, setEditingFlight] = useStateA(null);
   const [present, setPresent] = useStateA(false);
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
   const [pushToast, toastNode] = window.useToast();
@@ -168,7 +191,7 @@ function App() {
     const A = window.ATLAS.AIRPORTS[form.o], B = window.ATLAS.AIRPORTS[form.d];
     const km = window.ATLAS.distKm(A, B);
     const f = {
-      id: 1000 + extra.length + 1,
+      id: Date.now(),
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
@@ -176,6 +199,24 @@ function App() {
       year: +form.date.slice(0, 4),
     };
     setExtra((e) => [...e, f]);
+  };
+
+  const updateFlight = (id, form) => {
+    const A = window.ATLAS.AIRPORTS[form.o], B = window.ATLAS.AIRPORTS[form.d];
+    const km = window.ATLAS.distKm(A, B);
+    setExtra((e) => e.map((f) => f.id !== id ? f : {
+      ...f,
+      date: form.date, o: form.o, d: form.d,
+      airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
+      from: { code: form.o, ...A }, to: { code: form.d, ...B },
+      km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
+      year: +form.date.slice(0, 4),
+    }));
+  };
+
+  const deleteFlight = (id) => {
+    setExtra((e) => e.filter((f) => f.id !== id));
+    setSelectedId((sid) => (sid === id ? null : sid));
   };
 
   // present mode → spin, no selection
@@ -318,7 +359,7 @@ function App() {
                         : "Saved on this device"}
                     </div>
                   )}
-                  <button className="am-item" onClick={() => { toggleTheme(); }}>
+                  <button className="am-item" onClick={(e) => toggleTheme(e)}>
                     {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}
                   </button>
@@ -336,9 +377,9 @@ function App() {
               <button className="icon-btn" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
                 <window.Icon.rotate />
               </button>
-              <button className="btn btn-ghost" onClick={() => setModal("add")}><window.Icon.plus /> Add</button>
-              <button className="btn btn-ghost" onClick={() => setPresent(true)}><window.Icon.present /> Present</button>
-              <button className="btn btn-accent" onClick={() => setModal("share")}><window.Icon.share /> Share</button>
+              <button className="btn btn-ghost" title="Add a flight" onClick={() => setModal("add")}><window.Icon.plus /> <span className="btn-label">Add</span></button>
+              <button className="btn btn-ghost" title="Present" onClick={() => setPresent(true)}><window.Icon.present /> <span className="btn-label">Present</span></button>
+              <button className="btn btn-accent" title="Share" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
             </div>
           </header>
 
@@ -348,6 +389,7 @@ function App() {
             selectedId={selectedId}
             currentId={currentFlight ? currentFlight.id : null}
             onSelect={handleSelect}
+            onAddFlight={() => setModal("add")}
             className={mobileTab === "log" ? "" : "hidden-mobile"}
           />
 
@@ -355,6 +397,8 @@ function App() {
             <window.FlightDetail
               flight={selectedFlight}
               onClose={() => setSelectedId(null)}
+              onEdit={(f) => { setEditingFlight(f); setModal("edit"); }}
+              onDelete={deleteFlight}
               className={mobileTab === "stats" || mobileTab === "globe" ? "" : "hidden-mobile"}
             />
           ) : (
@@ -392,7 +436,15 @@ function App() {
 
       {/* Modals */}
       {modal === "share" && <window.ShareModal flights={flightsAll} account={account} onClose={() => setModal(null)} pushToast={pushToast} />}
-      {modal === "add" && <window.AddFlightModal onClose={() => setModal(null)} onAdd={addFlight} pushToast={pushToast} />}
+      {modal === "add" && <window.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} pushToast={pushToast} />}
+      {modal === "edit" && editingFlight && (
+        <window.AddFlightModal
+          initial={editingFlight}
+          onClose={() => { setModal(null); setEditingFlight(null); }}
+          onSubmit={(form) => updateFlight(editingFlight.id, form)}
+          pushToast={pushToast}
+        />
+      )}
 
       {toastNode}
     </div>

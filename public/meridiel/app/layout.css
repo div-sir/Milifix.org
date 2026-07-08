@@ -112,6 +112,20 @@
 }
 @keyframes nowPulse { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
 
+/* Closing CTA at the end of the flight log — a short list lands here
+   instead of trailing into blank panel space. */
+.log-add-hint {
+  width: 100%; margin-top: 2px; padding: 13px 11px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px dashed var(--line); border-radius: 3px; background: transparent;
+  cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint);
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.log-add-hint:hover {
+  background: rgba(194,74,51,0.07); border-color: var(--vermilion); color: var(--ink);
+}
+
 /* ---- Right column ---- */
 .rail { right: 22px; top: 76px; bottom: 122px; width: 360px; }
 .rail .panel-body { overflow-y: auto; flex: 1; }
@@ -277,16 +291,40 @@
 
 /* ================= Responsive ================= */
 @media (max-width: 900px) {
-  .top-owner { display: none; }
   .log { left: 12px; right: 12px; width: auto; top: auto; bottom: 118px; height: 38vh; }
   .log.hidden-mobile { display: none; }
   .rail { left: 12px; right: 12px; width: auto; top: 70px; bottom: auto; max-height: 44vh; }
   .rail.hidden-mobile { display: none; }
   .timeline { left: 10px; right: 10px; bottom: 10px; padding: 0 12px; gap: 10px; }
+  /* Bigger tap target for year ticks (WCAG ~44px) without changing the visible dot size */
+  .tl-tick { padding: 10px 4px; margin: -10px -4px; }
   .tl-tick .yr { font-size: 9px; }
   .compass-wm { display: none; }
   .present-stats .ps .v { font-size: 28px; }
   .present-title b { font-size: 22px; }
+
+  /* ---- Top bar: brand shrinks, account menu becomes an avatar-only
+     button (still opens the same menu — Sign out was previously
+     unreachable on mobile), actions scroll horizontally instead of
+     being clipped by .app's overflow:hidden. ---- */
+  .topbar { padding: 0 10px; gap: 8px; }
+  .brand .wordmark small { display: none; }
+  .brand .wordmark b { font-size: 13px; }
+
+  .top-owner.btn-like { padding: 4px; }
+  .top-owner .who, .top-owner .caret { display: none; }
+  .acct-menu { left: auto; right: 0; max-width: calc(100vw - 20px); }
+
+  .top-actions {
+    gap: 6px; max-width: 46vw; overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to left, transparent, #000 14px);
+    mask-image: linear-gradient(to left, transparent, #000 14px);
+  }
+  .top-actions::-webkit-scrollbar { display: none; }
+  .top-actions .btn, .top-actions .icon-btn { flex-shrink: 0; }
+  .top-actions .btn { padding: 9px 11px; }
+  .top-actions .btn-label { display: none; }
 }
 .mobile-tabs { display: none; }
 @media (max-width: 900px) {
@@ -402,4 +440,45 @@
   .present-flags { bottom: 232px; }
   .present-flags .flag { width: 24px; height: 24px; }
   .login-card { padding: 28px 24px; }
+}
+
+/* ================= THEME TOGGLE — circular reveal from the click point =================
+   Matches the wipe used elsewhere on milifix.org (see src/styles/theme.css). Pure browser
+   View Transitions API; app.jsx sets --theme-vt-x/y to the click position before flipping. */
+::view-transition-group(root) {
+  animation-duration: 0.68s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.32, 1);
+}
+::view-transition-old(root) {
+  animation: meridiel-vt-out 0.62s cubic-bezier(0.33, 1, 0.36, 1) both;
+}
+::view-transition-new(root) {
+  animation: meridiel-vt-in 0.72s cubic-bezier(0.2, 0.95, 0.28, 1) both;
+}
+@keyframes meridiel-vt-out {
+  from { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+  to   { opacity: 0.25; filter: blur(16px) saturate(1.35) brightness(1.08); transform: scale(1.018); }
+}
+@keyframes meridiel-vt-in {
+  from { opacity: 0.92; filter: brightness(1.35) blur(5px); clip-path: circle(0px at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%)); }
+  55%  { filter: brightness(1.08) blur(1px); }
+  to   { opacity: 1; filter: brightness(1) blur(0); clip-path: circle(160vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%)); }
+}
+@media (max-width: 768px) {
+  ::view-transition-group(root) { animation-duration: 0.42s; }
+  ::view-transition-old(root) { animation: meridiel-vt-out-m 0.4s cubic-bezier(0.37, 0, 0.21, 1) both; }
+  ::view-transition-new(root) { animation: meridiel-vt-in-m 0.46s cubic-bezier(0.22, 1, 0.34, 1) both; }
+  @keyframes meridiel-vt-out-m {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0.2; transform: scale(1.01); }
+  }
+  @keyframes meridiel-vt-in-m {
+    from { opacity: 0.85; filter: brightness(1.2); clip-path: circle(0px at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%)); }
+    to   { opacity: 1; filter: brightness(1); clip-path: circle(160vmax at var(--theme-vt-x, 50%) var(--theme-vt-y, 50%)); }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; }
 }

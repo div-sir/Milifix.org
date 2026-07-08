@@ -4,7 +4,7 @@
 const { useMemo: useMemoP } = React;
 
 /* ---------- Flight Log (left) ---------- */
-function FlightLog({ flights, selectedId, currentId, onSelect, className }) {
+function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, className }) {
   return (
     <section className={"panel log paper-tex " + (className || "")}>
       <div className="panel-head">
@@ -30,6 +30,12 @@ function FlightLog({ flights, selectedId, currentId, onSelect, className }) {
             <div className="lr-miles">{f.miles.toLocaleString()} mi</div>
           </div>
         ))}
+        {/* Always-present closing CTA — gives a short log somewhere to land
+            instead of trailing off into blank panel space. */}
+        <button className="log-add-hint" onClick={onAddFlight}>
+          <window.Icon.plus />
+          {flights.length === 0 ? "Log your first flight" : "Add your next flight"}
+        </button>
       </div>
     </section>
   );
@@ -89,16 +95,29 @@ function StatsRail({ flights, allFlights, className }) {
 window.StatsRail = StatsRail;
 
 /* ---------- Flight Detail (replaces rail when a flight is picked) ---------- */
-function FlightDetail({ flight, onClose, className }) {
+function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
   if (!flight) return null;
   const f = flight;
+  const remove = () => {
+    if (window.confirm(`Delete the ${f.from.code} → ${f.to.code} flight? This can't be undone.`)) {
+      onDelete(f.id);
+    }
+  };
   return (
     <section className={"panel rail " + (className || "")} style={{ background: "var(--paper)" }}>
       <div className="panel-head" style={{ background: "var(--paper-3)" }}>
         <h3>Boarding Pass</h3>
-        <button className="icon-btn" onClick={onClose} style={{ width: 30, height: 30 }}>
-          <window.Icon.x />
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button className="icon-btn" onClick={() => onEdit(f)} title="Edit flight" style={{ width: 30, height: 30 }}>
+            <window.Icon.edit />
+          </button>
+          <button className="icon-btn" onClick={remove} title="Delete flight" style={{ width: 30, height: 30 }}>
+            <window.Icon.trash />
+          </button>
+          <button className="icon-btn" onClick={onClose} style={{ width: 30, height: 30 }}>
+            <window.Icon.x />
+          </button>
+        </div>
       </div>
       <div className="panel-body">
         <div className="detail-hero">
