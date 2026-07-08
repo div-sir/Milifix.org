@@ -56,6 +56,8 @@ import { lineString, point } from '@turf/helpers';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
 import lineSlice from '@turf/line-slice';
 import distance from '@turf/distance';
+import length from '@turf/length';
+import simplify from '@turf/simplify';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TRIPS_DIR = path.join(__dirname, '../src/data/trips');
@@ -402,6 +404,16 @@ async function buildCorridor(legs, routeTypes = DEFAULT_ROUTE_TYPES, anchors = n
 }
 
 /** 在 corridor 上裁出 fromCoord→toCoord 之間的精確路徑 */
+// 裁切結果的合理性把關：多 leg 串接後的 corridor 若起訖站分別落在不同 leg，
+// lineSlice 會取兩點在「串接後」座標序列中間的整段，當某 leg 是未裁切的全國性
+// 幹線（如東海道本線橫跨東京–神戶）時，可能誤取進大段不相干的路段。
+// 用「裁切後路徑長度 vs 起訖站直線距離」把關：正常鐵路彎曲不會誇張到這種比例。
+const MAX_DETOUR_RATIO = 4; // 路徑長度上限＝直線距離的幾倍
+const MAX_DETOUR_ABS_KM = 60; // 額外的絕對容許值（處理短程但線型真的繞的情況）
+// 簡化容許誤差（度）：約 80–90m，遠小於地圖可視尺度的像素誤差，
+// 用來把 OSM 原始高密度節點壓到適合渲染的點數，避免資料檔過度肥大。
+const SIMPLIFY_TOLERANCE_DEG = 0.0008;
+
 function sliceBetween(corridor, fromCoord, toCoord) {
   if (corridor.length < 2) return null;
   const line = lineString(corridor);
@@ -422,6 +434,20 @@ function sliceBetween(corridor, fromCoord, toCoord) {
   const distToFromStart = haversineKm(coords[0], fromCoord);
   const distToToStart = haversineKm(coords[0], toCoord);
   if (distToToStart < distToFromStart) coords = coords.slice().reverse();
+
+  // 合理性把關：路徑過長視為誤取了不相干路段，拒絕（保留原有 viaCoords）
+  const straightKm = haversineKm(fromCoord, toCoord);
+  const pathKm = length(lineString(coords), { units: 'kilometers' });
+  const maxAllowedKm = Math.max(straightKm * MAX_DETOUR_RATIO, straightKm + MAX_DETOUR_ABS_KM);
+  if (pathKm > maxAllowedKm) {
+    return {
+      error: `裁切結果路徑長度異常（${pathKm.toFixed(0)}km，直線距離僅 ${straightKm.toFixed(0)}km），疑似誤取不相干路段`,
+    };
+  }
+
+  // 簡化：OSM 原始節點密度遠超過地圖顯示所需，壓縮點數以控制資料檔大小
+  const simplified = simplify(lineString(coords), { tolerance: SIMPLIFY_TOLERANCE_DEG, highQuality: true });
+  coords = simplified.geometry.coordinates;
 
   return { coords };
 }
