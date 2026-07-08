@@ -173,7 +173,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
           )}
 
           {(isEdit || tab === "manual") && (
-            <React.Fragment>
+            <div className="tab-panel">
               <div className="field-row">
                 <div className="field">
                   <label>From</label>
@@ -226,33 +226,33 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                 <window.Icon.chevron className={"advanced-toggle-chev" + (showAdvanced ? " open" : "")} />
                 Advanced details
               </button>
-              {showAdvanced && (
-                <React.Fragment>
+              <div className={"advanced-collapse" + (showAdvanced ? " open" : "")}>
+                <div className="advanced-collapse-inner">
                   <div className="field-row">
                     <div className="field">
                       <label>Flight number</label>
-                      <input placeholder="e.g. CI 100" value={form.flightNo} onChange={set("flightNo")} />
+                      <input placeholder="e.g. CI 100" value={form.flightNo} onChange={set("flightNo")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
                     <div className="field">
                       <label>Registration</label>
-                      <input placeholder="e.g. B-18317" value={form.reg} onChange={set("reg")} />
+                      <input placeholder="e.g. B-18317" value={form.reg} onChange={set("reg")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
                   </div>
                   <div className="field">
                     <label>Notes (optional)</label>
-                    <textarea rows={2} placeholder="Anything else worth remembering" value={form.notes} onChange={set("notes")} />
+                    <textarea rows={2} placeholder="Anything else worth remembering" value={form.notes} onChange={set("notes")} tabIndex={showAdvanced ? 0 : -1} />
                   </div>
-                </React.Fragment>
-              )}
+                </div>
+              </div>
 
               <button className="btn btn-solid" style={{ width: "100%", justifyContent: "center", marginTop: 4 }} onClick={submit}>
                 {isEdit ? <React.Fragment><window.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><window.Icon.plus /> Add to log</React.Fragment>}
               </button>
-            </React.Fragment>
+            </div>
           )}
 
           {!isEdit && tab === "import" && (
-            <div>
+            <div className="tab-panel">
               <p className="hint">Drop a CSV with columns <b>date, from, to, airline, aircraft, seat</b>. Airport codes are matched to coordinates automatically.</p>
               <div className="detail-photo" style={{ height: 120, marginTop: 14, borderRadius: 3, border: "1.5px dashed var(--line)" }}>
                 <span>Drag &amp; drop CSV — or click to browse</span>

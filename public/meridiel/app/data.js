@@ -835,6 +835,52 @@
   }
   loadFullAirportDatabase();
 
+  // ---- Full airline list, merged in at runtime (same approach as airports) ----
+  // OpenFlights' airlines.dat also carries a lot of defunct operators and
+  // duplicate/reused codes, so this only fills in codes our curated list
+  // doesn't already have, and only ones flagged "active" — the curated list
+  // still wins on any conflict (e.g. JX staying STARLUX Airlines).
+  const AIRLINES_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat";
+  const AIRLINES_CACHE_KEY = "fa-airlines-db-v1";
+
+  function mergeAirlineRows(text) {
+    const added = [];
+    const seen = new Set(AIRLINES.map((a) => a.code));
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const row = parseCsvLine(line);
+      // id,name,alias,iata,icao,callsign,country,active
+      const iata = row[3], active = row[7];
+      if (active !== "Y" || !/^[A-Z0-9]{2}$/.test(iata) || seen.has(iata)) continue;
+      seen.add(iata);
+      added.push({ code: iata, name: row[1] || iata });
+    }
+    added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+    return added;
+  }
+
+  function loadFullAirlineDatabase() {
+    try {
+      const cached = localStorage.getItem(AIRLINES_CACHE_KEY);
+      if (cached) {
+        const list = JSON.parse(cached);
+        list.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+        return;
+      }
+    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+    fetch(AIRLINES_DB_URL)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => {
+        const added = mergeAirlineRows(text);
+        try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+      })
+      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
+  }
+  loadFullAirlineDatabase();
+
   const YEARS = [...new Set(FLIGHTS.map((f) => f.year))].sort();
 
   // Derive identity from the actual flights instead of hard-coded demo values.
