@@ -162,7 +162,6 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
             <div className="tab-row">
               <button className={tab === "manual" ? "on" : ""} onClick={() => setTab("manual")}>Manual</button>
               <button className={tab === "import" ? "on" : ""} onClick={() => setTab("import")}>Import CSV</button>
-              <button className={tab === "sync" ? "on" : ""} onClick={() => setTab("sync")}>Sync app</button>
             </div>
           )}
 
@@ -228,20 +227,6 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                 <span>Drag &amp; drop CSV — or click to browse</span>
               </div>
               <p className="hint" style={{ marginTop: 12 }}>Works fully offline. Your data never leaves the browser.</p>
-            </div>
-          )}
-
-          {!isEdit && tab === "sync" && (
-            <div>
-              <p className="hint">Connect a flight-log service to import history automatically:</p>
-              <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
-                {["MyFlightradar24", "App in the Air", "OpenFlights export", "Google Timeline"].map((x) => (
-                  <button key={x} className="btn btn-ghost" style={{ justifyContent: "space-between", width: "100%" }}>
-                    {x} <window.Icon.link />
-                  </button>
-                ))}
-              </div>
-              <p className="hint" style={{ marginTop: 12 }}>Imports run client-side via each service's public export file — no paid API needed.</p>
             </div>
           )}
         </div>
