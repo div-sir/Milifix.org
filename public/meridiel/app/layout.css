@@ -277,16 +277,40 @@
 
 /* ================= Responsive ================= */
 @media (max-width: 900px) {
-  .top-owner { display: none; }
   .log { left: 12px; right: 12px; width: auto; top: auto; bottom: 118px; height: 38vh; }
   .log.hidden-mobile { display: none; }
   .rail { left: 12px; right: 12px; width: auto; top: 70px; bottom: auto; max-height: 44vh; }
   .rail.hidden-mobile { display: none; }
   .timeline { left: 10px; right: 10px; bottom: 10px; padding: 0 12px; gap: 10px; }
+  /* Bigger tap target for year ticks (WCAG ~44px) without changing the visible dot size */
+  .tl-tick { padding: 10px 4px; margin: -10px -4px; }
   .tl-tick .yr { font-size: 9px; }
   .compass-wm { display: none; }
   .present-stats .ps .v { font-size: 28px; }
   .present-title b { font-size: 22px; }
+
+  /* ---- Top bar: brand shrinks, account menu becomes an avatar-only
+     button (still opens the same menu — Sign out was previously
+     unreachable on mobile), actions scroll horizontally instead of
+     being clipped by .app's overflow:hidden. ---- */
+  .topbar { padding: 0 10px; gap: 8px; }
+  .brand .wordmark small { display: none; }
+  .brand .wordmark b { font-size: 13px; }
+
+  .top-owner.btn-like { padding: 4px; }
+  .top-owner .who, .top-owner .caret { display: none; }
+  .acct-menu { left: auto; right: 0; max-width: calc(100vw - 20px); }
+
+  .top-actions {
+    gap: 6px; max-width: 46vw; overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to left, transparent, #000 14px);
+    mask-image: linear-gradient(to left, transparent, #000 14px);
+  }
+  .top-actions::-webkit-scrollbar { display: none; }
+  .top-actions .btn, .top-actions .icon-btn { flex-shrink: 0; }
+  .top-actions .btn { padding: 9px 11px; }
+  .top-actions .btn-label { display: none; }
 }
 .mobile-tabs { display: none; }
 @media (max-width: 900px) {

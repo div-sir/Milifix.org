@@ -377,9 +377,9 @@ function App() {
               <button className="icon-btn" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
                 <window.Icon.rotate />
               </button>
-              <button className="btn btn-ghost" onClick={() => setModal("add")}><window.Icon.plus /> Add</button>
-              <button className="btn btn-ghost" onClick={() => setPresent(true)}><window.Icon.present /> Present</button>
-              <button className="btn btn-accent" onClick={() => setModal("share")}><window.Icon.share /> Share</button>
+              <button className="btn btn-ghost" title="Add a flight" onClick={() => setModal("add")}><window.Icon.plus /> <span className="btn-label">Add</span></button>
+              <button className="btn btn-ghost" title="Present" onClick={() => setPresent(true)}><window.Icon.present /> <span className="btn-label">Present</span></button>
+              <button className="btn btn-accent" title="Share" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
             </div>
           </header>
 
