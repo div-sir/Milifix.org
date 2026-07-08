@@ -43,57 +43,6 @@ const Icon = {
 };
 window.Icon = Icon;
 
-/* ---------- Site nav (mirrors the "platform" variant of src/components/SiteNav.astro
-   so Meridiel reads as a page of milifix.org, not an orphaned app) ---------- */
-function MeridielSiteNav({ theme, onToggleTheme }) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  return (
-    <div className="site-nav-host">
-      <nav className={"site-nav" + (open ? " is-open" : "")} aria-label="Primary">
-        <a className="site-nav__skip" href="#root">Skip to app</a>
-        <div className="site-nav__bar">
-          <a className="site-nav__logo" href="/">MILIFIX</a>
-          <div className="site-nav__flyout">
-            <ul className="site-nav__links">
-              <li><a href="/travel">Travel</a></li>
-            </ul>
-            <div className="site-nav__tools">
-              <button
-                type="button"
-                className="site-nav__theme"
-                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                onClick={onToggleTheme}
-              >
-                {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
-              </button>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="site-nav__toggle"
-            aria-expanded={open}
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span className="site-nav__toggle-icon" aria-hidden="true"><span /><span /><span /></span>
-          </button>
-        </div>
-        <div className="site-nav__backdrop" onClick={() => setOpen(false)} aria-hidden="true" />
-      </nav>
-    </div>
-  );
-}
-window.MeridielSiteNav = MeridielSiteNav;
-
 /* ---------- Flag (circle-flags via CDN) ---------- */
 function Flag({ cc, label, size }) {
   const src = `https://cdn.jsdelivr.net/gh/HatScripts/circle-flags/flags/${cc}.svg`;

@@ -49,17 +49,6 @@
 
   /* globe space backdrop (deep neutral so the globe reads) */
   --space-1: #1C2029; --space-2: #141821; --space-3: #0E121A; --space-4: #090C11;
-
-  /* Site-nav parity tokens — literal values from src/styles/theme.css so the
-     ported nav bar (components.jsx MeridielSiteNav) matches milifix.org exactly.
-     Namespaced separately from --paper/--ink/etc. so the rest of the app is untouched. */
-  --site-nav-h:      120px;
-  --site-bg:         #F4F2EC;
-  --site-text:       #16181D;
-  --site-muted-dim:  #484E57;
-  --site-line2:      rgba(20,22,26,0.16);
-  --site-nav-accent: #3949A8;
-  --site-shadow-card: rgba(0,0,0,0.1);
 }
 
 /* ============= DARK MODE (mirrors site dark tokens) ============= */
@@ -91,14 +80,6 @@
   --tex-op:  0.04;
 
   --space-1: #111318; --space-2: #0D0F14; --space-3: #0A0B0E; --space-4: #070809;
-
-  /* Site-nav parity tokens (dark) — see the :root block above for context. */
-  --site-bg:         #111318;
-  --site-text:       #E9EBEF;
-  --site-muted-dim:  #9AA3AD;
-  --site-line2:      rgba(255,255,255,0.11);
-  --site-nav-accent: #A3B8FF;
-  --site-shadow-card: rgba(0,0,0,0.5);
 }
 
 html { transition: background .4s ease; }
