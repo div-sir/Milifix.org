@@ -221,6 +221,13 @@ function App() {
     setSelectedId((sid) => (sid === id ? null : sid));
   };
 
+  // dataUrl (a compressed photo) or null to remove — synced to Drive/local
+  // cache the same as everything else in `extra`, since it's just a field
+  // on the flight object.
+  const setFlightPhoto = (id, dataUrl) => {
+    setExtra((e) => e.map((f) => (f.id !== id ? f : { ...f, photo: dataUrl || undefined })));
+  };
+
   // present mode → spin, no selection
   useEffectA(() => {
     if (present) { setSelectedId(null); if (replayIdx == null) setAutoRotate(true); }
@@ -400,6 +407,7 @@ function App() {
               onClose={() => setSelectedId(null)}
               onEdit={(f) => { setEditingFlight(f); setModal("edit"); }}
               onDelete={deleteFlight}
+              onSetPhoto={setFlightPhoto}
               className={mobileTab === "stats" || mobileTab === "globe" ? "" : "hidden-mobile"}
             />
           ) : (

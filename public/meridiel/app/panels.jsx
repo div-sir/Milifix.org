@@ -95,7 +95,7 @@ function StatsRail({ flights, allFlights, className }) {
 window.StatsRail = StatsRail;
 
 /* ---------- Flight Detail (replaces rail when a flight is picked) ---------- */
-function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
+function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, className }) {
   if (!flight) return null;
   const f = flight;
   const remove = () => {
@@ -139,7 +139,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
         </div>
 
         <figure className="detail-photo">
-          <window.ImageSlotMaybe flight={f} />
+          <window.ImageSlotMaybe flight={f} onSetPhoto={onSetPhoto} />
         </figure>
 
         <div className="detail-rows">
@@ -166,12 +166,84 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
 }
 window.FlightDetail = FlightDetail;
 
-/* photo placeholder that the user can later replace */
-function ImageSlotMaybe({ flight }) {
+/* Resize + compress a picked image client-side (no upload, no server) so a
+   photo stays small enough to live comfortably inside the synced flight
+   JSON (Drive appData + localStorage), however many flights get one. */
+function compressImageFile(file, maxDim, quality) {
+  maxDim = maxDim || 1280; quality = quality || 0.72;
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode failed"));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          const scale = maxDim / Math.max(w, h);
+          w = Math.round(w * scale); h = Math.round(h * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* Photo slot: click to add, or shows the photo with change/remove controls.
+   Fully client-side — the compressed image is just a field on the flight,
+   so it rides along with everything else that syncs to Drive/localStorage. */
+function ImageSlotMaybe({ flight, onSetPhoto }) {
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const inputRef = React.useRef(null);
+
+  const pick = () => inputRef.current && inputRef.current.click();
+
+  const onFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setError("");
+    setBusy(true);
+    compressImageFile(file)
+      .then((dataUrl) => onSetPhoto(flight.id, dataUrl))
+      .catch(() => setError("Couldn't read that image — try another one."))
+      .finally(() => setBusy(false));
+  };
+
+  const remove = (e) => {
+    e.stopPropagation();
+    onSetPhoto(flight.id, null);
+  };
+
+  if (flight.photo) {
+    return (
+      <React.Fragment>
+        <img className="detail-photo-img" src={flight.photo} alt="" />
+        <div className="detail-photo-tools">
+          <button type="button" className="icon-btn" title="Change photo" onClick={pick} style={{ width: 30, height: 30 }}>
+            <window.Icon.edit />
+          </button>
+          <button type="button" className="icon-btn" title="Remove photo" onClick={remove} style={{ width: 30, height: 30 }}>
+            <window.Icon.trash />
+          </button>
+        </div>
+        <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />
+      </React.Fragment>
+    );
+  }
+
   return (
-    <React.Fragment>
-      <span>{flight.to.city} · add a photo</span>
-    </React.Fragment>
+    <button type="button" className="detail-photo-add" onClick={pick} disabled={busy}>
+      <window.Icon.plus />
+      <span>{busy ? "Processing…" : error || `${flight.to.city} · add a photo`}</span>
+      <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />
+    </button>
   );
 }
 window.ImageSlotMaybe = ImageSlotMaybe;
