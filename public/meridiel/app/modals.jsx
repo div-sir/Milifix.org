@@ -132,9 +132,16 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
   const [tab, setTab] = React.useState("manual");
   const [form, setForm] = React.useState(() => (
     initial
-      ? { o: initial.o, d: initial.d, date: initial.date, airline: initial.airline, craft: initial.craft, seat: initial.seat }
-      : { o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "" }
+      ? {
+          o: initial.o, d: initial.d, date: initial.date, airline: initial.airline, craft: initial.craft, seat: initial.seat,
+          flightNo: initial.flightNo || "", reg: initial.reg || "", notes: initial.notes || "",
+        }
+      : { o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "", flightNo: "", reg: "", notes: "" }
   ));
+  // Auto-expand when editing a flight that already has advanced details filled in.
+  const [showAdvanced, setShowAdvanced] = React.useState(
+    !!(initial && (initial.flightNo || initial.reg || initial.notes))
+  );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const setVal = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
   const dateRef = React.useRef(null);
@@ -214,6 +221,30 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                 <label>Seat (optional)</label>
                 <input placeholder="e.g. 14A" value={form.seat} onChange={set("seat")} />
               </div>
+
+              <button type="button" className="advanced-toggle" onClick={() => setShowAdvanced((v) => !v)}>
+                <window.Icon.chevron className={"advanced-toggle-chev" + (showAdvanced ? " open" : "")} />
+                Advanced details
+              </button>
+              {showAdvanced && (
+                <React.Fragment>
+                  <div className="field-row">
+                    <div className="field">
+                      <label>Flight number</label>
+                      <input placeholder="e.g. CI 100" value={form.flightNo} onChange={set("flightNo")} />
+                    </div>
+                    <div className="field">
+                      <label>Registration</label>
+                      <input placeholder="e.g. B-18317" value={form.reg} onChange={set("reg")} />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label>Notes (optional)</label>
+                    <textarea rows={2} placeholder="Anything else worth remembering" value={form.notes} onChange={set("notes")} />
+                  </div>
+                </React.Fragment>
+              )}
+
               <button className="btn btn-solid" style={{ width: "100%", justifyContent: "center", marginTop: 4 }} onClick={submit}>
                 {isEdit ? <React.Fragment><window.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><window.Icon.plus /> Add to log</React.Fragment>}
               </button>

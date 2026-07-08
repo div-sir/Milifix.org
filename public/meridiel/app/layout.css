@@ -182,6 +182,11 @@
 .drow + .drow { border-top: 1px solid var(--line-soft); }
 .drow .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
 .drow .vv { font-weight: 500; }
+.detail-notes {
+  margin: 0 16px 16px; padding: 10px 12px; border: 1.5px dashed var(--line); border-radius: 3px;
+  font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  white-space: pre-wrap;
+}
 
 /* ---- Timeline ---- */
 .timeline {
@@ -282,6 +287,18 @@
 .tab-row button { flex: 1; padding: 10px; background: var(--paper-3); border: none; border-right: 1.5px solid var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; color: var(--ink-soft); }
 .tab-row button:last-child { border-right: none; }
 .tab-row button.on { background: var(--ink); color: var(--paper-3); }
+
+/* Advanced details disclosure (flight no / registration / notes) */
+.advanced-toggle {
+  width: 100%; display: flex; align-items: center; gap: 6px; margin: 2px 0 12px;
+  padding: 0; border: none; background: none; cursor: pointer;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); transition: color .15s ease;
+}
+.advanced-toggle:hover { color: var(--ink); }
+.advanced-toggle-chev { width: 12px; height: 12px; transition: transform .2s ease; transform: rotate(-90deg); }
+.advanced-toggle-chev.open { transform: rotate(0deg); }
+.field textarea { resize: vertical; min-height: 44px; font-family: var(--sans); }
 
 /* ---- Present overlay ---- */
 .present-ui { position: absolute; z-index: 40; pointer-events: none; }
