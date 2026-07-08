@@ -93,9 +93,42 @@ window.ShareModal = ShareModal;
 
 /* ---------- Add / Edit Flight modal ----------
    Pass `initial` (an existing flight) to edit it in place; omit it to add a new one. */
+
+// Airport suggestions: match the code prefix or a substring of city/name/country.
+function searchAirports(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const codes = Object.keys(window.ATLAS.AIRPORTS);
+  const starts = [], contains = [];
+  codes.forEach((code) => {
+    const a = window.ATLAS.AIRPORTS[code];
+    const hay = `${code} ${a.city} ${a.name} ${a.country}`.toLowerCase();
+    if (code.toLowerCase().startsWith(q)) starts.push(code);
+    else if (hay.includes(q)) contains.push(code);
+  });
+  return [...starts, ...contains].slice(0, 8).map((code) => {
+    const a = window.ATLAS.AIRPORTS[code];
+    return { key: code, primary: `${code} — ${a.city}`, secondary: a.country, commit: code };
+  });
+}
+
+// Airline suggestions: match a 2–3 letter IATA code, or a substring of the name.
+// Selecting one fills the airline's real name; free typing is still allowed.
+function searchAirlines(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const byCode = [], byName = [];
+  window.ATLAS.AIRLINES.forEach((a) => {
+    if (a.code.toLowerCase().startsWith(q)) byCode.push(a);
+    else if (a.name.toLowerCase().includes(q)) byName.push(a);
+  });
+  return [...byCode, ...byName].slice(0, 8).map((a) => (
+    { key: a.code, primary: a.name, secondary: a.code, commit: a.name }
+  ));
+}
+
 function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
   const isEdit = !!initial;
-  const codes = Object.keys(window.ATLAS.AIRPORTS).sort();
   const [tab, setTab] = React.useState("manual");
   const [form, setForm] = React.useState(() => (
     initial
@@ -103,8 +136,14 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
       : { o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "" }
   ));
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const setVal = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
+  const dateRef = React.useRef(null);
+  const openDatePicker = () => {
+    try { dateRef.current.showPicker(); } catch (e) { dateRef.current.focus(); }
+  };
 
   const submit = () => {
+    if (!window.ATLAS.AIRPORTS[form.o] || !window.ATLAS.AIRPORTS[form.d]) { pushToast("Pick a valid airport for From and To"); return; }
     if (form.o === form.d) { pushToast("Origin and destination must differ"); return; }
     onSubmit(form);
     pushToast(isEdit ? "Flight updated ✓" : "Flight added to your log ✓");
@@ -132,25 +171,40 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
               <div className="field-row">
                 <div className="field">
                   <label>From</label>
-                  <select value={form.o} onChange={set("o")}>
-                    {codes.map((c) => <option key={c} value={c}>{c} — {window.ATLAS.AIRPORTS[c].city}</option>)}
-                  </select>
+                  <window.SuggestField
+                    value={form.o}
+                    onCommit={setVal("o")}
+                    getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
+                    search={searchAirports}
+                    placeholder="Type a city or code"
+                  />
                 </div>
                 <div className="field">
                   <label>To</label>
-                  <select value={form.d} onChange={set("d")}>
-                    {codes.map((c) => <option key={c} value={c}>{c} — {window.ATLAS.AIRPORTS[c].city}</option>)}
-                  </select>
+                  <window.SuggestField
+                    value={form.d}
+                    onCommit={setVal("d")}
+                    getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
+                    search={searchAirports}
+                    placeholder="Type a city or code"
+                  />
                 </div>
               </div>
-              <div className="field">
+              <div className="field field-date" onClick={openDatePicker}>
                 <label>Date</label>
-                <input type="date" value={form.date} onChange={set("date")} />
+                <input ref={dateRef} type="date" value={form.date} onChange={set("date")} />
               </div>
               <div className="field-row">
                 <div className="field">
                   <label>Airline</label>
-                  <input placeholder="e.g. United" value={form.airline} onChange={set("airline")} />
+                  <window.SuggestField
+                    value={form.airline}
+                    onCommit={setVal("airline")}
+                    getDisplay={(v) => v}
+                    search={searchAirlines}
+                    placeholder="Name or IATA code"
+                    allowFreeText
+                  />
                 </div>
                 <div className="field">
                   <label>Aircraft</label>

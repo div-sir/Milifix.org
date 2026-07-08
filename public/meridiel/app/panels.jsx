@@ -50,7 +50,7 @@ function StatsRail({ flights, allFlights, className }) {
     <section className={"panel rail paper-tex " + (className || "")}>
       <div className="panel-head">
         <h3>The Tally</h3>
-        <span className="count">since {window.ATLAS.sinceOf(flights)}</span>
+        <span className="count">since {window.ATLAS.sinceOf(allFlights || flights)}</span>
       </div>
       <div className="panel-body">
         <div className="stat-grid">
