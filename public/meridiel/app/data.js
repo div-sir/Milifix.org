@@ -486,6 +486,355 @@
     return [...map.values()].sort((a, b) => a.country.localeCompare(b.country));
   }
 
+
+  // ---- Country name -> ISO 3166-1 alpha-2, for expanding AIRPORTS below ----
+  const COUNTRY_ISO = {
+    "Afghanistan": "af",
+    "Albania": "al",
+    "Algeria": "dz",
+    "American Samoa": "as",
+    "Angola": "ao",
+    "Anguilla": "ai",
+    "Antarctica": "aq",
+    "Antigua and Barbuda": "ag",
+    "Argentina": "ar",
+    "Armenia": "am",
+    "Aruba": "aw",
+    "Ashmore and Cartier Islands": "at",
+    "Australia": "au",
+    "Austria": "at",
+    "Azerbaijan": "az",
+    "Bahamas": "bs",
+    "Bahrain": "bh",
+    "Baker Island": "fq",
+    "Bangladesh": "bd",
+    "Barbados": "bb",
+    "Belarus": "by",
+    "Belgium": "be",
+    "Belize": "bz",
+    "Benin": "bj",
+    "Bermuda": "bm",
+    "Bhutan": "bt",
+    "Bolivia": "bo",
+    "Bonaire, Saint Eustatius and Saba": "bq",
+    "Bosnia and Herzegovina": "ba",
+    "Botswana": "bw",
+    "Bouvet Island": "bv",
+    "Brazil": "br",
+    "British Indian Ocean Territory": "io",
+    "British Virgin Islands": "vg",
+    "Brunei Darussalam": "bn",
+    "Bulgaria": "bg",
+    "Burkina Faso": "bf",
+    "Burundi": "bi",
+    "Cabo Verde": "cv",
+    "Cambodia": "kh",
+    "Cameroon": "cm",
+    "Canada": "ca",
+    "Cayman Islands": "ky",
+    "Central African Republic": "cf",
+    "Chad": "td",
+    "Chile": "cl",
+    "China": "cn",
+    "Christmas Island": "cx",
+    "Clipperton Island": "ip",
+    "Cocos (Keeling) Islands": "cc",
+    "Colombia": "co",
+    "Comoros": "km",
+    "Congo (Brazzaville)": "cg",
+    "Congo (Kinshasa)": "cd",
+    "Congo Republic": "cg",
+    "Cook Islands": "ck",
+    "Coral Sea Islands": "cr",
+    "Costa Rica": "cr",
+    "Cote d'Ivoire": "ci",
+    "Croatia": "hr",
+    "Cuba": "cu",
+    "Cyprus": "cy",
+    "Czech Republic": "cz",
+    "DR Congo": "cd",
+    "Denmark": "dk",
+    "Djibouti": "dj",
+    "Dominica": "dm",
+    "Dominican Republic": "do",
+    "East Timor": "tl",
+    "Ecuador": "ec",
+    "Egypt": "eg",
+    "El Salvador": "sv",
+    "Equatorial Guinea": "gq",
+    "Eritrea": "er",
+    "Estonia": "ee",
+    "Eswatini": "sz",
+    "Ethiopia": "et",
+    "Europa Island": "eu",
+    "Faeroe Islands": "fo",
+    "Falkland Islands": "fk",
+    "Fiji": "fj",
+    "Finland": "fi",
+    "France": "fr",
+    "French Guiana": "gf",
+    "French Polynesia": "pf",
+    "French Southern Territories": "tf",
+    "Gabon": "ga",
+    "Gambia": "gm",
+    "Georgia": "ge",
+    "Germany": "de",
+    "Ghana": "gh",
+    "Gibraltar": "gi",
+    "Glorioso Islands": "go",
+    "Greece": "gr",
+    "Greenland": "gl",
+    "Grenada": "gd",
+    "Guadeloupe": "gp",
+    "Guam": "gu",
+    "Guatemala": "gt",
+    "Guernsey": "gg",
+    "Guinea": "gn",
+    "Guinea-Bissau": "gw",
+    "Guyana": "gy",
+    "Haiti": "ht",
+    "Heard and McDonald Islands": "hm",
+    "Honduras": "hn",
+    "Hong Kong": "hk",
+    "Howland Island": "hq",
+    "Hungary": "hu",
+    "Iceland": "is",
+    "India": "in",
+    "Indonesia": "id",
+    "Iran": "ir",
+    "Iraq": "iq",
+    "Ireland": "ie",
+    "Isle of Man": "im",
+    "Israel": "il",
+    "Italy": "it",
+    "Ivory Coast": "ci",
+    "Jamaica": "jm",
+    "Jan Mayen": "jn",
+    "Japan": "jp",
+    "Jarvis Island": "dq",
+    "Jersey": "je",
+    "Johnston Atoll": "jq",
+    "Jordan": "jo",
+    "Juan de Nova Island": "ju",
+    "Kazakhstan": "kz",
+    "Kenya": "ke",
+    "Kingman Reef": "kq",
+    "Kiribati": "ki",
+    "Kuwait": "kw",
+    "Kyrgyz Republic": "kg",
+    "Laos": "la",
+    "Latvia": "lv",
+    "Lebanon": "lb",
+    "Lesotho": "ls",
+    "Liberia": "lr",
+    "Libya": "ly",
+    "Lithuania": "lt",
+    "Luxembourg": "lu",
+    "Macao": "mo",
+    "Macau": "mo",
+    "Macedonia": "mk",
+    "Madagascar": "mg",
+    "Malawi": "mw",
+    "Malaysia": "my",
+    "Maldives": "mv",
+    "Mali": "ml",
+    "Malta": "mt",
+    "Marshall Islands": "mh",
+    "Martinique": "mq",
+    "Mauritania": "mr",
+    "Mauritius": "mu",
+    "Mayotte": "yt",
+    "Mexico": "mx",
+    "Micronesia": "fm",
+    "Micronesia, Fed. Sts.": "fm",
+    "Midway Islands": "mq",
+    "Moldova": "md",
+    "Monaco": "mc",
+    "Mongolia": "mn",
+    "Montenegro": "me",
+    "Montserrat": "ms",
+    "Morocco": "ma",
+    "Mozambique": "mz",
+    "Myanmar": "mm",
+    "Namibia": "na",
+    "Nauru": "nr",
+    "Navassa Island": "bq",
+    "Nepal": "np",
+    "Netherlands": "nl",
+    "Netherlands Antilles": "an",
+    "New Caledonia": "nc",
+    "New Zealand": "nz",
+    "Nicaragua": "ni",
+    "Niger": "ne",
+    "Nigeria": "ng",
+    "Niue": "nu",
+    "Norfolk Island": "nf",
+    "North Korea": "kp",
+    "Northern Mariana Islands": "mp",
+    "Norway": "no",
+    "Oman": "om",
+    "Pakistan": "pk",
+    "Palau": "pw",
+    "Palestine": "ps",
+    "Palmyra Atoll": "lq",
+    "Panama": "pa",
+    "Papua New Guinea": "pg",
+    "Paracel Islands": "pf",
+    "Paraguay": "py",
+    "Peru": "pe",
+    "Philippines": "ph",
+    "Pitcairn": "pn",
+    "Poland": "pl",
+    "Portugal": "pt",
+    "Puerto Rico": "pr",
+    "Qatar": "qa",
+    "Reunion": "re",
+    "Romania": "ro",
+    "Russia": "ru",
+    "Rwanda": "rw",
+    "Samoa": "ws",
+    "Sao Tome and Principe": "st",
+    "Saudi Arabia": "sa",
+    "Senegal": "sn",
+    "Serbia": "rs",
+    "Seychelles": "sc",
+    "Sierra Leone": "sl",
+    "Singapore": "sg",
+    "Slovakia": "sk",
+    "Slovenia": "si",
+    "Solomon Islands": "sb",
+    "Somalia": "so",
+    "South Africa": "za",
+    "South Georgia and South Sandwich Is.": "gs",
+    "South Korea": "kr",
+    "South Sudan": "ss",
+    "Spain": "es",
+    "Spratly Islands": "pg",
+    "Sri Lanka": "lk",
+    "St. Helena": "sh",
+    "St. Kitts and Nevis": "kn",
+    "St. Lucia": "lc",
+    "St. Pierre and Miquelon": "pm",
+    "St. Vincent and the Grenadines": "vc",
+    "Sudan": "sd",
+    "Suriname": "sr",
+    "Svalbard and Jan Mayen Islands": "sj",
+    "Swaziland": "sz",
+    "Sweden": "se",
+    "Switzerland": "ch",
+    "Syria": "sy",
+    "Taiwan": "tw",
+    "Tajikistan": "tj",
+    "Tanzania": "tz",
+    "Thailand": "th",
+    "Timor-Leste": "tl",
+    "Togo": "tg",
+    "Tokelau": "tk",
+    "Tonga": "to",
+    "Trinidad and Tobago": "tt",
+    "Tromelin Island": "te",
+    "Tunisia": "tn",
+    "Turkey": "tr",
+    "Turkmenistan": "tm",
+    "Turks and Caicos Islands": "tc",
+    "Tuvalu": "tv",
+    "Uganda": "ug",
+    "Ukraine": "ua",
+    "United Arab Emirates": "ae",
+    "United Kingdom": "gb",
+    "United States": "us",
+    "United States Virgin Islands": "vi",
+    "Uruguay": "uy",
+    "Uzbekistan": "uz",
+    "Vanuatu": "vu",
+    "Venezuela": "ve",
+    "Vietnam": "vn",
+    "Virgin Islands": "vi",
+    "Wake Island": "wq",
+    "Wallis and Futuna Islands": "wf",
+    "Western Sahara": "eh",
+    "Yemen": "ye",
+    "Zambia": "zm",
+    "Zimbabwe": "zw",
+    // A few OpenFlights "Country" spellings that differ from the ISO list above.
+    "Saint Helena": "sh", "Cape Verde": "cv", "Saint Pierre and Miquelon": "pm",
+    "Wallis and Futuna": "wf", "Saint Kitts and Nevis": "kn", "Saint Lucia": "lc",
+    "Saint Vincent and the Grenadines": "vc", "Kyrgyzstan": "kg",
+    "Faroe Islands": "fo", "Burma": "mm", "Brunei": "bn",
+  };
+
+  // ---- Full-world airport database, merged in at runtime ----
+  // AIRPORTS above is a hand-picked, always-available fallback (curated
+  // names, instant on load, no network needed). This fetches the public
+  // OpenFlights database (~6000 airports with IATA codes) once, caches the
+  // parsed result in localStorage, and merges in every code we don't
+  // already have — so first-run search still works instantly, and everyone
+  // gets full world coverage within a second or two, without shipping
+  // several hundred KB of airport data in this file. Mirrors how
+  // globe.jsx already fetches country borders from the same GitHub host.
+  const AIRPORTS_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat";
+  const AIRPORTS_CACHE_KEY = "fa-airports-db-v1";
+
+  function parseCsvLine(line) {
+    const out = [];
+    let field = "", inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (line[i + 1] === '"') { field += '"'; i++; }
+          else inQuotes = false;
+        } else field += c;
+      } else if (c === '"') {
+        inQuotes = true;
+      } else if (c === ",") {
+        out.push(field); field = "";
+      } else {
+        field += c;
+      }
+    }
+    out.push(field);
+    return out;
+  }
+
+  // Parses OpenFlights' airports.dat rows (id,name,city,country,iata,icao,
+  // lat,lng,alt,tz,dst,tzdb,type,source), keeping only codes we don't
+  // already have. Returns just the added entries (what gets cached).
+  function mergeAirportRows(text) {
+    const added = {};
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const row = parseCsvLine(line);
+      const iata = row[4];
+      if (!/^[A-Z]{3}$/.test(iata) || AIRPORTS[iata]) continue;
+      if (row[12] && row[12] !== "airport") continue;
+      const lat = parseFloat(row[6]), lng = parseFloat(row[7]);
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const country = row[3] || "";
+      added[iata] = { city: row[2] || iata, name: row[1] || iata, country, cc: COUNTRY_ISO[country] || "", lat, lng };
+    }
+    Object.assign(AIRPORTS, added);
+    return added;
+  }
+
+  function loadFullAirportDatabase() {
+    try {
+      const cached = localStorage.getItem(AIRPORTS_CACHE_KEY);
+      if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return; }
+    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+    fetch(AIRPORTS_DB_URL)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => {
+        const added = mergeAirportRows(text);
+        try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+      })
+      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
+  }
+  loadFullAirportDatabase();
+
   const YEARS = [...new Set(FLIGHTS.map((f) => f.year))].sort();
 
   // Derive identity from the actual flights instead of hard-coded demo values.
