@@ -112,6 +112,20 @@
 }
 @keyframes nowPulse { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
 
+/* Closing CTA at the end of the flight log — a short list lands here
+   instead of trailing into blank panel space. */
+.log-add-hint {
+  width: 100%; margin-top: 2px; padding: 13px 11px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px dashed var(--line); border-radius: 3px; background: transparent;
+  cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint);
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.log-add-hint:hover {
+  background: rgba(194,74,51,0.07); border-color: var(--vermilion); color: var(--ink);
+}
+
 /* ---- Right column ---- */
 .rail { right: 22px; top: 76px; bottom: 122px; width: 360px; }
 .rail .panel-body { overflow-y: auto; flex: 1; }

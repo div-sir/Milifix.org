@@ -4,7 +4,7 @@
 const { useMemo: useMemoP } = React;
 
 /* ---------- Flight Log (left) ---------- */
-function FlightLog({ flights, selectedId, currentId, onSelect, className }) {
+function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, className }) {
   return (
     <section className={"panel log paper-tex " + (className || "")}>
       <div className="panel-head">
@@ -30,6 +30,12 @@ function FlightLog({ flights, selectedId, currentId, onSelect, className }) {
             <div className="lr-miles">{f.miles.toLocaleString()} mi</div>
           </div>
         ))}
+        {/* Always-present closing CTA — gives a short log somewhere to land
+            instead of trailing off into blank panel space. */}
+        <button className="log-add-hint" onClick={onAddFlight}>
+          <window.Icon.plus />
+          {flights.length === 0 ? "Log your first flight" : "Add your next flight"}
+        </button>
       </div>
     </section>
   );

@@ -389,6 +389,7 @@ function App() {
             selectedId={selectedId}
             currentId={currentFlight ? currentFlight.id : null}
             onSelect={handleSelect}
+            onAddFlight={() => setModal("add")}
             className={mobileTab === "log" ? "" : "hidden-mobile"}
           />
 
