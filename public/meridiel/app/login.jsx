@@ -15,7 +15,7 @@ const DEMO_ACCOUNT = {
   initial: "A",
 };
 
-function LoginGate({ theme, onToggleTheme, onLogin }) {
+function LoginGate({ onLogin }) {
   const [step, setStep] = useStateL("signin"); // signin | choose | connecting
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
@@ -81,10 +81,7 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
         <circle className="ld" cx="600" cy="260" r="4" /><circle className="ld" cx="720" cy="480" r="4" />
       </svg>
 
-      <button className="login-theme icon-btn" onClick={onToggleTheme} title="Toggle theme">
-        {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
-      </button>
-
+      {/* dark/light toggle now lives in the site nav above */}
       <div className="login-card paper-tex">
         <div className="login-brand">
           <svg className="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">

@@ -2,7 +2,7 @@
    MERIDIEL — App layout (floating vintage panels over globe)
    ============================================================ */
 
-.app { position: fixed; inset: 0; overflow: hidden; }
+.app { position: fixed; top: var(--site-nav-h); left: 0; right: 0; bottom: 0; overflow: hidden; }
 
 /* ---- Globe stage ---- */
 .stage { position: absolute; inset: 0; }
@@ -302,6 +302,7 @@
 /* ================= LOGIN GATE ================= */
 .login-stage {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+  padding-top: var(--site-nav-h); box-sizing: border-box;
   background:
     radial-gradient(circle at 50% 38%, var(--space-1) 0%, var(--space-2) 45%, var(--space-3) 78%, var(--space-4) 100%);
   overflow: hidden;
@@ -309,8 +310,6 @@
 .login-deco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .login-deco .lp { fill: none; stroke: var(--ochre); stroke-width: 1.4; stroke-dasharray: 5 7; opacity: 0.28; }
 .login-deco .ld { fill: var(--ochre); opacity: 0.4; }
-.login-theme { position: absolute; top: 22px; right: 22px; z-index: 3; color: #F3EAD6; border-color: rgba(243,234,214,0.35); }
-.login-theme:hover { background: #F3EAD6; color: #20323D; }
 
 .login-card {
   position: relative; z-index: 2; width: min(420px, 92vw);
@@ -443,4 +442,122 @@
   ::view-transition-group(root),
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none !important; }
+}
+
+/* ================= SITE NAV — ported from src/components/SiteNav.astro =================
+   Trimmed to what Meridiel needs (no language switcher or works submenu — this is a
+   single-language, single-purpose page): logo, one Travel link, theme toggle, and a
+   mobile drawer. Class names match the source component; colors use the --site-*
+   parity tokens above so this reads as genuinely "the site nav", not a lookalike. */
+.site-nav-host { position: fixed; top: 0; left: 0; right: 0; z-index: 500; pointer-events: none; }
+
+.site-nav {
+  --site-nav-pad-y: 1.125rem;
+  --site-nav-pad-x: 3rem;
+  position: relative; pointer-events: auto;
+  border-bottom: 1px solid var(--site-line2);
+  background: color-mix(in srgb, var(--site-bg) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.site-nav__skip {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.site-nav__skip:focus {
+  position: fixed; top: 12px; left: 12px; z-index: 600; width: auto; height: auto;
+  margin: 0; padding: 10px 16px; clip: auto; overflow: visible;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none; color: var(--site-bg); background: var(--site-nav-accent);
+  border-radius: 2px; outline: none;
+}
+
+.site-nav__bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
+  padding: var(--site-nav-pad-y) var(--site-nav-pad-x);
+}
+
+.site-nav__logo {
+  flex-shrink: 0; font-family: var(--mono); font-size: 13px; letter-spacing: 0.2em;
+  color: var(--site-nav-accent); text-decoration: none;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--site-nav-accent) 30%, transparent));
+  transition: filter 0.3s ease;
+}
+.site-nav__logo:hover { filter: drop-shadow(0 0 20px color-mix(in srgb, var(--site-nav-accent) 44%, transparent)); }
+
+.site-nav__flyout { display: flex; align-items: center; gap: 2rem; flex: 1; justify-content: flex-end; }
+
+.site-nav__links { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 2rem; }
+.site-nav__links a {
+  position: relative; font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
+  color: var(--site-muted-dim); text-decoration: none; text-transform: uppercase;
+  transition: color 0.25s ease;
+}
+.site-nav__links a::after {
+  content: ""; position: absolute; left: 0; bottom: -5px; width: 100%; height: 1px;
+  background: var(--site-nav-accent); transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.site-nav__links a:hover, .site-nav__links a:focus-visible { color: var(--site-text); }
+.site-nav__links a:hover::after, .site-nav__links a:focus-visible::after { transform: scaleX(1); }
+
+.site-nav__tools { display: flex; align-items: center; flex-shrink: 0; }
+.site-nav__theme {
+  display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+  margin: 0; padding: 0; border: 1px solid var(--site-line2); border-radius: 100px;
+  background: transparent; cursor: pointer; color: var(--site-muted-dim); font-size: 16px;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.site-nav__theme:hover, .site-nav__theme:focus-visible {
+  color: var(--site-text); border-color: color-mix(in srgb, var(--site-nav-accent) 40%, var(--site-line2));
+  background: color-mix(in srgb, var(--site-nav-accent) 9%, transparent);
+}
+
+.site-nav__toggle {
+  display: none; flex-shrink: 0; align-items: center; justify-content: center;
+  width: 40px; height: 40px; margin: -6px 0 -6px -6px; padding: 0;
+  border: 1px solid var(--site-line2); border-radius: 2px; background: transparent;
+  cursor: pointer; color: var(--site-text);
+}
+.site-nav__toggle-icon { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 18px; }
+.site-nav__toggle-icon span { display: block; height: 1px; background: currentColor; transition: transform 0.3s ease, opacity 0.3s ease; }
+.site-nav.is-open .site-nav__toggle-icon span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.site-nav.is-open .site-nav__toggle-icon span:nth-child(2) { opacity: 0; }
+.site-nav.is-open .site-nav__toggle-icon span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.site-nav__backdrop { display: none; }
+
+@media (max-width: 768px) {
+  .site-nav { --site-nav-pad-x: 1.25rem; }
+  .site-nav__toggle { display: flex; position: relative; z-index: 510; }
+
+  .site-nav__backdrop {
+    display: block; position: fixed; inset: 0; z-index: 498;
+    background: color-mix(in srgb, #000 55%, transparent);
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; pointer-events: none;
+  }
+  .site-nav.is-open .site-nav__backdrop { opacity: 1; visibility: visible; pointer-events: auto; }
+  .site-nav.is-open .site-nav__bar { position: relative; z-index: 501; }
+
+  .site-nav__flyout {
+    position: fixed; z-index: 499; top: 0; right: 0; width: min(16rem, 85vw); height: 100dvh;
+    flex-direction: column; align-items: stretch; gap: 0;
+    padding: calc(var(--site-nav-pad-y) + env(safe-area-inset-top, 0px) + 12px) 1.5rem 2rem;
+    background: color-mix(in srgb, var(--site-bg) 96%, #000);
+    border-left: 1px solid var(--site-line2);
+    box-shadow: -12px 0 40px var(--site-shadow-card);
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+  }
+  .site-nav.is-open .site-nav__flyout { transform: translateX(0); }
+
+  .site-nav__links { flex-direction: column; align-items: stretch; gap: 0; }
+  .site-nav__links li { border-bottom: 1px solid var(--site-line2); }
+  .site-nav__links a { display: block; padding: 1rem 0; }
+  .site-nav__links a::after { display: none; }
+
+  .site-nav__tools { margin-top: 1rem; justify-content: center; }
+
+  :root { --site-nav-h: 100px; }
 }

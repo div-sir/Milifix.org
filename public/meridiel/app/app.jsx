@@ -236,13 +236,20 @@ function App() {
 
   // ---- not logged in → gate ----
   if (!account) {
-    return <window.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} />;
+    return (
+      <React.Fragment>
+        <window.MeridielSiteNav theme={theme} onToggleTheme={toggleTheme} />
+        <window.LoginGate onLogin={onLogin} />
+      </React.Fragment>
+    );
   }
 
   const liveStats = window.ATLAS.statsFor(visibleFlights);
   const presentCountries = window.ATLAS.countryList(visibleFlights);
 
   return (
+    <React.Fragment>
+    <window.MeridielSiteNav theme={theme} onToggleTheme={toggleTheme} />
     <div className="app">
       {/* ---- Globe stage ---- */}
       <div className="stage">
@@ -371,9 +378,7 @@ function App() {
             </div>
 
             <div className="top-actions">
-              <button className="icon-btn" title="Toggle dark mode" onClick={toggleTheme}>
-                {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
-              </button>
+              {/* dark/light toggle now lives in the site nav above */}
               <button className="icon-btn" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
                 <window.Icon.rotate />
               </button>
@@ -447,6 +452,7 @@ function App() {
 
       {toastNode}
     </div>
+    </React.Fragment>
   );
 }
 
