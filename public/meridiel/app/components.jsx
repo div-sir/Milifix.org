@@ -25,7 +25,7 @@ const Icon = {
   link: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1"/></svg>),
   compass: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.4" {...p}><circle cx="12" cy="12" r="9"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeLinecap="round"/><path d="M15.5 8.5L13 13l-4.5 2.5L11 11z" fill="currentColor" stroke="none"/></svg>),
   globe: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.5" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"/></svg>),
-  rotate: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 12a9 9 0 11-3-6.7M21 4v4h-4"/></svg>),
+  rotate: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.3 2.3 3.5 5.1 3.5 8s-1.2 5.7-3.5 8c-2.3-2.3-3.5-5.1-3.5-8s1.2-5.7 3.5-8z"/><path d="M12 1.6v2.1M12 20.3v2.1M1.6 12h2.1M20.3 12h2.1" strokeWidth="1.3"/><path d="M21.4 7.3a10.9 10.9 0 011.4 5.6" strokeDasharray="0.9 3.4"/><path d="M23 10l.9-2.9-2.9-.5"/></svg>),
   moon: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 12.8A8.5 8.5 0 1111.2 3a6.6 6.6 0 009.8 9.8z"/></svg>),
   sun: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>),
   logout: (p) => (<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>),
@@ -54,6 +54,75 @@ function Flag({ cc, label, size }) {
   );
 }
 window.Flag = Flag;
+
+/* ---------- SuggestField: type-ahead text field with a suggestion dropdown ----------
+   Data-agnostic — the caller supplies `search(query)` returning up to a
+   handful of { key, primary, secondary, commit } rows, and `getDisplay(value)`
+   to render the committed value when the field isn't being edited.
+   `allowFreeText`: on blur/Escape without picking a suggestion, commit the
+   raw typed text instead of reverting (used for the airline field). */
+function SuggestField({ value, onCommit, getDisplay, search, placeholder, minChars = 1, allowFreeText = false }) {
+  const [editing, setEditing] = useState(false);
+  const [query, setQuery] = useState("");
+  const [activeIdx, setActiveIdx] = useState(0);
+  const wrapRef = useRef(null);
+
+  const results = editing && query.trim().length >= minChars ? search(query) : [];
+  const open = editing && results.length > 0;
+
+  useEffect(() => {
+    if (!editing) return;
+    const onDocMouseDown = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) finishEditing();
+    };
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+    // eslint-disable-next-line
+  }, [editing, query]);
+
+  const commit = (v) => { onCommit(v); setEditing(false); setQuery(""); };
+  const finishEditing = () => {
+    if (allowFreeText && query.trim()) onCommit(query.trim());
+    setEditing(false); setQuery("");
+  };
+
+  const onKeyDown = (e) => {
+    if (!open) { if (e.key === "Escape") finishEditing(); return; }
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, results.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+    else if (e.key === "Enter") { e.preventDefault(); const r = results[activeIdx]; if (r) commit(r.commit); else finishEditing(); }
+    else if (e.key === "Escape") { setEditing(false); setQuery(""); }
+  };
+
+  return (
+    <div className="suggest-field" ref={wrapRef}>
+      <input
+        type="text"
+        value={editing ? query : getDisplay(value)}
+        placeholder={placeholder}
+        onFocus={() => { setEditing(true); setQuery(""); setActiveIdx(0); }}
+        onChange={(e) => { setQuery(e.target.value); setActiveIdx(0); }}
+        onKeyDown={onKeyDown}
+      />
+      {open && (
+        <div className="suggest-list">
+          {results.map((r, i) => (
+            <div
+              key={r.key}
+              className={"suggest-item" + (i === activeIdx ? " active" : "")}
+              onMouseDown={(e) => { e.preventDefault(); commit(r.commit); }}
+              onMouseEnter={() => setActiveIdx(i)}
+            >
+              <span className="suggest-primary">{r.primary}</span>
+              {r.secondary && <span className="suggest-secondary">{r.secondary}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+window.SuggestField = SuggestField;
 
 /* ---------- Animated number (GSAP count-up) ---------- */
 function StatNum({ value, suffix = "", decimals = 0 }) {

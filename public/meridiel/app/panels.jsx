@@ -50,7 +50,7 @@ function StatsRail({ flights, allFlights, className }) {
     <section className={"panel rail paper-tex " + (className || "")}>
       <div className="panel-head">
         <h3>The Tally</h3>
-        <span className="count">since {window.ATLAS.sinceOf(flights)}</span>
+        <span className="count">since {window.ATLAS.sinceOf(allFlights || flights)}</span>
       </div>
       <div className="panel-body">
         <div className="stat-grid">
@@ -145,7 +145,9 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
         <div className="detail-rows">
           <div className="drow"><span className="k">Date</span><span className="vv">{window.fmtDate(f.date)}</span></div>
           <div className="drow"><span className="k">Airline</span><span className="vv">{f.airline}</span></div>
+          {f.flightNo && <div className="drow"><span className="k">Flight</span><span className="vv">{f.flightNo}</span></div>}
           <div className="drow"><span className="k">Aircraft</span><span className="vv">{f.craft}</span></div>
+          {f.reg && <div className="drow"><span className="k">Registration</span><span className="vv">{f.reg}</span></div>}
           <div className="drow"><span className="k">Flight time</span><span className="vv">{window.fmtDur(f.dur)}</span></div>
           <div className="drow"><span className="k">Distance</span><span className="vv">{f.km.toLocaleString()} km · {f.miles.toLocaleString()} mi</span></div>
           <div className="drow"><span className="k">Seat</span><span className="vv">{f.seat}</span></div>
@@ -156,6 +158,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, className }) {
             </span>
           </div>
         </div>
+        {f.notes && <div className="detail-notes">{f.notes}</div>}
         {f.fav && <div style={{ padding: "0 16px 18px" }}><span className="stamp">Favourite Leg</span></div>}
       </div>
     </section>

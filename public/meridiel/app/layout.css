@@ -182,6 +182,11 @@
 .drow + .drow { border-top: 1px solid var(--line-soft); }
 .drow .k { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
 .drow .vv { font-weight: 500; }
+.detail-notes {
+  margin: 0 16px 16px; padding: 10px 12px; border: 1.5px dashed var(--line); border-radius: 3px;
+  font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--ink-soft);
+  white-space: pre-wrap;
+}
 
 /* ---- Timeline ---- */
 .timeline {
@@ -251,11 +256,65 @@
 }
 .field input:focus, .field select:focus { outline: none; border-color: var(--ink); }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* The date field's whole box opens the native picker, not just the tiny icon */
+.field-date { cursor: pointer; }
+.field-date input { cursor: pointer; }
+
+/* Type-ahead suggestion field (airport / airline) */
+.suggest-field { position: relative; }
+.suggest-field input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); background: var(--paper-3);
+  font-family: var(--mono); font-size: 13px; color: var(--ink); border-radius: 3px;
+}
+.suggest-field input:focus { outline: none; border-color: var(--ink); }
+.suggest-list {
+  position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0;
+  max-height: 220px; overflow-y: auto;
+  border: 1.5px solid var(--ink); border-radius: 3px; background: var(--paper-3);
+  box-shadow: var(--shadow-sm);
+}
+.suggest-item {
+  padding: 9px 12px; cursor: pointer; display: flex; align-items: baseline;
+  justify-content: space-between; gap: 8px;
+}
+.suggest-item + .suggest-item { border-top: 1px solid var(--line-soft); }
+.suggest-item.active, .suggest-item:hover { background: rgba(194,74,51,0.09); }
+.suggest-primary { font-size: 13px; color: var(--ink); }
+.suggest-secondary { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; color: var(--ink-faint); flex-shrink: 0; }
 .hint { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); line-height: 1.5; }
 .tab-row { display: flex; gap: 0; margin-bottom: 16px; border: 1.5px solid var(--ink); border-radius: 3px; overflow: hidden; }
 .tab-row button { flex: 1; padding: 10px; background: var(--paper-3); border: none; border-right: 1.5px solid var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; color: var(--ink-soft); }
 .tab-row button:last-child { border-right: none; }
 .tab-row button.on { background: var(--ink); color: var(--paper-3); }
+
+/* Advanced details disclosure (flight no / registration / notes) */
+.advanced-toggle {
+  width: 100%; display: flex; align-items: center; gap: 6px; margin: 2px 0 12px;
+  padding: 0; border: none; background: none; cursor: pointer;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); transition: color .15s ease;
+}
+.advanced-toggle:hover { color: var(--ink); }
+.advanced-toggle-chev { width: 12px; height: 12px; transition: transform .2s ease; transform: rotate(-90deg); }
+.advanced-toggle-chev.open { transform: rotate(0deg); }
+.field textarea { resize: vertical; min-height: 44px; font-family: var(--sans); }
+
+/* Smooth open/close for the advanced-details section (grid-rows 0fr/1fr trick —
+   no JS height measurement needed). Fields stay in the DOM either way; the
+   inputs get tabIndex=-1 while collapsed so keyboard users can't tab into them. */
+.advanced-collapse {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .32s cubic-bezier(.4,0,.2,1);
+}
+.advanced-collapse.open { grid-template-rows: 1fr; }
+.advanced-collapse-inner { overflow: hidden; min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .advanced-collapse { transition: none; }
+}
+
+/* Fade-in when the Manual / Import CSV tab content mounts */
+.tab-panel { animation: fadeIn .3s ease; }
 
 /* ---- Present overlay ---- */
 .present-ui { position: absolute; z-index: 40; pointer-events: none; }

@@ -171,7 +171,259 @@
     NAN: { city: "Nadi",          name: "Nadi Intl",           country: "Fiji",         cc: "fj", lat: -17.7554, lng: 177.4434 },
     CHC: { city: "Christchurch",  name: "Christchurch Intl",   country: "New Zealand",  cc: "nz", lat: -43.4894, lng: 172.5320 },
     WLG: { city: "Wellington",    name: "Wellington Intl",     country: "New Zealand",  cc: "nz", lat: -41.3272, lng: 174.8050 },
+
+    // ---- More United States / Canada ----
+    BWI: { city: "Baltimore",     name: "BWI Marshall",        country: "United States", cc: "us", lat: 39.1774, lng: -76.6684 },
+    RDU: { city: "Raleigh",       name: "Raleigh–Durham",      country: "United States", cc: "us", lat: 35.8776, lng: -78.7875 },
+    SAT: { city: "San Antonio",   name: "San Antonio Intl",    country: "United States", cc: "us", lat: 29.5337, lng: -98.4698 },
+    MSY: { city: "New Orleans",   name: "Louis Armstrong",     country: "United States", cc: "us", lat: 29.9934, lng: -90.2580 },
+    TPA: { city: "Tampa",         name: "Tampa Intl",          country: "United States", cc: "us", lat: 27.9755, lng: -82.5332 },
+    JAX: { city: "Jacksonville",  name: "Jacksonville Intl",   country: "United States", cc: "us", lat: 30.4941, lng: -81.6879 },
+    BNA: { city: "Nashville",     name: "Nashville Intl",      country: "United States", cc: "us", lat: 36.1263, lng: -86.6774 },
+    STL: { city: "St. Louis",     name: "Lambert Intl",        country: "United States", cc: "us", lat: 38.7487, lng: -90.3700 },
+    IND: { city: "Indianapolis",  name: "Indianapolis Intl",   country: "United States", cc: "us", lat: 39.7173, lng: -86.2944 },
+    OMA: { city: "Omaha",         name: "Eppley Airfield",     country: "United States", cc: "us", lat: 41.3032, lng: -95.8941 },
+    ABQ: { city: "Albuquerque",   name: "Sunport",             country: "United States", cc: "us", lat: 35.0402, lng: -106.6092 },
+    OAK: { city: "Oakland",       name: "Oakland Intl",        country: "United States", cc: "us", lat: 37.7126, lng: -122.2197 },
+    SJC: { city: "San Jose",      name: "Mineta San José",     country: "United States", cc: "us", lat: 37.3639, lng: -121.9289 },
+    SMF: { city: "Sacramento",    name: "Sacramento Intl",     country: "United States", cc: "us", lat: 38.6954, lng: -121.5908 },
+    ANC: { city: "Anchorage",     name: "Ted Stevens Intl",    country: "United States", cc: "us", lat: 61.1743, lng: -149.9982 },
+    BOI: { city: "Boise",         name: "Boise Airport",       country: "United States", cc: "us", lat: 43.5644, lng: -116.2228 },
+    YEG: { city: "Edmonton",      name: "Edmonton Intl",       country: "Canada",        cc: "ca", lat: 53.3097, lng: -113.5801 },
+    YHZ: { city: "Halifax",       name: "Halifax Stanfield",   country: "Canada",        cc: "ca", lat: 44.8808, lng: -63.5086 },
+    YWG: { city: "Winnipeg",      name: "Richardson Intl",     country: "Canada",        cc: "ca", lat: 49.9100, lng: -97.2399 },
+
+    // ---- More Mexico / Central America / Caribbean ----
+    GDL: { city: "Guadalajara",   name: "Miguel Hidalgo",      country: "Mexico",             cc: "mx", lat: 20.5218, lng: -103.3112 },
+    MTY: { city: "Monterrey",     name: "Del Norte Intl",      country: "Mexico",             cc: "mx", lat: 25.7785, lng: -100.1069 },
+    SAL: { city: "San Salvador",  name: "El Salvador Intl",    country: "El Salvador",        cc: "sv", lat: 13.4409, lng: -89.0557 },
+    GUA: { city: "Guatemala City",name: "La Aurora Intl",      country: "Guatemala",          cc: "gt", lat: 14.5833, lng: -90.5275 },
+    SJO: { city: "San José",      name: "Juan Santamaría",     country: "Costa Rica",         cc: "cr", lat: 9.9981,  lng: -84.2041 },
+    KIN: { city: "Kingston",      name: "Norman Manley Intl",  country: "Jamaica",            cc: "jm", lat: 17.9357, lng: -76.7875 },
+    CUR: { city: "Willemstad",    name: "Curaçao Intl",        country: "Curaçao",            cc: "cw", lat: 12.1889, lng: -68.9598 },
+    BGI: { city: "Bridgetown",    name: "Grantley Adams Intl", country: "Barbados",           cc: "bb", lat: 13.0746, lng: -59.4925 },
+
+    // ---- More South America ----
+    FOR: { city: "Fortaleza",     name: "Pinto Martins",       country: "Brazil",    cc: "br", lat: -3.7763,  lng: -38.5326 },
+    REC: { city: "Recife",       name: "Guararapes Intl",     country: "Brazil",    cc: "br", lat: -8.1264,  lng: -34.9236 },
+    BSB: { city: "Brasília",      name: "Brasília Intl",       country: "Brazil",    cc: "br", lat: -15.8697, lng: -47.9208 },
+    POA: { city: "Porto Alegre",  name: "Salgado Filho",       country: "Brazil",    cc: "br", lat: -29.9939, lng: -51.1714 },
+    CWB: { city: "Curitiba",      name: "Afonso Pena",         country: "Brazil",    cc: "br", lat: -25.5285, lng: -49.1758 },
+    VVI: { city: "Santa Cruz",    name: "Viru Viru Intl",      country: "Bolivia",   cc: "bo", lat: -17.6448, lng: -63.1354 },
+    GYE: { city: "Guayaquil",     name: "José Joaquín Olmedo", country: "Ecuador",   cc: "ec", lat: -2.1574,  lng: -79.8836 },
+
+    // ---- More Europe ----
+    BER: { city: "Berlin",        name: "Brandenburg",         country: "Germany",   cc: "de", lat: 52.3667, lng: 13.5033 },
+    HAM: { city: "Hamburg",       name: "Hamburg Airport",     country: "Germany",   cc: "de", lat: 53.6304, lng: 9.9882 },
+    STR: { city: "Stuttgart",     name: "Stuttgart Airport",   country: "Germany",   cc: "de", lat: 48.6899, lng: 9.2220 },
+    CGN: { city: "Cologne",       name: "Cologne Bonn",        country: "Germany",   cc: "de", lat: 50.8659, lng: 7.1427 },
+    DUS: { city: "Düsseldorf",    name: "Düsseldorf Airport",  country: "Germany",   cc: "de", lat: 51.2895, lng: 6.7668 },
+    INN: { city: "Innsbruck",     name: "Innsbruck Airport",   country: "Austria",   cc: "at", lat: 47.2602, lng: 11.3440 },
+    ZAG: { city: "Zagreb",        name: "Zagreb Airport",      country: "Croatia",   cc: "hr", lat: 45.7429, lng: 16.0688 },
+    LJU: { city: "Ljubljana",     name: "Jože Pučnik",         country: "Slovenia",  cc: "si", lat: 46.2237, lng: 14.4576 },
+    SOF: { city: "Sofia",         name: "Sofia Airport",       country: "Bulgaria",  cc: "bg", lat: 42.6952, lng: 23.4062 },
+    OTP: { city: "Bucharest",     name: "Henri Coandă",        country: "Romania",   cc: "ro", lat: 44.5711, lng: 26.0850 },
+    KRK: { city: "Kraków",        name: "John Paul II",        country: "Poland",    cc: "pl", lat: 50.0777, lng: 19.7848 },
+    GDN: { city: "Gdańsk",        name: "Lech Wałęsa",         country: "Poland",    cc: "pl", lat: 54.3776, lng: 18.4662 },
+    RIX: { city: "Riga",          name: "Riga Intl",           country: "Latvia",    cc: "lv", lat: 56.9236, lng: 23.9711 },
+    VNO: { city: "Vilnius",       name: "Vilnius Airport",     country: "Lithuania", cc: "lt", lat: 54.6341, lng: 25.2858 },
+    TLL: { city: "Tallinn",       name: "Lennart Meri",        country: "Estonia",   cc: "ee", lat: 59.4133, lng: 24.8328 },
+    LUX: { city: "Luxembourg",    name: "Findel Airport",      country: "Luxembourg",cc: "lu", lat: 49.6233, lng: 6.2044 },
+    BOD: { city: "Bordeaux",      name: "Mérignac",            country: "France",    cc: "fr", lat: 44.8283, lng: -0.7156 },
+    TLS: { city: "Toulouse",      name: "Blagnac",             country: "France",    cc: "fr", lat: 43.6293, lng: 1.3638 },
+    MRS: { city: "Marseille",     name: "Provence Airport",    country: "France",    cc: "fr", lat: 43.4393, lng: 5.2214 },
+    BHX: { city: "Birmingham",    name: "Birmingham Airport",  country: "United Kingdom", cc: "gb", lat: 52.4539, lng: -1.7480 },
+    GLA: { city: "Glasgow",       name: "Glasgow Airport",     country: "United Kingdom", cc: "gb", lat: 55.8642, lng: -4.4331 },
+    BFS: { city: "Belfast",       name: "Belfast Intl",        country: "United Kingdom", cc: "gb", lat: 54.6575, lng: -6.2158 },
+    SVQ: { city: "Seville",       name: "San Pablo",           country: "Spain",     cc: "es", lat: 37.4180, lng: -5.8931 },
+    BIO: { city: "Bilbao",        name: "Bilbao Airport",      country: "Spain",     cc: "es", lat: 43.3011, lng: -2.9106 },
+    PMI: { city: "Palma",         name: "Palma de Mallorca",   country: "Spain",     cc: "es", lat: 39.5517, lng: 2.7388 },
+    AGP: { city: "Málaga",        name: "Costa del Sol",       country: "Spain",     cc: "es", lat: 36.6749, lng: -4.4991 },
+    VLC: { city: "Valencia",      name: "Valencia Airport",    country: "Spain",     cc: "es", lat: 39.4893, lng: -0.4816 },
+    IBZ: { city: "Ibiza",         name: "Ibiza Airport",       country: "Spain",     cc: "es", lat: 38.8729, lng: 1.3731 },
+    NAP: { city: "Naples",        name: "Capodichino",         country: "Italy",     cc: "it", lat: 40.8860, lng: 14.2908 },
+    BLQ: { city: "Bologna",       name: "Guglielmo Marconi",   country: "Italy",     cc: "it", lat: 44.5354, lng: 11.2887 },
+    CTA: { city: "Catania",       name: "Fontanarossa",        country: "Italy",     cc: "it", lat: 37.4668, lng: 15.0664 },
+    PSA: { city: "Pisa",          name: "Galileo Galilei",     country: "Italy",     cc: "it", lat: 43.6839, lng: 10.3927 },
+    SPU: { city: "Split",         name: "Split Airport",       country: "Croatia",   cc: "hr", lat: 43.5389, lng: 16.2980 },
+    TIA: { city: "Tirana",        name: "Nënë Tereza",         country: "Albania",   cc: "al", lat: 41.4147, lng: 19.7206 },
+
+    // ---- More Middle East ----
+    BAH: { city: "Manama",        name: "Bahrain Intl",        country: "Bahrain",       cc: "bh", lat: 26.2708, lng: 50.6336 },
+    MED: { city: "Medina",        name: "Prince Mohammad",     country: "Saudi Arabia",  cc: "sa", lat: 24.5534, lng: 39.7051 },
+    DMM: { city: "Dammam",        name: "King Fahd Intl",      country: "Saudi Arabia",  cc: "sa", lat: 26.4712, lng: 49.7979 },
+
+    // ---- More Africa ----
+    MRU: { city: "Port Louis",    name: "Sir Seewoosagur",     country: "Mauritius",     cc: "mu", lat: -20.4302, lng: 57.6836 },
+    SEZ: { city: "Victoria",      name: "Seychelles Intl",     country: "Seychelles",    cc: "sc", lat: -4.6743,  lng: 55.5218 },
+    ABJ: { city: "Abidjan",       name: "Félix-Houphouët",     country: "Côte d'Ivoire", cc: "ci", lat: 5.2614,   lng: -3.9263 },
+    DKR: { city: "Dakar",         name: "Blaise Diagne",       country: "Senegal",       cc: "sn", lat: 14.6704,  lng: -17.0730 },
+    LAD: { city: "Luanda",        name: "Quatro de Fevereiro", country: "Angola",        cc: "ao", lat: -8.8584,  lng: 13.2312 },
+    WDH: { city: "Windhoek",      name: "Hosea Kutako",        country: "Namibia",       cc: "na", lat: -22.4799, lng: 17.4709 },
+    GBE: { city: "Gaborone",      name: "Sir Seretse Khama",   country: "Botswana",      cc: "bw", lat: -24.5552, lng: 25.9182 },
+    LUN: { city: "Lusaka",        name: "Kenneth Kaunda",      country: "Zambia",        cc: "zm", lat: -15.3308, lng: 28.4527 },
+    HRE: { city: "Harare",        name: "Robert Gabriel Mugabe", country: "Zimbabwe",    cc: "zw", lat: -17.9318, lng: 31.0928 },
+    MPM: { city: "Maputo",        name: "Maputo Intl",         country: "Mozambique",    cc: "mz", lat: -25.9208, lng: 32.5726 },
+    TNR: { city: "Antananarivo",  name: "Ivato Intl",          country: "Madagascar",    cc: "mg", lat: -18.7969, lng: 47.4788 },
+    KRT: { city: "Khartoum",      name: "Khartoum Intl",       country: "Sudan",         cc: "sd", lat: 15.5895, lng: 32.5532 },
+
+    // ---- More South / Central Asia ----
+    AMD: { city: "Ahmedabad",     name: "Sardar Vallabhbhai",  country: "India",     cc: "in", lat: 23.0772, lng: 72.6347 },
+    PNQ: { city: "Pune",          name: "Pune Airport",        country: "India",     cc: "in", lat: 18.5822, lng: 73.9197 },
+    GOI: { city: "Goa",           name: "Dabolim Airport",     country: "India",     cc: "in", lat: 15.3808, lng: 73.8314 },
+    COK: { city: "Kochi",         name: "Cochin Intl",         country: "India",     cc: "in", lat: 10.1520, lng: 76.4019 },
+    LKO: { city: "Lucknow",       name: "Chaudhary Charan",    country: "India",     cc: "in", lat: 26.7606, lng: 80.8893 },
+    MLE: { city: "Malé",          name: "Velana Intl",         country: "Maldives",  cc: "mv", lat: 4.1917,  lng: 73.5290 },
+    THR: { city: "Tehran",        name: "Imam Khomeini",       country: "Iran",      cc: "ir", lat: 35.4161, lng: 51.1522 },
+    SHJ: { city: "Sharjah",       name: "Sharjah Intl",        country: "UAE",       cc: "ae", lat: 25.3286, lng: 55.5172 },
+
+    // ---- More East / Southeast Asia ----
+    XIY: { city: "Xi'an",         name: "Xianyang Intl",       country: "China",     cc: "cn", lat: 34.4471, lng: 108.7517 },
+    WUH: { city: "Wuhan",         name: "Tianhe Intl",         country: "China",     cc: "cn", lat: 30.7838, lng: 114.2081 },
+    NKG: { city: "Nanjing",       name: "Lukou Intl",          country: "China",     cc: "cn", lat: 31.7420, lng: 118.8622 },
+    HGH: { city: "Hangzhou",      name: "Xiaoshan Intl",       country: "China",     cc: "cn", lat: 30.2295, lng: 120.4344 },
+    XMN: { city: "Xiamen",        name: "Gaoqi Intl",          country: "China",     cc: "cn", lat: 24.5440, lng: 118.1279 },
+    KMG: { city: "Kunming",       name: "Changshui Intl",      country: "China",     cc: "cn", lat: 25.1019, lng: 102.9292 },
+    CKG: { city: "Chongqing",     name: "Jiangbei Intl",       country: "China",     cc: "cn", lat: 29.7192, lng: 106.6417 },
+    TAE: { city: "Taichung",      name: "Taichung Intl",       country: "Taiwan",    cc: "tw", lat: 24.2647, lng: 120.6224 },
+    CJU: { city: "Jeju",          name: "Jeju Intl",           country: "South Korea", cc: "kr", lat: 33.5113, lng: 126.4930 },
+    OKA: { city: "Okinawa",       name: "Naha Airport",        country: "Japan",     cc: "jp", lat: 26.1958, lng: 127.6459 },
+    HIJ: { city: "Hiroshima",     name: "Hiroshima Airport",   country: "Japan",     cc: "jp", lat: 34.4361, lng: 132.9194 },
+    SDJ: { city: "Sendai",        name: "Sendai Airport",      country: "Japan",     cc: "jp", lat: 38.1397, lng: 140.9169 },
+    VTE: { city: "Vientiane",     name: "Wattay Intl",         country: "Laos",      cc: "la", lat: 17.9883, lng: 102.5633 },
+    BWN: { city: "Bandar Seri Begawan", name: "Brunei Intl",   country: "Brunei",    cc: "bn", lat: 4.9442,  lng: 114.9283 },
+    CEB: { city: "Cebu",          name: "Mactan-Cebu",         country: "Philippines", cc: "ph", lat: 10.3075, lng: 123.9789 },
+    DVO: { city: "Davao",         name: "Francisco Bangoy",    country: "Philippines", cc: "ph", lat: 7.1255,  lng: 125.6456 },
+    KCH: { city: "Kuching",       name: "Kuching Intl",        country: "Malaysia",  cc: "my", lat: 1.4847,   lng: 110.3468 },
+    BKI: { city: "Kota Kinabalu", name: "Kota Kinabalu Intl",  country: "Malaysia",  cc: "my", lat: 5.9372,   lng: 116.0511 },
+    PEN: { city: "Penang",        name: "Penang Intl",         country: "Malaysia",  cc: "my", lat: 5.2971,   lng: 100.2769 },
+    SUB: { city: "Surabaya",      name: "Juanda Intl",         country: "Indonesia", cc: "id", lat: -7.3798,  lng: 112.7869 },
+    UPG: { city: "Makassar",      name: "Sultan Hasanuddin",   country: "Indonesia", cc: "id", lat: -5.0616,  lng: 119.5541 },
+
+    // ---- More Oceania / Pacific ----
+    OOL: { city: "Gold Coast",    name: "Gold Coast Airport",  country: "Australia", cc: "au", lat: -28.1644, lng: 153.5047 },
+    CNS: { city: "Cairns",        name: "Cairns Airport",      country: "Australia", cc: "au", lat: -16.8858, lng: 145.7553 },
+    DRW: { city: "Darwin",        name: "Darwin Airport",      country: "Australia", cc: "au", lat: -12.4147, lng: 130.8767 },
+    HBA: { city: "Hobart",        name: "Hobart Airport",      country: "Australia", cc: "au", lat: -42.8361, lng: 147.5103 },
+    NOU: { city: "Nouméa",        name: "La Tontouta",         country: "New Caledonia", cc: "nc", lat: -22.0146, lng: 166.2130 },
+    POM: { city: "Port Moresby",  name: "Jacksons Intl",       country: "Papua New Guinea", cc: "pg", lat: -9.4433, lng: 147.2200 },
+    RAR: { city: "Rarotonga",     name: "Rarotonga Intl",      country: "Cook Islands", cc: "ck", lat: -21.2027, lng: -159.8055 },
+    VLI: { city: "Port Vila",     name: "Bauerfield Intl",     country: "Vanuatu",   cc: "vu", lat: -17.6993, lng: 168.3200 },
+    TBU: { city: "Nuku'alofa",    name: "Fua'amotu Intl",      country: "Tonga",     cc: "to", lat: -21.2412, lng: -175.1500 },
+    PPT: { city: "Papeete",       name: "Faa'a Intl",          country: "French Polynesia", cc: "pf", lat: -17.5537, lng: -149.6070 },
+
+    // ---- More airports for cities with multiple hubs, sourced from OpenFlights ----
+    LGA: { city: "New York", name: "La Guardia", country: "United States", cc: "us", lat: 40.7772, lng: -73.8726 },
+    HND: { city: "Tokyo", name: "Haneda", country: "Japan", cc: "jp", lat: 35.5523, lng: 139.78 },
+    LCY: { city: "London", name: "London City", country: "United Kingdom", cc: "gb", lat: 51.5053, lng: 0.0553 },
+    STN: { city: "London", name: "Stansted", country: "United Kingdom", cc: "gb", lat: 51.885, lng: 0.235 },
+    LTN: { city: "London", name: "Luton", country: "United Kingdom", cc: "gb", lat: 51.8747, lng: -0.3683 },
+    ORY: { city: "Paris", name: "Paris-Orly", country: "France", cc: "fr", lat: 48.7233, lng: 2.3794 },
+    SVO: { city: "Moscow", name: "Sheremetyevo", country: "Russia", cc: "ru", lat: 55.9726, lng: 37.4146 },
+    DME: { city: "Moscow", name: "Domodedovo", country: "Russia", cc: "ru", lat: 55.4088, lng: 37.9063 },
+    VKO: { city: "Moscow", name: "Vnukovo", country: "Russia", cc: "ru", lat: 55.5915, lng: 37.2615 },
+    LIN: { city: "Milan", name: "Linate", country: "Italy", cc: "it", lat: 45.4451, lng: 9.2767 },
+    MDW: { city: "Chicago", name: "Midway", country: "United States", cc: "us", lat: 41.786, lng: -87.7524 },
+    HOU: { city: "Houston", name: "William P. Hobby", country: "United States", cc: "us", lat: 29.6454, lng: -95.2789 },
+    SHA: { city: "Shanghai", name: "Hongqiao Intl", country: "China", cc: "cn", lat: 31.1979, lng: 121.336 },
+    GMP: { city: "Seoul", name: "Gimpo Intl", country: "South Korea", cc: "kr", lat: 37.5583, lng: 126.791 },
+    ITM: { city: "Osaka", name: "Itami", country: "Japan", cc: "jp", lat: 34.7855, lng: 135.438 },
+    CGH: { city: "São Paulo", name: "Congonhas", country: "Brazil", cc: "br", lat: -23.6261, lng: -46.6564 },
+    SDU: { city: "Rio de Janeiro", name: "Santos Dumont", country: "Brazil", cc: "br", lat: -22.9105, lng: -43.1631 },
+    AEP: { city: "Buenos Aires", name: "Aeroparque Jorge Newbery", country: "Argentina", cc: "ar", lat: -34.5592, lng: -58.4156 },
+    YTZ: { city: "Toronto", name: "Billy Bishop City Centre", country: "Canada", cc: "ca", lat: 43.6275, lng: -79.3962 },
+    PKX: { city: "Beijing", name: "Daxing Intl", country: "China", cc: "cn", lat: 39.5099, lng: 116.4109 },
+    DMK: { city: "Bangkok", name: "Don Mueang Intl", country: "Thailand", cc: "th", lat: 13.9126, lng: 100.607 },
+    TSA: { city: "Taipei", name: "Songshan", country: "Taiwan", cc: "tw", lat: 25.0694, lng: 121.552 },
+    SAW: { city: "Istanbul", name: "Sabiha Gökçen", country: "Turkey", cc: "tr", lat: 40.8986, lng: 29.3092 },
+    CRK: { city: "Angeles City", name: "Clark Intl", country: "Philippines", cc: "ph", lat: 15.186, lng: 120.56 },
+    DWC: { city: "Dubai", name: "Al Maktoum Intl", country: "UAE", cc: "ae", lat: 24.8964, lng: 55.1614 },
+    FLL: { city: "Fort Lauderdale", name: "Fort Lauderdale–Hollywood", country: "United States", cc: "us", lat: 26.0726, lng: -80.1527 },
+    BUF: { city: "Buffalo", name: "Buffalo Niagara Intl", country: "United States", cc: "us", lat: 42.9405, lng: -78.7322 },
+    YQB: { city: "Québec City", name: "Jean Lesage Intl", country: "Canada", cc: "ca", lat: 46.7911, lng: -71.3933 },
+    PVR: { city: "Puerto Vallarta", name: "Puerto Vallarta Intl", country: "Mexico", cc: "mx", lat: 20.6801, lng: -105.254 },
+    SJD: { city: "Los Cabos", name: "Los Cabos Intl", country: "Mexico", cc: "mx", lat: 23.1518, lng: -109.721 },
+    MZT: { city: "Mazatlán", name: "Mazatlán Intl", country: "Mexico", cc: "mx", lat: 23.1614, lng: -106.266 },
+    HAK: { city: "Haikou", name: "Meilan Intl", country: "China", cc: "cn", lat: 19.9349, lng: 110.459 },
+    PIT: { city: "Pittsburgh", name: "Pittsburgh Intl", country: "United States", cc: "us", lat: 40.4915, lng: -80.2329 },
+    MCI: { city: "Kansas City", name: "Kansas City Intl", country: "United States", cc: "us", lat: 39.2976, lng: -94.7139 },
+    CLE: { city: "Cleveland", name: "Cleveland Hopkins", country: "United States", cc: "us", lat: 41.4117, lng: -81.8498 },
+    MEM: { city: "Memphis", name: "Memphis Intl", country: "United States", cc: "us", lat: 35.0424, lng: -89.9767 },
+    ORF: { city: "Norfolk", name: "Norfolk Intl", country: "United States", cc: "us", lat: 36.8946, lng: -76.2012 },
+    YXE: { city: "Saskatoon", name: "Saskatoon Intl", country: "Canada", cc: "ca", lat: 52.1708, lng: -106.7 },
+    YQR: { city: "Regina", name: "Regina Intl", country: "Canada", cc: "ca", lat: 50.4319, lng: -104.666 },
+    GSO: { city: "Greensboro", name: "Piedmont Triad Intl", country: "United States", cc: "us", lat: 36.0978, lng: -79.9373 },
+    CHS: { city: "Charleston", name: "Charleston Intl", country: "United States", cc: "us", lat: 32.8986, lng: -80.0405 },
+    SAV: { city: "Savannah", name: "Savannah/Hilton Head Intl", country: "United States", cc: "us", lat: 32.1276, lng: -81.2021 },
+    MYR: { city: "Myrtle Beach", name: "Myrtle Beach Intl", country: "United States", cc: "us", lat: 33.6797, lng: -78.9283 },
   };
+
+  // ---- Airlines: real carriers + IATA code, for the airline autocomplete ----
+  const AIRLINES = [
+    // Star Alliance
+    { code: "UA", name: "United Airlines" }, { code: "LH", name: "Lufthansa" },
+    { code: "AC", name: "Air Canada" }, { code: "SQ", name: "Singapore Airlines" },
+    { code: "NH", name: "ANA" }, { code: "TG", name: "Thai Airways" },
+    { code: "TK", name: "Turkish Airlines" }, { code: "LX", name: "Swiss" },
+    { code: "OS", name: "Austrian Airlines" }, { code: "SK", name: "SAS" },
+    { code: "CA", name: "Air China" }, { code: "BR", name: "EVA Air" },
+    { code: "OZ", name: "Asiana Airlines" }, { code: "AI", name: "Air India" },
+    { code: "AV", name: "Avianca" }, { code: "CM", name: "Copa Airlines" },
+    { code: "MS", name: "EgyptAir" }, { code: "ET", name: "Ethiopian Airlines" },
+    { code: "LO", name: "LOT Polish Airlines" }, { code: "SA", name: "South African Airways" },
+    { code: "TP", name: "TAP Air Portugal" }, { code: "SN", name: "Brussels Airlines" },
+    { code: "NZ", name: "Air New Zealand" }, { code: "ZH", name: "Shenzhen Airlines" },
+    // oneworld
+    { code: "AA", name: "American Airlines" }, { code: "BA", name: "British Airways" },
+    { code: "CX", name: "Cathay Pacific" }, { code: "QF", name: "Qantas" },
+    { code: "JL", name: "Japan Airlines" }, { code: "QR", name: "Qatar Airways" },
+    { code: "AY", name: "Finnair" }, { code: "IB", name: "Iberia" },
+    { code: "MH", name: "Malaysia Airlines" }, { code: "RJ", name: "Royal Jordanian" },
+    { code: "AT", name: "Royal Air Maroc" }, { code: "UL", name: "SriLankan Airlines" },
+    { code: "FJ", name: "Fiji Airways" }, { code: "AS", name: "Alaska Airlines" },
+    // SkyTeam
+    { code: "DL", name: "Delta Air Lines" }, { code: "AF", name: "Air France" },
+    { code: "KL", name: "KLM" }, { code: "KE", name: "Korean Air" },
+    { code: "MU", name: "China Eastern" }, { code: "CZ", name: "China Southern" },
+    { code: "SU", name: "Aeroflot" }, { code: "AM", name: "Aeroméxico" },
+    { code: "UX", name: "Air Europa" }, { code: "GA", name: "Garuda Indonesia" },
+    { code: "KQ", name: "Kenya Airways" }, { code: "ME", name: "Middle East Airlines" },
+    { code: "SV", name: "Saudia" }, { code: "VN", name: "Vietnam Airlines" },
+    { code: "MF", name: "Xiamen Airlines" },
+    // Middle East / Gulf
+    { code: "EK", name: "Emirates" }, { code: "EY", name: "Etihad Airways" },
+    { code: "FZ", name: "flydubai" }, { code: "G9", name: "Air Arabia" },
+    { code: "GF", name: "Gulf Air" }, { code: "WY", name: "Oman Air" },
+    { code: "KU", name: "Kuwait Airways" }, { code: "LY", name: "El Al" },
+    // Low-cost / regional Americas
+    { code: "WN", name: "Southwest Airlines" }, { code: "B6", name: "JetBlue" },
+    { code: "NK", name: "Spirit Airlines" }, { code: "F9", name: "Frontier Airlines" },
+    { code: "VS", name: "Virgin Atlantic" }, { code: "VA", name: "Virgin Australia" },
+    { code: "LA", name: "LATAM Airlines" }, { code: "G3", name: "GOL Linhas Aéreas" },
+    { code: "AD", name: "Azul Brazilian Airlines" }, { code: "Y4", name: "Volaris" },
+    // Low-cost Europe
+    { code: "FR", name: "Ryanair" }, { code: "U2", name: "easyJet" },
+    { code: "W6", name: "Wizz Air" }, { code: "DY", name: "Norwegian" },
+    { code: "VY", name: "Vueling" }, { code: "FI", name: "Icelandair" },
+    { code: "GL", name: "Air Greenland" }, { code: "JU", name: "Air Serbia" },
+    // Asia-Pacific carriers (Taiwan-relevant + regional)
+    { code: "CI", name: "China Airlines" }, { code: "JX", name: "STARLUX Airlines" },
+    { code: "B7", name: "Uni Air" }, { code: "IT", name: "Tigerair Taiwan" },
+    { code: "HX", name: "Hong Kong Airlines" }, { code: "UO", name: "HK Express" },
+    { code: "AK", name: "AirAsia" }, { code: "TR", name: "Scoot" },
+    { code: "6E", name: "IndiGo" }, { code: "SG", name: "SpiceJet" },
+    { code: "UK", name: "Vistara" }, { code: "JQ", name: "Jetstar" },
+    { code: "MM", name: "Peach Aviation" }, { code: "7C", name: "Jeju Air" },
+    { code: "BX", name: "Air Busan" }, { code: "TW", name: "T'way Air" },
+    { code: "PR", name: "Philippine Airlines" }, { code: "5J", name: "Cebu Pacific" },
+    { code: "FD", name: "Thai AirAsia" }, { code: "DD", name: "Nok Air" },
+    { code: "PG", name: "Bangkok Airways" },
+    // South / Central Asia + Africa
+    { code: "PK", name: "Pakistan International" }, { code: "BG", name: "Biman Bangladesh" },
+    { code: "RA", name: "Nepal Airlines" }, { code: "KC", name: "Air Astana" },
+    { code: "HY", name: "Uzbekistan Airways" },
+  ];
+  const AIRLINE_CODES = new Map(AIRLINES.map((a) => [a.code, a.name]));
 
   // ---- Flights (chronological). dist/dur derived where dur omitted ----
   const RAW = [];  // your own flights are added in-app and saved to your browser
@@ -234,6 +486,401 @@
     return [...map.values()].sort((a, b) => a.country.localeCompare(b.country));
   }
 
+
+  // ---- Country name -> ISO 3166-1 alpha-2, for expanding AIRPORTS below ----
+  const COUNTRY_ISO = {
+    "Afghanistan": "af",
+    "Albania": "al",
+    "Algeria": "dz",
+    "American Samoa": "as",
+    "Angola": "ao",
+    "Anguilla": "ai",
+    "Antarctica": "aq",
+    "Antigua and Barbuda": "ag",
+    "Argentina": "ar",
+    "Armenia": "am",
+    "Aruba": "aw",
+    "Ashmore and Cartier Islands": "at",
+    "Australia": "au",
+    "Austria": "at",
+    "Azerbaijan": "az",
+    "Bahamas": "bs",
+    "Bahrain": "bh",
+    "Baker Island": "fq",
+    "Bangladesh": "bd",
+    "Barbados": "bb",
+    "Belarus": "by",
+    "Belgium": "be",
+    "Belize": "bz",
+    "Benin": "bj",
+    "Bermuda": "bm",
+    "Bhutan": "bt",
+    "Bolivia": "bo",
+    "Bonaire, Saint Eustatius and Saba": "bq",
+    "Bosnia and Herzegovina": "ba",
+    "Botswana": "bw",
+    "Bouvet Island": "bv",
+    "Brazil": "br",
+    "British Indian Ocean Territory": "io",
+    "British Virgin Islands": "vg",
+    "Brunei Darussalam": "bn",
+    "Bulgaria": "bg",
+    "Burkina Faso": "bf",
+    "Burundi": "bi",
+    "Cabo Verde": "cv",
+    "Cambodia": "kh",
+    "Cameroon": "cm",
+    "Canada": "ca",
+    "Cayman Islands": "ky",
+    "Central African Republic": "cf",
+    "Chad": "td",
+    "Chile": "cl",
+    "China": "cn",
+    "Christmas Island": "cx",
+    "Clipperton Island": "ip",
+    "Cocos (Keeling) Islands": "cc",
+    "Colombia": "co",
+    "Comoros": "km",
+    "Congo (Brazzaville)": "cg",
+    "Congo (Kinshasa)": "cd",
+    "Congo Republic": "cg",
+    "Cook Islands": "ck",
+    "Coral Sea Islands": "cr",
+    "Costa Rica": "cr",
+    "Cote d'Ivoire": "ci",
+    "Croatia": "hr",
+    "Cuba": "cu",
+    "Cyprus": "cy",
+    "Czech Republic": "cz",
+    "DR Congo": "cd",
+    "Denmark": "dk",
+    "Djibouti": "dj",
+    "Dominica": "dm",
+    "Dominican Republic": "do",
+    "East Timor": "tl",
+    "Ecuador": "ec",
+    "Egypt": "eg",
+    "El Salvador": "sv",
+    "Equatorial Guinea": "gq",
+    "Eritrea": "er",
+    "Estonia": "ee",
+    "Eswatini": "sz",
+    "Ethiopia": "et",
+    "Europa Island": "eu",
+    "Faeroe Islands": "fo",
+    "Falkland Islands": "fk",
+    "Fiji": "fj",
+    "Finland": "fi",
+    "France": "fr",
+    "French Guiana": "gf",
+    "French Polynesia": "pf",
+    "French Southern Territories": "tf",
+    "Gabon": "ga",
+    "Gambia": "gm",
+    "Georgia": "ge",
+    "Germany": "de",
+    "Ghana": "gh",
+    "Gibraltar": "gi",
+    "Glorioso Islands": "go",
+    "Greece": "gr",
+    "Greenland": "gl",
+    "Grenada": "gd",
+    "Guadeloupe": "gp",
+    "Guam": "gu",
+    "Guatemala": "gt",
+    "Guernsey": "gg",
+    "Guinea": "gn",
+    "Guinea-Bissau": "gw",
+    "Guyana": "gy",
+    "Haiti": "ht",
+    "Heard and McDonald Islands": "hm",
+    "Honduras": "hn",
+    "Hong Kong": "hk",
+    "Howland Island": "hq",
+    "Hungary": "hu",
+    "Iceland": "is",
+    "India": "in",
+    "Indonesia": "id",
+    "Iran": "ir",
+    "Iraq": "iq",
+    "Ireland": "ie",
+    "Isle of Man": "im",
+    "Israel": "il",
+    "Italy": "it",
+    "Ivory Coast": "ci",
+    "Jamaica": "jm",
+    "Jan Mayen": "jn",
+    "Japan": "jp",
+    "Jarvis Island": "dq",
+    "Jersey": "je",
+    "Johnston Atoll": "jq",
+    "Jordan": "jo",
+    "Juan de Nova Island": "ju",
+    "Kazakhstan": "kz",
+    "Kenya": "ke",
+    "Kingman Reef": "kq",
+    "Kiribati": "ki",
+    "Kuwait": "kw",
+    "Kyrgyz Republic": "kg",
+    "Laos": "la",
+    "Latvia": "lv",
+    "Lebanon": "lb",
+    "Lesotho": "ls",
+    "Liberia": "lr",
+    "Libya": "ly",
+    "Lithuania": "lt",
+    "Luxembourg": "lu",
+    "Macao": "mo",
+    "Macau": "mo",
+    "Macedonia": "mk",
+    "Madagascar": "mg",
+    "Malawi": "mw",
+    "Malaysia": "my",
+    "Maldives": "mv",
+    "Mali": "ml",
+    "Malta": "mt",
+    "Marshall Islands": "mh",
+    "Martinique": "mq",
+    "Mauritania": "mr",
+    "Mauritius": "mu",
+    "Mayotte": "yt",
+    "Mexico": "mx",
+    "Micronesia": "fm",
+    "Micronesia, Fed. Sts.": "fm",
+    "Midway Islands": "mq",
+    "Moldova": "md",
+    "Monaco": "mc",
+    "Mongolia": "mn",
+    "Montenegro": "me",
+    "Montserrat": "ms",
+    "Morocco": "ma",
+    "Mozambique": "mz",
+    "Myanmar": "mm",
+    "Namibia": "na",
+    "Nauru": "nr",
+    "Navassa Island": "bq",
+    "Nepal": "np",
+    "Netherlands": "nl",
+    "Netherlands Antilles": "an",
+    "New Caledonia": "nc",
+    "New Zealand": "nz",
+    "Nicaragua": "ni",
+    "Niger": "ne",
+    "Nigeria": "ng",
+    "Niue": "nu",
+    "Norfolk Island": "nf",
+    "North Korea": "kp",
+    "Northern Mariana Islands": "mp",
+    "Norway": "no",
+    "Oman": "om",
+    "Pakistan": "pk",
+    "Palau": "pw",
+    "Palestine": "ps",
+    "Palmyra Atoll": "lq",
+    "Panama": "pa",
+    "Papua New Guinea": "pg",
+    "Paracel Islands": "pf",
+    "Paraguay": "py",
+    "Peru": "pe",
+    "Philippines": "ph",
+    "Pitcairn": "pn",
+    "Poland": "pl",
+    "Portugal": "pt",
+    "Puerto Rico": "pr",
+    "Qatar": "qa",
+    "Reunion": "re",
+    "Romania": "ro",
+    "Russia": "ru",
+    "Rwanda": "rw",
+    "Samoa": "ws",
+    "Sao Tome and Principe": "st",
+    "Saudi Arabia": "sa",
+    "Senegal": "sn",
+    "Serbia": "rs",
+    "Seychelles": "sc",
+    "Sierra Leone": "sl",
+    "Singapore": "sg",
+    "Slovakia": "sk",
+    "Slovenia": "si",
+    "Solomon Islands": "sb",
+    "Somalia": "so",
+    "South Africa": "za",
+    "South Georgia and South Sandwich Is.": "gs",
+    "South Korea": "kr",
+    "South Sudan": "ss",
+    "Spain": "es",
+    "Spratly Islands": "pg",
+    "Sri Lanka": "lk",
+    "St. Helena": "sh",
+    "St. Kitts and Nevis": "kn",
+    "St. Lucia": "lc",
+    "St. Pierre and Miquelon": "pm",
+    "St. Vincent and the Grenadines": "vc",
+    "Sudan": "sd",
+    "Suriname": "sr",
+    "Svalbard and Jan Mayen Islands": "sj",
+    "Swaziland": "sz",
+    "Sweden": "se",
+    "Switzerland": "ch",
+    "Syria": "sy",
+    "Taiwan": "tw",
+    "Tajikistan": "tj",
+    "Tanzania": "tz",
+    "Thailand": "th",
+    "Timor-Leste": "tl",
+    "Togo": "tg",
+    "Tokelau": "tk",
+    "Tonga": "to",
+    "Trinidad and Tobago": "tt",
+    "Tromelin Island": "te",
+    "Tunisia": "tn",
+    "Turkey": "tr",
+    "Turkmenistan": "tm",
+    "Turks and Caicos Islands": "tc",
+    "Tuvalu": "tv",
+    "Uganda": "ug",
+    "Ukraine": "ua",
+    "United Arab Emirates": "ae",
+    "United Kingdom": "gb",
+    "United States": "us",
+    "United States Virgin Islands": "vi",
+    "Uruguay": "uy",
+    "Uzbekistan": "uz",
+    "Vanuatu": "vu",
+    "Venezuela": "ve",
+    "Vietnam": "vn",
+    "Virgin Islands": "vi",
+    "Wake Island": "wq",
+    "Wallis and Futuna Islands": "wf",
+    "Western Sahara": "eh",
+    "Yemen": "ye",
+    "Zambia": "zm",
+    "Zimbabwe": "zw",
+    // A few OpenFlights "Country" spellings that differ from the ISO list above.
+    "Saint Helena": "sh", "Cape Verde": "cv", "Saint Pierre and Miquelon": "pm",
+    "Wallis and Futuna": "wf", "Saint Kitts and Nevis": "kn", "Saint Lucia": "lc",
+    "Saint Vincent and the Grenadines": "vc", "Kyrgyzstan": "kg",
+    "Faroe Islands": "fo", "Burma": "mm", "Brunei": "bn",
+  };
+
+  // ---- Full-world airport database, merged in at runtime ----
+  // AIRPORTS above is a hand-picked, always-available fallback (curated
+  // names, instant on load, no network needed). This fetches the public
+  // OpenFlights database (~6000 airports with IATA codes) once, caches the
+  // parsed result in localStorage, and merges in every code we don't
+  // already have — so first-run search still works instantly, and everyone
+  // gets full world coverage within a second or two, without shipping
+  // several hundred KB of airport data in this file. Mirrors how
+  // globe.jsx already fetches country borders from the same GitHub host.
+  const AIRPORTS_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat";
+  const AIRPORTS_CACHE_KEY = "fa-airports-db-v1";
+
+  function parseCsvLine(line) {
+    const out = [];
+    let field = "", inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (line[i + 1] === '"') { field += '"'; i++; }
+          else inQuotes = false;
+        } else field += c;
+      } else if (c === '"') {
+        inQuotes = true;
+      } else if (c === ",") {
+        out.push(field); field = "";
+      } else {
+        field += c;
+      }
+    }
+    out.push(field);
+    return out;
+  }
+
+  // Parses OpenFlights' airports.dat rows (id,name,city,country,iata,icao,
+  // lat,lng,alt,tz,dst,tzdb,type,source), keeping only codes we don't
+  // already have. Returns just the added entries (what gets cached).
+  function mergeAirportRows(text) {
+    const added = {};
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const row = parseCsvLine(line);
+      const iata = row[4];
+      if (!/^[A-Z]{3}$/.test(iata) || AIRPORTS[iata]) continue;
+      if (row[12] && row[12] !== "airport") continue;
+      const lat = parseFloat(row[6]), lng = parseFloat(row[7]);
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const country = row[3] || "";
+      added[iata] = { city: row[2] || iata, name: row[1] || iata, country, cc: COUNTRY_ISO[country] || "", lat, lng };
+    }
+    Object.assign(AIRPORTS, added);
+    return added;
+  }
+
+  function loadFullAirportDatabase() {
+    try {
+      const cached = localStorage.getItem(AIRPORTS_CACHE_KEY);
+      if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return; }
+    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+    fetch(AIRPORTS_DB_URL)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => {
+        const added = mergeAirportRows(text);
+        try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+      })
+      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
+  }
+  loadFullAirportDatabase();
+
+  // ---- Full airline list, merged in at runtime (same approach as airports) ----
+  // OpenFlights' airlines.dat also carries a lot of defunct operators and
+  // duplicate/reused codes, so this only fills in codes our curated list
+  // doesn't already have, and only ones flagged "active" — the curated list
+  // still wins on any conflict (e.g. JX staying STARLUX Airlines).
+  const AIRLINES_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat";
+  const AIRLINES_CACHE_KEY = "fa-airlines-db-v1";
+
+  function mergeAirlineRows(text) {
+    const added = [];
+    const seen = new Set(AIRLINES.map((a) => a.code));
+    const lines = text.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const row = parseCsvLine(line);
+      // id,name,alias,iata,icao,callsign,country,active
+      const iata = row[3], active = row[7];
+      if (active !== "Y" || !/^[A-Z0-9]{2}$/.test(iata) || seen.has(iata)) continue;
+      seen.add(iata);
+      added.push({ code: iata, name: row[1] || iata });
+    }
+    added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+    return added;
+  }
+
+  function loadFullAirlineDatabase() {
+    try {
+      const cached = localStorage.getItem(AIRLINES_CACHE_KEY);
+      if (cached) {
+        const list = JSON.parse(cached);
+        list.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+        return;
+      }
+    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+    fetch(AIRLINES_DB_URL)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => {
+        const added = mergeAirlineRows(text);
+        try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+      })
+      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
+  }
+  loadFullAirlineDatabase();
+
   const YEARS = [...new Set(FLIGHTS.map((f) => f.year))].sort();
 
   // Derive identity from the actual flights instead of hard-coded demo values.
@@ -248,7 +895,7 @@
   }
 
   window.ATLAS = {
-    AIRPORTS, FLIGHTS, YEARS,
+    AIRPORTS, AIRLINES, AIRLINE_CODES, FLIGHTS, YEARS,
     statsFor, countryList, distKm, durMin, sinceOf, homeOf,
     // name/handle fall back to these only when not signed in; a Google login overrides them.
     profile: { name: "Traveler", handle: "@traveler", home: "—", since: new Date().getFullYear() },

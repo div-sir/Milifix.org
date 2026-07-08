@@ -10,14 +10,17 @@ function paletteFor(theme) {
   if (theme === "dark") {
     return {
       ocean: "#0E1F26", land: "#C2AC76", landEdge: "rgba(120,95,55,0.5)",
-      arcA: "#E0B158", arcB: "#E06A4F", arcSel: "#F7F0DD",
+      // selected/focused route: a brighter, higher-contrast version of the same
+      // ochre→vermilion hues (not an unrelated color) so it reads as "this one,
+      // lit up" rather than a swap to a flat, washed-out highlight color.
+      arcA: "#E0B158", arcB: "#E06A4F", arcSelA: "#FFDD8A", arcSelB: "#FF8B6C",
       point: "#E0B158", atmosphere: "#5E8088", emissive: "#0E1F26",
       specular: "#13343b",
     };
   }
   return {
     ocean: "#15303A", land: "#E3CE9E", landEdge: "rgba(120,95,55,0.55)",
-    arcA: "#D29A3C", arcB: "#C24A33", arcSel: "#F3EAD6",
+    arcA: "#D29A3C", arcB: "#C24A33", arcSelA: "#F6C563", arcSelB: "#E85F42",
     point: "#D29A3C", atmosphere: "#C8923C", emissive: "#15303A",
     specular: "#1c4a52",
   };
@@ -157,20 +160,21 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       .arcEndLng((d) => d.to.lng)
       .arcColor((d) =>
         isHot(d)
-          ? [palRef.current.arcSel, palRef.current.arcSel]
+          ? [palRef.current.arcSelA, palRef.current.arcSelB]
           : [palRef.current.arcA, palRef.current.arcB]
       )
-      .arcStroke((d) => (isHot(d) ? 1.6 : 0.55))
+      .arcStroke((d) => (isHot(d) ? 2.2 : 0.55))
       // altitude: longer routes arc much higher so transoceanic paths are visible
       .arcAltitude((d) => {
         const km = d.km || Math.round((d.miles || 0) * 1.60934);
         return Math.min(0.82, Math.max(0.09, km / 19000));
       })
-      // non-hot: solid static line; hot: animated bright scanner sweep (not dashes)
-      .arcDashLength((d) => (isHot(d) ? 0.55 : 1))
-      .arcDashGap((d) => (isHot(d) ? 0.45 : 0))
+      // non-hot: solid static line; hot: a short bright pulse chases along the
+      // route (from → to) on a loop, so the selected flight reads as "in motion".
+      .arcDashLength((d) => (isHot(d) ? 0.3 : 1))
+      .arcDashGap((d) => (isHot(d) ? 1.2 : 0))
       .arcDashInitialGap(0)
-      .arcDashAnimateTime((d) => (isHot(d) ? 1300 : 0))
+      .arcDashAnimateTime((d) => (isHot(d) ? 1600 : 0))
       .arcsTransitionDuration(700)
       .arcLabel(
         (d) =>

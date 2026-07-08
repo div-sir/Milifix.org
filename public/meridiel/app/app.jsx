@@ -194,6 +194,7 @@ function App() {
       id: Date.now(),
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
+      flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
       km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
@@ -208,6 +209,7 @@ function App() {
       ...f,
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
+      flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
       km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
@@ -377,7 +379,6 @@ function App() {
               <button className="icon-btn" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
                 <window.Icon.rotate />
               </button>
-              <button className="btn btn-ghost" title="Add a flight" onClick={() => setModal("add")}><window.Icon.plus /> <span className="btn-label">Add</span></button>
               <button className="btn btn-ghost" title="Present" onClick={() => setPresent(true)}><window.Icon.present /> <span className="btn-label">Present</span></button>
               <button className="btn btn-accent" title="Share" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
             </div>
