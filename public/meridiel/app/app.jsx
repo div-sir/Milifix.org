@@ -140,15 +140,9 @@ function App() {
   };
 
   const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
-  const chrono = useMemoA(
-    () => [...flightsAll].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)),
-    [flightsAll]
-  );
 
   const [activeYear, setActiveYear] = useStateA(null);
-  const [replayIdx, setReplayIdx] = useStateA(null);  // flight-by-flight cursor
   const [selectedId, setSelectedId] = useStateA(null);
-  const [playing, setPlaying] = useStateA(false);
   const [autoRotate, setAutoRotate] = useStateA(true);
   const [loading, setLoading] = useStateA(true);
   const [modal, setModal] = useStateA(null);          // 'share' | 'add' | 'edit' | null
@@ -157,55 +151,25 @@ function App() {
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
   const [pushToast, toastNode] = window.useToast();
 
-  // visible flights: replay reveals chronologically, else year filter
   const visibleFlights = useMemoA(() => {
-    if (replayIdx != null) return chrono.slice(0, replayIdx + 1);
     if (!activeYear) return flightsAll;
     return flightsAll.filter((f) => f.year <= activeYear);
-  }, [chrono, flightsAll, activeYear, replayIdx]);
+  }, [flightsAll, activeYear]);
 
   const yearFlights = useMemoA(() => {
     if (!activeYear) return flightsAll;
     return flightsAll.filter((f) => f.year === activeYear);
   }, [flightsAll, activeYear]);
 
-  const currentFlight = replayIdx != null ? chrono[replayIdx] : null;
-
   const selectedFlight = useMemoA(
     () => flightsAll.find((f) => f.id === selectedId) || null,
     [flightsAll, selectedId]
   );
 
-  // single source of truth for the camera: manual selection wins, else replay
-  const focusFlight = selectedFlight || currentFlight;
+  // single source of truth for the camera
+  const focusFlight = selectedFlight;
 
-  // ---- Replay engine: fly one flight at a time, chronologically ----
-  const playRef = useRefA();
-  useEffectA(() => {
-    if (!playing) { clearInterval(playRef.current); return; }
-    setAutoRotate(false);
-    setSelectedId(null);
-    let idx = (replayIdx == null || replayIdx >= chrono.length - 1) ? -1 : replayIdx;
-    const step = () => {
-      idx += 1;
-      if (idx >= chrono.length) {
-        clearInterval(playRef.current);
-        setPlaying(false);
-        setReplayIdx(null);   // reveal everything, release the camera
-        setAutoRotate(true);
-        return;
-      }
-      setReplayIdx(idx);
-    };
-    step();
-    playRef.current = setInterval(step, 2300);
-    return () => clearInterval(playRef.current);
-    // eslint-disable-next-line
-  }, [playing]);
-
-  const progress = replayIdx != null
-    ? (replayIdx + 1) / chrono.length
-    : (activeYear ? (YEARS.indexOf(activeYear) + 1) / YEARS.length : 0);
+  const progress = activeYear ? (YEARS.indexOf(activeYear) + 1) / YEARS.length : 0;
 
   // ---- Globe ready ----
   const globeApiRef = useRefA(null);
@@ -215,15 +179,12 @@ function App() {
   };
 
   const handleSelect = (id) => {
-    setPlaying(false);
     setSelectedId((cur) => (cur === id ? null : id));
     setAutoRotate(false);
     if (window.innerWidth <= 900) setMobileTab("globe");
   };
 
   const handleYear = (y) => {
-    setPlaying(false);
-    setReplayIdx(null);
     setActiveYear(y);
     setSelectedId(null);
   };
@@ -273,18 +234,17 @@ function App() {
 
   // present mode → spin, no selection
   useEffectA(() => {
-    if (present) { setSelectedId(null); if (replayIdx == null) setAutoRotate(true); }
+    if (present) { setSelectedId(null); setAutoRotate(true); }
   }, [present]);
 
   // keyboard
   useEffectA(() => {
     const onKey = (e) => {
       if (e.key === "Escape") { setPresent(false); setModal(null); setSelectedId(null); setAcctMenu(false); }
-      if (e.key === " " && !modal) { e.preventDefault(); setPlaying((p) => !p); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modal]);
+  }, []);
 
   // ---- not logged in → gate ----
   if (!account) {
@@ -329,7 +289,7 @@ function App() {
         <React.Fragment>
           <div className="present-ui present-title">
             <b>{account.name}'s Meridiel</b>
-            <small>{currentFlight ? currentFlight.date : `${window.ATLAS.sinceOf(flightsAll)} — ${new Date().getFullYear()}`}</small>
+            <small>{window.ATLAS.sinceOf(flightsAll)} — {new Date().getFullYear()}</small>
           </div>
 
           {/* countries visited so far */}
@@ -352,24 +312,6 @@ function App() {
             </button>
             <button className="btn btn-solid" onClick={() => setPresent(false)}><window.Icon.x /> Exit</button>
           </div>
-          <section className="panel timeline paper-tex" style={{ maxWidth: 760, margin: "0 auto", left: 0, right: 0 }}>
-            <button className="tl-play" onClick={() => setPlaying((p) => !p)}>
-              {playing ? <window.Icon.pause /> : <window.Icon.play />}
-            </button>
-            <div className="tl-track-wrap">
-              <div className="tl-meta">
-                <span className="now">
-                  {currentFlight ? `${currentFlight.from.code} → ${currentFlight.to.code}` : "All Years"}
-                </span>
-                <span className="sub">
-                  {currentFlight ? `${currentFlight.from.city} → ${currentFlight.to.city}` : (playing ? "Replaying…" : "Press play to fly through your flights")}
-                </span>
-              </div>
-              <div className="tl-track">
-                <div className="tl-line" /><div className="tl-fill" style={{ width: `${progress * 100}%` }} />
-              </div>
-            </div>
-          </section>
         </React.Fragment>
       ) : (
         /* ---------- NORMAL MODE ---------- */
@@ -445,9 +387,8 @@ function App() {
 
           {/* Panels */}
           <window.FlightLog
-            flights={replayIdx != null ? visibleFlights : yearFlights}
+            flights={yearFlights}
             selectedId={selectedId}
-            currentId={currentFlight ? currentFlight.id : null}
             onSelect={handleSelect}
             onAddFlight={() => setModal("add")}
             syncing={syncStatus === "syncing"}
@@ -484,12 +425,7 @@ function App() {
             years={YEARS}
             activeYear={activeYear}
             onYear={handleYear}
-            playing={playing}
-            onTogglePlay={() => setPlaying((p) => !p)}
             progress={progress}
-            replayFlight={currentFlight}
-            replayCount={replayIdx != null ? replayIdx + 1 : null}
-            total={chrono.length}
           />
         </React.Fragment>
       )}
