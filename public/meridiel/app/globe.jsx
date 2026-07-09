@@ -236,18 +236,36 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
 
     world.pointOfView({ lat: 22, lng: -40, altitude: 2.6 }, 0);
 
-    // vintage land polygons
-    fetch(COUNTRIES_URL)
-      .then((r) => r.json())
-      .then((geo) => {
-        world
-          .polygonsData(geo.features.filter((f) => f.properties.ISO_A2 !== "AQ"))
-          .polygonCapColor(() => palRef.current.land)
-          .polygonSideColor(() => "rgba(120,95,55,0.25)")
-          .polygonStrokeColor(() => palRef.current.landEdge)
-          .polygonAltitude(0.008);
-      })
-      .catch(() => {});
+    // vintage land polygons — cached in localStorage after the first success.
+    // The countries GeoJSON, airports.dat and airlines.dat all download from
+    // raw.githubusercontent.com at startup; if that burst gets rate-limited the
+    // land fetch can fail, and swallowing it would leave the globe with an ocean
+    // and no continents. Caching means land shows instantly (and forever) after
+    // one good load, and a single retry covers a transient first-load miss.
+    const LAND_CACHE_KEY = "fa-land-geojson-v1";
+    const drawLand = (features) => {
+      world
+        .polygonsData(features.filter((f) => f.properties && f.properties.ISO_A2 !== "AQ"))
+        .polygonCapColor(() => palRef.current.land)
+        .polygonSideColor(() => "rgba(120,95,55,0.25)")
+        .polygonStrokeColor(() => palRef.current.landEdge)
+        .polygonAltitude(0.008);
+    };
+    const fetchLand = (attempt) => {
+      fetch(COUNTRIES_URL)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))))
+        .then((geo) => {
+          drawLand(geo.features);
+          try { localStorage.setItem(LAND_CACHE_KEY, JSON.stringify(geo.features)); } catch (e) { /* storage full — fine */ }
+        })
+        .catch(() => { if (attempt < 2) setTimeout(() => fetchLand(attempt + 1), 1400); });
+    };
+    let drewLandFromCache = false;
+    try {
+      const cachedLand = localStorage.getItem(LAND_CACHE_KEY);
+      if (cachedLand) { drawLand(JSON.parse(cachedLand)); drewLandFromCache = true; }
+    } catch (e) { /* corrupt cache — fetch fresh */ }
+    if (!drewLandFromCache) fetchLand(0);
 
     globeRef.current = world;
     window.__GLOBE = world;

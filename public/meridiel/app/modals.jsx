@@ -94,17 +94,40 @@ window.ShareModal = ShareModal;
 /* ---------- Add / Edit Flight modal ----------
    Pass `initial` (an existing flight) to edit it in place; omit it to add a new one. */
 
+// The OpenFlights merge can add thousands of airports/airlines at runtime, so
+// rebuilding lowercase "haystacks" for the whole dataset on every keystroke
+// gets expensive. Cache an index per dataset and only rebuild it once the
+// dataset's size actually changes (i.e. once, right after the async merge
+// lands) rather than on every render/keystroke.
+let airportIndexCache = null, airportIndexSize = -1;
+function airportIndex() {
+  const codes = Object.keys(window.ATLAS.AIRPORTS);
+  if (airportIndexCache && airportIndexSize === codes.length) return airportIndexCache;
+  airportIndexCache = codes.map((code) => {
+    const a = window.ATLAS.AIRPORTS[code];
+    return { code, codeLower: code.toLowerCase(), hay: `${code} ${a.city} ${a.name} ${a.country}`.toLowerCase() };
+  });
+  airportIndexSize = codes.length;
+  return airportIndexCache;
+}
+
+let airlineIndexCache = null, airlineIndexSize = -1;
+function airlineIndex() {
+  const list = window.ATLAS.AIRLINES;
+  if (airlineIndexCache && airlineIndexSize === list.length) return airlineIndexCache;
+  airlineIndexCache = list.map((a) => ({ a, codeLower: a.code.toLowerCase(), nameLower: a.name.toLowerCase() }));
+  airlineIndexSize = list.length;
+  return airlineIndexCache;
+}
+
 // Airport suggestions: match the code prefix or a substring of city/name/country.
 function searchAirports(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-  const codes = Object.keys(window.ATLAS.AIRPORTS);
   const starts = [], contains = [];
-  codes.forEach((code) => {
-    const a = window.ATLAS.AIRPORTS[code];
-    const hay = `${code} ${a.city} ${a.name} ${a.country}`.toLowerCase();
-    if (code.toLowerCase().startsWith(q)) starts.push(code);
-    else if (hay.includes(q)) contains.push(code);
+  airportIndex().forEach((entry) => {
+    if (entry.codeLower.startsWith(q)) starts.push(entry.code);
+    else if (entry.hay.includes(q)) contains.push(entry.code);
   });
   return [...starts, ...contains].slice(0, 8).map((code) => {
     const a = window.ATLAS.AIRPORTS[code];
@@ -118,9 +141,9 @@ function searchAirlines(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   const byCode = [], byName = [];
-  window.ATLAS.AIRLINES.forEach((a) => {
-    if (a.code.toLowerCase().startsWith(q)) byCode.push(a);
-    else if (a.name.toLowerCase().includes(q)) byName.push(a);
+  airlineIndex().forEach((entry) => {
+    if (entry.codeLower.startsWith(q)) byCode.push(entry.a);
+    else if (entry.nameLower.includes(q)) byName.push(entry.a);
   });
   return [...byCode, ...byName].slice(0, 8).map((a) => (
     { key: a.code, primary: a.name, secondary: a.code, commit: a.name }
