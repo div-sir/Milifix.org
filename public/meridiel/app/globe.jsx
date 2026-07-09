@@ -357,12 +357,16 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
   useEffect(() => {
     flightsRef.current = flights;
     const world = globeRef.current;
-    if (!world) return;
+    if (!world) {
+      console.warn("Meridiel: flights changed but the globe isn't initialized yet — arcs won't draw until it is", { count: flights.length });
+      return;
+    }
     // Only a truly unrecoverable entry (no valid code to look up either) is
     // dropped — globe.gl processes arcsData as one batch, so letting a bad
     // coordinate throw inside an accessor would blank out every arc on the
     // globe, not just the bad one.
     const valid = flights.map(sanitizeFlight).filter(Boolean);
+    console.log(`Meridiel: globe received ${flights.length} flight(s), drawing ${valid.length} arc(s)`);
     world.arcsData(valid);
     const seen = {};
     const pts = [];
