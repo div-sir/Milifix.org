@@ -4,19 +4,24 @@
 const { useMemo: useMemoP } = React;
 
 /* ---------- Flight Log (left) ---------- */
-function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, className }) {
+// While a Drive sync is in flight (initial pull/merge on sign-in, or an
+// immediate push right after an edit), editing is locked — an edit made
+// mid-sync could race an in-flight network response and get clobbered by a
+// stale one landing after it. The overlay makes that wait visible instead
+// of leaving the log clickable but silently unsafe to touch.
+function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, syncing, className }) {
   return (
     <section className={"panel log paper-tex " + (className || "")}>
       <div className="panel-head">
         <h3>Flight Log</h3>
         <span className="count">{flights.length} segments</span>
       </div>
-      <div className="log-list">
+      <div className={"log-list" + (syncing ? " log-list--locked" : "")}>
         {flights.map((f) => (
           <div
             key={f.id}
             className={"log-row" + (f.id === selectedId ? " active" : "") + (f.id === currentId ? " now" : "")}
-            onClick={() => onSelect(f.id)}
+            onClick={() => !syncing && onSelect(f.id)}
           >
             {f.id === currentId && <span className="lr-now">NOW FLYING</span>}
             {f.fav && f.id !== currentId && <span className="lr-fav">★</span>}
@@ -32,11 +37,16 @@ function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, clas
         ))}
         {/* Always-present closing CTA — gives a short log somewhere to land
             instead of trailing off into blank panel space. */}
-        <button className="log-add-hint" onClick={onAddFlight}>
+        <button className="log-add-hint" onClick={onAddFlight} disabled={syncing}>
           <window.Icon.plus />
           {flights.length === 0 ? "Log your first flight" : "Add your next flight"}
         </button>
       </div>
+      {syncing && (
+        <div className="log-sync-veil">
+          <span className="log-sync-spin" />
+        </div>
+      )}
     </section>
   );
 }
@@ -95,7 +105,7 @@ function StatsRail({ flights, allFlights, className }) {
 window.StatsRail = StatsRail;
 
 /* ---------- Flight Detail (replaces rail when a flight is picked) ---------- */
-function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, className }) {
+function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, className }) {
   if (!flight) return null;
   const f = flight;
   const remove = () => {
@@ -108,13 +118,13 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, className
       <div className="panel-head" style={{ background: "var(--paper-3)" }}>
         <h3>Boarding Pass</h3>
         <div style={{ display: "flex", gap: 6 }}>
-          <button className="icon-btn" onClick={() => onEdit(f)} title="Edit flight" style={{ width: 30, height: 30 }}>
+          <button className="icon-btn icon-btn-sm" onClick={() => onEdit(f)} title="Edit flight" disabled={syncing}>
             <window.Icon.edit />
           </button>
-          <button className="icon-btn" onClick={remove} title="Delete flight" style={{ width: 30, height: 30 }}>
+          <button className="icon-btn icon-btn-sm" onClick={remove} title="Delete flight" disabled={syncing}>
             <window.Icon.trash />
           </button>
-          <button className="icon-btn" onClick={onClose} style={{ width: 30, height: 30 }}>
+          <button className="icon-btn icon-btn-sm" onClick={onClose}>
             <window.Icon.x />
           </button>
         </div>
@@ -139,7 +149,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, className
         </div>
 
         <figure className="detail-photo">
-          <window.ImageSlotMaybe flight={f} onSetPhoto={onSetPhoto} />
+          <window.ImageSlotMaybe flight={f} onSetPhoto={onSetPhoto} disabled={syncing} />
         </figure>
 
         <div className="detail-rows">
@@ -197,7 +207,7 @@ function compressImageFile(file, maxDim, quality) {
 /* Photo slot: click to add, or shows the photo with change/remove controls.
    Fully client-side — the compressed image is just a field on the flight,
    so it rides along with everything else that syncs to Drive/localStorage. */
-function ImageSlotMaybe({ flight, onSetPhoto }) {
+function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const inputRef = React.useRef(null);
@@ -226,10 +236,10 @@ function ImageSlotMaybe({ flight, onSetPhoto }) {
       <React.Fragment>
         <img className="detail-photo-img" src={flight.photo} alt="" />
         <div className="detail-photo-tools">
-          <button type="button" className="icon-btn" title="Change photo" onClick={pick} style={{ width: 30, height: 30 }}>
+          <button type="button" className="icon-btn icon-btn-sm" title="Change photo" onClick={pick} disabled={disabled}>
             <window.Icon.edit />
           </button>
-          <button type="button" className="icon-btn" title="Remove photo" onClick={remove} style={{ width: 30, height: 30 }}>
+          <button type="button" className="icon-btn icon-btn-sm" title="Remove photo" onClick={remove} disabled={disabled}>
             <window.Icon.trash />
           </button>
         </div>
@@ -239,7 +249,7 @@ function ImageSlotMaybe({ flight, onSetPhoto }) {
   }
 
   return (
-    <button type="button" className="detail-photo-add" onClick={pick} disabled={busy}>
+    <button type="button" className="detail-photo-add" onClick={pick} disabled={busy || disabled}>
       <window.Icon.plus />
       <span>{busy ? "Processing…" : error || `${flight.to.city} · add a photo`}</span>
       <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />

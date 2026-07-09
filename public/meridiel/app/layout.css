@@ -84,6 +84,21 @@
 /* ---- Flight log (left) ---- */
 .log { left: 22px; top: 76px; bottom: 122px; width: 332px; }
 .log-list { overflow-y: auto; flex: 1; padding: 6px; }
+.log-list--locked { pointer-events: none; opacity: 0.45; filter: saturate(0.7); transition: opacity .15s ease; }
+
+/* Locks the log while a Drive sync is in flight, so an edit can't race an
+   in-flight request. Semi-transparent (not opaque) so the list stays
+   readable underneath instead of just blanking out. */
+.log-sync-veil {
+  position: absolute; inset: 0; z-index: 25;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,0.03);
+}
+.log-sync-spin {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid rgba(120,95,55,0.2); border-top-color: var(--ochre);
+  animation: spin 0.8s linear infinite;
+}
 .log-row {
   display: grid; grid-template-columns: 1fr auto; gap: 4px 10px;
   padding: 11px 11px; cursor: pointer; position: relative;
@@ -367,9 +382,15 @@
 
 /* ================= Responsive ================= */
 @media (max-width: 900px) {
-  .log { left: 12px; right: 12px; width: auto; top: auto; bottom: 118px; height: 38vh; }
+  /* .log and .mobile-tabs both used to anchor off the same `bottom: 118px`
+     line — since .log grew *upward* from there, the floating tab pill sat
+     directly on top of the log panel's own bottom edge, covering whatever
+     row (or the "add flight" button) happened to land underneath it.
+     Anchoring both edges (top + bottom) instead of top + a vh-based height
+     guarantees real clearance above the tabs regardless of viewport height. */
+  .log { left: 12px; right: 12px; width: auto; top: 70px; bottom: 170px; height: auto; }
   .log.hidden-mobile { display: none; }
-  .rail { left: 12px; right: 12px; width: auto; top: 70px; bottom: auto; max-height: 44vh; }
+  .rail { left: 12px; right: 12px; width: auto; top: 70px; bottom: 170px; max-height: none; }
   .rail.hidden-mobile { display: none; }
   .timeline { left: 10px; right: 10px; bottom: 10px; padding: 0 12px; gap: 10px; }
   /* Bigger tap target for year ticks (WCAG ~44px) without changing the visible dot size */

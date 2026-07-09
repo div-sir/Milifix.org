@@ -176,6 +176,16 @@ html, body {
   transition: all .18s ease;
 }
 .icon-btn:hover { background: var(--ink); color: var(--paper); }
+.icon-btn:disabled { opacity: 0.45; cursor: default; pointer-events: none; }
+
+/* Boarding Pass header/photo controls read fine at 30px on a mouse, but
+   that's below the ~44px touch target guideline — and Delete is
+   destructive, so a mistap there matters more than most. Bumped back up
+   on touch-sized screens only; desktop keeps the tighter, denser look. */
+.icon-btn-sm { width: 30px; height: 30px; }
+@media (max-width: 900px) {
+  .icon-btn-sm { width: 38px; height: 38px; }
+}
 
 /* Perforated edge (boarding-pass divider) */
 .perf {
