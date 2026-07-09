@@ -16,12 +16,37 @@
   var SCOPES = "openid email profile https://www.googleapis.com/auth/drive.appdata";
   var FILE_NAME = "meridiel-flights.json";
 
+  var TOKEN_CACHE_KEY = "fa-gtoken";
+
   var tokenClient = null;
-  var token = null;   // { access_token, expires_at }
   var fileId = null;  // cached Drive file id
   var pending = null; // { resolve, reject } for the in-flight token request
 
   function now() { return Date.now(); }
+
+  // The access token only ever lived in a JS variable, so a plain page
+  // reload — not just closing the tab — threw it away and forced a fresh
+  // silent refresh every single time. Google's silent ("prompt: none")
+  // refresh depends on a hidden iframe that many browsers now block by
+  // default (Safari ITP, Chrome's third-party-cookie phase-out), so on an
+  // affected browser *every* reload could show "offline" even though the
+  // user is genuinely signed in. Caching in sessionStorage means a valid
+  // token survives reloads within the tab, so silent refresh is only
+  // needed once per real expiry (~1hr) instead of once per page load.
+  function loadCachedToken() {
+    try {
+      var t = JSON.parse(sessionStorage.getItem(TOKEN_CACHE_KEY) || "null");
+      if (t && t.access_token && t.expires_at > now()) return t;
+    } catch (e) { /* corrupt cache — ignore */ }
+    return null;
+  }
+  function cacheToken(t) {
+    try {
+      if (t) sessionStorage.setItem(TOKEN_CACHE_KEY, JSON.stringify(t));
+      else sessionStorage.removeItem(TOKEN_CACHE_KEY);
+    } catch (e) { /* storage full/private mode — fine, just won't persist */ }
+  }
+  var token = loadCachedToken(); // { access_token, expires_at }
 
   // The GIS script tag loads `async`, so it can still be mid-flight when the
   // app mounts and (for a returning, already-signed-in user) immediately
@@ -60,6 +85,7 @@
             access_token: resp.access_token,
             expires_at: now() + ((resp.expires_in || 3600) - 60) * 1000,
           };
+          cacheToken(token);
           p.resolve(resp.access_token);
         } else {
           p.reject(resp || new Error("no-token"));
@@ -92,9 +118,19 @@
     });
   }
 
+  // Tags a silent-refresh failure so the UI can offer a one-tap "reconnect"
+  // (an interactive sign-in, which works even when the browser blocks the
+  // hidden iframe silent refresh needs) instead of a generic, unhelpful
+  // "offline" that looks like a network problem.
   function getToken() {
     if (token && token.expires_at > now()) return Promise.resolve(token.access_token);
-    return requestToken(false);
+    return requestToken(false).catch(function (e) {
+      console.error("Meridiel: silent Google sign-in refresh failed —", e);
+      var err = new Error("reauth-required");
+      err.code = "reauth-required";
+      err.cause = e;
+      throw err;
+    });
   }
 
   // fetch with a valid bearer token; on a 401 refresh once and retry.
@@ -105,6 +141,7 @@
       return fetch(url, Object.assign({}, opts, { headers: headers })).then(function (r) {
         if (r.status !== 401) return r;
         token = null;
+        cacheToken(null);
         return getToken().then(function (at2) {
           var h2 = Object.assign({}, opts.headers, { Authorization: "Bearer " + at2 });
           return fetch(url, Object.assign({}, opts, { headers: h2 }));
@@ -117,7 +154,14 @@
     if (fileId) return Promise.resolve(fileId);
     var q = encodeURIComponent("name='" + FILE_NAME + "'");
     var url = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)&q=" + q;
-    return driveFetch(url).then(function (r) { return r.json(); }).then(function (j) {
+    // A non-ok response (e.g. Drive API not enabled, or a scope/permission
+    // error) used to get parsed as JSON anyway; its error body has no
+    // `.files`, so this silently read as "no file yet" instead of a real
+    // failure — masking a broken sync as a fresh first run.
+    return driveFetch(url).then(function (r) {
+      if (!r.ok) return Promise.reject(new Error("drive list " + r.status));
+      return r.json();
+    }).then(function (j) {
       if (j && j.files && j.files.length) fileId = j.files[0].id;
       return fileId;
     });
