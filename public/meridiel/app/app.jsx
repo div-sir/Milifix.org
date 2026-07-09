@@ -450,6 +450,7 @@ function App() {
             currentId={currentFlight ? currentFlight.id : null}
             onSelect={handleSelect}
             onAddFlight={() => setModal("add")}
+            syncing={syncStatus === "syncing"}
             className={mobileTab === "log" ? "" : "hidden-mobile"}
           />
 
@@ -460,6 +461,7 @@ function App() {
               onEdit={(f) => { setEditingFlight(f); setModal("edit"); }}
               onDelete={deleteFlight}
               onSetPhoto={setFlightPhoto}
+              syncing={syncStatus === "syncing"}
               className={mobileTab === "stats" || mobileTab === "globe" ? "" : "hidden-mobile"}
             />
           ) : (
