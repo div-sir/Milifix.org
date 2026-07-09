@@ -23,6 +23,29 @@
 
   function now() { return Date.now(); }
 
+  // The GIS script tag loads `async`, so it can still be mid-flight when the
+  // app mounts and (for a returning, already-signed-in user) immediately
+  // tries a silent token refresh. Without this wait, that first request sees
+  // `window.google` not there yet and fails instantly — showing "offline"
+  // even though the user really is signed in and GIS finishes loading a
+  // moment later.
+  function waitForGis(timeoutMs) {
+    timeoutMs = timeoutMs || 8000;
+    return new Promise(function (resolve, reject) {
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) { resolve(); return; }
+      var start = now();
+      var iv = setInterval(function () {
+        if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+          clearInterval(iv);
+          resolve();
+        } else if (now() - start > timeoutMs) {
+          clearInterval(iv);
+          reject(new Error("gis-not-loaded"));
+        }
+      }, 150);
+    });
+  }
+
   function ensureClient() {
     if (tokenClient) return tokenClient;
     if (!(window.google && window.google.accounts && window.google.accounts.oauth2)) return null;
@@ -54,16 +77,18 @@
   // interactive=true → may show account chooser / consent.
   // interactive=false → silent refresh (fails if interaction is required).
   function requestToken(interactive) {
-    return new Promise(function (resolve, reject) {
-      var client = ensureClient();
-      if (!client) { reject(new Error("gis-not-loaded")); return; }
-      pending = { resolve: resolve, reject: reject };
-      try {
-        client.requestAccessToken(interactive ? {} : { prompt: "none" });
-      } catch (e) {
-        pending = null;
-        reject(e);
-      }
+    return waitForGis().then(function () {
+      return new Promise(function (resolve, reject) {
+        var client = ensureClient();
+        if (!client) { reject(new Error("gis-not-loaded")); return; }
+        pending = { resolve: resolve, reject: reject };
+        try {
+          client.requestAccessToken(interactive ? {} : { prompt: "none" });
+        } catch (e) {
+          pending = null;
+          reject(e);
+        }
+      });
     });
   }
 

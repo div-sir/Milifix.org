@@ -333,10 +333,20 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     flightsRef.current = flights;
     const world = globeRef.current;
     if (!world) return;
-    world.arcsData(flights);
+    // Drop anything malformed (e.g. an older-schema record missing its
+    // embedded from/to airport, or a corrupt cache/sync entry) instead of
+    // letting a bad coordinate throw inside a globe.gl accessor — globe.gl
+    // processes arcsData as one batch, so a single invalid entry can blank
+    // out every arc on the globe, not just the bad one.
+    const valid = flights.filter((f) =>
+      f && f.from && f.to &&
+      isFinite(f.from.lat) && isFinite(f.from.lng) &&
+      isFinite(f.to.lat) && isFinite(f.to.lng)
+    );
+    world.arcsData(valid);
     const seen = {};
     const pts = [];
-    flights.forEach((f) => {
+    valid.forEach((f) => {
       [f.from, f.to].forEach((p) => {
         if (!seen[p.code]) { seen[p.code] = 1; pts.push(p); }
       });
@@ -366,10 +376,9 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
          .arcDashAnimateTime(world.arcDashAnimateTime())
          .pointRadius(world.pointRadius());
 
-    if (focusFlight) {
+    if (focusFlight && focusFlight.from && focusFlight.to) {
       world.ringsData([focusFlight.from, focusFlight.to]);
-      const f = focusFlight;
-      flyAlongArc(f.from, f.to, f.km);
+      flyAlongArc(focusFlight.from, focusFlight.to, focusFlight.km);
     } else {
       world.ringsData([]);
     }
