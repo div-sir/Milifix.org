@@ -9,7 +9,7 @@ const { useMemo: useMemoP } = React;
 // mid-sync could race an in-flight network response and get clobbered by a
 // stale one landing after it. The overlay makes that wait visible instead
 // of leaving the log clickable but silently unsafe to touch.
-function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, syncing, className }) {
+function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, className }) {
   return (
     <section className={"panel log paper-tex " + (className || "")}>
       <div className="panel-head">
@@ -20,11 +20,10 @@ function FlightLog({ flights, selectedId, currentId, onSelect, onAddFlight, sync
         {flights.map((f) => (
           <div
             key={f.id}
-            className={"log-row" + (f.id === selectedId ? " active" : "") + (f.id === currentId ? " now" : "")}
+            className={"log-row" + (f.id === selectedId ? " active" : "")}
             onClick={() => !syncing && onSelect(f.id)}
           >
-            {f.id === currentId && <span className="lr-now">NOW FLYING</span>}
-            {f.fav && f.id !== currentId && <span className="lr-fav">★</span>}
+            {f.fav && <span className="lr-fav">★</span>}
             <div className="lr-route">
               <span>{f.from.code}</span>
               <span className="arrow">→</span>
@@ -258,45 +257,29 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
 }
 window.ImageSlotMaybe = ImageSlotMaybe;
 
-/* ---------- Timeline replay ---------- */
-function Timeline({ years, activeYear, onYear, playing, onTogglePlay, progress, replayFlight, replayCount, total }) {
-  const markYear = replayFlight ? replayFlight.year : activeYear;
+/* ---------- Timeline (year scrubber) ---------- */
+function Timeline({ years, activeYear, onYear, progress }) {
   return (
     <section className="panel timeline paper-tex">
-      <button className="tl-play" onClick={onTogglePlay} aria-label={playing ? "Pause" : "Play replay"}>
-        {playing ? <window.Icon.pause /> : <window.Icon.play />}
-      </button>
       <div className="tl-track-wrap">
         <div className="tl-meta">
-          {replayFlight ? (
-            <React.Fragment>
-              <span className="now">
-                {replayFlight.from.code} <span className="tl-arrow">→</span> {replayFlight.to.code}
-                <span className="tl-route-city">{replayFlight.from.city} → {replayFlight.to.city}</span>
-              </span>
-              <span className="sub">{window.fmtDate(replayFlight.date)} · {replayFlight.airline} · {replayCount}/{total}</span>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <span className="now">{activeYear ? activeYear : "All Years"}</span>
-              <span className="sub">{playing ? "Taking off…" : "Press play to fly flight-by-flight · or tap a year"}</span>
-            </React.Fragment>
-          )}
+          <span className="now">{activeYear ? activeYear : "All Years"}</span>
+          <span className="sub">Tap a year to filter, or ALL to see everything</span>
         </div>
         <div className="tl-track">
           <div className="tl-line" />
           <div className="tl-fill" style={{ width: `${progress * 100}%` }} />
           <div className="tl-ticks">
             <button
-              className={"tl-tick" + (!markYear ? " current" : "")}
+              className={"tl-tick" + (!activeYear ? " current" : "")}
               onClick={() => onYear(null)}
             >
               <span className="tl-node" />
               <span className="yr">ALL</span>
             </button>
             {years.map((y) => {
-              const done = markYear && y < markYear;
-              const cur = y === markYear;
+              const done = activeYear && y < activeYear;
+              const cur = y === activeYear;
               return (
                 <button
                   key={y}
