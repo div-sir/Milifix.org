@@ -14,6 +14,21 @@ function loadFlights() {
   try { return JSON.parse(localStorage.getItem("fa-flights") || "[]"); } catch (e) { return []; }
 }
 
+// Union two flight lists by id instead of letting one side clobber the
+// other — so a flight added on this device while signed out (or on another
+// device) survives a sign-in instead of being overwritten by whichever copy
+// happened to load last. Ties (same id on both sides) go to whichever copy
+// was edited more recently, via the `updatedAt` stamp set on add/edit.
+function mergeByFlightId(local, cloud) {
+  const byId = new Map();
+  (cloud || []).forEach((f) => byId.set(f.id, f));
+  (local || []).forEach((f) => {
+    const existing = byId.get(f.id);
+    if (!existing || (f.updatedAt || 0) > (existing.updatedAt || 0)) byId.set(f.id, f);
+  });
+  return [...byId.values()];
+}
+
 /* ---------- theme toggle: circular reveal from the click point, matching the rest of milifix.org ---------- */
 function setThemeTransitionOrigin(ev) {
   const x = ev && Number.isFinite(ev.clientX) && ev.clientX >= 0 ? ev.clientX : window.innerWidth / 2;
@@ -77,7 +92,7 @@ function App() {
     setSyncStatus("syncing");
     window.MeridielStore.load().then((data) => {
       if (cancelled) return;
-      if (Array.isArray(data)) setExtra(data);
+      if (Array.isArray(data)) setExtra((local) => mergeByFlightId(local, data));
       else window.MeridielStore.save(extraRef.current).catch(() => {});
       cloudLoaded.current = true;
       setSyncStatus("synced");
@@ -198,6 +213,7 @@ function App() {
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
       km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
+      updatedAt: Date.now(),
     };
     setExtra((e) => [...e, f]);
   };
@@ -213,6 +229,7 @@ function App() {
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
       km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
+      updatedAt: Date.now(),
     }));
   };
 
@@ -225,7 +242,7 @@ function App() {
   // cache the same as everything else in `extra`, since it's just a field
   // on the flight object.
   const setFlightPhoto = (id, dataUrl) => {
-    setExtra((e) => e.map((f) => (f.id !== id ? f : { ...f, photo: dataUrl || undefined })));
+    setExtra((e) => e.map((f) => (f.id !== id ? f : { ...f, photo: dataUrl || undefined, updatedAt: Date.now() })));
   };
 
   // present mode → spin, no selection
