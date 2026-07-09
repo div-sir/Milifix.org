@@ -4,8 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Meridiel — Where I've Flown</title>
-  <link rel="stylesheet" href="app/styles.css" />
-  <link rel="stylesheet" href="app/layout.css" />
+  <!-- ?v= busts browser/CDN caching of these same-origin files on every deploy
+       that touches them — plain filenames with no content hash otherwise risk
+       a returning visitor's browser serving a stale cached copy indefinitely.
+       Bump this whenever app/*.css or app/*.js|jsx changes. -->
+  <link rel="stylesheet" href="app/styles.css?v=20260709" />
+  <link rel="stylesheet" href="app/layout.css?v=20260709" />
 
   <!-- Globe (open-source, no token) — globe.gl bundles its own Three.js -->
   <script src="https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js"></script>
@@ -26,15 +30,15 @@
   <div id="root"></div>
 
   <!-- data first (plain JS) -->
-  <script src="app/data.js"></script>
+  <script src="app/data.js?v=20260709"></script>
   <!-- Google auth + Drive appData storage (plain JS, needs GIS loaded) -->
-  <script src="app/store.js"></script>
+  <script src="app/store.js?v=20260709"></script>
   <!-- React components (babel) -->
-  <script type="text/babel" src="app/components.jsx"></script>
-  <script type="text/babel" src="app/globe.jsx"></script>
-  <script type="text/babel" src="app/panels.jsx"></script>
-  <script type="text/babel" src="app/modals.jsx"></script>
-  <script type="text/babel" src="app/login.jsx"></script>
-  <script type="text/babel" src="app/app.jsx"></script>
+  <script type="text/babel" src="app/components.jsx?v=20260709"></script>
+  <script type="text/babel" src="app/globe.jsx?v=20260709"></script>
+  <script type="text/babel" src="app/panels.jsx?v=20260709"></script>
+  <script type="text/babel" src="app/modals.jsx?v=20260709"></script>
+  <script type="text/babel" src="app/login.jsx?v=20260709"></script>
+  <script type="text/babel" src="app/app.jsx?v=20260709"></script>
 </body>
 </html>
