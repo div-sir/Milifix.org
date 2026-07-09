@@ -775,6 +775,17 @@
   const AIRPORTS_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat";
   const AIRPORTS_CACHE_KEY = "fa-airports-db-v1";
 
+  // Push a non-critical network fetch off the startup critical path. The
+  // globe also fetches its land polygons from raw.githubusercontent.com, and
+  // firing the two OpenFlights downloads at the same instant can get the
+  // whole burst rate-limited — which would silently leave the globe with no
+  // land. The curated lists already work immediately, so there's no downside
+  // to letting the globe's land load first and running these when idle.
+  function deferIdle(fn) {
+    if (typeof requestIdleCallback === "function") requestIdleCallback(fn, { timeout: 3000 });
+    else setTimeout(fn, 1200);
+  }
+
   function parseCsvLine(line) {
     const out = [];
     let field = "", inQuotes = false;
@@ -852,13 +863,13 @@
       if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return; }
     } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
 
-    fetch(AIRPORTS_DB_URL)
+    deferIdle(() => fetch(AIRPORTS_DB_URL)
       .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
       .then((text) => mergeAirportRows(text))
       .then((added) => {
         try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
       })
-      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
+      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ }));
   }
   loadFullAirportDatabase();
 
@@ -899,13 +910,13 @@
       }
     } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
 
-    fetch(AIRLINES_DB_URL)
+    deferIdle(() => fetch(AIRLINES_DB_URL)
       .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
       .then((text) => mergeAirlineRows(text))
       .then((added) => {
         try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
       })
-      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
+      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ }));
   }
   loadFullAirlineDatabase();
 
