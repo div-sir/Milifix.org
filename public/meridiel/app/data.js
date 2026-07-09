@@ -797,26 +797,53 @@
     return out;
   }
 
+  // Processes a big line array in small time-boxed slices (via
+  // requestIdleCallback, falling back to setTimeout where it's unavailable,
+  // e.g. Safari) so parsing several thousand CSV rows never blocks the main
+  // thread for more than a few ms at a stretch — measured ~50ms if done in
+  // one synchronous pass, enough to visibly stutter the globe/animations.
+  function processLinesChunked(lines, perLine) {
+    return new Promise((resolve) => {
+      let i = 0;
+      const now = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
+      const schedule = typeof requestIdleCallback === "function"
+        ? (cb) => requestIdleCallback(cb, { timeout: 200 })
+        : (cb) => setTimeout(cb, 0);
+      function step() {
+        const start = now();
+        while (i < lines.length) {
+          perLine(lines[i]);
+          i++;
+          if (now() - start > 6) break; // yield back after ~6ms of work
+        }
+        if (i < lines.length) schedule(step);
+        else resolve();
+      }
+      schedule(step);
+    });
+  }
+
   // Parses OpenFlights' airports.dat rows (id,name,city,country,iata,icao,
   // lat,lng,alt,tz,dst,tzdb,type,source), keeping only codes we don't
-  // already have. Returns just the added entries (what gets cached).
+  // already have. Resolves with just the added entries (what gets cached).
   function mergeAirportRows(text) {
     const added = {};
     const lines = text.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
+    return processLinesChunked(lines, (rawLine) => {
+      const line = rawLine.trim();
+      if (!line) return;
       const row = parseCsvLine(line);
       const iata = row[4];
-      if (!/^[A-Z]{3}$/.test(iata) || AIRPORTS[iata]) continue;
-      if (row[12] && row[12] !== "airport") continue;
+      if (!/^[A-Z]{3}$/.test(iata) || AIRPORTS[iata]) return;
+      if (row[12] && row[12] !== "airport") return;
       const lat = parseFloat(row[6]), lng = parseFloat(row[7]);
-      if (!isFinite(lat) || !isFinite(lng)) continue;
+      if (!isFinite(lat) || !isFinite(lng)) return;
       const country = row[3] || "";
       added[iata] = { city: row[2] || iata, name: row[1] || iata, country, cc: COUNTRY_ISO[country] || "", lat, lng };
-    }
-    Object.assign(AIRPORTS, added);
-    return added;
+    }).then(() => {
+      Object.assign(AIRPORTS, added);
+      return added;
+    });
   }
 
   function loadFullAirportDatabase() {
@@ -827,8 +854,8 @@
 
     fetch(AIRPORTS_DB_URL)
       .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-      .then((text) => {
-        const added = mergeAirportRows(text);
+      .then((text) => mergeAirportRows(text))
+      .then((added) => {
         try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
       })
       .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
@@ -847,18 +874,19 @@
     const added = [];
     const seen = new Set(AIRLINES.map((a) => a.code));
     const lines = text.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
+    return processLinesChunked(lines, (rawLine) => {
+      const line = rawLine.trim();
+      if (!line) return;
       const row = parseCsvLine(line);
       // id,name,alias,iata,icao,callsign,country,active
       const iata = row[3], active = row[7];
-      if (active !== "Y" || !/^[A-Z0-9]{2}$/.test(iata) || seen.has(iata)) continue;
+      if (active !== "Y" || !/^[A-Z0-9]{2}$/.test(iata) || seen.has(iata)) return;
       seen.add(iata);
       added.push({ code: iata, name: row[1] || iata });
-    }
-    added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
-    return added;
+    }).then(() => {
+      added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+      return added;
+    });
   }
 
   function loadFullAirlineDatabase() {
@@ -873,8 +901,8 @@
 
     fetch(AIRLINES_DB_URL)
       .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-      .then((text) => {
-        const added = mergeAirlineRows(text);
+      .then((text) => mergeAirlineRows(text))
+      .then((added) => {
         try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
       })
       .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
