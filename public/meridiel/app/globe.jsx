@@ -344,7 +344,12 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     if (!f) return null;
     const from = repairEndpoint(f.from, f.o || (f.from && f.from.code));
     const to = repairEndpoint(f.to, f.d || (f.to && f.to.code));
-    if (!from || !to) return null;
+    if (!from || !to) {
+      // Genuinely unrecoverable — logged so a report of "an arc is missing"
+      // has something concrete to check instead of silently vanishing.
+      console.warn("Meridiel: dropping a flight with no usable coordinates", f);
+      return null;
+    }
     return from === f.from && to === f.to ? f : { ...f, from, to };
   };
 
