@@ -109,17 +109,17 @@ function App() {
     return () => { cancelled = true; };
   }, [account]);
 
-  // Always cache locally; debounce-push to Drive once the cloud copy is loaded.
+  // Always cache locally; push to Drive right away once the cloud copy is
+  // loaded. Each add/edit/delete/photo change is one discrete user action —
+  // not continuous typing — so there's nothing to debounce; every change
+  // gets its own sync instead of waiting on an artificial delay.
   useEffectA(() => {
     localStorage.setItem("fa-flights", JSON.stringify(extra));
     if (!cloudLoaded.current || !cloudSync) return;
     setSyncStatus("syncing");
-    const t = setTimeout(() => {
-      window.MeridielStore.save(extra)
-        .then(() => setSyncStatus("synced"))
-        .catch((e) => setSyncStatus(statusForSyncError(e)));
-    }, 800);
-    return () => clearTimeout(t);
+    window.MeridielStore.save(extra)
+      .then(() => setSyncStatus("synced"))
+      .catch((e) => setSyncStatus(statusForSyncError(e)));
   }, [extra]);
 
   // Manual reconnect: an interactive sign-in works even when the browser
@@ -406,7 +406,11 @@ function App() {
                   {cloudSync && (
                     <div className={"am-sync am-sync--" + syncStatus}>
                       {syncStatus === "synced" ? "✓ Synced to Google Drive"
-                        : syncStatus === "syncing" ? "Syncing to Google Drive…"
+                        : syncStatus === "syncing" ? (
+                            <React.Fragment>
+                              <span className="am-sync-spin" /> Syncing to Google Drive…
+                            </React.Fragment>
+                          )
                         : syncStatus === "reauth" ? (
                             <button type="button" className="am-sync-reconnect" onClick={reconnectSync}>
                               ⟲ Reconnect Google Drive
