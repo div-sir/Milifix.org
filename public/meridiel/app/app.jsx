@@ -406,7 +406,11 @@ function App() {
                   {cloudSync && (
                     <div className={"am-sync am-sync--" + syncStatus}>
                       {syncStatus === "synced" ? "✓ Synced to Google Drive"
-                        : syncStatus === "syncing" ? "Syncing to Google Drive…"
+                        : syncStatus === "syncing" ? (
+                            <React.Fragment>
+                              <span className="am-sync-spin" /> Syncing to Google Drive…
+                            </React.Fragment>
+                          )
                         : syncStatus === "reauth" ? (
                             <button type="button" className="am-sync-reconnect" onClick={reconnectSync}>
                               ⟲ Reconnect Google Drive
