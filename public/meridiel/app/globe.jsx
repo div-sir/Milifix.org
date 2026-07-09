@@ -198,7 +198,7 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       .onPointClick((d) => {
         // clicking an airport highlights the first connected flight
         const match = flightsRef.current.find(
-          (f) => f.from.code === d.code || f.to.code === d.code
+          (f) => (f.from && f.from.code) === d.code || (f.to && f.to.code) === d.code
         );
         if (match) onSelect && onSelect(match.id);
       });
@@ -206,7 +206,8 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     function focusEnd(i) {
       const f = flightsRef.current.find((x) => x.id === focusRef.current);
       if (!f) return null;
-      return i === 0 ? f.from.code : f.to.code;
+      const p = i === 0 ? f.from : f.to;
+      return p ? p.code : null;
     }
 
     // rings for the focused endpoints
@@ -328,21 +329,35 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       .polygonStrokeColor(() => P.landEdge);
   }, [theme]);
 
+  // A flight's from/to should always carry valid coordinates (embedded at
+  // add-time), but if one somehow doesn't — an older-schema record, a
+  // partial sync — re-derive it from the current airport database via its
+  // code rather than just dropping the flight outright. Losing a whole
+  // route from the globe because of a recoverable data gap was worse than
+  // the crash this was meant to prevent.
+  const repairEndpoint = (point, code) => {
+    if (point && isFinite(point.lat) && isFinite(point.lng)) return point;
+    const a = code && window.ATLAS.AIRPORTS[code];
+    return a ? { code, ...a } : null;
+  };
+  const sanitizeFlight = (f) => {
+    if (!f) return null;
+    const from = repairEndpoint(f.from, f.o || (f.from && f.from.code));
+    const to = repairEndpoint(f.to, f.d || (f.to && f.to.code));
+    if (!from || !to) return null;
+    return from === f.from && to === f.to ? f : { ...f, from, to };
+  };
+
   // ---- flights change ----
   useEffect(() => {
     flightsRef.current = flights;
     const world = globeRef.current;
     if (!world) return;
-    // Drop anything malformed (e.g. an older-schema record missing its
-    // embedded from/to airport, or a corrupt cache/sync entry) instead of
-    // letting a bad coordinate throw inside a globe.gl accessor — globe.gl
-    // processes arcsData as one batch, so a single invalid entry can blank
-    // out every arc on the globe, not just the bad one.
-    const valid = flights.filter((f) =>
-      f && f.from && f.to &&
-      isFinite(f.from.lat) && isFinite(f.from.lng) &&
-      isFinite(f.to.lat) && isFinite(f.to.lng)
-    );
+    // Only a truly unrecoverable entry (no valid code to look up either) is
+    // dropped — globe.gl processes arcsData as one batch, so letting a bad
+    // coordinate throw inside an accessor would blank out every arc on the
+    // globe, not just the bad one.
+    const valid = flights.map(sanitizeFlight).filter(Boolean);
     world.arcsData(valid);
     const seen = {};
     const pts = [];
@@ -376,9 +391,10 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
          .arcDashAnimateTime(world.arcDashAnimateTime())
          .pointRadius(world.pointRadius());
 
-    if (focusFlight && focusFlight.from && focusFlight.to) {
-      world.ringsData([focusFlight.from, focusFlight.to]);
-      flyAlongArc(focusFlight.from, focusFlight.to, focusFlight.km);
+    const focus = sanitizeFlight(focusFlight);
+    if (focus) {
+      world.ringsData([focus.from, focus.to]);
+      flyAlongArc(focus.from, focus.to, focus.km);
     } else {
       world.ringsData([]);
     }
