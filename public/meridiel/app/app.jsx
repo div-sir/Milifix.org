@@ -79,11 +79,20 @@ function App() {
 
   /* ---- flights (cached in this browser + synced to Google Drive) ---- */
   const [extra, setExtra] = useStateA(loadFlights);   // user-added flights
-  const [syncStatus, setSyncStatus] = useStateA("local"); // local | syncing | synced | offline
+  const [syncStatus, setSyncStatus] = useStateA("local"); // local | syncing | synced | offline | reauth
   const extraRef = useRefA(extra);
   const cloudLoaded = useRefA(false);
   extraRef.current = extra;
   const cloudSync = !!(window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
+
+  // A failed *silent* refresh (browser blocking the hidden iframe GIS needs,
+  // third-party cookies off, etc.) is tagged "reauth-required" by store.js —
+  // that's not "offline", it just needs one more click, so it gets its own
+  // status instead of being lumped in with a real network failure.
+  const statusForSyncError = (e) => {
+    console.error("Meridiel: Drive sync failed —", e);
+    return e && e.code === "reauth-required" ? "reauth" : "offline";
+  };
 
   // On sign-in, pull the atlas from Drive (or seed the cloud with local data).
   useEffectA(() => {
@@ -96,7 +105,7 @@ function App() {
       else window.MeridielStore.save(extraRef.current).catch(() => {});
       cloudLoaded.current = true;
       setSyncStatus("synced");
-    }).catch(() => { if (!cancelled) setSyncStatus("offline"); });
+    }).catch((e) => { if (!cancelled) setSyncStatus(statusForSyncError(e)); });
     return () => { cancelled = true; };
   }, [account]);
 
@@ -108,10 +117,27 @@ function App() {
     const t = setTimeout(() => {
       window.MeridielStore.save(extra)
         .then(() => setSyncStatus("synced"))
-        .catch(() => setSyncStatus("offline"));
+        .catch((e) => setSyncStatus(statusForSyncError(e)));
     }, 800);
     return () => clearTimeout(t);
   }, [extra]);
+
+  // Manual reconnect: an interactive sign-in works even when the browser
+  // blocks the silent refresh, since it's a real user gesture, not a hidden
+  // iframe. Re-runs the same pull-from-Drive flow afterwards.
+  const reconnectSync = () => {
+    if (!cloudSync || !window.MeridielAuth) return;
+    setSyncStatus("syncing");
+    window.MeridielAuth.signIn()
+      .then(() => window.MeridielStore.load())
+      .then((data) => {
+        if (Array.isArray(data)) setExtra((local) => mergeByFlightId(local, data));
+        else window.MeridielStore.save(extraRef.current).catch(() => {});
+        cloudLoaded.current = true;
+        setSyncStatus("synced");
+      })
+      .catch((e) => setSyncStatus(statusForSyncError(e)));
+  };
 
   const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
   const chrono = useMemoA(
@@ -381,6 +407,11 @@ function App() {
                     <div className={"am-sync am-sync--" + syncStatus}>
                       {syncStatus === "synced" ? "✓ Synced to Google Drive"
                         : syncStatus === "syncing" ? "Syncing to Google Drive…"
+                        : syncStatus === "reauth" ? (
+                            <button type="button" className="am-sync-reconnect" onClick={reconnectSync}>
+                              ⟲ Reconnect Google Drive
+                            </button>
+                          )
                         : syncStatus === "offline" ? "Offline · saved on this device"
                         : "Saved on this device"}
                     </div>

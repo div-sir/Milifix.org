@@ -500,6 +500,12 @@
 .acct-menu .am-sync { padding: 8px 15px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 1px solid var(--line-soft); }
 .acct-menu .am-sync--synced { color: var(--teal); }
 .acct-menu .am-sync--offline { color: var(--vermilion); }
+.acct-menu .am-sync--reauth { color: var(--ochre); padding: 0; border-bottom: 1px solid var(--line-soft); }
+.am-sync-reconnect {
+  width: 100%; text-align: left; padding: 8px 15px; background: transparent; border: none; cursor: pointer;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: inherit;
+}
+.am-sync-reconnect:hover { text-decoration: underline; }
 .acct-menu .am-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 15px; background: transparent; border: none; cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .acct-menu .am-item:hover { background: rgba(194,74,51,0.08); color: var(--ink); }
 .acct-menu .am-item + .am-item { border-top: 1px solid var(--line-soft); }
