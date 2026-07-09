@@ -82,7 +82,7 @@
 .panel-head .count { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
 
 /* ---- Flight log (left) ---- */
-.log { left: 22px; top: 76px; bottom: 122px; width: 332px; }
+.log { left: 22px; top: 76px; bottom: 22px; width: 332px; }
 .log-list { overflow-y: auto; flex: 1; padding: 6px; }
 .log-list--locked { pointer-events: none; opacity: 0.45; filter: saturate(0.7); transition: opacity .15s ease; }
 
@@ -133,7 +133,7 @@
 }
 
 /* ---- Right column ---- */
-.rail { right: 22px; top: 76px; bottom: 122px; width: 360px; }
+.rail { right: 22px; top: 76px; bottom: 22px; width: 360px; }
 .rail .panel-body { overflow-y: auto; flex: 1; }
 
 /* Stats grid */
@@ -210,26 +210,6 @@
   font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--ink-soft);
   white-space: pre-wrap;
 }
-
-/* ---- Timeline ---- */
-.timeline {
-  position: absolute; left: 22px; right: 22px; bottom: 16px; z-index: 25; height: 104px;
-  display: flex; flex-direction: row; align-items: center; gap: 18px; padding: 0 22px;
-}
-.tl-track-wrap { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.tl-meta { display: flex; justify-content: space-between; align-items: baseline; }
-.tl-meta .now { font-family: var(--sans); font-weight: 700; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; display: flex; align-items: baseline; gap: 8px; }
-.tl-meta .sub { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
-.tl-track { position: relative; height: 26px; display: flex; align-items: center; }
-.tl-line { position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px dashed var(--line); }
-.tl-fill { position: absolute; left: 0; top: 50%; border-top: 2.5px solid var(--vermilion); transition: width .5s ease; }
-.tl-ticks { position: relative; display: flex; justify-content: space-between; width: 100%; }
-.tl-tick { display: flex; flex-direction: column; align-items: center; cursor: pointer; background: none; border: none; padding: 0; }
-.tl-node { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); transition: all .2s ease; }
-.tl-tick.done .tl-node { background: var(--vermilion); border-color: var(--vermilion); }
-.tl-tick.current .tl-node { background: var(--ochre); border-color: var(--ink); transform: scale(1.5); }
-.tl-tick .yr { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); margin-top: 8px; }
-.tl-tick.current .yr, .tl-tick.done .yr { color: var(--ink); }
 
 /* ---- Modals ---- */
 .backdrop {
@@ -332,7 +312,7 @@
 
 /* ---- Present overlay ---- */
 .present-ui { position: absolute; z-index: 40; pointer-events: none; }
-.present-stats { left: 0; right: 0; bottom: 150px; display: flex; justify-content: center; gap: 0; }
+.present-stats { left: 0; right: 0; bottom: 54px; display: flex; justify-content: center; gap: 0; }
 .present-stats .ps {
   padding: 4px 26px; text-align: center; color: #F3EAD6;
   border-right: 1px solid rgba(243,234,214,0.25); text-shadow: 0 2px 14px rgba(8,16,20,0.85);
@@ -374,10 +354,6 @@
   .log.hidden-mobile { display: none; }
   .rail { left: 12px; right: 12px; width: auto; top: 70px; bottom: 170px; max-height: none; }
   .rail.hidden-mobile { display: none; }
-  .timeline { left: 10px; right: 10px; bottom: 10px; padding: 0 12px; gap: 10px; }
-  /* Bigger tap target for year ticks (WCAG ~44px) without changing the visible dot size */
-  .tl-tick { padding: 10px 4px; margin: -10px -4px; }
-  .tl-tick .yr { font-size: 9px; }
   .compass-wm { display: none; }
   .present-stats .ps .v { font-size: 28px; }
   .present-title b { font-size: 22px; }
@@ -521,14 +497,14 @@
 
 /* ================= PRESENT MODE — country flags ================= */
 .present-flags {
-  left: 0; right: 0; bottom: 246px; display: flex; flex-wrap: wrap; justify-content: center;
+  left: 0; right: 0; bottom: 150px; display: flex; flex-wrap: wrap; justify-content: center;
   gap: 9px; max-width: 720px; margin: 0 auto; padding: 0 24px;
 }
 .present-flags .flag { width: 30px; height: 30px; border-color: rgba(243,234,214,0.6); box-shadow: 0 3px 10px -4px rgba(0,0,0,0.6); }
 .present-flags .pf-label { width: 100%; text-align: center; font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: rgba(243,234,214,0.55); margin-bottom: 4px; }
 
 @media (max-width: 900px) {
-  .present-flags { bottom: 232px; }
+  .present-flags { bottom: 136px; }
   .present-flags .flag { width: 24px; height: 24px; }
   .login-card { padding: 28px 24px; }
 }

@@ -43,7 +43,6 @@ function supportsThemeViewTransition() {
 
 function App() {
   const ALL = window.ATLAS.FLIGHTS;
-  const YEARS = window.ATLAS.YEARS;
 
   /* ---- auth + theme ---- */
   const [account, setAccount] = useStateA(loadAccount);
@@ -141,7 +140,6 @@ function App() {
 
   const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
 
-  const [activeYear, setActiveYear] = useStateA(null);
   const [selectedId, setSelectedId] = useStateA(null);
   const [autoRotate, setAutoRotate] = useStateA(true);
   const [loading, setLoading] = useStateA(true);
@@ -151,16 +149,6 @@ function App() {
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
   const [pushToast, toastNode] = window.useToast();
 
-  const visibleFlights = useMemoA(() => {
-    if (!activeYear) return flightsAll;
-    return flightsAll.filter((f) => f.year <= activeYear);
-  }, [flightsAll, activeYear]);
-
-  const yearFlights = useMemoA(() => {
-    if (!activeYear) return flightsAll;
-    return flightsAll.filter((f) => f.year === activeYear);
-  }, [flightsAll, activeYear]);
-
   const selectedFlight = useMemoA(
     () => flightsAll.find((f) => f.id === selectedId) || null,
     [flightsAll, selectedId]
@@ -168,8 +156,6 @@ function App() {
 
   // single source of truth for the camera
   const focusFlight = selectedFlight;
-
-  const progress = activeYear ? (YEARS.indexOf(activeYear) + 1) / YEARS.length : 0;
 
   // ---- Globe ready ----
   const globeApiRef = useRefA(null);
@@ -182,11 +168,6 @@ function App() {
     setSelectedId((cur) => (cur === id ? null : id));
     setAutoRotate(false);
     if (window.innerWidth <= 900) setMobileTab("globe");
-  };
-
-  const handleYear = (y) => {
-    setActiveYear(y);
-    setSelectedId(null);
   };
 
   const addFlight = (form) => {
@@ -251,15 +232,15 @@ function App() {
     return <window.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} />;
   }
 
-  const liveStats = window.ATLAS.statsFor(visibleFlights);
-  const presentCountries = window.ATLAS.countryList(visibleFlights);
+  const liveStats = window.ATLAS.statsFor(flightsAll);
+  const presentCountries = window.ATLAS.countryList(flightsAll);
 
   return (
     <div className="app">
       {/* ---- Globe stage ---- */}
       <div className="stage">
         <window.GlobeView
-          flights={visibleFlights}
+          flights={flightsAll}
           selectedId={selectedId}
           onSelect={handleSelect}
           autoRotate={autoRotate}
@@ -387,7 +368,7 @@ function App() {
 
           {/* Panels */}
           <window.FlightLog
-            flights={yearFlights}
+            flights={flightsAll}
             selectedId={selectedId}
             onSelect={handleSelect}
             onAddFlight={() => setModal("add")}
@@ -407,7 +388,7 @@ function App() {
             />
           ) : (
             <window.StatsRail
-              flights={visibleFlights}
+              flights={flightsAll}
               allFlights={flightsAll}
               className={mobileTab === "stats" ? "" : "hidden-mobile"}
             />
@@ -419,14 +400,6 @@ function App() {
             <button className={mobileTab === "globe" ? "on" : ""} onClick={() => setMobileTab("globe")}>Globe</button>
             <button className={mobileTab === "stats" ? "on" : ""} onClick={() => setMobileTab("stats")}>Stats</button>
           </div>
-
-          {/* Timeline */}
-          <window.Timeline
-            years={YEARS}
-            activeYear={activeYear}
-            onYear={handleYear}
-            progress={progress}
-          />
         </React.Fragment>
       )}
 
