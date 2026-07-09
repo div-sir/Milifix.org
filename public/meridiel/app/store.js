@@ -25,25 +25,29 @@
   function now() { return Date.now(); }
 
   // The access token only ever lived in a JS variable, so a plain page
-  // reload — not just closing the tab — threw it away and forced a fresh
-  // silent refresh every single time. Google's silent ("prompt: none")
-  // refresh depends on a hidden iframe that many browsers now block by
-  // default (Safari ITP, Chrome's third-party-cookie phase-out), so on an
-  // affected browser *every* reload could show "offline" even though the
-  // user is genuinely signed in. Caching in sessionStorage means a valid
-  // token survives reloads within the tab, so silent refresh is only
-  // needed once per real expiry (~1hr) instead of once per page load.
+  // reload threw it away and forced a fresh silent refresh every single
+  // time. Google's silent ("prompt: none") refresh depends on a hidden
+  // iframe that many browsers now block by default (Safari ITP, Chrome's
+  // third-party-cookie phase-out), so on an affected browser *every* reload
+  // could show "offline"/"reconnect" even though the user is genuinely
+  // signed in. This is caching in localStorage rather than sessionStorage
+  // because on mobile — especially a page added to the home screen — every
+  // reopen is a fresh browsing context with its own sessionStorage, so a
+  // session-scoped cache bought nothing there; it kept re-triggering the
+  // same fragile silent refresh on every single open. localStorage survives
+  // across those relaunches, so silent refresh is only needed once per real
+  // token expiry (~1hr) instead of once per app open.
   function loadCachedToken() {
     try {
-      var t = JSON.parse(sessionStorage.getItem(TOKEN_CACHE_KEY) || "null");
+      var t = JSON.parse(localStorage.getItem(TOKEN_CACHE_KEY) || "null");
       if (t && t.access_token && t.expires_at > now()) return t;
     } catch (e) { /* corrupt cache — ignore */ }
     return null;
   }
   function cacheToken(t) {
     try {
-      if (t) sessionStorage.setItem(TOKEN_CACHE_KEY, JSON.stringify(t));
-      else sessionStorage.removeItem(TOKEN_CACHE_KEY);
+      if (t) localStorage.setItem(TOKEN_CACHE_KEY, JSON.stringify(t));
+      else localStorage.removeItem(TOKEN_CACHE_KEY);
     } catch (e) { /* storage full/private mode — fine, just won't persist */ }
   }
   var token = loadCachedToken(); // { access_token, expires_at }
