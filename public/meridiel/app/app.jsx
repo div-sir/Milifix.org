@@ -138,7 +138,13 @@ function App() {
       .catch((e) => setSyncStatus(statusForSyncError(e)));
   };
 
-  const flightsAll = useMemoA(() => [...ALL, ...extra], [extra]);
+  // Hydrate every flight so its embedded from/to are always present — an
+  // older-schema or partially-synced record with only o/d codes would
+  // otherwise crash any panel/stat that reads f.from.country etc.
+  const flightsAll = useMemoA(
+    () => [...ALL, ...extra].map((f) => window.ATLAS.hydrateFlight(f)),
+    [extra]
+  );
 
   const [selectedId, setSelectedId] = useStateA(null);
   const [autoRotate, setAutoRotate] = useStateA(true);
