@@ -13,7 +13,8 @@
   --trip-rule: color-mix(in srgb, var(--text) 16%, transparent);
   --trip-ink: color-mix(in srgb, var(--text) 92%, transparent);
   --trip-ink-soft: color-mix(in srgb, var(--text) 66%, transparent);
-  --trip-measure: 34rem;
+  /* 寬螢幕時隨可用寬度略為放寬，仍維持舒適閱讀行長 */
+  --trip-measure: clamp(34rem, 38vw, 42rem);
 }
 
 /* ── Masthead（刊頭）────────────────────────────────────── */
@@ -206,6 +207,11 @@
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   gap: clamp(1.5rem, 3.5vw, 3.5rem);
   /* align-items 預設 stretch：地圖欄撐滿整列，sticky 面板全程吸附 */
+}
+
+/* 寬螢幕：地圖欄不需等比放大，讓內文／影像欄多分到空間，更貼近雜誌版面而非對半分割 */
+@media (min-width: 1600px) {
+  .trip-scrolly { grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr); }
 }
 
 .trip-map-col {
@@ -812,6 +818,14 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.5rem;
 }
+/* 雜誌式影像帶：第一張照片跨兩欄兩列，形成主圖＋縮圖的編輯排版 */
+.trip-day__photos .trip-photos > .trip-photo:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+@media (max-width: 640px) {
+  .trip-day__photos .trip-photos > .trip-photo:first-child { grid-column: span 1; grid-row: span 1; }
+}
 .trip-photo {
   aspect-ratio: 3 / 2;
   border-radius: 3px;
@@ -820,6 +834,53 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
   background: color-mix(in srgb, var(--text) 4%, var(--bg));
 }
 .trip-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.trip-photo__trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+.trip-photo__trigger img {
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.32, 1), filter 0.4s ease;
+}
+.trip-photo__trigger:hover img,
+.trip-photo__trigger:focus-visible img {
+  transform: scale(1.06);
+}
+.trip-photo__trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--travel-accent) 55%, transparent);
+  outline-offset: -2px;
+}
+.trip-photo__overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.4rem 0.75rem 0.6rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.trip-photo__trigger:hover .trip-photo__overlay,
+.trip-photo__trigger:focus-visible .trip-photo__overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+.trip-photo__overlay-caption {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  color: #fff;
+  text-align: left;
+}
 .trip-photo--placeholder {
   display: flex;
   flex-direction: column;
@@ -838,6 +899,116 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
   font-size: 0.64rem;
   letter-spacing: 0.03em;
   line-height: 1.4;
+}
+
+/* 進場淡入上移（JS 以 anime.js onScroll 驅動，見 init-anime-onscroll-reveals） */
+[data-onscroll-reveal] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* ── 照片燈箱 ─────────────────────────────────────────── */
+
+.trip-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+.trip-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease;
+}
+.trip-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, black 82%, var(--bg) 18%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.trip-lightbox__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(92vw, 1400px);
+  max-height: 90vh;
+  padding: 0 clamp(3rem, 8vw, 5rem);
+}
+.trip-lightbox__figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  max-height: 90vh;
+}
+.trip-lightbox__img {
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  transform: scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.32, 1);
+}
+.trip-lightbox.is-open .trip-lightbox__img { transform: scale(1); }
+.trip-lightbox__caption {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: center;
+}
+.trip-lightbox__caption[hidden] { display: none; }
+.trip-lightbox__close,
+.trip-lightbox__nav {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.trip-lightbox__close:hover,
+.trip-lightbox__nav:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.trip-lightbox__close {
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.05rem;
+}
+.trip-lightbox__nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.trip-lightbox__nav:hover { transform: translateY(-50%) scale(1.08); }
+.trip-lightbox__nav--prev { left: clamp(0.25rem, 2vw, 1.25rem); }
+.trip-lightbox__nav--next { right: clamp(0.25rem, 2vw, 1.25rem); }
+
+body.trip-lightbox-lock { overflow: hidden; }
+
+@media (max-width: 640px) {
+  .trip-lightbox__stage { padding: 0 3.5rem; }
+  .trip-lightbox__nav { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
 }
 
 /* ── Day 導覽（右側浮動圓點）───────────────────────────── */
@@ -1018,8 +1189,16 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
   .trip-index-card,
   .trip-link,
   .trip-stop,
-  .trip-daynav__dot { transition: none; }
+  .trip-daynav__dot,
+  .trip-photo__trigger img,
+  .trip-photo__overlay,
+  .trip-lightbox,
+  .trip-lightbox__img,
+  .trip-lightbox__nav { transition: none; }
   .trip-index-card:hover { transform: none; }
+  .trip-photo__trigger:hover img,
+  .trip-photo__trigger:focus-visible img { transform: none; }
+  .trip-lightbox__nav:hover { transform: translateY(-50%); }
 }
 
 /* ── /travel 首頁的報告書入口區塊 ── */

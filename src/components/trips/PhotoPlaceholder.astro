@@ -11,11 +11,25 @@ const hasSrc = typeof photo.src === 'string' && photo.src.length > 0;
 
 {
   hasSrc ? (
-    <figure class="trip-photo">
-      <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} loading="lazy" decoding="async" />
+    <figure class="trip-photo" data-onscroll-reveal>
+      <button
+        type="button"
+        class="trip-photo__trigger"
+        data-lightbox-src={photo.src}
+        data-lightbox-alt={photo.alt ?? photo.caption ?? ''}
+        data-lightbox-caption={photo.caption ?? ''}
+        aria-label={photo.caption ?? photo.alt ?? '放大檢視'}
+      >
+        <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} loading="lazy" decoding="async" />
+        {photo.caption && (
+          <span class="trip-photo__overlay">
+            <span class="trip-photo__overlay-caption">{photo.caption}</span>
+          </span>
+        )}
+      </button>
     </figure>
   ) : (
-    <div class="trip-photo trip-photo--placeholder">
+    <div class="trip-photo trip-photo--placeholder" data-onscroll-reveal>
       <span class="trip-photo__icon" aria-hidden="true">
         📷
       </span>
