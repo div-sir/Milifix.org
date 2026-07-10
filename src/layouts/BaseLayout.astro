@@ -46,6 +46,10 @@ const hasDescription = typeof description === 'string' && description.trim().len
 
 const canonicalUrl = canonicalPath ? new URL(canonicalPath, Astro.site).href : undefined;
 
+// 未提供 ogImage 時 fallback 到全站預設分享圖，確保任何頁面分享出去
+// 都至少有預覽圖（twitter:card 也才能升級為 summary_large_image）。
+const resolvedOgImage = ogImage ?? '/og-default.png';
+
 // hreflang：僅在可索引、有 canonicalPath 且啟用時輸出
 const alternates =
   !noindex && canonicalPath && hreflangAlternates
@@ -61,7 +65,7 @@ const ogLocaleMap: Record<Lang, string> = {
   zh: 'zh_TW',
   ja: 'ja_JP',
 };
-const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const ogImageUrl = new URL(resolvedOgImage, Astro.site).href;
 ---
 
 <!doctype html>

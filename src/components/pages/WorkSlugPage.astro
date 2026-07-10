@@ -77,7 +77,9 @@ const mediaItems = mediaGallery.map((m) => ({
   description={description}
   canonicalPath={Astro.url.pathname}
   bodyAttrs={{ 'data-space': space }}
+  ogImage={coverUrl || undefined}
 >
+  {coverUrl && <link slot="head" rel="preload" as="image" href={coverUrl} fetchpriority="high" />}
   <AmbientBackdrop />
   <PageTransition />
 
