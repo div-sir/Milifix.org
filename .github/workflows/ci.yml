@@ -31,6 +31,14 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Verify Meridiel compiled output matches source
+        run: |
+          npm run build:meridiel
+          git diff --exit-code -- public/meridiel/app/compiled || {
+            echo '::error::public/meridiel/app/compiled/*.js is stale — run `npm run build:meridiel` and commit the result.'
+            exit 1
+          }
+
       - name: Build
         run: npm run build
         env:

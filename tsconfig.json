@@ -7,7 +7,9 @@
   "exclude": [
     "dist",
     "api",
-    "payload-reference"
+    "payload-reference",
+    "public/meridiel/vendor",
+    "public/meridiel/app/compiled"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",
