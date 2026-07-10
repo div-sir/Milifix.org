@@ -454,14 +454,38 @@
     };
   });
 
+  // Guarantees a flight carries embedded from/to airport objects. Older-schema
+  // records (or a partial sync) may only have the o/d codes; without this,
+  // every consumer that reads f.from.country / f.from.code — the stats, the
+  // flag wall, the flight log, the globe arcs — would throw on the first such
+  // record and take the whole app's render down with it. Fills from/to from
+  // the AIRPORTS table by code; if even that isn't possible, leaves them as
+  // safe empty stubs rather than undefined.
+  const EMPTY_AP = { code: "", city: "", name: "", country: "", cc: "", lat: NaN, lng: NaN };
+  function hydrateEndpoint(point, code) {
+    if (point && isFinite(point.lat) && isFinite(point.lng)) return point;
+    const a = code && AIRPORTS[code];
+    if (a) return { code, ...a };
+    return { ...EMPTY_AP, code: code || "" };
+  }
+  function hydrateFlight(f) {
+    if (!f) return f;
+    const from = hydrateEndpoint(f.from, f.o || (f.from && f.from.code));
+    const to = hydrateEndpoint(f.to, f.d || (f.to && f.to.code));
+    return from === f.from && to === f.to ? f : { ...f, from, to };
+  }
+
   // ---- Aggregate stats ----
   function statsFor(flights) {
     const countries = new Set(), airports = new Set();
     let km = 0, min = 0;
-    flights.forEach((f) => {
-      km += f.km; min += f.dur;
-      countries.add(f.from.country); countries.add(f.to.country);
-      airports.add(f.from.code); airports.add(f.to.code);
+    flights.forEach((raw) => {
+      const f = hydrateFlight(raw);
+      km += f.km || 0; min += f.dur || 0;
+      if (f.from.country) countries.add(f.from.country);
+      if (f.to.country) countries.add(f.to.country);
+      if (f.from.code) airports.add(f.from.code);
+      if (f.to.code) airports.add(f.to.code);
     });
     return {
       flights: flights.length,
@@ -478,9 +502,10 @@
   // Unique countries with a representative airport (for flag wall)
   function countryList(flights) {
     const map = new Map();
-    flights.forEach((f) => {
+    flights.forEach((raw) => {
+      const f = hydrateFlight(raw);
       [f.from, f.to].forEach((p) => {
-        if (!map.has(p.country)) map.set(p.country, { country: p.country, cc: p.cc, city: p.city, first: f.date });
+        if (p && p.country && !map.has(p.country)) map.set(p.country, { country: p.country, cc: p.cc, city: p.city, first: f.date });
       });
     });
     return [...map.values()].sort((a, b) => a.country.localeCompare(b.country));
@@ -935,7 +960,7 @@
 
   window.ATLAS = {
     AIRPORTS, AIRLINES, AIRLINE_CODES, FLIGHTS, YEARS,
-    statsFor, countryList, distKm, durMin, sinceOf, homeOf,
+    statsFor, countryList, distKm, durMin, sinceOf, homeOf, hydrateFlight,
     // name/handle fall back to these only when not signed in; a Google login overrides them.
     profile: { name: "Traveler", handle: "@traveler", home: "—", since: new Date().getFullYear() },
   };
