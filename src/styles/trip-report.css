@@ -21,9 +21,7 @@
 .trip-hero {
   position: relative;
   z-index: 2;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: calc(var(--trip-nav-h) + clamp(1.75rem, 5vw, 3.5rem)) clamp(1rem, 4vw, 4rem)
+  padding: calc(var(--trip-nav-h) + clamp(1.75rem, 5vw, 3.5rem)) clamp(1.25rem, 4vw, 5rem)
     clamp(1.25rem, 2.5vw, 2rem);
 }
 
@@ -91,6 +89,8 @@
   font-size: clamp(1.02rem, 1.5vw, 1.16rem);
   line-height: 1.72;
   color: var(--trip-ink);
+  /* 全版滿版時仍保留閱讀舒適寬度，避免大螢幕上段落過寬難讀 */
+  max-width: var(--trip-measure);
 }
 .trip-hero__summary::first-letter {
   float: left;
@@ -141,9 +141,7 @@
 .trip-essentials {
   position: relative;
   z-index: 2;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 4vw, 4rem);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 5rem);
 }
 
 .trip-section-label {
@@ -203,9 +201,7 @@
 .trip-scrolly {
   position: relative;
   z-index: 2;
-  max-width: 1360px;
-  margin: 0 auto;
-  padding: clamp(0.5rem, 2vw, 1.5rem) clamp(1rem, 3vw, 3rem) 0;
+  padding: clamp(0.5rem, 2vw, 1.5rem) clamp(1.25rem, 4vw, 5rem) 0;
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   gap: clamp(1.5rem, 3.5vw, 3.5rem);
@@ -661,6 +657,8 @@
   border: 1px solid var(--trip-rule);
   border-radius: 4px;
   background: color-mix(in srgb, var(--text) 3%, var(--bg));
+  /* 資訊較密（時間軸／費用表），允許比純文字段落略寬，但全版滿版時仍設上限 */
+  max-width: 46rem;
 }
 .trip-dossier__title {
   font-family: var(--mono);
@@ -810,7 +808,8 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
 .trip-day__photos { margin-top: 1.75rem; }
 .trip-photos {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* 全版滿版時內容欄變寬，自動增加欄數而非把每張照片拉得過大 */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.5rem;
 }
 .trip-photo {
@@ -913,9 +912,7 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
 .trip-index {
   position: relative;
   z-index: 2;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 0 clamp(1rem, 4vw, 4rem) 3rem;
+  padding: 0 clamp(1.25rem, 4vw, 5rem) 3rem;
 }
 .trip-index__grid {
   display: grid;
