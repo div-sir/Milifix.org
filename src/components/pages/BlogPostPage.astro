@@ -10,6 +10,7 @@ import LexicalContent from '../LexicalContent.astro';
 import { localizedPost, type CmsPost } from '../../lib/cms';
 import { ui } from '../../i18n/ui';
 import { blogPath, blogSlugPath, homePath } from '../../i18n/routes';
+import { formatPostDate } from '../../i18n/date';
 import type { Lang } from '../../i18n/types';
 
 interface Props {
@@ -21,6 +22,8 @@ const { lang, post } = Astro.props;
 const { title, description, content } = localizedPost(post, lang);
 const pathname = blogSlugPath(lang, post.slug);
 const backToBlog = blogPath(lang);
+const displayDate = formatPostDate(post.date, lang);
+const ogImage = post.cover?.url;
 
 const B = ui(lang).blog;
 const tocAriaLabel = B.tocAria;
@@ -29,6 +32,17 @@ const tocTogglePin = B.tocExpand;
 const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[] = [
   { id: 'back-to-blog', label: '返回', href: backToBlog, icon: 'back' },
 ];
+
+// 結構化資料：讓搜尋引擎理解這是一篇有發佈日期的文章
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  datePublished: post.date,
+  inLanguage: lang,
+  url: new URL(pathname, Astro.site).href,
+  ...(ogImage ? { image: new URL(ogImage, Astro.site).href } : {}),
+};
 ---
 
 <BaseLayout
@@ -36,7 +50,11 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
   title={`${title} · Blog`}
   description={description}
   canonicalPath={pathname}
+  ogImage={ogImage}
+  ogType="article"
+  articlePublishedTime={post.date}
 >
+    <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
     <AmbientBackdrop />
     <div id="cursor"></div>
     <div id="cursor-ring"></div>
@@ -53,6 +71,7 @@ const dockSections: { id: string; label: string; href?: string; icon?: 'back' }[
     <article class="article-wrap" id="main-content" tabindex="-1">
       <a class="back" href={backToBlog}>← Blog</a>
       <h1 class="post-title">{title}</h1>
+      <time class="post-date" datetime={post.date}>{displayDate}</time>
       <div class="prose">
         <LexicalContent content={content} />
       </div>
