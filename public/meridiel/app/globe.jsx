@@ -115,6 +115,48 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     });
   };
 
+  // A flight's from/to should always carry valid coordinates (embedded at
+  // add-time), but if one somehow doesn't — an older-schema record, a
+  // partial sync — re-derive it from the current airport database via its
+  // code rather than just dropping the flight outright. Losing a whole
+  // route from the globe because of a recoverable data gap was worse than
+  // the crash this was meant to prevent.
+  const repairEndpoint = (point, code) => {
+    if (point && isFinite(point.lat) && isFinite(point.lng)) return point;
+    const a = code && window.ATLAS.AIRPORTS[code];
+    return a ? { code, ...a } : null;
+  };
+  const sanitizeFlight = (f) => {
+    if (!f) return null;
+    const from = repairEndpoint(f.from, f.o || (f.from && f.from.code));
+    const to = repairEndpoint(f.to, f.d || (f.to && f.to.code));
+    if (!from || !to) {
+      console.warn("Meridiel: dropping a flight with no usable coordinates", f);
+      return null;
+    }
+    return from === f.from && to === f.to ? f : { ...f, from, to };
+  };
+
+  // Push the current flight list onto the globe as arcs + airport points.
+  // Called from BOTH the flights-change effect and right after the globe is
+  // created — because if the flights effect happens to run in a commit where
+  // the globe isn't initialized yet, it bails out, and with a static flight
+  // list it may never re-run, leaving the globe with land but no arcs/points.
+  // Applying again at init close the loop regardless of effect ordering.
+  const applyFlights = (world, list) => {
+    const valid = (list || []).map(sanitizeFlight).filter(Boolean);
+    console.log(`Meridiel: globe drawing ${valid.length} of ${(list || []).length} flight(s)`);
+    world.arcsData(valid);
+    const seen = {};
+    const pts = [];
+    valid.forEach((f) => {
+      [f.from, f.to].forEach((p) => {
+        if (p && !seen[p.code]) { seen[p.code] = 1; pts.push(p); }
+      });
+    });
+    world.pointsData(pts);
+  };
+
   // ---- init once ----
   useEffect(() => {
     if (!window.Globe || !elRef.current) return;
@@ -270,6 +312,9 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
 
     globeRef.current = world;
     window.__GLOBE = world;
+    // Draw the flights we already have right now, so arcs/points appear on the
+    // first paint even if the flights-change effect ran before this init did.
+    applyFlights(world, flightsRef.current);
     onReady && onReady(world);
 
     // --- Self-healing render watchdog (browser pauses rAF on hidden tabs) ---
@@ -329,53 +374,18 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       .polygonStrokeColor(() => P.landEdge);
   }, [theme]);
 
-  // A flight's from/to should always carry valid coordinates (embedded at
-  // add-time), but if one somehow doesn't — an older-schema record, a
-  // partial sync — re-derive it from the current airport database via its
-  // code rather than just dropping the flight outright. Losing a whole
-  // route from the globe because of a recoverable data gap was worse than
-  // the crash this was meant to prevent.
-  const repairEndpoint = (point, code) => {
-    if (point && isFinite(point.lat) && isFinite(point.lng)) return point;
-    const a = code && window.ATLAS.AIRPORTS[code];
-    return a ? { code, ...a } : null;
-  };
-  const sanitizeFlight = (f) => {
-    if (!f) return null;
-    const from = repairEndpoint(f.from, f.o || (f.from && f.from.code));
-    const to = repairEndpoint(f.to, f.d || (f.to && f.to.code));
-    if (!from || !to) {
-      // Genuinely unrecoverable — logged so a report of "an arc is missing"
-      // has something concrete to check instead of silently vanishing.
-      console.warn("Meridiel: dropping a flight with no usable coordinates", f);
-      return null;
-    }
-    return from === f.from && to === f.to ? f : { ...f, from, to };
-  };
-
   // ---- flights change ----
   useEffect(() => {
     flightsRef.current = flights;
     const world = globeRef.current;
     if (!world) {
-      console.warn("Meridiel: flights changed but the globe isn't initialized yet — arcs won't draw until it is", { count: flights.length });
+      // Not an error: init hasn't run yet. The init effect will call
+      // applyFlights(flightsRef.current) as soon as the globe exists, so this
+      // exact list still gets drawn — it's just deferred to init.
+      console.warn("Meridiel: flights changed before the globe was ready — will draw on init", { count: flights.length });
       return;
     }
-    // Only a truly unrecoverable entry (no valid code to look up either) is
-    // dropped — globe.gl processes arcsData as one batch, so letting a bad
-    // coordinate throw inside an accessor would blank out every arc on the
-    // globe, not just the bad one.
-    const valid = flights.map(sanitizeFlight).filter(Boolean);
-    console.log(`Meridiel: globe received ${flights.length} flight(s), drawing ${valid.length} arc(s)`);
-    world.arcsData(valid);
-    const seen = {};
-    const pts = [];
-    valid.forEach((f) => {
-      [f.from, f.to].forEach((p) => {
-        if (!seen[p.code]) { seen[p.code] = 1; pts.push(p); }
-      });
-    });
-    world.pointsData(pts);
+    applyFlights(world, flights);
   }, [flights]);
 
   // ---- highlight (selection) recolor without moving camera ----
