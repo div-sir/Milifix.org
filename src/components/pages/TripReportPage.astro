@@ -29,6 +29,9 @@ interface TripLabels extends DayLabels {
   dayNavAria: string;
   mapTitle: string;
   tileNote: string;
+  lightboxClose: string;
+  lightboxPrev: string;
+  lightboxNext: string;
 }
 
 const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
@@ -65,6 +68,9 @@ const LABELS: Record<Lang, TripLabels> = {
     dayNavAria: '每日行程導覽',
     mapTitle: '行程地圖',
     tileNote: '地圖圖磚載入受阻（正式環境正常）',
+    lightboxClose: '關閉',
+    lightboxPrev: '上一張',
+    lightboxNext: '下一張',
     dayWord: 'Day',
     timeline: '時間節點',
     activities: '行程',
@@ -87,6 +93,9 @@ const LABELS: Record<Lang, TripLabels> = {
     dayNavAria: 'Daily itinerary navigation',
     mapTitle: 'Itinerary map',
     tileNote: 'Map tiles blocked here (fine in production)',
+    lightboxClose: 'Close',
+    lightboxPrev: 'Previous',
+    lightboxNext: 'Next',
     dayWord: 'Day',
     timeline: 'Timeline',
     activities: 'What to do',
@@ -109,6 +118,9 @@ const LABELS: Record<Lang, TripLabels> = {
     dayNavAria: 'Daily itinerary navigation',
     mapTitle: 'Itinerary map',
     tileNote: 'Map tiles blocked here (fine in production)',
+    lightboxClose: 'Close',
+    lightboxPrev: 'Previous',
+    lightboxNext: 'Next',
     dayWord: 'Day',
     timeline: 'Timeline',
     activities: 'What to do',
@@ -181,7 +193,12 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
 
   <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
 
-  <main id="main-content">
+  <main
+    id="main-content"
+    data-lightbox-close={t.lightboxClose}
+    data-lightbox-prev={t.lightboxPrev}
+    data-lightbox-next={t.lightboxNext}
+  >
     <!-- ── Masthead（雜誌刊頭）── -->
     <header class="trip-hero">
       <a class="trip-back" href={reportsPath}>{t.back}</a>
@@ -289,10 +306,12 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
     import { initAnimeSplitText } from '../../scripts/init-anime-splittext';
     import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
     import { initTripReportClient } from '../../scripts/trip-report-client';
+    import { initTripPhotoLightbox } from '../../scripts/trip-photo-lightbox';
 
     initPortfolioCursor();
     initAnimeSplitText();
     initAnimeOnScrollReveals();
     initTripReportClient();
+    initTripPhotoLightbox();
   </script>
 </BaseLayout>
