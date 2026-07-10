@@ -1,5 +1,4 @@
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import type maplibregl from 'maplibre-gl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -90,8 +89,36 @@ export function initTripReportClient(): void {
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // 統計數字滾動（尊重 reduced-motion）
+  // 統計數字滾動（尊重 reduced-motion）；與地圖無關，立即執行，不等 maplibre
   animateCounters(reduce);
+
+  // maplibre-gl（＋其 CSS）體積不小，地圖初始化前使用者往往還在看上方的
+  // 刊頭／核心票券／統計區。用 IntersectionObserver 在地圖容器接近視口
+  // 前就先動態載入，讓下載與捲動時間重疊，同時不拖慢首屏。
+  const panel = mapEl.closest<HTMLElement>('.trip-map-panel') ?? mapEl;
+  let started = false;
+  const startMapLoad = (): void => {
+    if (started) return;
+    started = true;
+    observer.disconnect();
+    void loadAndInitMap(data, mapEl, reduce);
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) startMapLoad();
+    },
+    // 提早兩個視口高度預抓，讓下載時間與使用者捲動上方內容重疊
+    { rootMargin: '200% 0px' },
+  );
+  observer.observe(panel);
+}
+
+async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean): Promise<void> {
+  const [{ default: maplibregl }] = await Promise.all([
+    import('maplibre-gl'),
+    import('maplibre-gl/dist/maplibre-gl.css'),
+  ]);
 
   gsap.registerPlugin(ScrollTrigger);
 
