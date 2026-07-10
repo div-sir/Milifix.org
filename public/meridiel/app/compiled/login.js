@@ -8,8 +8,7 @@
    demo account is used so the app still runs.
    ============================================================ */
 const {
-  useState: useStateL,
-  useEffect: useEffectL
+  useState: useStateL
 } = React;
 
 /* Demo account — used only when Google auth is disabled (no Client ID). */

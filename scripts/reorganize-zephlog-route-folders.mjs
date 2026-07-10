@@ -7,7 +7,7 @@ const TARGET_DIR =
 function sanitizeFolderName(name) {
   return name
     .trim()
-    .replace(/[\/\\]/g, '-')
+    .replace(/[/\\]/g, '-')
     .replace(/\s+/g, ' ')
     .replace(/\.+$/g, '');
 }

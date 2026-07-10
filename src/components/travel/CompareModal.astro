@@ -172,7 +172,7 @@ const compareLabelsData = {
       const url = new URL(window.location.href);
       const param = url.searchParams.get('compare');
       let raw = param ?? '';
-      let fromUrl = !!param && param !== 'open';
+      const fromUrl = !!param && param !== 'open';
       if (!raw || raw === 'open') { try { raw = localStorage.getItem(STORAGE_KEY) ?? ''; } catch (e) { raw = ''; } }
       if (!raw) return false;
       const valid = new Set(allCards.map((c) => c.slug));
@@ -291,10 +291,10 @@ const compareLabelsData = {
       const NOTE_STRIP_FEE = /(?:^|[，,；;]\s*)(?:正卡)?年費不可減免/g;
       addRow(meta, isZh ? '年費備註' : 'Fee Note', picks.map((c) => {
         if (!c.annualFeeNote) return '—';
-        let note = c.annualFeeNote
-          .replace(NOTE_STRIP, '')
-          .replace(NOTE_STRIP_FEE, '')
-          .replace(/^[，,；;\s。]+/, '').replace(/[，,；;\s]+$/, '');
+        const note = c.annualFeeNote
+        .replace(NOTE_STRIP, '')
+        .replace(NOTE_STRIP_FEE, '')
+        .replace(/^[，,；;\s。]+/, '').replace(/[，,；;\s]+$/, '');
         return note || '—';
       }));
 

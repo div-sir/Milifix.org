@@ -340,7 +340,6 @@ function SuggestField({
     };
     document.addEventListener("mousedown", onDocMouseDown);
     return () => document.removeEventListener("mousedown", onDocMouseDown);
-    // eslint-disable-next-line
   }, [editing, query]);
   const commit = v => {
     onCommit(v);

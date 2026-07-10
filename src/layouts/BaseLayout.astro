@@ -119,6 +119,7 @@ const ogImageUrl = new URL(resolvedOgImage, Astro.site).href;
       /* 主題初始化：全站唯一一份。強制主題頁（forcedTheme）不執行，鎖定 data-theme。 */
       !forcedTheme && (
         <script is:inline>
+          {/* eslint-disable-next-line @typescript-eslint/no-unused-expressions -- <script> 內容是單一 template literal 表達式，非裸陳述式，屬 astro-eslint-parser 誤判 */}
           {`(function () {
   try {
     var t = localStorage.getItem('portfolio-theme');

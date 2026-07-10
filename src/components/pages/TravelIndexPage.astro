@@ -431,7 +431,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
     </div>
 
     <!-- 航空資料注入 -->
-    <script is:inline define:vars={{ airlinesJson: JSON.stringify(airlinesData), lang }}>
+    <script is:inline define:vars={{ airlinesJson: JSON.stringify(airlinesData) }}>
       window.__airlines = JSON.parse(airlinesJson);
     </script>
 
@@ -729,7 +729,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           sec.style.display = '';
           if (animate && currentTab) {
             sec.style.animation = 'none';
-            sec.offsetHeight;
+            void sec.offsetHeight; // 強制 reflow，讓上一行的 animation:none 先生效再重新套用
             sec.style.animation = `tabIn 0.35s cubic-bezier(0.22,1,0.32,1) both`;
             sec.style.setProperty('--tab-dir', String(direction));
           }

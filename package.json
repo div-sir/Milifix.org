@@ -12,6 +12,7 @@
     "build:meridiel": "node scripts/build-meridiel.mjs",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "eslint .",
     "test": "vitest run",
     "astro": "astro",
     "fetch:rail": "tsx scripts/fetch-rail-geometry.mjs"
@@ -22,9 +23,12 @@
     "@babel/core": "^7.29.7",
     "@babel/preset-react": "^7.29.7",
     "@turf/turf": "^7.3.5",
+    "eslint": "^9.39.4",
+    "eslint-plugin-astro": "^1.7.0",
     "sharp": "^0.35.3",
     "tsx": "^4.23.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.2"
   },
   "dependencies": {

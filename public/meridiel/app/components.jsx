@@ -77,7 +77,6 @@ function SuggestField({ value, onCommit, getDisplay, search, placeholder, minCha
     };
     document.addEventListener("mousedown", onDocMouseDown);
     return () => document.removeEventListener("mousedown", onDocMouseDown);
-    // eslint-disable-next-line
   }, [editing, query]);
 
   const commit = (v) => { onCommit(v); setEditing(false); setQuery(""); };

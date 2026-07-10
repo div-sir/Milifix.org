@@ -40,27 +40,6 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
 
   const isHot = (d) => d.id === selRef.current || d.id === focusRef.current;
 
-  // GSAP-driven camera fly — fully controllable (we can kill the previous
-  // tween), so rapid/consecutive focus changes always land on the latest
-  // target. globe.gl's own pointOfView tween drops consecutive calls.
-  const flyTo = (lat, lng, altitude, ms = 1200) => {
-    const world = globeRef.current;
-    if (!world) return;
-    const start = world.pointOfView();
-    let dLng = lng - start.lng;
-    if (dLng > 180) dLng -= 360;
-    if (dLng < -180) dLng += 360;
-    const proxy = { lat: start.lat, lng: start.lng, alt: start.altitude };
-    world.controls().autoRotate = false;
-    if (flyTween.current) flyTween.current.kill();
-    if (!window.gsap) { world.pointOfView({ lat, lng, altitude }, ms); return; }
-    flyTween.current = window.gsap.to(proxy, {
-      lat, lng: start.lng + dLng, alt: altitude,
-      duration: ms / 1000, ease: "power2.inOut",
-      onUpdate: () => world.pointOfView({ lat: proxy.lat, lng: proxy.lng, altitude: proxy.alt }, 0),
-    });
-  };
-
   // GSAP-driven camera that travels the great-circle arc origin → destination,
   // arcing high in the middle and zooming in on landing.
   const flyAlongArc = (from, to, km) => {
@@ -346,7 +325,6 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       clearInterval(watchdog);
       document.removeEventListener("visibilitychange", onVis);
     };
-    // eslint-disable-next-line
   }, []);
 
   // keep autoRotate intent in a ref for the resume timer
@@ -417,7 +395,6 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     } else {
       world.ringsData([]);
     }
-    // eslint-disable-next-line
   }, [focusFlight]);
 
   return <div ref={elRef} className="globe-canvas" />;
