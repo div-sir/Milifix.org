@@ -18,7 +18,9 @@ export interface KonbiniStrings {
   heroTag: string;
   heroTitle: string;
   heroDesc: string;
-  /** 首頁 hero：提示使用者點進商品評分（取代舊的獨立投稿 CTA） */
+  /** 首頁 hero：新增商品 CTA */
+  addProductCta: string;
+  /** 首頁 hero：提示使用者也可以點進商品評分 */
   heroHint: string;
   /** 篩選 */
   filterAll: string;
@@ -56,6 +58,29 @@ export interface KonbiniStrings {
     moderationNote: string;
     notConfigured: string;
   };
+  /** 新增商品頁（/konbini/new） */
+  newProduct: {
+    pageTitle: string;
+    intro: string;
+    signInReason: string;
+    signedInAs: string;
+    fieldName: string;
+    fieldChain: string;
+    chainPlaceholder: string;
+    fieldCategory: string;
+    categoryPlaceholder: string;
+    fieldPrice: string;
+    fieldCover: string;
+    optional: string;
+    send: string;
+    sending: string;
+    success: string;
+    errorGeneric: string;
+    errorSignIn: string;
+    moderationNote: string;
+    notConfigured: string;
+    noChains: string;
+  };
 }
 
 const en: KonbiniStrings = {
@@ -67,7 +92,8 @@ const en: KonbiniStrings = {
   heroTitle: 'Convenience-store must-tries',
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
-  heroHint: 'Tap a pick to rate it.',
+  addProductCta: 'Add a product',
+  heroHint: 'Or tap an existing pick to rate it.',
   filterAll: 'All',
   filterCountry: 'Country',
   filterCategory: 'Category',
@@ -111,6 +137,28 @@ const en: KonbiniStrings = {
     moderationNote: 'All ratings are moderated before publishing.',
     notConfigured: 'Rating is not enabled yet. Please check back soon.',
   },
+  newProduct: {
+    pageTitle: 'Add a product',
+    intro: 'Suggest a convenience-store must-try that isn’t listed yet. Sign in with Google — it goes live after a quick review.',
+    signInReason: 'Sign in with Google to add a product — this keeps submissions honest.',
+    signedInAs: 'Signed in as',
+    fieldName: 'Product name',
+    fieldChain: 'Chain',
+    chainPlaceholder: 'Select a chain',
+    fieldCategory: 'Category',
+    categoryPlaceholder: 'Select a category',
+    fieldPrice: 'Price',
+    fieldCover: 'Cover photo',
+    optional: 'optional',
+    send: 'Submit product',
+    sending: 'Submitting…',
+    success: 'Thanks! Your product was submitted and will appear after moderation.',
+    errorGeneric: 'Something went wrong. Please try again.',
+    errorSignIn: 'Please sign in with Google first.',
+    moderationNote: 'All submissions are moderated before publishing.',
+    notConfigured: 'Submissions are not enabled yet. Please check back soon.',
+    noChains: 'No chains available yet — please check back soon.',
+  },
 };
 
 const zh: KonbiniStrings = {
@@ -122,7 +170,8 @@ const zh: KonbiniStrings = {
   heroTitle: '便利商店必吃的東西',
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
-  heroHint: '點進商品幫它評分吧。',
+  addProductCta: '新增商品',
+  heroHint: '或點進商品幫它評分。',
   filterAll: '全部',
   filterCountry: '國家',
   filterCategory: '分類',
@@ -165,6 +214,28 @@ const zh: KonbiniStrings = {
     errorSignIn: '請先用 Google 登入。',
     moderationNote: '所有評分都會先經過審核才會發佈。',
     notConfigured: '評分功能尚未開放，敬請期待。',
+  },
+  newProduct: {
+    pageTitle: '新增商品',
+    intro: '分享一個還沒被收錄的超商必吃。用 Google 登入投稿，內容經審核後就會上線。',
+    signInReason: '用 Google 登入才能新增商品，避免濫投。',
+    signedInAs: '目前登入',
+    fieldName: '商品名稱',
+    fieldChain: '連鎖店',
+    chainPlaceholder: '選擇連鎖店',
+    fieldCategory: '分類',
+    categoryPlaceholder: '選擇分類',
+    fieldPrice: '價格',
+    fieldCover: '封面圖',
+    optional: '選填',
+    send: '送出商品',
+    sending: '送出中…',
+    success: '感謝投稿！內容經審核後就會顯示。',
+    errorGeneric: '發生錯誤，請再試一次。',
+    errorSignIn: '請先用 Google 登入。',
+    moderationNote: '所有投稿都會先經過審核才會發佈。',
+    notConfigured: '投稿功能尚未開放，敬請期待。',
+    noChains: '目前還沒有可選的連鎖店，敬請期待。',
   },
 };
 

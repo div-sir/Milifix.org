@@ -122,3 +122,7 @@ export function konbiniPath(lang: Lang): string {
 export function konbiniProductPath(lang: Lang, slug: string): string {
   return `${konbiniPath(lang)}/${slug}`;
 }
+
+export function konbiniNewProductPath(lang: Lang): string {
+  return `${konbiniPath(lang)}/new`;
+}

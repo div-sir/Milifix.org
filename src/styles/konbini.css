@@ -31,6 +31,20 @@
   color: var(--muted);
   line-height: 1.6;
 }
+.konbini-hero__cta {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-bottom: 0.6rem;
+}
+.konbini-hero__cta:hover { opacity: 0.88; }
 .konbini-hero__hint {
   font-size: 0.82rem;
   color: var(--muted-dim);
