@@ -38,6 +38,28 @@ export interface KonbiniStrings {
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
+  submit: {
+    pageTitle: string;
+    intro: string;
+    signInPrompt: string;
+    signedInAs: string;
+    fieldProduct: string;
+    fieldRating: string;
+    fieldTitle: string;
+    fieldBody: string;
+    fieldPrice: string;
+    fieldStore: string;
+    fieldCountry: string;
+    fieldDisplayName: string;
+    optional: string;
+    send: string;
+    sending: string;
+    success: string;
+    errorGeneric: string;
+    errorSignIn: string;
+    moderationNote: string;
+    notConfigured: string;
+  };
 }
 
 const en: KonbiniStrings = {
@@ -76,6 +98,28 @@ const en: KonbiniStrings = {
     other: 'Other',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
+  submit: {
+    pageTitle: 'Submit a review',
+    intro: 'Share a convenience-store must-try. Sign in with Google — your review goes live after a quick review.',
+    signInPrompt: 'Sign in with Google to submit',
+    signedInAs: 'Signed in as',
+    fieldProduct: 'Product',
+    fieldRating: 'Rating',
+    fieldTitle: 'Title',
+    fieldBody: 'Your review',
+    fieldPrice: 'Price paid',
+    fieldStore: 'Where you bought it',
+    fieldCountry: 'Country',
+    fieldDisplayName: 'Display name',
+    optional: 'optional',
+    send: 'Submit review',
+    sending: 'Submitting…',
+    success: 'Thanks! Your review was submitted and will appear after moderation.',
+    errorGeneric: 'Something went wrong. Please try again.',
+    errorSignIn: 'Please sign in with Google first.',
+    moderationNote: 'All submissions are moderated before publishing.',
+    notConfigured: 'Submissions are not enabled yet. Please check back soon.',
+  },
 };
 
 const zh: KonbiniStrings = {
@@ -114,6 +158,28 @@ const zh: KonbiniStrings = {
     other: '其他',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
+  submit: {
+    pageTitle: '我要投稿',
+    intro: '分享你的超商必吃。用 Google 登入投稿，內容經審核後就會上線。',
+    signInPrompt: '用 Google 登入以投稿',
+    signedInAs: '目前登入',
+    fieldProduct: '商品',
+    fieldRating: '評分',
+    fieldTitle: '標題',
+    fieldBody: '你的心得',
+    fieldPrice: '購買價格',
+    fieldStore: '購買地點',
+    fieldCountry: '國家',
+    fieldDisplayName: '顯示名稱',
+    optional: '選填',
+    send: '送出評價',
+    sending: '送出中…',
+    success: '感謝投稿！內容經審核後就會顯示。',
+    errorGeneric: '發生錯誤，請再試一次。',
+    errorSignIn: '請先用 Google 登入。',
+    moderationNote: '所有投稿都會先經過審核才會發佈。',
+    notConfigured: '投稿功能尚未開放，敬請期待。',
+  },
 };
 
 const DICT: Record<'en' | 'zh', KonbiniStrings> = { en, zh };

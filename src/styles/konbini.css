@@ -40,6 +40,111 @@
   font-size: 0.85rem;
   cursor: not-allowed;
 }
+.konbini-hero__cta--link {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.konbini-hero__cta--link:hover { opacity: 0.88; }
+
+/* ── Submit form ── */
+.konbini-submit { max-width: 620px; }
+.konbini-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.konbini-form__gsi { min-height: 44px; }
+.konbini-form__signed {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+.konbini-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.konbini-form__row > span,
+.konbini-form__rating legend {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.konbini-form__row em {
+  font-style: normal;
+  color: var(--muted-dim);
+  font-size: 0.78rem;
+}
+.konbini-form input[type='text'],
+.konbini-form input[type='number'],
+.konbini-form select,
+.konbini-form textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg2);
+  color: var(--text);
+  font: inherit;
+}
+.konbini-form textarea { resize: vertical; }
+.konbini-form__inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 480px) {
+  .konbini-form__inline { grid-template-columns: 1fr; }
+}
+.konbini-form__rating {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.konbini-form__rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+.konbini-form__star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+.konbini-form__note {
+  font-size: 0.78rem;
+  color: var(--muted-dim);
+  margin: 0;
+}
+.konbini-form__submit {
+  align-self: flex-start;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.konbini-form__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.konbini-form__status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  min-height: 1.2em;
+}
 
 /* ── Filters ── */
 .konbini-filters {
