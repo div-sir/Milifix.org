@@ -7,18 +7,28 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/build-meridiel.mjs",
     "build": "astro build",
+    "build:meridiel": "node scripts/build-meridiel.mjs",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "eslint .",
     "test": "vitest run",
     "astro": "astro",
     "fetch:rail": "tsx scripts/fetch-rail-geometry.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@babel/cli": "^7.29.7",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
     "@turf/turf": "^7.3.5",
+    "eslint": "^9.39.4",
+    "eslint-plugin-astro": "^1.7.0",
+    "sharp": "^0.35.3",
     "tsx": "^4.23.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.2"
   },
   "dependencies": {
@@ -45,5 +55,8 @@
     "react-dom": "^19.2.4",
     "rehype-slug": "^6.0.0",
     "tailwindcss": "^4.2.2"
+  },
+  "overrides": {
+    "joi": "^17.13.4"
   }
 }

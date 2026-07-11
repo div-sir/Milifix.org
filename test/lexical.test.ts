@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderText, renderNode, renderChildren, type LexicalNode, type LexicalText } from '../src/lib/lexical';
 
 describe('renderText', () => {
@@ -94,7 +94,7 @@ describe('renderNode structure', () => {
   });
 
   it('renders an unknown node type by falling through to its children', () => {
-    const node = { type: 'upload', children: [{ type: 'text', text: 'fallback' }] } as unknown as LexicalNode;
+    const node = { type: 'weirdnode', children: [{ type: 'text', text: 'fallback' }] } as unknown as LexicalNode;
     expect(renderNode(node)).toBe('fallback');
   });
 
@@ -102,6 +102,119 @@ describe('renderNode structure', () => {
     const node = { type: 'linebreak' } as unknown as LexicalNode;
     expect(() => renderNode(node)).not.toThrow();
     expect(renderNode(node)).toBe('');
+  });
+
+  it('warns once (per type) when encountering an unknown node type', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const node = { type: 'somethingnew', children: [] } as unknown as LexicalNode;
+    renderNode(node);
+    renderNode(node);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0][0]).toContain('somethingnew');
+    warnSpy.mockRestore();
+  });
+});
+
+describe('renderNode link/autolink', () => {
+  it('renders an http link with rel/target for external URLs', () => {
+    const node: LexicalNode = {
+      type: 'link',
+      fields: { url: 'https://example.com' },
+      children: [{ type: 'text', text: 'example' }],
+    };
+    expect(renderNode(node)).toBe(
+      '<a href="https://example.com" target="_blank" rel="noopener noreferrer">example</a>',
+    );
+  });
+
+  it('renders a relative link without target/rel', () => {
+    const node: LexicalNode = {
+      type: 'link',
+      fields: { url: '/blog/hello' },
+      children: [{ type: 'text', text: 'hello' }],
+    };
+    expect(renderNode(node)).toBe('<a href="/blog/hello">hello</a>');
+  });
+
+  it('renders a mailto: link', () => {
+    const node: LexicalNode = {
+      type: 'link',
+      fields: { url: 'mailto:a@b.com' },
+      children: [{ type: 'text', text: 'mail' }],
+    };
+    expect(renderNode(node)).toBe('<a href="mailto:a@b.com">mail</a>');
+  });
+
+  it('rejects javascript: URLs, falling back to plain text', () => {
+    const node: LexicalNode = {
+      type: 'link',
+      fields: { url: 'javascript:alert(1)' },
+      children: [{ type: 'text', text: 'evil' }],
+    };
+    expect(renderNode(node)).toBe('evil');
+  });
+
+  it('treats autolink the same as link', () => {
+    const node: LexicalNode = {
+      type: 'autolink',
+      fields: { url: 'https://example.com', newTab: true },
+      children: [{ type: 'text', text: 'ex' }],
+    };
+    expect(renderNode(node)).toBe(
+      '<a href="https://example.com" target="_blank" rel="noopener noreferrer">ex</a>',
+    );
+  });
+
+  it('falls back to plain text when the href is missing', () => {
+    const node = { type: 'link', fields: {}, children: [{ type: 'text', text: 'no href' }] } as unknown as LexicalNode;
+    expect(renderNode(node)).toBe('no href');
+  });
+});
+
+describe('renderNode upload/image', () => {
+  it('renders an <img> with alt, lazy loading and dimensions', () => {
+    const node: LexicalNode = {
+      type: 'upload',
+      value: { url: '/media/photo.jpg', alt: 'a photo', width: 800, height: 600 },
+    };
+    expect(renderNode(node)).toBe(
+      '<img src="/media/photo.jpg" alt="a photo" loading="lazy" decoding="async" width="800" height="600" />',
+    );
+  });
+
+  it('omits width/height when dimensions are missing', () => {
+    const node: LexicalNode = { type: 'upload', value: { url: '/media/photo.jpg' } };
+    expect(renderNode(node)).toBe('<img src="/media/photo.jpg" alt="" loading="lazy" decoding="async" />');
+  });
+
+  it('renders empty string when the upload value/url is missing', () => {
+    const node = { type: 'upload' } as unknown as LexicalNode;
+    expect(renderNode(node)).toBe('');
+  });
+});
+
+describe('renderNode table', () => {
+  it('renders a basic table with header and data cells', () => {
+    const node: LexicalNode = {
+      type: 'table',
+      children: [
+        {
+          type: 'tablerow',
+          children: [
+            { type: 'tablecell', headerState: 1, children: [{ type: 'text', text: 'H1' }] },
+          ],
+        },
+        {
+          type: 'tablerow',
+          children: [
+            { type: 'tablecell', children: [{ type: 'text', text: 'd1' }] },
+          ],
+        },
+      ],
+    };
+    expect(renderNode(node)).toBe(
+      '<table><tr><th>H1</th></tr><tr><td>d1</td></tr></table>',
+    );
   });
 });
 

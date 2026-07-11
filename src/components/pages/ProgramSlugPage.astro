@@ -52,7 +52,7 @@ const [allLounges, allPrograms] = await Promise.all([getLounges(), getPrograms()
 const programNameKeywords = program.name
   .replace(/（.*?）/g, '')
   .replace(/\(.*?\)/g, '')
-  .split(/[\/\s]+/)
+  .split(/[/\s]+/)
   .filter((w) => w.length > 2);
 
 const relatedLounges = allLounges.filter((l) =>

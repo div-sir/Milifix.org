@@ -5,7 +5,7 @@
    store.js (window.MeridielAuth); if it's disabled the built-in
    demo account is used so the app still runs.
    ============================================================ */
-const { useState: useStateL, useEffect: useEffectL } = React;
+const { useState: useStateL } = React;
 
 /* Demo account — used only when Google auth is disabled (no Client ID). */
 const DEMO_ACCOUNT = {

@@ -1,5 +1,7 @@
 # Milifix.org 全站審查報告與 Opus / Sonnet 分工
 
+> **⚠️ 本文件已過時（2026-07-05 版）**：所列 P0/P1 多已修復。最新審查見 [`WEBSITE_AUDIT_2026-07-10.md`](./WEBSITE_AUDIT_2026-07-10.md)。本檔僅留作歷史紀錄。
+
 審查日期：2026-07-05。範圍：repo 內全部 147 個檔案（pages、components、scripts、styles、i18n、data、api、CI、部署設定），並實跑 `astro check`（0 errors / 9 hints）與 `astro build` 驗證。
 
 每條問題附「檔案:行號」與可判定的驗收條件。分級：

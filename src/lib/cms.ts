@@ -1,23 +1,8 @@
 import type { Lang } from '../i18n/types'
 import postTranslations from '../data/post-translations.json'
+import { getCmsUrl, isFailFast, isProd } from './cms-env'
 
-const CMS_URL = import.meta.env.CMS_URL ?? 'http://localhost:3000'
-const CMS_API = `${CMS_URL}/api`
-
-/**
- * 逃生旗標。CMS_ALLOW_EMPTY 為 '1' / 'true' 時，fetch 失敗維持寬鬆行為
- * （回 [] / null 並 warn），供本地或 CI 在沒有 CMS 的環境仍能 build。
- */
-const ALLOW_EMPTY = ['1', 'true'].includes(
-  String(import.meta.env.CMS_ALLOW_EMPTY ?? '').toLowerCase(),
-)
-
-/**
- * fail-fast 邊界：只有在 build（import.meta.env.PROD）且未開逃生旗標時，
- * fetch 失敗才 throw 讓 build 以非零 exit code 失敗，避免 CMS 停機時
- * webhook rebuild 產出空站覆蓋正式站。dev 一律寬鬆、不 throw。
- */
-const FAIL_FAST = Boolean(import.meta.env.PROD) && !ALLOW_EMPTY
+const CMS_API = `${getCmsUrl()}/api`
 
 type FetchOptions = {
   where?: Record<string, unknown>
@@ -61,7 +46,7 @@ const MAX_ATTEMPTS = 4
 const RETRY_BASE_DELAY_MS = 1_500
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-const isRetryableStatus = (s: number) => s === 408 || s === 429 || s >= 500
+export const isRetryableStatus = (s: number) => s === 408 || s === 429 || s >= 500
 
 async function requestJson<T>(
   collection: string,
@@ -70,7 +55,7 @@ async function requestJson<T>(
   let lastErr: CmsFetchError | null = null
   // 只有真正的 build（fail-fast）才需要為冷啟動重試；dev / CMS_ALLOW_EMPTY
   // 反正會 fallback 空值，單次嘗試即可，避免無謂拖慢。
-  const attempts = FAIL_FAST ? MAX_ATTEMPTS : 1
+  const attempts = isFailFast() ? MAX_ATTEMPTS : 1
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const controller = new AbortController()
@@ -113,7 +98,7 @@ function fetchJson<T>(
   collection: string,
   url: string,
 ): Promise<PayloadResponse<T>> {
-  if (!import.meta.env.PROD) return requestJson<T>(collection, url)
+  if (!isProd()) return requestJson<T>(collection, url)
   const cached = requestCache.get(url)
   if (cached) return cached as Promise<PayloadResponse<T>>
   const pending = requestJson<T>(collection, url)
@@ -146,7 +131,7 @@ async function fetchCollection<T>(collection: string, opts: FetchOptions = {}): 
     warnIfTruncated(collection, data)
     return data.docs
   } catch (err) {
-    if (FAIL_FAST) throw err
+    if (isFailFast()) throw err
     console.warn(
       `${err instanceof Error ? err.message : String(err)} — returning [] (CMS_ALLOW_EMPTY / dev)`,
     )
@@ -165,7 +150,7 @@ async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> 
     const data = await fetchJson<T>(collection, url)
     return (data.docs[0] ?? null) as T | null
   } catch (err) {
-    if (FAIL_FAST) throw err
+    if (isFailFast()) throw err
     console.warn(
       `${err instanceof Error ? err.message : String(err)} — returning null (CMS_ALLOW_EMPTY / dev)`,
     )

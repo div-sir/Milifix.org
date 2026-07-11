@@ -25,6 +25,10 @@ interface Props {
   hreflangAlternates?: boolean;
   /** 額外的 <body> 屬性（如 space 頁的 data-space） */
   bodyAttrs?: Record<string, string | number | boolean | undefined>;
+  /** og:type；預設 website。文章頁傳 'article' 才會輸出 article:published_time */
+  ogType?: string;
+  /** article:published_time（ISO 字串）。僅 ogType='article' 時有意義 */
+  articlePublishedTime?: string;
 }
 
 const {
@@ -38,6 +42,8 @@ const {
   htmlDataTheme,
   hreflangAlternates = true,
   bodyAttrs = {},
+  ogType = 'website',
+  articlePublishedTime,
 } = Astro.props;
 
 const htmlLang = HTML_LANG[lang];
@@ -45,6 +51,10 @@ const forcedTheme = typeof htmlDataTheme === 'string' && htmlDataTheme.length > 
 const hasDescription = typeof description === 'string' && description.trim().length > 0;
 
 const canonicalUrl = canonicalPath ? new URL(canonicalPath, Astro.site).href : undefined;
+
+// 未提供 ogImage 時 fallback 到全站預設分享圖，確保任何頁面分享出去
+// 都至少有預覽圖（twitter:card 也才能升級為 summary_large_image）。
+const resolvedOgImage = ogImage ?? '/og-default.png';
 
 // hreflang：僅在可索引、有 canonicalPath 且啟用時輸出
 const alternates =
@@ -61,7 +71,7 @@ const ogLocaleMap: Record<Lang, string> = {
   zh: 'zh_TW',
   ja: 'ja_JP',
 };
-const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const ogImageUrl = new URL(resolvedOgImage, Astro.site).href;
 ---
 
 <!doctype html>
@@ -90,11 +100,14 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     {/* Open Graph */}
     <meta property="og:title" content={title} />
     {hasDescription && <meta property="og:description" content={description} />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content={ogLocaleMap[lang]} />
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
     <meta property="og:site_name" content="Milifix" />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime} />
+    )}
 
     {/* Twitter Card */}
     <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
@@ -106,6 +119,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
       /* 主題初始化：全站唯一一份。強制主題頁（forcedTheme）不執行，鎖定 data-theme。 */
       !forcedTheme && (
         <script is:inline>
+          {/* eslint-disable-next-line @typescript-eslint/no-unused-expressions -- <script> 內容是單一 template literal 表達式，非裸陳述式，屬 astro-eslint-parser 誤判 */}
           {`(function () {
   try {
     var t = localStorage.getItem('portfolio-theme');

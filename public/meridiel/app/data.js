@@ -862,10 +862,10 @@
   // Parses OpenFlights' airports.dat rows (id,name,city,country,iata,icao,
   // lat,lng,alt,tz,dst,tzdb,type,source), keeping only codes we don't
   // already have. Resolves with just the added entries (what gets cached).
-  function mergeAirportRows(text) {
+  async function mergeAirportRows(text) {
     const added = {};
     const lines = text.split("\n");
-    return processLinesChunked(lines, (rawLine) => {
+    await processLinesChunked(lines, (rawLine) => {
       const line = rawLine.trim();
       if (!line) return;
       const row = parseCsvLine(line);
@@ -876,10 +876,9 @@
       if (!isFinite(lat) || !isFinite(lng)) return;
       const country = row[3] || "";
       added[iata] = { city: row[2] || iata, name: row[1] || iata, country, cc: COUNTRY_ISO[country] || "", lat, lng };
-    }).then(() => {
-      Object.assign(AIRPORTS, added);
-      return added;
     });
+    Object.assign(AIRPORTS, added);
+    return added;
   }
 
   function loadFullAirportDatabase() {
@@ -906,11 +905,11 @@
   const AIRLINES_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat";
   const AIRLINES_CACHE_KEY = "fa-airlines-db-v1";
 
-  function mergeAirlineRows(text) {
+  async function mergeAirlineRows(text) {
     const added = [];
     const seen = new Set(AIRLINES.map((a) => a.code));
     const lines = text.split("\n");
-    return processLinesChunked(lines, (rawLine) => {
+    await processLinesChunked(lines, (rawLine) => {
       const line = rawLine.trim();
       if (!line) return;
       const row = parseCsvLine(line);
@@ -919,10 +918,9 @@
       if (active !== "Y" || !/^[A-Z0-9]{2}$/.test(iata) || seen.has(iata)) return;
       seen.add(iata);
       added.push({ code: iata, name: row[1] || iata });
-    }).then(() => {
-      added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
-      return added;
     });
+    added.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+    return added;
   }
 
   function loadFullAirlineDatabase() {

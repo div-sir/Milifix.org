@@ -956,6 +956,11 @@ a.trip-link:hover { border-color: var(--travel-accent); color: var(--travel-acce
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
   transform: scale(0.97);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.32, 1);
+  /* img 無 width/height 屬性（src 由 JS 依當前點擊照片動態指定）。
+     "auto <ratio>" 讓已知的自然尺寸優先套用，僅在載入前（無自然尺寸）
+     用 3:2 佔位，避免圖片載入瞬間造成版面跳動。 */
+  aspect-ratio: auto 3 / 2;
+  background: color-mix(in srgb, var(--text) 4%, var(--bg));
 }
 .trip-lightbox.is-open .trip-lightbox__img { transform: scale(1); }
 .trip-lightbox__caption {

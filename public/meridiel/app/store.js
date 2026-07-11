@@ -106,19 +106,18 @@
 
   // interactive=true → may show account chooser / consent.
   // interactive=false → silent refresh (fails if interaction is required).
-  function requestToken(interactive) {
-    return waitForGis().then(function () {
-      return new Promise(function (resolve, reject) {
-        var client = ensureClient();
-        if (!client) { reject(new Error("gis-not-loaded")); return; }
-        pending = { resolve: resolve, reject: reject };
-        try {
-          client.requestAccessToken(interactive ? {} : { prompt: "none" });
-        } catch (e) {
-          pending = null;
-          reject(e);
-        }
-      });
+  async function requestToken(interactive) {
+    await waitForGis();
+    return new Promise(function (resolve, reject) {
+      var client = ensureClient();
+      if (!client) { reject(new Error("gis-not-loaded")); return; }
+      pending = { resolve: resolve, reject: reject };
+      try {
+        client.requestAccessToken(interactive ? {} : { prompt: "none" });
+      } catch (e) {
+        pending = null;
+        reject(e);
+      }
     });
   }
 
@@ -126,100 +125,93 @@
   // (an interactive sign-in, which works even when the browser blocks the
   // hidden iframe silent refresh needs) instead of a generic, unhelpful
   // "offline" that looks like a network problem.
-  function getToken() {
-    if (token && token.expires_at > now()) return Promise.resolve(token.access_token);
-    return requestToken(false).catch(function (e) {
+  async function getToken() {
+    if (token && token.expires_at > now()) return token.access_token;
+    try {
+      return await requestToken(false);
+    } catch (e) {
       console.error("Meridiel: silent Google sign-in refresh failed —", e);
       var err = new Error("reauth-required");
       err.code = "reauth-required";
       err.cause = e;
       throw err;
-    });
+    }
   }
 
   // fetch with a valid bearer token; on a 401 refresh once and retry.
-  function driveFetch(url, opts) {
+  async function driveFetch(url, opts) {
     opts = opts || {};
-    return getToken().then(function (at) {
-      var headers = Object.assign({}, opts.headers, { Authorization: "Bearer " + at });
-      return fetch(url, Object.assign({}, opts, { headers: headers })).then(function (r) {
-        if (r.status !== 401) return r;
-        token = null;
-        cacheToken(null);
-        return getToken().then(function (at2) {
-          var h2 = Object.assign({}, opts.headers, { Authorization: "Bearer " + at2 });
-          return fetch(url, Object.assign({}, opts, { headers: h2 }));
-        });
-      });
-    });
+    var at = await getToken();
+    var headers = Object.assign({}, opts.headers, { Authorization: "Bearer " + at });
+    var r = await fetch(url, Object.assign({}, opts, { headers: headers }));
+    if (r.status !== 401) return r;
+    token = null;
+    cacheToken(null);
+    var at2 = await getToken();
+    var h2 = Object.assign({}, opts.headers, { Authorization: "Bearer " + at2 });
+    return fetch(url, Object.assign({}, opts, { headers: h2 }));
   }
 
-  function findFile() {
-    if (fileId) return Promise.resolve(fileId);
+  async function findFile() {
+    if (fileId) return fileId;
     var q = encodeURIComponent("name='" + FILE_NAME + "'");
     var url = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)&q=" + q;
     // A non-ok response (e.g. Drive API not enabled, or a scope/permission
     // error) used to get parsed as JSON anyway; its error body has no
     // `.files`, so this silently read as "no file yet" instead of a real
     // failure — masking a broken sync as a fresh first run.
-    return driveFetch(url).then(function (r) {
-      if (!r.ok) return Promise.reject(new Error("drive list " + r.status));
-      return r.json();
-    }).then(function (j) {
-      if (j && j.files && j.files.length) fileId = j.files[0].id;
-      return fileId;
-    });
+    var r = await driveFetch(url);
+    if (!r.ok) throw new Error("drive list " + r.status);
+    var j = await r.json();
+    if (j && j.files && j.files.length) fileId = j.files[0].id;
+    return fileId;
   }
 
   // Returns the parsed JSON payload, or null if there is no file yet.
-  function load() {
-    return findFile().then(function (id) {
-      if (!id) return null;
-      return driveFetch("https://www.googleapis.com/drive/v3/files/" + id + "?alt=media")
-        .then(function (r) { return r.ok ? r.json() : null; });
-    });
+  async function load() {
+    var id = await findFile();
+    if (!id) return null;
+    var r = await driveFetch("https://www.googleapis.com/drive/v3/files/" + id + "?alt=media");
+    return r.ok ? r.json() : null;
   }
 
   // Create or overwrite the app-data file with `data`.
-  function save(data) {
+  async function save(data) {
     var body = JSON.stringify(data);
-    return findFile().then(function (id) {
-      if (id) {
-        return driveFetch(
-          "https://www.googleapis.com/upload/drive/v3/files/" + id + "?uploadType=media",
-          { method: "PATCH", headers: { "Content-Type": "application/json" }, body: body }
-        );
-      }
-      var boundary = "meridiel" + Math.random().toString(36).slice(2);
-      var metadata = { name: FILE_NAME, parents: ["appDataFolder"] };
-      var multipart =
-        "--" + boundary + "\r\n" +
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-        JSON.stringify(metadata) + "\r\n" +
-        "--" + boundary + "\r\n" +
-        "Content-Type: application/json\r\n\r\n" +
-        body + "\r\n" +
-        "--" + boundary + "--";
+    var id = await findFile();
+    if (id) {
       return driveFetch(
-        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
-        { method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body: multipart }
-      ).then(function (r) { return r.json(); }).then(function (j) {
-        if (j && j.id) fileId = j.id;
-        return j;
-      });
-    });
+        "https://www.googleapis.com/upload/drive/v3/files/" + id + "?uploadType=media",
+        { method: "PATCH", headers: { "Content-Type": "application/json" }, body: body }
+      );
+    }
+    var boundary = "meridiel" + Math.random().toString(36).slice(2);
+    var metadata = { name: FILE_NAME, parents: ["appDataFolder"] };
+    var multipart =
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+      JSON.stringify(metadata) + "\r\n" +
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json\r\n\r\n" +
+      body + "\r\n" +
+      "--" + boundary + "--";
+    var r = await driveFetch(
+      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+      { method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body: multipart }
+    );
+    var j = await r.json();
+    if (j && j.id) fileId = j.id;
+    return j;
   }
 
   // Interactive sign-in: get a token (with Drive scope) + the profile.
-  function signIn() {
-    return requestToken(true).then(function (at) {
-      return fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-        headers: { Authorization: "Bearer " + at },
-      }).then(function (r) {
-        if (!r.ok) throw new Error("userinfo " + r.status);
-        return r.json();
-      });
+  async function signIn() {
+    var at = await requestToken(true);
+    var r = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: "Bearer " + at },
     });
+    if (!r.ok) throw new Error("userinfo " + r.status);
+    return r.json();
   }
 
   window.MeridielAuth = { enabled: !!CLIENT_ID, clientId: CLIENT_ID, signIn: signIn };

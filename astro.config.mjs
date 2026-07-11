@@ -23,9 +23,15 @@ export default defineConfig({
     inlineStylesheets: 'auto',
   },
 
-  // 允許最佳化外部圖片網域
+  // 允許最佳化外部圖片網域（domains 為舊式白名單；remotePatterns 涵蓋
+  // UploadThing 的兩個網域，為後續全面轉 astro:assets <Image> 鋪路）
   image: {
     domains: ['images.unsplash.com'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'utfs.io' },
+      { protocol: 'https', hostname: '*.ufs.sh' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
   },
 
   markdown: {

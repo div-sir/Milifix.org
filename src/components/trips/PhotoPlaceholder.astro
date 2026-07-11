@@ -20,7 +20,10 @@ const hasSrc = typeof photo.src === 'string' && photo.src.length > 0;
         data-lightbox-caption={photo.caption ?? ''}
         aria-label={photo.caption ?? photo.alt ?? '放大檢視'}
       >
-        <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} loading="lazy" decoding="async" />
+        {/* 實際照片尺寸未知（外部圖檔，build 時無 CMS 圖片管線）；
+           父層 .trip-photo 已用 CSS aspect-ratio: 3/2 佔位防止 CLS，
+           此處 width/height 屬性依同比例給瀏覽器預留空間的提示 */}
+        <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} width="600" height="400" loading="lazy" decoding="async" />
         {photo.caption && (
           <span class="trip-photo__overlay">
             <span class="trip-photo__overlay-caption">{photo.caption}</span>
