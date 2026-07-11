@@ -5,7 +5,7 @@ import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
-import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
+import { konbiniPath, konbiniProductPath, konbiniNewProductPath } from '../../i18n/routes';
 import { loadKonbiniProducts, averageRating } from '../../lib/konbini';
 import { chainName, priceLabel, starString } from '../../lib/konbini-view';
 import '../../styles/theme.css';
@@ -54,6 +54,9 @@ const categories = [...new Set(products.map((p) => p.category))];
       <p class="konbini-hero__tag">{t.heroTag}</p>
       <h1 class="konbini-hero__title">{t.heroTitle}</h1>
       <p class="konbini-hero__desc">{t.heroDesc}</p>
+      <a class="konbini-hero__cta" href={konbiniNewProductPath(lang)}>
+        {t.addProductCta}
+      </a>
       {cards.length > 0 && <p class="konbini-hero__hint">{t.heroHint}</p>}
     </header>
 

@@ -12,73 +12,11 @@ import {
 } from './_pass-security.js';
 import { validateSubmission } from './_konbini-submit-validate.js';
 import { decodeReviewImage, MAX_PHOTOS } from './_konbini-image.js';
+import { CMS_URL, SUBMIT_API_KEY, fetchWithTimeout, apiKeyHeaders, uploadMedia } from './_konbini-cms-client.js';
+import { CLIENT_ID, verifyGoogleIdToken } from './_konbini-google-auth.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
 const RATE_LIMIT_STORE = new Map();
-
-const CMS_URL = process.env.CMS_URL ?? 'http://localhost:3000';
-const CLIENT_ID =
-  process.env.GOOGLE_OAUTH_CLIENT_ID ?? process.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID;
-const SUBMIT_API_KEY = process.env.KONBINI_SUBMIT_API_KEY;
-
-const FETCH_TIMEOUT_MS = 10_000;
-
-/** @param {string} url @param {RequestInit} [init] */
-async function fetchWithTimeout(url, init) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/** @returns {Record<string, string>} */
-function apiKeyHeaders() {
-  return { Authorization: `users API-Key ${SUBMIT_API_KEY}` };
-}
-
-/**
- * 以 Google tokeninfo 端點驗證 ID token。回傳已驗證的身分或 null。
- * @param {string} idToken
- */
-async function verifyGoogleIdToken(idToken) {
-  const res = await fetchWithTimeout(
-    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
-  );
-  if (!res.ok) return null;
-  const p = await res.json();
-  const issOk = p.iss === 'accounts.google.com' || p.iss === 'https://accounts.google.com';
-  const audOk = CLIENT_ID && p.aud === CLIENT_ID;
-  const notExpired = Number(p.exp) * 1000 > Date.now();
-  if (!issOk || !audOk || !notExpired || !p.sub) return null;
-  return {
-    sub: String(p.sub),
-    name: typeof p.name === 'string' ? p.name : '',
-    emailVerified: p.email_verified === true || p.email_verified === 'true',
-  };
-}
-
-/**
- * 上傳一張已解碼的照片到 Payload media（multipart），回傳 media id 或 null。
- * @param {{ buffer: Buffer, contentType: string, ext: string }} img
- * @param {string} alt
- */
-async function uploadMedia(img, alt) {
-  const form = new FormData();
-  const blob = new Blob([img.buffer], { type: img.contentType });
-  form.append('file', blob, `konbini-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${img.ext}`);
-  form.append('alt', String(alt || 'konbini review photo').slice(0, 120));
-  const res = await fetchWithTimeout(`${CMS_URL}/api/media`, {
-    method: 'POST',
-    headers: apiKeyHeaders(),
-    body: form,
-  });
-  if (!res.ok) return null;
-  const json = await res.json().catch(() => null);
-  return json?.doc?.id ?? null;
-}
 
 /**
  * 找出「這位使用者對這個商品」既有的評價（不論審核狀態）。
