@@ -5,7 +5,7 @@ import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
-import { konbiniPath, konbiniProductPath, konbiniSubmitPath } from '../../i18n/routes';
+import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
 import { loadKonbiniProduct, averageRating } from '../../lib/konbini';
 import { chainName, priceLabel, starString } from '../../lib/konbini-view';
 import '../../styles/theme.css';
@@ -18,10 +18,15 @@ interface Props {
 }
 const { lang, slug } = Astro.props;
 const t = konbini(lang);
+const r = t.rate;
 
 const product = await loadKonbiniProduct(slug);
 const reviews = product?.reviews ?? [];
 const avg = averageRating(reviews);
+
+// 用 PUBLIC_ 前綴才會注入到瀏覽器端。未設定時只顯示「尚未開放」訊息。
+const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
+const configured = clientId.length > 0;
 ---
 
 <BaseLayout
@@ -61,31 +66,92 @@ const avg = averageRating(reviews);
                 <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
               )}
               {product.description && <p class="konbini-detail__desc">{product.description}</p>}
-              <a class="konbini-hero__cta konbini-hero__cta--link" href={konbiniSubmitPath(lang, product.slug)}>
-                {t.submitCta}
-              </a>
             </div>
           </header>
 
+          {
+            configured ? (
+              <section class="konbini-rate" aria-labelledby="konbini-rate-heading">
+                <h2 id="konbini-rate-heading" class="konbini-rate__heading">{r.heading}</h2>
+
+                <div class="konbini-rate__gate" id="konbini-rate-gate">
+                  <div id="konbini-gsi" class="konbini-form__gsi" />
+                  <p class="konbini-rate__reason">{r.signInReason}</p>
+                </div>
+
+                <form
+                  class="konbini-form konbini-rate__form"
+                  id="konbini-form"
+                  hidden
+                  data-client-id={clientId}
+                  data-product-slug={product.slug}
+                  data-msg-signin={r.errorSignIn}
+                  data-msg-success={r.success}
+                  data-msg-success-updated={r.successUpdated}
+                  data-msg-error={r.errorGeneric}
+                  data-msg-toomany={r.photoTooMany}
+                  data-max-photos="3"
+                >
+                  <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
+
+                  <div class="konbini-form__row">
+                    <span>{t.ratingLabel}：<strong id="konbini-rating-value">3</strong> / 5</span>
+                    <input
+                      type="range"
+                      name="rating"
+                      min="1"
+                      max="5"
+                      step="1"
+                      value="3"
+                      class="konbini-rate__slider"
+                      id="konbini-rating-input"
+                    />
+                    <div class="konbini-stars konbini-rate__stars" id="konbini-rating-stars" aria-hidden="true">
+                      ★★★☆☆
+                    </div>
+                  </div>
+
+                  <label class="konbini-form__row">
+                    <span>{r.fieldBody} <em>({r.optional})</em></span>
+                    <textarea name="body" rows="3" maxlength="1000" />
+                  </label>
+
+                  <div class="konbini-form__row">
+                    <span>{r.fieldPhotos} <em>({r.optional})</em></span>
+                    <input type="file" id="konbini-photos" accept="image/*" multiple />
+                    <small class="konbini-form__note">{r.photoHint}</small>
+                    <div class="konbini-form__previews" id="konbini-previews" />
+                  </div>
+
+                  <p class="konbini-form__note">{r.moderationNote}</p>
+                  <button type="submit" class="konbini-form__submit" id="konbini-send">{r.send}</button>
+                  <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" />
+                </form>
+              </section>
+            ) : (
+              <p class="konbini-empty">{r.notConfigured}</p>
+            )
+          }
+
           {reviews.length > 0 && (
             <section class="konbini-reviews" aria-label={t.reviewsUnit}>
-              {reviews.map((r) => (
+              {reviews.map((rev) => (
                 <article class="konbini-review">
                   <header class="konbini-review__head">
-                    <span class="konbini-stars konbini-stars--sm" aria-label={`${t.ratingLabel} ${r.rating} / 5`}>
-                      {starString(r.rating)}
+                    <span class="konbini-stars konbini-stars--sm" aria-label={`${t.ratingLabel} ${rev.rating} / 5`}>
+                      {starString(rev.rating)}
                     </span>
-                    {r.title && <h3 class="konbini-review__title">{r.title}</h3>}
+                    {rev.title && <h3 class="konbini-review__title">{rev.title}</h3>}
                   </header>
-                  {r.body && <p class="konbini-review__body">{r.body}</p>}
-                  {r.photos && r.photos.length > 0 && (
+                  {rev.body && <p class="konbini-review__body">{rev.body}</p>}
+                  {rev.photos && rev.photos.length > 0 && (
                     <div class="konbini-review__photos">
-                      {r.photos.map(
+                      {rev.photos.map(
                         (ph) =>
                           ph.image?.url && (
                             <img
                               src={ph.image.url}
-                              alt={ph.image.alt ?? r.title ?? product.name}
+                              alt={ph.image.alt ?? rev.title ?? product.name}
                               width="240"
                               height="180"
                               loading="lazy"
@@ -96,10 +162,10 @@ const avg = averageRating(reviews);
                     </div>
                   )}
                   <footer class="konbini-review__foot">
-                    {r.store && <span>{t.storeLabel}：{r.store}</span>}
-                    {r.price != null && <span>{priceLabel(r.price, r.currency, t)}</span>}
-                    {r.authorName && <span>{t.by} {r.authorName}</span>}
-                    {r.submittedAt && <span>{r.submittedAt}</span>}
+                    {rev.store && <span>{t.storeLabel}：{rev.store}</span>}
+                    {rev.price != null && <span>{priceLabel(rev.price, rev.currency, t)}</span>}
+                    {rev.authorName && <span>{t.by} {rev.authorName}</span>}
+                    {rev.submittedAt && <span>{rev.submittedAt}</span>}
                   </footer>
                 </article>
               ))}
@@ -109,4 +175,155 @@ const avg = averageRating(reviews);
       )
     }
   </main>
+
+  {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
+
+  <script is:inline define:vars={{ sendLabel: r.send, sendingLabel: r.sending }}>
+    (function () {
+      var form = document.getElementById('konbini-form');
+      if (!form) return;
+      var clientId = form.getAttribute('data-client-id');
+      var productSlug = form.getAttribute('data-product-slug');
+      var gate = document.getElementById('konbini-rate-gate');
+      var statusEl = document.getElementById('konbini-status');
+      var sendBtn = document.getElementById('konbini-send');
+      var maxPhotos = parseInt(form.getAttribute('data-max-photos'), 10) || 3;
+      var tooManyMsg = form.getAttribute('data-msg-toomany');
+      var idToken = null;
+      var photos = []; // base64 data URLs（已縮圖）
+
+      // ── 評分滑桿：即時更新數字與星號顯示 ──
+      var ratingInput = document.getElementById('konbini-rating-input');
+      var ratingValue = document.getElementById('konbini-rating-value');
+      var ratingStars = document.getElementById('konbini-rating-stars');
+      function renderRating() {
+        var n = parseInt(ratingInput.value, 10) || 0;
+        if (ratingValue) ratingValue.textContent = String(n);
+        if (ratingStars) ratingStars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+      }
+      if (ratingInput) {
+        ratingInput.addEventListener('input', renderRating);
+        renderRating();
+      }
+
+      // ── 照片：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85 ──
+      var MAX_EDGE = 1600;
+      function downscale(file) {
+        return new Promise(function (resolve) {
+          var img = new Image();
+          var url = URL.createObjectURL(file);
+          img.onload = function () {
+            var w = img.width, h = img.height;
+            var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+            var cw = Math.round(w * scale), ch = Math.round(h * scale);
+            var canvas = document.createElement('canvas');
+            canvas.width = cw; canvas.height = ch;
+            canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+          img.src = url;
+        });
+      }
+      var photoInput = document.getElementById('konbini-photos');
+      var previews = document.getElementById('konbini-previews');
+      if (photoInput) {
+        photoInput.addEventListener('change', function () {
+          var files = [].slice.call(photoInput.files || []);
+          if (files.length > maxPhotos) {
+            if (statusEl) statusEl.textContent = tooManyMsg;
+            photoInput.value = '';
+            return;
+          }
+          if (statusEl) statusEl.textContent = '';
+          photos = [];
+          if (previews) previews.innerHTML = '';
+          Promise.all(files.map(downscale)).then(function (results) {
+            results.forEach(function (dataUrl) {
+              if (!dataUrl) return;
+              photos.push(dataUrl);
+              if (previews) {
+                var im = document.createElement('img');
+                im.src = dataUrl;
+                im.className = 'konbini-form__thumb';
+                im.width = 64; im.height = 64;
+                previews.appendChild(im);
+              }
+            });
+          });
+        });
+      }
+
+      // ── 登入前只顯示 Google 按鈕；登入後才揭露評分表單 ──
+      function onCredential(resp) {
+        idToken = resp && resp.credential;
+        if (!idToken) return;
+        if (gate) gate.hidden = true;
+        form.hidden = false;
+        try {
+          var payload = JSON.parse(atob(idToken.split('.')[1]));
+          var u = document.getElementById('konbini-user');
+          if (u) u.textContent = payload.name || payload.email || '';
+        } catch (e) {}
+      }
+
+      function initGsi() {
+        if (!window.google || !google.accounts || !google.accounts.id) return false;
+        google.accounts.id.initialize({ client_id: clientId, callback: onCredential });
+        var target = document.getElementById('konbini-gsi');
+        if (target) google.accounts.id.renderButton(target, { theme: 'outline', size: 'large' });
+        return true;
+      }
+      if (!initGsi()) {
+        var tries = 0;
+        var iv = setInterval(function () {
+          if (initGsi() || ++tries > 40) clearInterval(iv);
+        }, 150);
+      }
+
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        if (!idToken) {
+          if (statusEl) statusEl.textContent = form.getAttribute('data-msg-signin');
+          return;
+        }
+        var payload = {
+          idToken: idToken,
+          productSlug: productSlug,
+          rating: ratingInput ? ratingInput.value : 3,
+          body: new FormData(form).get('body'),
+          photos: photos,
+        };
+        if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
+        if (statusEl) statusEl.textContent = '';
+        var responseOk = false;
+        fetch('/api/konbini-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            responseOk = res.ok;
+            return res.json();
+          })
+          .then(function (data) {
+            if (!statusEl) return;
+            if (responseOk) {
+              statusEl.textContent = data && data.updated
+                ? form.getAttribute('data-msg-success-updated')
+                : form.getAttribute('data-msg-success');
+            } else {
+              statusEl.textContent = form.getAttribute('data-msg-error');
+            }
+          })
+          .catch(function () {
+            if (statusEl) statusEl.textContent = form.getAttribute('data-msg-error');
+          })
+          .finally(function () {
+            if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = sendLabel; }
+          });
+      });
+    })();
+  </script>
 </BaseLayout>

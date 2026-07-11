@@ -122,8 +122,3 @@ export function konbiniPath(lang: Lang): string {
 export function konbiniProductPath(lang: Lang, slug: string): string {
   return `${konbiniPath(lang)}/${slug}`;
 }
-
-export function konbiniSubmitPath(lang: Lang, productSlug?: string): string {
-  const base = `${konbiniPath(lang)}/submit`;
-  return productSlug ? `${base}?product=${encodeURIComponent(productSlug)}` : base;
-}

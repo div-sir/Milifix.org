@@ -4,15 +4,14 @@ import { validateSubmission } from '../api/_konbini-submit-validate.js';
 describe('validateSubmission', () => {
   const base = { productSlug: 'seven-tw-hotdog', rating: 5 };
 
-  it('accepts a minimal valid submission and normalises', () => {
+  it('accepts a minimal valid submission (rating only) and normalises', () => {
     const r = validateSubmission(base);
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.value.productSlug).toBe('seven-tw-hotdog');
       expect(r.value.rating).toBe(5);
-      // 空選填欄位正規化為 undefined
-      expect(r.value.title).toBeUndefined();
-      expect(r.value.price).toBeUndefined();
+      // 空的心得正規化為 undefined
+      expect(r.value.body).toBeUndefined();
     }
   });
 
@@ -29,30 +28,31 @@ describe('validateSubmission', () => {
     expect(validateSubmission({ ...base, rating: 'x' }).ok).toBe(false);
   });
 
-  it('enforces length caps on free-text fields', () => {
-    expect(validateSubmission({ ...base, title: 'a'.repeat(81) }).ok).toBe(false);
+  it('enforces the length cap on the comment body', () => {
     expect(validateSubmission({ ...base, body: 'a'.repeat(1001) }).ok).toBe(false);
-    expect(validateSubmission({ ...base, store: 'a'.repeat(61) }).ok).toBe(false);
-    expect(validateSubmission({ ...base, authorName: 'a'.repeat(41) }).ok).toBe(false);
+    expect(validateSubmission({ ...base, body: 'a'.repeat(1000) }).ok).toBe(true);
   });
 
-  it('validates price bounds and currency/country enums', () => {
-    expect(validateSubmission({ ...base, price: -1 }).ok).toBe(false);
-    expect(validateSubmission({ ...base, price: 100001 }).ok).toBe(false);
-    expect(validateSubmission({ ...base, price: 40 }).ok).toBe(true);
-    expect(validateSubmission({ ...base, currency: 'USD' }).ok).toBe(false);
-    expect(validateSubmission({ ...base, currency: 'JPY' }).ok).toBe(true);
-    expect(validateSubmission({ ...base, country: 'korea' }).ok).toBe(false);
-    expect(validateSubmission({ ...base, country: 'taiwan' }).ok).toBe(true);
-  });
-
-  it('keeps provided optional values after trimming', () => {
-    const r = validateSubmission({ ...base, title: '  好吃  ', store: ' 台北車站店 ', price: '40' });
+  it('keeps a provided comment after trimming', () => {
+    const r = validateSubmission({ ...base, body: '  好吃，會再買  ' });
     expect(r.ok).toBe(true);
     if (r.ok) {
-      expect(r.value.title).toBe('好吃');
-      expect(r.value.store).toBe('台北車站店');
-      expect(r.value.price).toBe(40);
+      expect(r.value.body).toBe('好吃，會再買');
+    }
+  });
+
+  it('ignores fields outside the reduced schema (title/price/store/country/authorName)', () => {
+    const r = validateSubmission({
+      ...base,
+      title: 'ignored',
+      price: 999,
+      store: 'ignored',
+      country: 'taiwan',
+      authorName: 'ignored',
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value).toEqual({ productSlug: 'seven-tw-hotdog', rating: 5, body: undefined });
     }
   });
 
