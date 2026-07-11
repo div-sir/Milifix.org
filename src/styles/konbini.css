@@ -304,6 +304,32 @@
 .konbini-country .konbini-card {
   border-top: 3px solid var(--konbini-country-accent);
 }
+.konbini-chain-empty {
+  margin: 0;
+  padding: 1.2rem 1.4rem;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.konbini-chain-empty__cta {
+  border: 1px solid var(--konbini-country-accent);
+  background: transparent;
+  color: var(--konbini-country-accent);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.konbini-chain-empty__cta:hover {
+  background: color-mix(in srgb, var(--konbini-country-accent) 14%, transparent);
+}
 
 /* ── Grid & cards ── */
 .konbini-grid {

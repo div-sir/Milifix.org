@@ -34,6 +34,9 @@ export interface KonbiniStrings {
   reviewsUnit: string;
   noReviews: string;
   noProducts: string;
+  /** 連鎖店還沒有任何商品時的提示 */
+  emptyChain: string;
+  addFirstProduct: string;
   backToIndex: string;
   ratingLabel: string;
   priceLabel: string;
@@ -109,6 +112,8 @@ const en: KonbiniStrings = {
   reviewsUnit: 'reviews',
   noReviews: 'No reviews yet — be the first.',
   noProducts: 'No picks published yet. Check back soon.',
+  emptyChain: 'No products yet for this chain.',
+  addFirstProduct: 'Add the first product',
   backToIndex: 'Back to Konbini',
   ratingLabel: 'Rating',
   priceLabel: 'Price',
@@ -192,6 +197,8 @@ const zh: KonbiniStrings = {
   reviewsUnit: '則評價',
   noReviews: '還沒有評價——搶頭香吧。',
   noProducts: '目前還沒有推薦上架，敬請期待。',
+  emptyChain: '這家店還沒有商品。',
+  addFirstProduct: '新增第一個商品',
   backToIndex: '回超商必吃',
   ratingLabel: '評分',
   priceLabel: '價格',

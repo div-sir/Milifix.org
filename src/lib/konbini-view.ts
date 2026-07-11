@@ -7,6 +7,12 @@ export function chainName(chain: KonbiniProduct['chain']): string {
   return (chain as KonbiniChain).name;
 }
 
+/** 連鎖店 slug（關聯可能是物件或裸 id；後者回空字串）。 */
+export function chainSlug(chain: KonbiniProduct['chain']): string {
+  if (!chain || typeof chain === 'string') return '';
+  return (chain as KonbiniChain).slug;
+}
+
 /** 價格標籤，如 NT$40 / ¥238；無價回空字串。 */
 export function priceLabel(
   price: number | undefined,

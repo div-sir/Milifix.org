@@ -54,7 +54,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
 
         <label class="konbini-form__row">
           <span>{n.fieldChain}</span>
-          <select name="chainSlug" required>
+          <select name="chainSlug" id="konbini-new-chain-select" required>
             <option value="" disabled selected>{n.chainPlaceholder}</option>
             {chainOptions.map((o) => (
               <option value={o.slug}>{o.label}</option>
