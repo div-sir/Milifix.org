@@ -1,7 +1,8 @@
 // @ts-check
 // 公開「新增商品」端點：接收前端 Google 登入後投稿的新商品，驗證身分與
-// 內容、擋濫用，再以 Payload API key 寫入一筆 status=pending 的商品
-// （待站主後台審核）。公眾不直接接觸 Payload；Payload 對外維持唯讀。
+// 內容、擋濫用，再以 Payload API key 寫入一筆 status=approved 的商品
+// （不經人工審核直接上架；登入仍是唯一門檻，非完全匿名開放）。公眾不
+// 直接接觸 Payload；Payload 對外維持唯讀。
 //
 // 連鎖店維持站主在後台既有維護（既有、已核准的連鎖店清單），使用者只能
 // 從既有連鎖店挑選，不能連帶新增連鎖店——避免商品／連鎖店兩層都要審核
@@ -103,8 +104,10 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 2) 建立待審商品。status 由伺服器強制 pending，不採信 client。
-    //    country 由連鎖店本身決定，使用者不另外選。
+    // 2) 建立商品。country 由連鎖店本身決定，使用者不另外選。
+    //    status 直接 approved：站主決定新商品投稿不經人工審核即上架（登入
+    //    仍是唯一門檻，並非完全匿名開放）。要恢復審核只需把這裡改回
+    //    'pending'。
     const doc = {
       name: v.name,
       slug: slugify(v.name),
@@ -112,7 +115,7 @@ export default async function handler(req, res) {
       country: chain.country,
       category: v.category,
       price: v.price,
-      status: 'pending',
+      status: 'approved',
       ...(coverId ? { cover: coverId } : {}),
     };
 
@@ -125,7 +128,8 @@ export default async function handler(req, res) {
     const created = await create.json();
     const newProductId = created?.doc?.id;
 
-    // 3) 內建第一則評論——投稿者不用等商品審核通過後再跑第二趟才能評論。
+    // 3) 內建第一則評論，狀態跟著商品一起 approved——否則商品會以「已上架
+    //    但沒有任何評價」的空狀態出現，投稿者的評分也白填了。
     //    照片沿用同一張（若有上傳）：同時是商品封面，也是這則評論的照片。
     //    這步失敗不影響商品已建立的結果，只記 log，不讓整個請求失敗。
     if (newProductId) {
@@ -135,7 +139,7 @@ export default async function handler(req, res) {
         body: v.body,
         authorName: identity.name || '匿名',
         authorId: identity.sub,
-        status: 'pending',
+        status: 'approved',
         submittedAt: new Date().toISOString(),
         ...(coverId ? { photos: [{ image: coverId }] } : {}),
       };
