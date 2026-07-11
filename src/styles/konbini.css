@@ -187,32 +187,19 @@
   color: var(--muted);
 }
 
-/* ── Tabs（店家評分／新增商品）── */
-.konbini-tabs {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: clamp(2rem, 5vw, 3rem);
-  border-bottom: 1px solid var(--line);
+/* ── 頁尾「新增商品」表單：從各店家卡片點入才展開 ── */
+.konbini-add-section {
+  margin-top: clamp(3rem, 7vw, 4.5rem);
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 5rem;
 }
-.konbini-tab {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  padding: 0.7rem 1.2rem;
-  font-size: 0.92rem;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s, border-color 0.15s;
+.konbini-add-section__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  text-align: center;
 }
-.konbini-tab:hover { color: var(--text); }
-.konbini-tab.is-active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  font-weight: 600;
-}
-.konbini-tabpanel[hidden] { display: none; }
 .konbini-tabpanel__intro {
   max-width: 52ch;
   margin: 0 auto 1.5rem;
@@ -303,6 +290,35 @@
 }
 .konbini-country .konbini-card {
   border-top: 3px solid var(--konbini-country-accent);
+}
+.konbini-card--add {
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+.konbini-card__add {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.konbini-card__add:hover { color: var(--konbini-country-accent, var(--accent)); }
+.konbini-card__add-icon {
+  font-size: 1.5rem;
+  line-height: 1;
 }
 .konbini-chain-empty {
   margin: 0;

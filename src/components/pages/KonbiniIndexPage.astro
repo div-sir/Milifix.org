@@ -19,6 +19,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = konbini(lang);
+const n = t.newProduct;
 
 const [products, chains] = await Promise.all([loadKonbiniProducts(), getKonbiniChains()]);
 
@@ -37,10 +38,10 @@ const cards = products.map((p) => {
   };
 });
 
-// 「店家評分」分頁：先按國家分區（台灣／日本各自不同主題色），
-// 再按連鎖店分組，讓「網站收錄了哪些店家」一眼看清楚。連鎖店清單以
-// CMS 的 konbini-chains 為主（含還沒有商品的店，讓它們也先露出並可導去
-// 新增商品），商品關聯到的連鎖店萬一不在該清單裡也一併補上，避免漏掉。
+// 先按國家分區（台灣／日本各自不同主題色），再按連鎖店分組，讓「網站
+// 收錄了哪些店家」一眼看清楚。連鎖店清單以 CMS 的 konbini-chains 為主
+// （含還沒有商品的店，讓它們也先露出並可導去新增商品），商品關聯到的
+// 連鎖店萬一不在該清單裡也一併補上，避免漏掉。
 const chainMeta = new Map<string, { slug: string; name: string; country: KonbiniCountry }>();
 for (const c of chains) chainMeta.set(c.slug, { slug: c.slug, name: c.name, country: c.country });
 for (const c of cards) {
@@ -61,6 +62,9 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
     }));
   return { country, chains: chainList };
 }).filter((g) => g.chains.length > 0);
+
+// 有國家氣泡標籤可切換時，區塊標題就不用再重複寫一次國家名稱。
+const showCountryTitle = countryGroups.length <= 1;
 ---
 
 <BaseLayout
@@ -80,136 +84,118 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
       <p class="konbini-hero__desc">{t.heroDesc}</p>
     </header>
 
-    <div class="konbini-tabs" role="tablist" aria-label={t.navLabel}>
-      <button class="konbini-tab is-active" data-tab="stores" type="button" role="tab" aria-selected="true">
-        {t.tabStores}
-      </button>
-      <button class="konbini-tab" data-tab="add" type="button" role="tab" aria-selected="false">
-        {t.tabAdd}
-      </button>
-    </div>
-
-    <div class="konbini-tabpanel" data-panel="stores">
-      {
-        countryGroups.length === 0 ? (
-          <p class="konbini-empty">{t.noProducts}</p>
-        ) : (
-          <>
-            {countryGroups.length > 1 && (
-              <div class="konbini-country-tabs" role="tablist" aria-label={t.filterCountry}>
-                {countryGroups.map((g, i) => (
-                  <button
-                    type="button"
-                    class={`konbini-country-tab konbini-country-tab--${g.country} ${i === 0 ? 'is-active' : ''}`}
-                    data-country-tab={g.country}
-                    role="tab"
-                    aria-selected={i === 0 ? 'true' : 'false'}
-                  >
-                    {t.countryNames[g.country]}
-                  </button>
-                ))}
-              </div>
-            )}
-            {countryGroups.map((g, gi) => (
-              <section
-                class={`konbini-country konbini-country--${g.country}`}
-                data-country-panel={g.country}
-                hidden={countryGroups.length > 1 && gi !== 0}
-              >
-                <h2 class="konbini-country__title">{t.countryNames[g.country]}</h2>
-                {g.chains.length > 1 && (
-                  <div class="konbini-chain-tabs" role="tablist" aria-label={t.filterChain}>
-                    {g.chains.map((chain, ci) => (
-                      <button
-                        type="button"
-                        class={`konbini-chain-tab ${ci === 0 ? 'is-active' : ''}`}
-                        data-chain-tab={chain.slug}
-                        role="tab"
-                        aria-selected={ci === 0 ? 'true' : 'false'}
-                      >
-                        {chain.name}
+    {
+      countryGroups.length === 0 ? (
+        <p class="konbini-empty">{t.noProducts}</p>
+      ) : (
+        <>
+          {countryGroups.length > 1 && (
+            <div class="konbini-country-tabs" role="tablist" aria-label={t.filterCountry}>
+              {countryGroups.map((g, i) => (
+                <button
+                  type="button"
+                  class={`konbini-country-tab konbini-country-tab--${g.country} ${i === 0 ? 'is-active' : ''}`}
+                  data-country-tab={g.country}
+                  role="tab"
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                >
+                  {t.countryNames[g.country]}
+                </button>
+              ))}
+            </div>
+          )}
+          {countryGroups.map((g, gi) => (
+            <section
+              class={`konbini-country konbini-country--${g.country}`}
+              data-country-panel={g.country}
+              hidden={countryGroups.length > 1 && gi !== 0}
+            >
+              {showCountryTitle && <h2 class="konbini-country__title">{t.countryNames[g.country]}</h2>}
+              {g.chains.length > 1 && (
+                <div class="konbini-chain-tabs" role="tablist" aria-label={t.filterChain}>
+                  {g.chains.map((chain, ci) => (
+                    <button
+                      type="button"
+                      class={`konbini-chain-tab ${ci === 0 ? 'is-active' : ''}`}
+                      data-chain-tab={chain.slug}
+                      role="tab"
+                      aria-selected={ci === 0 ? 'true' : 'false'}
+                    >
+                      {chain.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {g.chains.map((chain, ci) => (
+                <div
+                  class="konbini-chain-group"
+                  data-chain-panel={chain.slug}
+                  hidden={g.chains.length > 1 && ci !== 0}
+                >
+                  <h3 class="konbini-chain-group__title">{chain.name}</h3>
+                  {chain.items.length === 0 ? (
+                    <p class="konbini-chain-empty">
+                      {t.emptyChain}{' '}
+                      <button type="button" class="konbini-chain-empty__cta" data-goto-add data-preset-chain={chain.slug}>
+                        {t.addFirstProduct}
                       </button>
-                    ))}
-                  </div>
-                )}
-                {g.chains.map((chain, ci) => (
-                  <div
-                    class="konbini-chain-group"
-                    data-chain-panel={chain.slug}
-                    hidden={g.chains.length > 1 && ci !== 0}
-                  >
-                    <h3 class="konbini-chain-group__title">{chain.name}</h3>
-                    {chain.items.length === 0 ? (
-                      <p class="konbini-chain-empty">
-                        {t.emptyChain}{' '}
-                        <button type="button" class="konbini-chain-empty__cta" data-goto-add data-preset-chain={chain.slug}>
-                          {t.addFirstProduct}
+                    </p>
+                  ) : (
+                    <ul class="konbini-grid">
+                      {chain.items.map((c) => (
+                        <li class="konbini-card">
+                          <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
+                            <div class={`konbini-card__cover konbini-card__cover--${c.category}`} aria-hidden="true">
+                              <span class="konbini-card__cover-label">{c.name}</span>
+                            </div>
+                            <div class="konbini-card__body">
+                              <h4 class="konbini-card__name">{c.name}</h4>
+                              <p class="konbini-card__meta">
+                                <span class="konbini-stars" aria-label={`${t.ratingLabel} ${c.avg.toFixed(1)} / 5`}>
+                                  {starString(c.avg)}
+                                </span>
+                                <span class="konbini-card__count">
+                                  {c.count > 0 ? `${c.avg.toFixed(1)} · ${c.count} ${t.reviewsUnit}` : t.noReviews}
+                                </span>
+                              </p>
+                              {c.price && <p class="konbini-card__price">{c.price}</p>}
+                            </div>
+                          </a>
+                        </li>
+                      ))}
+                      <li class="konbini-card konbini-card--add">
+                        <button type="button" class="konbini-card__add" data-goto-add data-preset-chain={chain.slug}>
+                          <span class="konbini-card__add-icon" aria-hidden="true">＋</span>
+                          <span>{t.addProductCta}</span>
                         </button>
-                      </p>
-                    ) : (
-                      <ul class="konbini-grid">
-                        {chain.items.map((c) => (
-                          <li class="konbini-card">
-                            <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
-                              <div class={`konbini-card__cover konbini-card__cover--${c.category}`} aria-hidden="true">
-                                <span class="konbini-card__cover-label">{c.name}</span>
-                              </div>
-                              <div class="konbini-card__body">
-                                <h4 class="konbini-card__name">{c.name}</h4>
-                                <p class="konbini-card__meta">
-                                  <span class="konbini-stars" aria-label={`${t.ratingLabel} ${c.avg.toFixed(1)} / 5`}>
-                                    {starString(c.avg)}
-                                  </span>
-                                  <span class="konbini-card__count">
-                                    {c.count > 0 ? `${c.avg.toFixed(1)} · ${c.count} ${t.reviewsUnit}` : t.noReviews}
-                                  </span>
-                                </p>
-                                {c.price && <p class="konbini-card__price">{c.price}</p>}
-                              </div>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </section>
-            ))}
-          </>
-        )
-      }
-    </div>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </section>
+          ))}
+        </>
+      )
+    }
 
-    <div class="konbini-tabpanel" data-panel="add" hidden>
-      <p class="konbini-tabpanel__intro">{t.heroHint}</p>
+    <section class="konbini-add-section" id="konbini-add-section" hidden>
+      <h2 class="konbini-add-section__title">{n.pageTitle}</h2>
+      <p class="konbini-tabpanel__intro">{n.intro}</p>
       <KonbiniNewProductForm lang={lang} />
-    </div>
+    </section>
   </main>
 
   <script is:inline>
     (function () {
-      var tabs = document.querySelectorAll('.konbini-tab');
-      var panels = document.querySelectorAll('.konbini-tabpanel');
-      function activateMainTab(target) {
-        tabs.forEach(function (t) {
-          var active = t.getAttribute('data-tab') === target;
-          t.classList.toggle('is-active', active);
-          t.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-        panels.forEach(function (p) {
-          p.hidden = p.getAttribute('data-panel') !== target;
-        });
-      }
-      tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-          activateMainTab(tab.getAttribute('data-tab'));
-        });
-      });
-
-      // ── 空連鎖店的「新增第一個商品」：切到新增商品分頁並預選該連鎖店 ──
+      // ── 「新增商品」：展開頁尾表單並捲動過去，若從特定連鎖店點入則預選 ──
+      var addSection = document.getElementById('konbini-add-section');
       document.querySelectorAll('[data-goto-add]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          activateMainTab('add');
+          if (addSection) {
+            addSection.hidden = false;
+            addSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
           var presetSlug = btn.getAttribute('data-preset-chain');
           var select = document.getElementById('konbini-new-chain-select');
           if (select && presetSlug) {
@@ -223,7 +209,7 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
         });
       });
 
-      // ── 國家切換：店家評分分頁內，切換只看台灣或只看日本 ──
+      // ── 國家切換：切換只看台灣或只看日本 ──
       var countryTabs = document.querySelectorAll('.konbini-country-tab');
       var countrySections = document.querySelectorAll('[data-country-panel]');
       countryTabs.forEach(function (tab) {

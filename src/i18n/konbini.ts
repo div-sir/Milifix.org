@@ -18,13 +18,8 @@ export interface KonbiniStrings {
   heroTag: string;
   heroTitle: string;
   heroDesc: string;
-  /** 首頁 hero：新增商品 CTA */
+  /** 每個連鎖店商品清單最後的「新增商品」卡片 */
   addProductCta: string;
-  /** 首頁 hero：提示使用者也可以點進商品評分 */
-  heroHint: string;
-  /** 頁內分頁：店家評分／新增商品 */
-  tabStores: string;
-  tabAdd: string;
   /** 篩選 */
   filterAll: string;
   filterCountry: string;
@@ -102,9 +97,6 @@ const en: KonbiniStrings = {
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
   addProductCta: 'Add a product',
-  heroHint: 'Or tap an existing pick to rate it.',
-  tabStores: 'Store ratings',
-  tabAdd: 'Add a product',
   filterAll: 'All',
   filterCountry: 'Country',
   filterCategory: 'Category',
@@ -187,9 +179,6 @@ const zh: KonbiniStrings = {
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
   addProductCta: '新增商品',
-  heroHint: '或點進商品幫它評分。',
-  tabStores: '店家評分',
-  tabAdd: '新增商品',
   filterAll: '全部',
   filterCountry: '國家',
   filterCategory: '分類',
