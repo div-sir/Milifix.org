@@ -187,37 +187,67 @@
   color: var(--muted);
 }
 
-/* ── Filters ── */
-.konbini-filters {
+/* ── Tabs（店家評分／新增商品）── */
+.konbini-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 2rem;
-}
-.konbini-filters__row {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+  border-bottom: 1px solid var(--line);
 }
-.konbini-chip {
-  border: 1px solid var(--line);
+.konbini-tab {
+  border: none;
   background: transparent;
   color: var(--muted);
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.92rem;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
 }
-.konbini-chip:hover {
-  border-color: var(--accent);
+.konbini-tab:hover { color: var(--text); }
+.konbini-tab.is-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.konbini-tabpanel[hidden] { display: none; }
+.konbini-tabpanel__intro {
+  max-width: 52ch;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ── Country sections：台灣／日本各自不同主題色 ── */
+.konbini-country {
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+.konbini-country--taiwan { --konbini-country-accent: #e8734a; }
+.konbini-country--japan { --konbini-country-accent: #6b7fe8; }
+.konbini-country__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 1.3rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--konbini-country-accent);
+  color: var(--konbini-country-accent);
+}
+.konbini-chain-group {
+  margin-bottom: 1.8rem;
+}
+.konbini-chain-group__title {
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text);
+  margin: 0 0 0.8rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--konbini-country-accent);
 }
-.konbini-chip.is-active {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
+.konbini-country .konbini-card {
+  border-top: 3px solid var(--konbini-country-accent);
 }
 
 /* ── Grid & cards ── */

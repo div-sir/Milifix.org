@@ -1,0 +1,289 @@
+---
+// 「新增商品」表單本體，被 KonbiniNewProductPage（獨立頁）與
+// KonbiniIndexPage 的「新增商品」分頁共用，避免重複維護同一份腳本。
+import type { Lang } from '../../i18n/types';
+import { konbini } from '../../i18n/konbini';
+import { getKonbiniChains } from '../../lib/cms';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = konbini(lang);
+const n = t.newProduct;
+
+// 用 PUBLIC_ 前綴才會注入到瀏覽器端。未設定時只顯示「尚未開放」訊息。
+const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
+const configured = clientId.length > 0;
+
+const chains = await getKonbiniChains();
+const chainOptions = [...chains]
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((c) => ({ slug: c.slug, label: `${c.name}（${t.countryNames[c.country]}）` }));
+
+const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
+---
+
+{
+  !configured ? (
+    <p class="konbini-empty">{n.notConfigured}</p>
+  ) : chainOptions.length === 0 ? (
+    <p class="konbini-empty">{n.noChains}</p>
+  ) : (
+    <section class="konbini-rate" aria-label={n.pageTitle}>
+      <div class="konbini-rate__gate" id="konbini-new-gate">
+        <div id="konbini-gsi" class="konbini-form__gsi" />
+        <p class="konbini-rate__reason">{n.signInReason}</p>
+      </div>
+
+      <form
+        class="konbini-form konbini-rate__form"
+        id="konbini-form"
+        hidden
+        data-client-id={clientId}
+        data-msg-signin={n.errorSignIn}
+        data-msg-success={n.success}
+        data-msg-error={n.errorGeneric}
+      >
+        <p class="konbini-form__signed">{n.signedInAs} <span id="konbini-user" /></p>
+
+        <label class="konbini-form__row">
+          <span>{n.fieldName}</span>
+          <input type="text" name="name" maxlength="80" required />
+        </label>
+
+        <label class="konbini-form__row">
+          <span>{n.fieldChain}</span>
+          <select name="chainSlug" required>
+            <option value="" disabled selected>{n.chainPlaceholder}</option>
+            {chainOptions.map((o) => (
+              <option value={o.slug}>{o.label}</option>
+            ))}
+          </select>
+        </label>
+
+        <label class="konbini-form__row">
+          <span>{n.fieldCategory}</span>
+          <select name="category" required>
+            <option value="" disabled selected>{n.categoryPlaceholder}</option>
+            {categoryOptions.map(([value, label]) => (
+              <option value={value}>{label}</option>
+            ))}
+          </select>
+        </label>
+
+        <div class="konbini-form__row">
+          <span>{n.fieldRating}：<strong id="konbini-new-rating-value">3</strong> / 5</span>
+          <input
+            type="range"
+            name="rating"
+            min="1"
+            max="5"
+            step="1"
+            value="3"
+            class="konbini-rate__slider"
+            id="konbini-new-rating-input"
+          />
+          <div class="konbini-stars konbini-rate__stars" id="konbini-new-rating-stars" aria-hidden="true">
+            ★★★☆☆
+          </div>
+        </div>
+
+        <label class="konbini-form__row">
+          <span>{n.fieldBody} <em>({n.optional})</em></span>
+          <textarea name="body" rows="3" maxlength="1000" />
+        </label>
+
+        <label class="konbini-form__row">
+          <span>{n.fieldPrice} <em>({n.optional})</em></span>
+          <input type="number" name="price" min="0" max="100000" step="1" />
+        </label>
+
+        <div class="konbini-form__row">
+          <span>{n.fieldCover} <em>({n.optional})</em></span>
+          <input type="file" id="konbini-cover" accept="image/*" />
+          <div class="konbini-form__previews" id="konbini-previews" />
+        </div>
+
+        <p class="konbini-form__note">{n.moderationNote}</p>
+        <button type="submit" class="konbini-form__submit" id="konbini-send">{n.send}</button>
+        <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" />
+      </form>
+    </section>
+  )
+}
+
+{configured && chainOptions.length > 0 && (
+  <script is:inline src="https://accounts.google.com/gsi/client" async></script>
+)}
+
+<script is:inline define:vars={{ sendLabel: n.send, sendingLabel: n.sending }}>
+  (function () {
+    var form = document.getElementById('konbini-form');
+    if (!form) return;
+    var clientId = form.getAttribute('data-client-id');
+    var gate = document.getElementById('konbini-new-gate');
+    var statusEl = document.getElementById('konbini-status');
+    var sendBtn = document.getElementById('konbini-send');
+    var idToken = null;
+    var coverDataUrl = null;
+
+    // ── 評分滑桿：即時更新數字與星號顯示 ──
+    var ratingInput = document.getElementById('konbini-new-rating-input');
+    var ratingValue = document.getElementById('konbini-new-rating-value');
+    var ratingStars = document.getElementById('konbini-new-rating-stars');
+    function renderRating() {
+      var n = parseInt(ratingInput.value, 10) || 0;
+      if (ratingValue) ratingValue.textContent = String(n);
+      if (ratingStars) ratingStars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+    }
+    if (ratingInput) {
+      ratingInput.addEventListener('input', renderRating);
+      renderRating();
+    }
+
+    // ── 封面圖：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85 ──
+    var MAX_EDGE = 1600;
+    function downscale(file) {
+      return new Promise(function (resolve) {
+        var img = new Image();
+        var url = URL.createObjectURL(file);
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+          var cw = Math.round(w * scale), ch = Math.round(h * scale);
+          var canvas = document.createElement('canvas');
+          canvas.width = cw; canvas.height = ch;
+          canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
+      });
+    }
+    var coverInput = document.getElementById('konbini-cover');
+    var previews = document.getElementById('konbini-previews');
+    if (coverInput) {
+      coverInput.addEventListener('change', function () {
+        var file = coverInput.files && coverInput.files[0];
+        coverDataUrl = null;
+        if (previews) previews.innerHTML = '';
+        if (!file) return;
+        downscale(file).then(function (dataUrl) {
+          if (!dataUrl) return;
+          coverDataUrl = dataUrl;
+          if (previews) {
+            var im = document.createElement('img');
+            im.src = dataUrl;
+            im.className = 'konbini-form__thumb';
+            im.width = 64; im.height = 64;
+            previews.appendChild(im);
+          }
+        });
+      });
+    }
+
+    // ── 登入前只顯示 Google 按鈕；登入後才揭露表單 ──
+    // idToken 額外存進 sessionStorage：同一分頁內切換語系／換頁都是整頁
+    // 導覽，純記憶體變數會被重置，若不快取就得每次重新登入一次。
+    var TOKEN_KEY = 'konbini-id-token';
+
+    function showSignedIn(token) {
+      idToken = token;
+      if (gate) gate.hidden = true;
+      form.hidden = false;
+      try {
+        var payload = JSON.parse(atob(token.split('.')[1]));
+        var u = document.getElementById('konbini-user');
+        if (u) u.textContent = payload.name || payload.email || '';
+      } catch (e) {}
+    }
+
+    function tryRestoreSession() {
+      try {
+        var cached = sessionStorage.getItem(TOKEN_KEY);
+        if (!cached) return;
+        var payload = JSON.parse(atob(cached.split('.')[1]));
+        if (!payload.exp || payload.exp * 1000 <= Date.now()) {
+          sessionStorage.removeItem(TOKEN_KEY);
+          return;
+        }
+        showSignedIn(cached);
+      } catch (e) {}
+    }
+    tryRestoreSession();
+
+    function onCredential(resp) {
+      var token = resp && resp.credential;
+      if (!token) return;
+      try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+      showSignedIn(token);
+    }
+
+    function initGsi() {
+      if (!window.google || !google.accounts || !google.accounts.id) return false;
+      google.accounts.id.initialize({ client_id: clientId, callback: onCredential });
+      var target = document.getElementById('konbini-gsi');
+      if (target) google.accounts.id.renderButton(target, { theme: 'outline', size: 'large' });
+      return true;
+    }
+    if (!initGsi()) {
+      var tries = 0;
+      var iv = setInterval(function () {
+        if (initGsi() || ++tries > 40) clearInterval(iv);
+      }, 150);
+    }
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (!idToken) {
+        if (statusEl) statusEl.textContent = form.getAttribute('data-msg-signin');
+        return;
+      }
+      var fd = new FormData(form);
+      var payload = {
+        idToken: idToken,
+        name: fd.get('name'),
+        chainSlug: fd.get('chainSlug'),
+        category: fd.get('category'),
+        price: fd.get('price'),
+        rating: ratingInput ? ratingInput.value : 3,
+        body: fd.get('body'),
+        cover: coverDataUrl,
+      };
+      if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
+      if (statusEl) statusEl.textContent = '';
+      var responseOk = false;
+      fetch('/api/konbini-propose-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function (res) {
+          responseOk = res.ok;
+          if (res.status === 401) {
+            // 快取的 token 過期／失效：清掉快取、讓登入按鈕重新出現，
+            // 但表單維持可見、內容不清空，重新登入後可以直接再送出。
+            try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+            idToken = null;
+            if (gate) gate.hidden = false;
+          }
+          return res.json();
+        })
+        .then(function () {
+          if (!statusEl) return;
+          statusEl.textContent = responseOk
+            ? form.getAttribute('data-msg-success')
+            : form.getAttribute('data-msg-error');
+          if (responseOk) form.reset();
+        })
+        .catch(function () {
+          if (statusEl) statusEl.textContent = form.getAttribute('data-msg-error');
+        })
+        .finally(function () {
+          if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = sendLabel; }
+        });
+    });
+  })();
+</script>
