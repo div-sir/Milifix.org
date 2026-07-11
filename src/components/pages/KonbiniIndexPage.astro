@@ -132,7 +132,7 @@ const showCountryTitle = countryGroups.length <= 1;
                   data-chain-panel={chain.slug}
                   hidden={g.chains.length > 1 && ci !== 0}
                 >
-                  <h3 class="konbini-chain-group__title">{chain.name}</h3>
+                  {g.chains.length <= 1 && <h3 class="konbini-chain-group__title">{chain.name}</h3>}
                   {chain.items.length === 0 ? (
                     <p class="konbini-chain-empty">
                       {t.emptyChain}{' '}
