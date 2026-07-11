@@ -20,10 +20,12 @@ export interface KonbiniStrings {
   heroDesc: string;
   /** 每個連鎖店商品清單最後的「新增商品」卡片 */
   addProductCta: string;
-  /** 篩選 */
-  filterAll: string;
+  /** 頁尾新增商品表單右上角的關閉按鈕 */
+  closeAddSection: string;
+  /** 照片／封面預覽縮圖上的移除按鈕（新增商品表單與評分表單共用） */
+  removePhoto: string;
+  /** 篩選（用在 tablist 的 aria-label） */
   filterCountry: string;
-  filterCategory: string;
   filterChain: string;
   /** 卡片與詳情 */
   reviewsUnit: string;
@@ -97,9 +99,9 @@ const en: KonbiniStrings = {
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
   addProductCta: 'Add a product',
-  filterAll: 'All',
+  closeAddSection: 'Close',
+  removePhoto: 'Remove photo',
   filterCountry: 'Country',
-  filterCategory: 'Category',
   filterChain: 'Chain',
   reviewsUnit: 'reviews',
   noReviews: 'No reviews yet — be the first.',
@@ -179,9 +181,9 @@ const zh: KonbiniStrings = {
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
   addProductCta: '新增商品',
-  filterAll: '全部',
+  closeAddSection: '關閉',
+  removePhoto: '移除照片',
   filterCountry: '國家',
-  filterCategory: '分類',
   filterChain: '連鎖店',
   reviewsUnit: '則評價',
   noReviews: '還沒有評價——搶頭香吧。',
