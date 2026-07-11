@@ -107,7 +107,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
 
         <p class="konbini-form__note">{n.moderationNote}</p>
         <button type="submit" class="konbini-form__submit" id="konbini-send">{n.send}</button>
-        <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" />
+        <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
       </form>
     </section>
   )
@@ -117,7 +117,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
   <script is:inline src="https://accounts.google.com/gsi/client" async></script>
 )}
 
-<script is:inline define:vars={{ sendLabel: n.send, sendingLabel: n.sending }}>
+<script is:inline define:vars={{ sendLabel: n.send, sendingLabel: n.sending, removeLabel: t.removePhoto }}>
   (function () {
     var form = document.getElementById('konbini-form');
     if (!form) return;
@@ -127,6 +127,19 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
     var sendBtn = document.getElementById('konbini-send');
     var idToken = null;
     var coverDataUrl = null;
+
+    function prefersReducedMotion() {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    // ── 送出前的原生驗證：checkValidity() 沒過就標紅並交給瀏覽器原生
+    // 提示（reportValidity），不送出；:user-invalid 支援的瀏覽器會自動
+    // 加樣式，這裡另外加 is-invalid class 當作舊瀏覽器的 fallback。 ──
+    var validatableFields = Array.prototype.slice.call(form.querySelectorAll('input, select, textarea'));
+    validatableFields.forEach(function (el) {
+      el.addEventListener('input', function () { el.classList.remove('is-invalid'); });
+      el.addEventListener('change', function () { el.classList.remove('is-invalid'); });
+    });
 
     // ── 評分滑桿：即時更新數字與星號顯示 ──
     var ratingInput = document.getElementById('konbini-new-rating-input');
@@ -164,6 +177,34 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
     }
     var coverInput = document.getElementById('konbini-cover');
     var previews = document.getElementById('konbini-previews');
+
+    function clearCoverPreview() {
+      coverDataUrl = null;
+      if (coverInput) coverInput.value = '';
+      if (previews) previews.innerHTML = '';
+    }
+
+    function renderCoverPreview(dataUrl) {
+      if (!previews) return;
+      previews.innerHTML = '';
+      var wrap = document.createElement('div');
+      wrap.className = 'konbini-form__thumb-wrap';
+      var im = document.createElement('img');
+      im.src = dataUrl;
+      im.alt = '';
+      im.className = 'konbini-form__thumb';
+      im.width = 64; im.height = 64;
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'konbini-form__thumb-remove';
+      removeBtn.setAttribute('aria-label', removeLabel);
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', clearCoverPreview);
+      wrap.appendChild(im);
+      wrap.appendChild(removeBtn);
+      previews.appendChild(wrap);
+    }
+
     if (coverInput) {
       coverInput.addEventListener('change', function () {
         var file = coverInput.files && coverInput.files[0];
@@ -173,13 +214,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
         downscale(file).then(function (dataUrl) {
           if (!dataUrl) return;
           coverDataUrl = dataUrl;
-          if (previews) {
-            var im = document.createElement('img');
-            im.src = dataUrl;
-            im.className = 'konbini-form__thumb';
-            im.width = 64; im.height = 64;
-            previews.appendChild(im);
-          }
+          renderCoverPreview(dataUrl);
         });
       });
     }
@@ -228,17 +263,57 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
       if (target) google.accounts.id.renderButton(target, { theme: 'outline', size: 'large' });
       return true;
     }
-    if (!initGsi()) {
-      var tries = 0;
-      var iv = setInterval(function () {
-        if (initGsi() || ++tries > 40) clearInterval(iv);
-      }, 150);
+    function attemptInitGsi() {
+      if (!initGsi()) {
+        var tries = 0;
+        var iv = setInterval(function () {
+          if (initGsi() || ++tries > 40) clearInterval(iv);
+        }, 150);
+      }
+    }
+    // renderButton 塞進 display:none 的容器（此表單被埋在 KonbiniIndexPage
+    // 底部預設隱藏的 #konbini-add-section 裡）量到的寬度會是 0，按鈕會
+    // 幾乎看不見；因此若表單被包在一個目前還是 hidden 的祖先區塊，就先不
+    // 初始化，等 KonbiniIndexPage 的開啟腳本第一次 dispatch
+    // 'konbini:add-open'（區塊被展開之後）再初始化。獨立頁（/konbini/new）
+    // 沒有這層 hidden 祖先，維持原本立即初始化。
+    // 注意：從 form.parentElement 開始找，不能從 form 自己開始——
+    // #konbini-form 這個 <form> 元素登入前本來就帶著自己的 hidden 屬性
+    // （跟登入態有關，跟「被包在收合的新增商品區塊裡」是兩回事），若從
+    // form 自己呼叫 closest('[hidden]') 會直接比對到自己，誤判成永遠要
+    // 延後初始化。
+    var hiddenAncestor = form.parentElement && form.parentElement.closest('[hidden]');
+    if (hiddenAncestor) {
+      hiddenAncestor.addEventListener('konbini:add-open', function onOpen() {
+        hiddenAncestor.removeEventListener('konbini:add-open', onOpen);
+        attemptInitGsi();
+      });
+    } else {
+      attemptInitGsi();
+    }
+
+    // 把狀態訊息（成功／錯誤）捲進畫面並交焦點過去，尊重減少動態偏好；
+    // 表單常常已經捲出畫面外，不主動捲過去使用者容易漏看。
+    function announceStatus(text) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      var reduced = prefersReducedMotion();
+      statusEl.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+      statusEl.focus();
     }
 
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      validatableFields.forEach(function (el) { el.classList.remove('is-invalid'); });
+      if (!form.checkValidity()) {
+        validatableFields.forEach(function (el) {
+          if (el.willValidate && !el.checkValidity()) el.classList.add('is-invalid');
+        });
+        form.reportValidity();
+        return;
+      }
       if (!idToken) {
-        if (statusEl) statusEl.textContent = form.getAttribute('data-msg-signin');
+        announceStatus(form.getAttribute('data-msg-signin'));
         return;
       }
       var fd = new FormData(form);
@@ -272,14 +347,14 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
           return res.json();
         })
         .then(function () {
-          if (!statusEl) return;
-          statusEl.textContent = responseOk
-            ? form.getAttribute('data-msg-success')
-            : form.getAttribute('data-msg-error');
-          if (responseOk) form.reset();
+          announceStatus(responseOk ? form.getAttribute('data-msg-success') : form.getAttribute('data-msg-error'));
+          if (responseOk) {
+            form.reset();
+            clearCoverPreview();
+          }
         })
         .catch(function () {
-          if (statusEl) statusEl.textContent = form.getAttribute('data-msg-error');
+          announceStatus(form.getAttribute('data-msg-error'));
         })
         .finally(function () {
           if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = sendLabel; }
