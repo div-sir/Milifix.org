@@ -221,6 +221,61 @@
   font-size: 0.9rem;
 }
 
+/* ── Country switcher：切換只看台灣或只看日本 ── */
+.konbini-country-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: clamp(1.6rem, 4vw, 2.4rem);
+  flex-wrap: wrap;
+}
+.konbini-country-tab {
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--muted);
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.konbini-country-tab:hover { color: var(--text); }
+.konbini-country-tab--taiwan.is-active {
+  color: #e8734a;
+  border-color: #e8734a;
+  background: color-mix(in srgb, #e8734a 12%, var(--bg2));
+}
+.konbini-country-tab--japan.is-active {
+  color: #6b7fe8;
+  border-color: #6b7fe8;
+  background: color-mix(in srgb, #6b7fe8 12%, var(--bg2));
+}
+
+/* ── Chain switcher：單一國家區塊內，切換只看某連鎖店 ── */
+.konbini-chain-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.3rem;
+}
+.konbini-chain-tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.konbini-chain-tab:hover { color: var(--text); }
+.konbini-chain-tab.is-active {
+  color: var(--konbini-country-accent);
+  border-color: var(--konbini-country-accent);
+  background: color-mix(in srgb, var(--konbini-country-accent) 12%, transparent);
+}
+
 /* ── Country sections：台灣／日本各自不同主題色 ── */
 .konbini-country {
   margin-bottom: clamp(2.5rem, 6vw, 4rem);

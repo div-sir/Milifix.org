@@ -29,6 +29,7 @@ export interface KonbiniStrings {
   filterAll: string;
   filterCountry: string;
   filterCategory: string;
+  filterChain: string;
   /** 卡片與詳情 */
   reviewsUnit: string;
   noReviews: string;
@@ -104,6 +105,7 @@ const en: KonbiniStrings = {
   filterAll: 'All',
   filterCountry: 'Country',
   filterCategory: 'Category',
+  filterChain: 'Chain',
   reviewsUnit: 'reviews',
   noReviews: 'No reviews yet — be the first.',
   noProducts: 'No picks published yet. Check back soon.',
@@ -186,6 +188,7 @@ const zh: KonbiniStrings = {
   filterAll: '全部',
   filterCountry: '國家',
   filterCategory: '分類',
+  filterChain: '連鎖店',
   reviewsUnit: '則評價',
   noReviews: '還沒有評價——搶頭香吧。',
   noProducts: '目前還沒有推薦上架，敬請期待。',
