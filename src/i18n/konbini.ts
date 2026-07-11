@@ -18,9 +18,8 @@ export interface KonbiniStrings {
   heroTag: string;
   heroTitle: string;
   heroDesc: string;
-  /** 投稿 CTA */
-  submitCta: string;
-  submitComingSoon: string;
+  /** 首頁 hero：提示使用者點進商品評分（取代舊的獨立投稿 CTA） */
+  heroHint: string;
   /** 篩選 */
   filterAll: string;
   filterCountry: string;
@@ -38,19 +37,12 @@ export interface KonbiniStrings {
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
-  submit: {
-    pageTitle: string;
-    intro: string;
-    signInPrompt: string;
+  /** 商品頁內嵌評分元件（以商品排行為核心，非開放式投稿表單） */
+  rate: {
+    heading: string;
+    signInReason: string;
     signedInAs: string;
-    fieldProduct: string;
-    fieldRating: string;
-    fieldTitle: string;
     fieldBody: string;
-    fieldPrice: string;
-    fieldStore: string;
-    fieldCountry: string;
-    fieldDisplayName: string;
     fieldPhotos: string;
     photoHint: string;
     photoTooMany: string;
@@ -58,6 +50,7 @@ export interface KonbiniStrings {
     send: string;
     sending: string;
     success: string;
+    successUpdated: string;
     errorGeneric: string;
     errorSignIn: string;
     moderationNote: string;
@@ -74,8 +67,7 @@ const en: KonbiniStrings = {
   heroTitle: 'Convenience-store must-tries',
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
-  submitCta: 'Submit a review',
-  submitComingSoon: 'Submissions open soon',
+  heroHint: 'Tap a pick to rate it.',
   filterAll: 'All',
   filterCountry: 'Country',
   filterCategory: 'Category',
@@ -101,30 +93,23 @@ const en: KonbiniStrings = {
     other: 'Other',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
-  submit: {
-    pageTitle: 'Submit a review',
-    intro: 'Share a convenience-store must-try. Sign in with Google — your review goes live after a quick review.',
-    signInPrompt: 'Sign in with Google to submit',
+  rate: {
+    heading: 'Rate this pick',
+    signInReason: 'Sign in with Google to rate — this keeps voting honest.',
     signedInAs: 'Signed in as',
-    fieldProduct: 'Product',
-    fieldRating: 'Rating',
-    fieldTitle: 'Title',
-    fieldBody: 'Your review',
-    fieldPrice: 'Price paid',
-    fieldStore: 'Where you bought it',
-    fieldCountry: 'Country',
-    fieldDisplayName: 'Display name',
+    fieldBody: 'Your comment',
     fieldPhotos: 'Photos',
     photoHint: 'Up to 3 photos. Large images are resized automatically.',
     photoTooMany: 'You can attach at most 3 photos.',
     optional: 'optional',
-    send: 'Submit review',
+    send: 'Submit rating',
     sending: 'Submitting…',
-    success: 'Thanks! Your review was submitted and will appear after moderation.',
+    success: 'Thanks! Your rating was submitted and will appear after moderation.',
+    successUpdated: 'Your rating was updated and will appear after moderation.',
     errorGeneric: 'Something went wrong. Please try again.',
     errorSignIn: 'Please sign in with Google first.',
-    moderationNote: 'All submissions are moderated before publishing.',
-    notConfigured: 'Submissions are not enabled yet. Please check back soon.',
+    moderationNote: 'All ratings are moderated before publishing.',
+    notConfigured: 'Rating is not enabled yet. Please check back soon.',
   },
 };
 
@@ -137,8 +122,7 @@ const zh: KonbiniStrings = {
   heroTitle: '便利商店必吃的東西',
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
-  submitCta: '我要投稿',
-  submitComingSoon: '投稿功能即將開放',
+  heroHint: '點進商品幫它評分吧。',
   filterAll: '全部',
   filterCountry: '國家',
   filterCategory: '分類',
@@ -164,30 +148,23 @@ const zh: KonbiniStrings = {
     other: '其他',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
-  submit: {
-    pageTitle: '我要投稿',
-    intro: '分享你的超商必吃。用 Google 登入投稿，內容經審核後就會上線。',
-    signInPrompt: '用 Google 登入以投稿',
+  rate: {
+    heading: '幫這個商品評分',
+    signInReason: '用 Google 登入才能評分，避免灌票。',
     signedInAs: '目前登入',
-    fieldProduct: '商品',
-    fieldRating: '評分',
-    fieldTitle: '標題',
     fieldBody: '你的心得',
-    fieldPrice: '購買價格',
-    fieldStore: '購買地點',
-    fieldCountry: '國家',
-    fieldDisplayName: '顯示名稱',
     fieldPhotos: '照片',
     photoHint: '最多 3 張；過大的圖片會自動縮小。',
     photoTooMany: '最多只能附上 3 張照片。',
     optional: '選填',
-    send: '送出評價',
+    send: '送出評分',
     sending: '送出中…',
-    success: '感謝投稿！內容經審核後就會顯示。',
+    success: '感謝評分！內容經審核後就會顯示。',
+    successUpdated: '評分已更新，經審核後就會顯示。',
     errorGeneric: '發生錯誤，請再試一次。',
     errorSignIn: '請先用 Google 登入。',
-    moderationNote: '所有投稿都會先經過審核才會發佈。',
-    notConfigured: '投稿功能尚未開放，敬請期待。',
+    moderationNote: '所有評分都會先經過審核才會發佈。',
+    notConfigured: '評分功能尚未開放，敬請期待。',
   },
 };
 

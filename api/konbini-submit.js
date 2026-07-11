@@ -1,7 +1,10 @@
 // @ts-check
-// 公開投稿端點：接收前端 Google 登入後的評價，驗證身分與內容、擋濫用，
+// 公開評分端點：接收前端 Google 登入後的評分，驗證身分與內容、擋濫用，
 // 再以 Payload API key 寫入一筆 status=pending 的評價（待站主後台審核）。
 // 公眾不直接接觸 Payload；Payload 對外維持唯讀。
+//
+// 防灌票：同一個 Google 帳號對同一商品重複送出時，改成「更新」既有那筆
+// 評價（並重置為 pending 待重新審核），而不是無限累加新的一筆。
 import {
   checkOrigin,
   checkRateLimit,
@@ -29,6 +32,11 @@ async function fetchWithTimeout(url, init) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+/** @returns {Record<string, string>} */
+function apiKeyHeaders() {
+  return { Authorization: `users API-Key ${SUBMIT_API_KEY}` };
 }
 
 /**
@@ -64,12 +72,34 @@ async function uploadMedia(img, alt) {
   form.append('alt', String(alt || 'konbini review photo').slice(0, 120));
   const res = await fetchWithTimeout(`${CMS_URL}/api/media`, {
     method: 'POST',
-    headers: { Authorization: `users API-Key ${SUBMIT_API_KEY}` },
+    headers: apiKeyHeaders(),
     body: form,
   });
   if (!res.ok) return null;
   const json = await res.json().catch(() => null);
   return json?.doc?.id ?? null;
+}
+
+/**
+ * 找出「這位使用者對這個商品」既有的評價（不論審核狀態）。
+ * 用 API key 身分讀取，才能看到 pending/rejected（公開唯讀只看得到 approved）。
+ * @param {string} productId
+ * @param {string} authorId
+ */
+async function findExistingReview(productId, authorId) {
+  // 多個頂層 where[field][operator] 條件間，Payload 預設以 AND 合併。
+  const params = new URLSearchParams({
+    'where[product][equals]': productId,
+    'where[authorId][equals]': authorId,
+    limit: '1',
+    depth: '0',
+  });
+  const res = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews?${params}`, {
+    headers: apiKeyHeaders(),
+  });
+  if (!res.ok) throw new Error(`existing review lookup ${res.status}`);
+  const json = await res.json();
+  return json?.docs?.[0] ?? null;
 }
 
 export default async function handler(req, res) {
@@ -103,6 +133,7 @@ export default async function handler(req, res) {
     return;
   }
 
+  // 登入是防灌票的第一道關卡：未通過 Google 驗證一律拒絕，不接受匿名評分。
   const identity = await verifyGoogleIdToken(idToken).catch(() => null);
   if (!identity) {
     res.status(401).json({ error: 'Invalid sign-in' });
@@ -148,39 +179,39 @@ export default async function handler(req, res) {
     // 2) 先上傳照片到 media（任何一張失敗即整筆放棄，不建立缺圖評價）
     const photoIds = [];
     for (const img of decodedPhotos) {
-      const id = await uploadMedia(img, v.title || product.name);
+      const id = await uploadMedia(img, product.name);
       if (!id) throw new Error('media upload failed');
       photoIds.push(id);
     }
 
-    // 3) 建立待審評價。status / authorId 由伺服器強制，不採信 client。
+    // 3) 防灌票：同一人對同一商品已有評價就更新它，不再新增一筆。
+    //    有新照片才覆蓋 photos 欄位；沒有新照片就保留原本的照片。
+    const existing = await findExistingReview(product.id, identity.sub);
+
     const doc = {
       product: product.id,
       rating: v.rating,
-      title: v.title,
       body: v.body,
-      price: v.price,
-      currency: v.currency,
-      store: v.store,
-      country: v.country,
-      authorName: v.authorName || identity.name || '匿名',
+      authorName: identity.name || '匿名',
       authorId: identity.sub,
       status: 'pending',
       submittedAt: new Date().toISOString(),
-      photos: photoIds.map((id) => ({ image: id })),
+      ...(photoIds.length > 0 ? { photos: photoIds.map((id) => ({ image: id })) } : {}),
     };
 
-    const create = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `users API-Key ${SUBMIT_API_KEY}`,
+    const write = await fetchWithTimeout(
+      existing?.id
+        ? `${CMS_URL}/api/konbini-reviews/${existing.id}`
+        : `${CMS_URL}/api/konbini-reviews`,
+      {
+        method: existing?.id ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json', ...apiKeyHeaders() },
+        body: JSON.stringify(doc),
       },
-      body: JSON.stringify(doc),
-    });
-    if (!create.ok) throw new Error(`create ${create.status}`);
+    );
+    if (!write.ok) throw new Error(`${existing?.id ? 'update' : 'create'} ${write.status}`);
 
-    res.status(200).json({ ok: true });
+    res.status(200).json({ ok: true, updated: Boolean(existing?.id) });
   } catch (err) {
     // 僅伺服器端記錄，不外洩內部細節
     console.error('[konbini-submit]', err);
