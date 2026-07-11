@@ -122,6 +122,32 @@ export default async function handler(req, res) {
       body: JSON.stringify(doc),
     });
     if (!create.ok) throw new Error(`create ${create.status}`);
+    const created = await create.json();
+    const newProductId = created?.doc?.id;
+
+    // 3) 內建第一則評論——投稿者不用等商品審核通過後再跑第二趟才能評論。
+    //    照片沿用同一張（若有上傳）：同時是商品封面，也是這則評論的照片。
+    //    這步失敗不影響商品已建立的結果，只記 log，不讓整個請求失敗。
+    if (newProductId) {
+      const reviewDoc = {
+        product: newProductId,
+        rating: v.rating,
+        body: v.body,
+        authorName: identity.name || '匿名',
+        authorId: identity.sub,
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        ...(coverId ? { photos: [{ image: coverId }] } : {}),
+      };
+      const reviewCreate = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...apiKeyHeaders() },
+        body: JSON.stringify(reviewDoc),
+      });
+      if (!reviewCreate.ok) {
+        console.error('[konbini-propose-product] bundled review create failed', reviewCreate.status);
+      }
+    }
 
     res.status(200).json({ ok: true });
   } catch (err) {
