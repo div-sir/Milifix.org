@@ -2,10 +2,12 @@
 import '../styles/site-nav.css';
 import type { Lang } from '../i18n/types';
 import { ui } from '../i18n/ui';
+import { konbini } from '../i18n/konbini';
 import {
   availableLangsForPath,
   equivalentUrl,
   homePath,
+  konbiniPath,
   parseLocalizedPath,
   spacePath,
   travelPath,
@@ -78,6 +80,9 @@ if (variant === 'platform') {
   // Travel 僅 en + zh；其他語系（ja）退回 en，避免連到不存在的 /ja/travel
   const travelLink = travelPath(availableLangsForPath('/travel').includes(lang) ? lang : 'en');
   navBlocks.push({ type: 'link', href: travelLink, label: labels.travel.navLabel });
+  // Konbini 僅 en + zh；其他語系（ja）退回 en，避免連到不存在的 /ja/konbini
+  const konbiniLang = availableLangsForPath('/konbini').includes(lang) ? lang : 'en';
+  navBlocks.push({ type: 'link', href: konbiniPath(konbiniLang), label: konbini(konbiniLang).navLabel });
 } else if (variant === 'space-home' && spaceId) {
   navBlocks.push({ type: 'link', href: homePath(lang), label: N.platform });
   if (workNavItems.length > 0) {
