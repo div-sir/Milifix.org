@@ -5,7 +5,7 @@ import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
-import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
+import { konbiniPath, konbiniProductPath, konbiniSubmitPath } from '../../i18n/routes';
 import { loadKonbiniProduct, averageRating } from '../../lib/konbini';
 import { chainName, priceLabel, starString } from '../../lib/konbini-view';
 import '../../styles/theme.css';
@@ -61,9 +61,9 @@ const avg = averageRating(reviews);
                 <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
               )}
               {product.description && <p class="konbini-detail__desc">{product.description}</p>}
-              <button class="konbini-hero__cta" type="button" disabled title={t.submitComingSoon}>
-                {t.submitCta} · {t.submitComingSoon}
-              </button>
+              <a class="konbini-hero__cta konbini-hero__cta--link" href={konbiniSubmitPath(lang, product.slug)}>
+                {t.submitCta}
+              </a>
             </div>
           </header>
 
