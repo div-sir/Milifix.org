@@ -1,0 +1,112 @@
+---
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import type { Lang } from '../../i18n/types';
+import { konbini } from '../../i18n/konbini';
+import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
+import { loadKonbiniProduct, averageRating } from '../../lib/konbini';
+import { chainName, priceLabel, starString } from '../../lib/konbini-view';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/konbini.css';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+}
+const { lang, slug } = Astro.props;
+const t = konbini(lang);
+
+const product = await loadKonbiniProduct(slug);
+const reviews = product?.reviews ?? [];
+const avg = averageRating(reviews);
+---
+
+<BaseLayout
+  lang={lang}
+  title={product ? `${product.name} — ${t.navLabel}` : t.metaTitle}
+  description={product?.description ?? t.metaDesc}
+  canonicalPath={konbiniProductPath(lang, slug)}
+>
+  <AmbientBackdrop />
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main class="konbini konbini-detail" id="main-content" tabindex="-1">
+    <a class="konbini-back" href={konbiniPath(lang)}>← {t.backToIndex}</a>
+
+    {
+      !product ? (
+        <p class="konbini-empty">{t.noProducts}</p>
+      ) : (
+        <article>
+          <header class="konbini-detail__head">
+            <div class={`konbini-detail__cover konbini-card__cover--${product.category}`} aria-hidden="true">
+              <span class="konbini-card__cover-label">{product.name}</span>
+            </div>
+            <div class="konbini-detail__meta">
+              <p class="konbini-detail__chain">
+                {chainName(product.chain)} · {t.countryNames[product.country]} · {t.categoryNames[product.category]}
+              </p>
+              <h1 class="konbini-detail__name">{product.name}</h1>
+              <p class="konbini-detail__rating">
+                <span class="konbini-stars" aria-label={`${t.ratingLabel} ${avg.toFixed(1)} / 5`}>{starString(avg)}</span>
+                <span>
+                  {reviews.length > 0 ? `${avg.toFixed(1)} · ${reviews.length} ${t.reviewsUnit}` : t.noReviews}
+                </span>
+              </p>
+              {product.price != null && (
+                <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
+              )}
+              {product.description && <p class="konbini-detail__desc">{product.description}</p>}
+              <button class="konbini-hero__cta" type="button" disabled title={t.submitComingSoon}>
+                {t.submitCta} · {t.submitComingSoon}
+              </button>
+            </div>
+          </header>
+
+          {reviews.length > 0 && (
+            <section class="konbini-reviews" aria-label={t.reviewsUnit}>
+              {reviews.map((r) => (
+                <article class="konbini-review">
+                  <header class="konbini-review__head">
+                    <span class="konbini-stars konbini-stars--sm" aria-label={`${t.ratingLabel} ${r.rating} / 5`}>
+                      {starString(r.rating)}
+                    </span>
+                    {r.title && <h3 class="konbini-review__title">{r.title}</h3>}
+                  </header>
+                  {r.body && <p class="konbini-review__body">{r.body}</p>}
+                  {r.photos && r.photos.length > 0 && (
+                    <div class="konbini-review__photos">
+                      {r.photos.map(
+                        (ph) =>
+                          ph.image?.url && (
+                            <img
+                              src={ph.image.url}
+                              alt={ph.image.alt ?? r.title ?? product.name}
+                              width="240"
+                              height="180"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ),
+                      )}
+                    </div>
+                  )}
+                  <footer class="konbini-review__foot">
+                    {r.store && <span>{t.storeLabel}：{r.store}</span>}
+                    {r.price != null && <span>{priceLabel(r.price, r.currency, t)}</span>}
+                    {r.authorName && <span>{t.by} {r.authorName}</span>}
+                    {r.submittedAt && <span>{r.submittedAt}</span>}
+                  </footer>
+                </article>
+              ))}
+            </section>
+          )}
+        </article>
+      )
+    }
+  </main>
+</BaseLayout>

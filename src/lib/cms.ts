@@ -9,6 +9,12 @@ type FetchOptions = {
   limit?: number
   sort?: string
   depth?: number
+  /**
+   * 選用 collection：即便在 fail-fast（正式 build）失敗也回空值而非 throw。
+   * 用於「CMS 端可能尚未建立」的新區塊（如 konbini），避免其未上線前
+   * 拖垮整個正式 build。既有必要 collection 不設此旗標，維持嚴格保護。
+   */
+  optional?: boolean
 }
 
 type PayloadResponse<T> = { docs: T[]; totalDocs?: number }
@@ -131,15 +137,19 @@ async function fetchCollection<T>(collection: string, opts: FetchOptions = {}): 
     warnIfTruncated(collection, data)
     return data.docs
   } catch (err) {
-    if (isFailFast()) throw err
+    if (isFailFast() && !opts.optional) throw err
     console.warn(
-      `${err instanceof Error ? err.message : String(err)} — returning [] (CMS_ALLOW_EMPTY / dev)`,
+      `${err instanceof Error ? err.message : String(err)} — returning [] (CMS_ALLOW_EMPTY / dev / optional)`,
     )
     return []
   }
 }
 
-async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> {
+async function fetchDoc<T>(
+  collection: string,
+  slug: string,
+  opts: { optional?: boolean } = {},
+): Promise<T | null> {
   const params = new URLSearchParams({
     where: JSON.stringify({ slug: { equals: slug } }),
     limit: '1',
@@ -150,7 +160,7 @@ async function fetchDoc<T>(collection: string, slug: string): Promise<T | null> 
     const data = await fetchJson<T>(collection, url)
     return (data.docs[0] ?? null) as T | null
   } catch (err) {
-    if (isFailFast()) throw err
+    if (isFailFast() && !opts.optional) throw err
     console.warn(
       `${err instanceof Error ? err.message : String(err)} — returning null (CMS_ALLOW_EMPTY / dev)`,
     )
@@ -430,3 +440,118 @@ export const getPrograms = (opts?: { programType?: CmsProgramType }) =>
 
 export const getProgram = (slug: string) =>
   fetchDoc<CmsProgram>('programs', slug)
+
+// ── Konbini: 超商／連鎖店評價 ──────────────────────────────
+
+export type KonbiniCountry = 'taiwan' | 'japan'
+export type KonbiniStoreType =
+  | 'convenience'
+  | 'supermarket'
+  | 'restaurant'
+  | 'drink'
+  | 'bakery'
+  | 'other'
+export type KonbiniCategory =
+  | 'onigiri'
+  | 'bento'
+  | 'hotfood'
+  | 'dessert'
+  | 'bread'
+  | 'drink'
+  | 'snack'
+  | 'frozen'
+  | 'other'
+export type KonbiniCurrency = 'TWD' | 'JPY'
+export type KonbiniReviewStatus = 'pending' | 'approved' | 'rejected'
+
+export type KonbiniChain = {
+  id: string
+  name: string
+  slug: string
+  country: KonbiniCountry
+  storeType: KonbiniStoreType
+  logo?: { url: string; alt?: string }
+  website?: string
+  description?: string
+}
+
+export type KonbiniReview = {
+  id: string
+  product: KonbiniProduct | string
+  rating: number
+  title?: string
+  body?: string
+  photos?: { id: string; image?: { url: string; alt?: string } }[]
+  price?: number
+  currency?: KonbiniCurrency
+  store?: string
+  country?: KonbiniCountry
+  authorName?: string
+  status: KonbiniReviewStatus
+  submittedAt?: string
+}
+
+export type KonbiniProduct = {
+  id: string
+  name: string
+  slug: string
+  chain?: KonbiniChain | string
+  country: KonbiniCountry
+  category: KonbiniCategory
+  cover?: { url: string; alt?: string }
+  price?: number
+  currency?: KonbiniCurrency
+  featured?: boolean
+  description?: string
+  /** 由 build 時聚合已核准評價塞入（CMS 端不存在此欄位） */
+  reviews?: KonbiniReview[]
+}
+
+export const getKonbiniChains = (opts?: { country?: KonbiniCountry }) =>
+  fetchCollection<KonbiniChain>('konbini-chains', {
+    where: opts?.country ? { country: { equals: opts.country } } : undefined,
+    sort: 'name',
+    depth: 1,
+    optional: true,
+  })
+
+export const getKonbiniChain = (slug: string) =>
+  fetchDoc<KonbiniChain>('konbini-chains', slug, { optional: true })
+
+export const getKonbiniProducts = (opts?: {
+  country?: KonbiniCountry
+  category?: KonbiniCategory
+}) =>
+  fetchCollection<KonbiniProduct>('konbini-products', {
+    where: {
+      ...(opts?.country ? { country: { equals: opts.country } } : {}),
+      ...(opts?.category ? { category: { equals: opts.category } } : {}),
+    },
+    sort: '-featured,name',
+    depth: 1,
+    optional: true,
+  })
+
+export const getKonbiniProduct = (slug: string) =>
+  fetchDoc<KonbiniProduct>('konbini-products', slug, { optional: true })
+
+/** 已核准的評價；depth 1 讓 product 關聯帶回 slug 以便分組。 */
+export const getApprovedKonbiniReviews = () =>
+  fetchCollection<KonbiniReview>('konbini-reviews', {
+    where: { status: { equals: 'approved' } },
+    sort: '-submittedAt',
+    depth: 1,
+    limit: 1000,
+    optional: true,
+  })
+
+/** 從評價取商品 id（product 可能是關聯物件或裸 id）。 */
+export function reviewProductId(review: KonbiniReview): string {
+  return typeof review.product === 'string' ? review.product : review.product?.id
+}
+
+/** 平均星等（無評價回 0）。 */
+export function averageRating(reviews: KonbiniReview[]): number {
+  if (!reviews.length) return 0
+  return reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length
+}

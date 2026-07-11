@@ -54,6 +54,7 @@ export function equivalentUrl(targetLang: Lang, pathname: string): string {
 export function availableLangsForPath(pathname: string): Lang[] {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/travel' || logicalPath.startsWith('/travel/')) return ['en', 'zh'];
+  if (logicalPath === '/konbini' || logicalPath.startsWith('/konbini/')) return ['en', 'zh'];
   return ['en', 'zh', 'ja'];
 }
 
@@ -109,4 +110,15 @@ export function programListPath(lang: Lang): string {
 
 export function programSlugPath(lang: Lang, slug: string): string {
   return `${travelPath(lang)}/programs/${slug}`;
+}
+
+// ── Konbini routes（超商評價，en + zh）────────────────────
+
+export function konbiniPath(lang: Lang): string {
+  const p = langPrefix(lang);
+  return p ? `${p}/konbini` : '/konbini';
+}
+
+export function konbiniProductPath(lang: Lang, slug: string): string {
+  return `${konbiniPath(lang)}/${slug}`;
 }

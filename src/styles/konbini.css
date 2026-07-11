@@ -1,0 +1,276 @@
+/* 超商必吃（konbini）專案樣式。沿用 theme.css 的設計 token。 */
+
+.konbini {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(5rem, 12vw, 8rem) clamp(1rem, 4vw, 2.5rem) 6rem;
+  color: var(--text);
+}
+
+/* ── Hero ── */
+.konbini-hero {
+  text-align: center;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+.konbini-hero__tag {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+.konbini-hero__title {
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0 0 0.9rem;
+  font-weight: 700;
+}
+.konbini-hero__desc {
+  max-width: 44ch;
+  margin: 0 auto 1.5rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.konbini-hero__cta {
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--muted);
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: not-allowed;
+}
+
+/* ── Filters ── */
+.konbini-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+.konbini-filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.konbini-chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.konbini-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.konbini-chip.is-active {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+/* ── Grid & cards ── */
+.konbini-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.6rem);
+}
+.konbini-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg2);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+.konbini-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+.konbini-card__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.konbini-card__cover {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--bg3), var(--bg2));
+}
+.konbini-card__cover-label {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  opacity: 0.85;
+}
+/* 分類色調 */
+.konbini-card__cover--hotfood { background: linear-gradient(135deg, #7a2e1e, #c2603f); }
+.konbini-card__cover--dessert { background: linear-gradient(135deg, #7a2e5e, #c25f9e); }
+.konbini-card__cover--frozen  { background: linear-gradient(135deg, #1e4a7a, #4f97c2); }
+.konbini-card__cover--drink   { background: linear-gradient(135deg, #1e6a5a, #3fc2a0); }
+.konbini-card__cover--onigiri { background: linear-gradient(135deg, #5a5a2e, #b5b04f); }
+.konbini-card__cover--bento   { background: linear-gradient(135deg, #6a4a1e, #c2903f); }
+.konbini-card__cover--bread   { background: linear-gradient(135deg, #7a5a2e, #c2a05f); }
+.konbini-card__cover--snack   { background: linear-gradient(135deg, #4a4a5a, #8f8fb5); }
+.konbini-card__cover--hotfood .konbini-card__cover-label,
+.konbini-card__cover--dessert .konbini-card__cover-label,
+.konbini-card__cover--frozen .konbini-card__cover-label,
+.konbini-card__cover--drink .konbini-card__cover-label,
+.konbini-card__cover--onigiri .konbini-card__cover-label,
+.konbini-card__cover--bento .konbini-card__cover-label,
+.konbini-card__cover--bread .konbini-card__cover-label,
+.konbini-card__cover--snack .konbini-card__cover-label {
+  color: #fff;
+  opacity: 0.95;
+}
+.konbini-card__body { padding: 0.9rem 1rem 1.1rem; }
+.konbini-card__chain {
+  font-size: 0.72rem;
+  color: var(--muted-dim);
+  margin: 0 0 0.25rem;
+}
+.konbini-card__name {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+.konbini-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.konbini-card__count { color: var(--muted-dim); }
+.konbini-card__price {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Stars ── */
+.konbini-stars {
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+.konbini-stars--sm { font-size: 0.85rem; }
+
+/* ── Empty ── */
+.konbini-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+}
+
+/* ── Detail ── */
+.konbini-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.konbini-back:hover { color: var(--accent); }
+.konbini-detail__head {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) 1fr;
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .konbini-detail__head { grid-template-columns: 1fr; }
+}
+.konbini-detail__cover {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+}
+.konbini-detail__chain {
+  font-size: 0.78rem;
+  color: var(--muted-dim);
+  margin: 0 0 0.4rem;
+}
+.konbini-detail__name {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin: 0 0 0.7rem;
+  line-height: 1.1;
+}
+.konbini-detail__rating {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+}
+.konbini-detail__price {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+}
+.konbini-detail__desc {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0 0 1.2rem;
+}
+
+/* ── Reviews ── */
+.konbini-reviews {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.konbini-review {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem;
+  background: var(--bg2);
+}
+.konbini-review__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.konbini-review__title { font-size: 1rem; margin: 0; }
+.konbini-review__body {
+  margin: 0 0 0.7rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.konbini-review__photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.konbini-review__photos img {
+  border-radius: 10px;
+  object-fit: cover;
+  max-width: 100%;
+  height: auto;
+}
+.konbini-review__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-size: 0.76rem;
+  color: var(--muted-dim);
+}
