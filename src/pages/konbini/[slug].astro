@@ -1,0 +1,11 @@
+---
+import KonbiniProductPage from '../../components/pages/KonbiniProductPage.astro';
+import { allKonbiniSlugs } from '../../lib/konbini';
+
+export async function getStaticPaths() {
+  const slugs = await allKonbiniSlugs();
+  return slugs.map(({ slug }) => ({ params: { slug }, props: { slug } }));
+}
+---
+
+<KonbiniProductPage lang="en" slug={Astro.props.slug} />

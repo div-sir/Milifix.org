@@ -101,6 +101,38 @@ describe('fetchCollection retry / fail-fast behavior', () => {
     await expect(promise).rejects.toThrow(/posts/);
   });
 
+  it('optional collections (konbini) degrade to [] even in fail-fast, so a not-yet-live CMS section cannot break prod build', async () => {
+    envState.isFailFast = true;
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('collection not found')));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const cms = await loadCms();
+
+    // 選用 collection 不 throw
+    const products = cms.getKonbiniProducts();
+    products.catch(() => {});
+    await vi.advanceTimersByTimeAsync(20_000);
+    await expect(products).resolves.toEqual([]);
+
+    // 對照組：必要 collection 在 fail-fast 下仍會 throw
+    const posts = cms.getPosts();
+    posts.catch(() => {});
+    await vi.advanceTimersByTimeAsync(20_000);
+    await expect(posts).rejects.toThrow(/posts/);
+  });
+
+  it('optional single-doc fetch (getKonbiniProduct) returns null in fail-fast instead of throwing', async () => {
+    envState.isFailFast = true;
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('collection not found')));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const cms = await loadCms();
+    const doc = cms.getKonbiniProduct('whatever');
+    doc.catch(() => {});
+    await vi.advanceTimersByTimeAsync(20_000);
+    await expect(doc).resolves.toBeNull();
+  });
+
   it('lenient mode (dev / CMS_ALLOW_EMPTY) returns [] and warns instead of throwing', async () => {
     envState.isFailFast = false;
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));

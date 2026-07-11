@@ -1,0 +1,136 @@
+---
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import type { Lang } from '../../i18n/types';
+import { konbini } from '../../i18n/konbini';
+import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
+import { loadKonbiniProducts, averageRating } from '../../lib/konbini';
+import { chainName, priceLabel, starString } from '../../lib/konbini-view';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/konbini.css';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = konbini(lang);
+
+const products = await loadKonbiniProducts();
+
+const cards = products.map((p) => {
+  const reviews = p.reviews ?? [];
+  return {
+    slug: p.slug,
+    name: p.name,
+    country: p.country,
+    category: p.category,
+    chain: chainName(p.chain),
+    avg: averageRating(reviews),
+    count: reviews.length,
+    price: priceLabel(p.price, p.currency, t),
+  };
+});
+
+// 篩選選項只列出實際存在的值
+const countries = [...new Set(products.map((p) => p.country))];
+const categories = [...new Set(products.map((p) => p.category))];
+---
+
+<BaseLayout
+  lang={lang}
+  title={t.metaTitle}
+  description={t.metaDesc}
+  canonicalPath={konbiniPath(lang)}
+>
+  <AmbientBackdrop />
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <PageTransition />
+
+  <main class="konbini" id="main-content" tabindex="-1">
+    <header class="konbini-hero">
+      <p class="konbini-hero__tag">{t.heroTag}</p>
+      <h1 class="konbini-hero__title">{t.heroTitle}</h1>
+      <p class="konbini-hero__desc">{t.heroDesc}</p>
+      <button class="konbini-hero__cta" type="button" disabled title={t.submitComingSoon}>
+        {t.submitCta} · {t.submitComingSoon}
+      </button>
+    </header>
+
+    {
+      cards.length > 0 && (
+        <div class="konbini-filters" role="group" aria-label={`${t.filterCountry} / ${t.filterCategory}`}>
+          <div class="konbini-filters__row">
+            <button class="konbini-chip is-active" data-filter="country" data-value="" type="button">{t.filterAll}</button>
+            {countries.map((c) => (
+              <button class="konbini-chip" data-filter="country" data-value={c} type="button">{t.countryNames[c]}</button>
+            ))}
+          </div>
+          <div class="konbini-filters__row">
+            <button class="konbini-chip is-active" data-filter="category" data-value="" type="button">{t.filterAll}</button>
+            {categories.map((c) => (
+              <button class="konbini-chip" data-filter="category" data-value={c} type="button">{t.categoryNames[c]}</button>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      cards.length === 0 ? (
+        <p class="konbini-empty">{t.noProducts}</p>
+      ) : (
+        <ul class="konbini-grid" id="konbini-grid">
+          {cards.map((c) => (
+            <li class="konbini-card" data-country={c.country} data-category={c.category}>
+              <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
+                <div class={`konbini-card__cover konbini-card__cover--${c.category}`} aria-hidden="true">
+                  <span class="konbini-card__cover-label">{c.name}</span>
+                </div>
+                <div class="konbini-card__body">
+                  <p class="konbini-card__chain">{c.chain} · {t.countryNames[c.country]}</p>
+                  <h2 class="konbini-card__name">{c.name}</h2>
+                  <p class="konbini-card__meta">
+                    <span class="konbini-stars" aria-label={`${t.ratingLabel} ${c.avg.toFixed(1)} / 5`}>
+                      {starString(c.avg)}
+                    </span>
+                    <span class="konbini-card__count">
+                      {c.count > 0 ? `${c.avg.toFixed(1)} · ${c.count} ${t.reviewsUnit}` : t.noReviews}
+                    </span>
+                  </p>
+                  {c.price && <p class="konbini-card__price">{c.price}</p>}
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </main>
+
+  <script is:inline>
+    (function () {
+      var grid = document.getElementById('konbini-grid');
+      if (!grid) return;
+      var state = { country: '', category: '' };
+      document.querySelectorAll('.konbini-chip').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var dim = btn.getAttribute('data-filter');
+          var val = btn.getAttribute('data-value') || '';
+          state[dim] = val;
+          document
+            .querySelectorAll('.konbini-chip[data-filter="' + dim + '"]')
+            .forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          grid.querySelectorAll('.konbini-card').forEach(function (card) {
+            var okC = !state.country || card.getAttribute('data-country') === state.country;
+            var okK = !state.category || card.getAttribute('data-category') === state.category;
+            card.style.display = okC && okK ? '' : 'none';
+          });
+        });
+      });
+    })();
+  </script>
+</BaseLayout>
