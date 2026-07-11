@@ -69,6 +69,11 @@
   gap: 0.6rem;
   align-items: flex-start;
 }
+/* display:flex 會蓋掉原生 hidden 屬性的 display:none，這裡明確加回來，
+   否則 JS 把 gate.hidden 設為 true 後畫面上不會消失。 */
+.konbini-rate__gate[hidden] {
+  display: none;
+}
 .konbini-rate__reason {
   font-size: 0.82rem;
   color: var(--muted);
@@ -101,6 +106,10 @@
   flex-direction: column;
   gap: 1rem;
   margin-top: 1.5rem;
+}
+/* 同上：登入前表單靠 hidden 屬性隱藏，display:flex 必須讓步給它。 */
+.konbini-form[hidden] {
+  display: none;
 }
 .konbini-form__gsi { min-height: 44px; }
 .konbini-form__signed {
