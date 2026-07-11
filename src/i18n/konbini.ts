@@ -70,6 +70,8 @@ export interface KonbiniStrings {
     fieldCategory: string;
     categoryPlaceholder: string;
     fieldPrice: string;
+    fieldRating: string;
+    fieldBody: string;
     fieldCover: string;
     optional: string;
     send: string;
@@ -139,7 +141,7 @@ const en: KonbiniStrings = {
   },
   newProduct: {
     pageTitle: 'Add a product',
-    intro: 'Suggest a convenience-store must-try that isn’t listed yet. Sign in with Google — it goes live after a quick review.',
+    intro: 'Suggest a convenience-store must-try that isn’t listed yet, along with your rating — no need to come back later. Sign in with Google, and it goes live after a quick review.',
     signInReason: 'Sign in with Google to add a product — this keeps submissions honest.',
     signedInAs: 'Signed in as',
     fieldName: 'Product name',
@@ -148,7 +150,9 @@ const en: KonbiniStrings = {
     fieldCategory: 'Category',
     categoryPlaceholder: 'Select a category',
     fieldPrice: 'Price',
-    fieldCover: 'Cover photo',
+    fieldRating: 'Your rating',
+    fieldBody: 'Your comment',
+    fieldCover: 'Photo (also used as your review photo)',
     optional: 'optional',
     send: 'Submit product',
     sending: 'Submitting…',
@@ -217,7 +221,7 @@ const zh: KonbiniStrings = {
   },
   newProduct: {
     pageTitle: '新增商品',
-    intro: '分享一個還沒被收錄的超商必吃。用 Google 登入投稿，內容經審核後就會上線。',
+    intro: '分享一個還沒被收錄的超商必吃，順便附上你的評分——不用等審核通過再跑一趟。用 Google 登入投稿，內容經審核後就會上線。',
     signInReason: '用 Google 登入才能新增商品，避免濫投。',
     signedInAs: '目前登入',
     fieldName: '商品名稱',
@@ -226,7 +230,9 @@ const zh: KonbiniStrings = {
     fieldCategory: '分類',
     categoryPlaceholder: '選擇分類',
     fieldPrice: '價格',
-    fieldCover: '封面圖',
+    fieldRating: '你的評分',
+    fieldBody: '你的心得',
+    fieldCover: '照片（同時作為這則評論的照片）',
     optional: '選填',
     send: '送出商品',
     sending: '送出中…',

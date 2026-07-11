@@ -96,6 +96,28 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
               </select>
             </label>
 
+            <div class="konbini-form__row">
+              <span>{n.fieldRating}：<strong id="konbini-new-rating-value">3</strong> / 5</span>
+              <input
+                type="range"
+                name="rating"
+                min="1"
+                max="5"
+                step="1"
+                value="3"
+                class="konbini-rate__slider"
+                id="konbini-new-rating-input"
+              />
+              <div class="konbini-stars konbini-rate__stars" id="konbini-new-rating-stars" aria-hidden="true">
+                ★★★☆☆
+              </div>
+            </div>
+
+            <label class="konbini-form__row">
+              <span>{n.fieldBody} <em>({n.optional})</em></span>
+              <textarea name="body" rows="3" maxlength="1000" />
+            </label>
+
             <label class="konbini-form__row">
               <span>{n.fieldPrice} <em>({n.optional})</em></span>
               <input type="number" name="price" min="0" max="100000" step="1" />
@@ -130,6 +152,20 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
       var sendBtn = document.getElementById('konbini-send');
       var idToken = null;
       var coverDataUrl = null;
+
+      // ── 評分滑桿：即時更新數字與星號顯示 ──
+      var ratingInput = document.getElementById('konbini-new-rating-input');
+      var ratingValue = document.getElementById('konbini-new-rating-value');
+      var ratingStars = document.getElementById('konbini-new-rating-stars');
+      function renderRating() {
+        var n = parseInt(ratingInput.value, 10) || 0;
+        if (ratingValue) ratingValue.textContent = String(n);
+        if (ratingStars) ratingStars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+      }
+      if (ratingInput) {
+        ratingInput.addEventListener('input', renderRating);
+        renderRating();
+      }
 
       // ── 封面圖：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85 ──
       var MAX_EDGE = 1600;
@@ -213,6 +249,8 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
           chainSlug: fd.get('chainSlug'),
           category: fd.get('category'),
           price: fd.get('price'),
+          rating: ratingInput ? ratingInput.value : 3,
+          body: fd.get('body'),
           cover: coverDataUrl,
         };
         if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }

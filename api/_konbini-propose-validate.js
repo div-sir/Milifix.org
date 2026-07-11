@@ -4,9 +4,13 @@
 //
 // 新增商品：名稱 + 所屬連鎖店（既有，slug 挑選）+ 分類 + 價格（選填）。
 // 國家由伺服器查出的連鎖店本身決定，不需使用者另外選。
+//
+// 評分是必填——投稿新商品同時內建「第一則評論」，使用者不用先送出商品、
+// 等審核、再回頭找到商品頁才能寫評論（那樣要跑兩趟，體驗很差）。
 
 const MAX_NAME = 80;
 const MAX_PRICE = 100000;
+const MAX_BODY = 1000;
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CATEGORIES = new Set([
   'onigiri',
@@ -31,6 +35,8 @@ function asTrimmedString(v) {
  * @property {string} chainSlug
  * @property {string} category
  * @property {number} [price]
+ * @property {number} rating
+ * @property {string} [body]
  */
 /**
  * @typedef {{ ok: true, value: KonbiniProposal } | { ok: false, error: string }} ProposeValidateResult
@@ -68,7 +74,20 @@ function validateProposal(body) {
     }
   }
 
-  return { ok: true, value: { name, chainSlug, category, price } };
+  const rating = Number(body.rating);
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return { ok: false, error: 'rating must be an integer 1–5' };
+  }
+
+  const reviewBody = asTrimmedString(body.body);
+  if (reviewBody.length > MAX_BODY) {
+    return { ok: false, error: `body too long (max ${MAX_BODY})` };
+  }
+
+  return {
+    ok: true,
+    value: { name, chainSlug, category, price, rating, body: reviewBody || undefined },
+  };
 }
 
-export { validateProposal, MAX_NAME, MAX_PRICE, CATEGORIES };
+export { validateProposal, MAX_NAME, MAX_PRICE, MAX_BODY, CATEGORIES };
