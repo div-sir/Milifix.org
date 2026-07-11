@@ -56,6 +56,8 @@ const productOptions = products
           data-msg-signin={s.errorSignIn}
           data-msg-success={s.success}
           data-msg-error={s.errorGeneric}
+          data-msg-toomany={s.photoTooMany}
+          data-max-photos="3"
         >
           <div id="konbini-gsi" class="konbini-form__gsi" data-prompt={s.signInPrompt} />
           <p class="konbini-form__signed" id="konbini-signed" hidden>
@@ -116,6 +118,13 @@ const productOptions = products
             <input type="text" name="authorName" maxlength="40" />
           </label>
 
+          <div class="konbini-form__row">
+            <span>{s.fieldPhotos} <em>({s.optional})</em></span>
+            <input type="file" id="konbini-photos" accept="image/*" multiple />
+            <small class="konbini-form__note">{s.photoHint}</small>
+            <div class="konbini-form__previews" id="konbini-previews"></div>
+          </div>
+
           <p class="konbini-form__note">{s.moderationNote}</p>
           <button type="submit" class="konbini-form__submit" id="konbini-send" disabled>
             {s.send}
@@ -135,7 +144,59 @@ const productOptions = products
       var clientId = form.getAttribute('data-client-id');
       var statusEl = document.getElementById('konbini-status');
       var sendBtn = document.getElementById('konbini-send');
+      var maxPhotos = parseInt(form.getAttribute('data-max-photos'), 10) || 3;
+      var tooManyMsg = form.getAttribute('data-msg-toomany');
       var idToken = null;
+      var photos = []; // base64 data URLs（已縮圖）
+
+      // ── 照片：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85 ──
+      var MAX_EDGE = 1600;
+      function downscale(file) {
+        return new Promise(function (resolve) {
+          var img = new Image();
+          var url = URL.createObjectURL(file);
+          img.onload = function () {
+            var w = img.width, h = img.height;
+            var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+            var cw = Math.round(w * scale), ch = Math.round(h * scale);
+            var canvas = document.createElement('canvas');
+            canvas.width = cw; canvas.height = ch;
+            canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+          img.src = url;
+        });
+      }
+      var photoInput = document.getElementById('konbini-photos');
+      var previews = document.getElementById('konbini-previews');
+      if (photoInput) {
+        photoInput.addEventListener('change', function () {
+          var files = [].slice.call(photoInput.files || []);
+          if (files.length > maxPhotos) {
+            if (statusEl) statusEl.textContent = tooManyMsg;
+            photoInput.value = '';
+            return;
+          }
+          if (statusEl) statusEl.textContent = '';
+          photos = [];
+          if (previews) previews.innerHTML = '';
+          Promise.all(files.map(downscale)).then(function (results) {
+            results.forEach(function (dataUrl) {
+              if (!dataUrl) return;
+              photos.push(dataUrl);
+              if (previews) {
+                var im = document.createElement('img');
+                im.src = dataUrl;
+                im.className = 'konbini-form__thumb';
+                im.width = 64; im.height = 64;
+                previews.appendChild(im);
+              }
+            });
+          });
+        });
+      }
 
       // 從 ?product=slug 預選商品
       try {
@@ -193,6 +254,7 @@ const productOptions = products
           store: fd.get('store'),
           country: fd.get('country'),
           authorName: fd.get('authorName'),
+          photos: photos,
         };
         if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
         if (statusEl) statusEl.textContent = '';
