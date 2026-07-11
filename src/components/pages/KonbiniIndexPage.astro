@@ -110,18 +110,25 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
                 <h2 class="konbini-country__title">{t.countryNames[g.country]}</h2>
                 {g.chains.length > 1 && (
                   <div class="konbini-chain-tabs" role="tablist" aria-label={t.filterChain}>
-                    <button type="button" class="konbini-chain-tab is-active" data-chain-tab="__all" role="tab" aria-selected="true">
-                      {t.filterAll}
-                    </button>
-                    {g.chains.map((chain) => (
-                      <button type="button" class="konbini-chain-tab" data-chain-tab={chain.name} role="tab" aria-selected="false">
+                    {g.chains.map((chain, ci) => (
+                      <button
+                        type="button"
+                        class={`konbini-chain-tab ${ci === 0 ? 'is-active' : ''}`}
+                        data-chain-tab={chain.name}
+                        role="tab"
+                        aria-selected={ci === 0 ? 'true' : 'false'}
+                      >
                         {chain.name}
                       </button>
                     ))}
                   </div>
                 )}
-                {g.chains.map((chain) => (
-                  <div class="konbini-chain-group" data-chain-panel={chain.name}>
+                {g.chains.map((chain, ci) => (
+                  <div
+                    class="konbini-chain-group"
+                    data-chain-panel={chain.name}
+                    hidden={g.chains.length > 1 && ci !== 0}
+                  >
                     <h3 class="konbini-chain-group__title">{chain.name}</h3>
                     <ul class="konbini-grid">
                       {chain.items.map((c) => (
@@ -198,7 +205,7 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
         });
       });
 
-      // ── 連鎖店切換：每個國家區塊各自的「全部／某連鎖店」篩選 ──
+      // ── 連鎖店切換：每個國家區塊各自的連鎖店標籤，一次只看一家 ──
       countrySections.forEach(function (section) {
         var chainTabs = section.querySelectorAll('.konbini-chain-tab');
         var chainGroups = section.querySelectorAll('[data-chain-panel]');
@@ -212,7 +219,7 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
             tab.setAttribute('aria-selected', 'true');
             var target = tab.getAttribute('data-chain-tab');
             chainGroups.forEach(function (g) {
-              g.hidden = target !== '__all' && g.getAttribute('data-chain-panel') !== target;
+              g.hidden = g.getAttribute('data-chain-panel') !== target;
             });
           });
         });
