@@ -51,6 +51,9 @@ export interface KonbiniStrings {
     fieldStore: string;
     fieldCountry: string;
     fieldDisplayName: string;
+    fieldPhotos: string;
+    photoHint: string;
+    photoTooMany: string;
     optional: string;
     send: string;
     sending: string;
@@ -111,6 +114,9 @@ const en: KonbiniStrings = {
     fieldStore: 'Where you bought it',
     fieldCountry: 'Country',
     fieldDisplayName: 'Display name',
+    fieldPhotos: 'Photos',
+    photoHint: 'Up to 3 photos. Large images are resized automatically.',
+    photoTooMany: 'You can attach at most 3 photos.',
     optional: 'optional',
     send: 'Submit review',
     sending: 'Submitting…',
@@ -171,6 +177,9 @@ const zh: KonbiniStrings = {
     fieldStore: '購買地點',
     fieldCountry: '國家',
     fieldDisplayName: '顯示名稱',
+    fieldPhotos: '照片',
+    photoHint: '最多 3 張；過大的圖片會自動縮小。',
+    photoTooMany: '最多只能附上 3 張照片。',
     optional: '選填',
     send: '送出評價',
     sending: '送出中…',

@@ -8,6 +8,7 @@ import {
   getClientIp,
 } from './_pass-security.js';
 import { validateSubmission } from './_konbini-submit-validate.js';
+import { decodeReviewImage, MAX_PHOTOS } from './_konbini-image.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
 const RATE_LIMIT_STORE = new Map();
@@ -49,6 +50,26 @@ async function verifyGoogleIdToken(idToken) {
     name: typeof p.name === 'string' ? p.name : '',
     emailVerified: p.email_verified === true || p.email_verified === 'true',
   };
+}
+
+/**
+ * 上傳一張已解碼的照片到 Payload media（multipart），回傳 media id 或 null。
+ * @param {{ buffer: Buffer, contentType: string, ext: string }} img
+ * @param {string} alt
+ */
+async function uploadMedia(img, alt) {
+  const form = new FormData();
+  const blob = new Blob([img.buffer], { type: img.contentType });
+  form.append('file', blob, `konbini-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${img.ext}`);
+  form.append('alt', String(alt || 'konbini review photo').slice(0, 120));
+  const res = await fetchWithTimeout(`${CMS_URL}/api/media`, {
+    method: 'POST',
+    headers: { Authorization: `users API-Key ${SUBMIT_API_KEY}` },
+    body: form,
+  });
+  if (!res.ok) return null;
+  const json = await res.json().catch(() => null);
+  return json?.doc?.id ?? null;
 }
 
 export default async function handler(req, res) {
@@ -95,6 +116,22 @@ export default async function handler(req, res) {
   }
   const v = check.value;
 
+  // 照片：解碼＋驗型別/大小。上限 MAX_PHOTOS 張。
+  const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
+  if (rawPhotos.length > MAX_PHOTOS) {
+    res.status(400).json({ error: `Too many photos (max ${MAX_PHOTOS})` });
+    return;
+  }
+  const decodedPhotos = [];
+  for (const raw of rawPhotos) {
+    const img = decodeReviewImage(raw);
+    if (!img) {
+      res.status(400).json({ error: 'Invalid or oversized photo' });
+      return;
+    }
+    decodedPhotos.push(img);
+  }
+
   try {
     // 1) 以 slug 查商品 id（公開唯讀）
     const lookup = await fetchWithTimeout(
@@ -108,7 +145,15 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 2) 建立待審評價。status / authorId 由伺服器強制，不採信 client。
+    // 2) 先上傳照片到 media（任何一張失敗即整筆放棄，不建立缺圖評價）
+    const photoIds = [];
+    for (const img of decodedPhotos) {
+      const id = await uploadMedia(img, v.title || product.name);
+      if (!id) throw new Error('media upload failed');
+      photoIds.push(id);
+    }
+
+    // 3) 建立待審評價。status / authorId 由伺服器強制，不採信 client。
     const doc = {
       product: product.id,
       rating: v.rating,
@@ -122,6 +167,7 @@ export default async function handler(req, res) {
       authorId: identity.sub,
       status: 'pending',
       submittedAt: new Date().toISOString(),
+      photos: photoIds.map((id) => ({ image: id })),
     };
 
     const create = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews`, {

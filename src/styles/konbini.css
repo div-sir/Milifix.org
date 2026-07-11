@@ -145,6 +145,23 @@
   color: var(--text);
   min-height: 1.2em;
 }
+.konbini-form__previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.konbini-form__thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.konbini-form input[type='file'] {
+  font: inherit;
+  color: var(--muted);
+}
 
 /* ── Filters ── */
 .konbini-filters {
