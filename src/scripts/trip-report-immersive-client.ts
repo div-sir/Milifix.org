@@ -69,29 +69,99 @@ function emptyFC(): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features: [] };
 }
 
+// ── 工業風載入進度：分階段推進，真正 idle 才視為完成 ──────────
+interface LoaderController {
+  setStage: (pct: number) => void;
+  complete: () => void;
+}
+
+function initLoader(reduce: boolean): LoaderController {
+  const loaderEl = document.getElementById('immersive-loader');
+  const fillEl = document.getElementById('immersive-loader-fill');
+  const pctEl = document.getElementById('immersive-loader-pct');
+  const mapColEl = document.querySelector<HTMLElement>('.immersive-map-col');
+
+  let current = 0;
+  let raf = 0;
+  let done = false;
+
+  const render = (target: number): void => {
+    current = Math.max(current, Math.min(100, target));
+    if (fillEl) fillEl.style.width = `${current}%`;
+    if (pctEl) pctEl.textContent = String(Math.round(current));
+  };
+
+  const tweenTo = (target: number): void => {
+    if (reduce) {
+      render(target);
+      return;
+    }
+    cancelAnimationFrame(raf);
+    const start = current;
+    const startTime = performance.now();
+    const duration = 420;
+    const step = (now: number): void => {
+      const p = Math.min(1, (now - startTime) / duration);
+      render(start + (target - start) * p);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+
+  return {
+    setStage: tweenTo,
+    complete: (): void => {
+      if (done) return;
+      done = true;
+      tweenTo(100);
+      window.setTimeout(
+        () => {
+          loaderEl?.classList.add('is-done');
+          mapColEl?.classList.add('is-revealed');
+        },
+        reduce ? 0 : 340
+      );
+    },
+  };
+}
+
 export function initTripReportImmersiveClient(): void {
   const dataEl = document.getElementById('immersive-map-data');
   const mapEl = document.getElementById('immersive-map');
-  if (!dataEl || !mapEl) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const loader = initLoader(reduce);
+  if (!dataEl || !mapEl) {
+    loader.complete();
+    return;
+  }
 
   let data: MapData;
   try {
     data = JSON.parse(dataEl.textContent || '{}') as MapData;
   } catch {
+    loader.complete();
     return;
   }
-  if (!data.days || !data.allStops || !data.anchors) return;
+  if (!data.days || !data.allStops || !data.anchors) {
+    loader.complete();
+    return;
+  }
 
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   animateCounters(reduce);
-  void loadAndInitMap(data, mapEl, reduce);
+  // 保底：若地圖引擎遲遲連 style 都無法就緒（如整段網路離線），
+  // 最多等 4 秒強制進場，避免載入畫面卡死擋住整篇報告書；
+  // 正常情況下 map 的 load 事件會提早觸發，不會等到這裡。
+  window.setTimeout(() => loader.complete(), 4000);
+  void loadAndInitMap(data, mapEl, reduce, loader);
 }
 
-async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean): Promise<void> {
+async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean, loader: LoaderController): Promise<void> {
+  loader.setStage(15);
   const [{ default: maplibregl }] = await Promise.all([
     import('maplibre-gl'),
     import('maplibre-gl/dist/maplibre-gl.css'),
   ]);
+  loader.setStage(45);
 
   const stopById = new Map<string, Stop>(data.allStops.map((s) => [s.id, s]));
   const dayByNum = new Map<number, DayData>(data.days.map((d) => [d.day, d]));
@@ -201,7 +271,14 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       paint: { 'line-color': accent, 'line-width': 4, 'line-opacity': 0.9, 'line-dasharray': [1.5, 1.2] },
     });
   };
-  map.on('load', addLayers);
+  map.on('load', () => {
+    addLayers();
+    loader.setStage(90);
+    // 用 load（樣式與圖層就緒）而非 idle（等所有圖磚請求全部落地）
+    // 當完成訊號：圖磚仍會在畫面上漸進載入，屬正常網頁地圖體驗，
+    // 不需要讓使用者對著讀取畫面多等圖磚全部到齊。
+    loader.complete();
+  });
   map.on('style.load', addLayers);
 
   let activeDay: number | null = null;
@@ -254,6 +331,21 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   };
 
   const dayNavDots = Array.from(document.querySelectorAll<HTMLElement>('.immersive-daynav__dot'));
+  const anchorEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-anchor'));
+
+  const jumpToStopId = (stopId: string): void => {
+    const target = anchorEls.find((a) => {
+      if (a.dataset.dayIntro === '1') return false;
+      const s = stopById.get(stopId);
+      if (!s) return false;
+      return (
+        Math.abs(Number(a.dataset.lng) - s.coords.lng) < 1e-4 && Math.abs(Number(a.dataset.lat) - s.coords.lat) < 1e-4
+      );
+    });
+    target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  };
+
+  const ruler = initDayRuler(dayByNum, stopById, jumpToStopId);
 
   let activeStopId: string | null = null;
   const activate = (el: HTMLElement): void => {
@@ -298,10 +390,12 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
 
     const dayNum = d.day ? Number(d.day) : null;
-    activateDay(Number.isFinite(dayNum) ? dayNum : null, d.dayIntro === '1');
+    const isDayIntro = d.dayIntro === '1';
+    activateDay(Number.isFinite(dayNum) ? dayNum : null, isDayIntro);
+    ruler.rebuild(Number.isFinite(dayNum) ? dayNum : null);
 
     for (const m of markerByStop.values()) m.classList.remove('is-active');
-    if (!d.dayIntro) {
+    if (!isDayIntro) {
       const matchedStop = data.allStops.find(
         (s) => Math.abs(s.coords.lng - camera.center[0]) < 1e-4 && Math.abs(s.coords.lat - camera.center[1]) < 1e-4
       );
@@ -312,12 +406,11 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     } else {
       activeStopId = null;
     }
-    void activeStopId;
+    ruler.markActive(activeStopId);
 
     for (const dot of dayNavDots) dot.classList.toggle('is-active', Number(dot.dataset.day) === dayNum);
   };
 
-  const anchorEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-anchor'));
   if (anchorEls.length > 0) activate(anchorEls[0]);
 
   const observer = new IntersectionObserver(
@@ -339,18 +432,104 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   }
 
   for (const [id, marker] of markerByStop) {
-    marker.addEventListener('click', () => {
-      const target = anchorEls.find((a) => {
-        if (a.dataset.dayIntro === '1') return false;
-        const s = stopById.get(id);
-        if (!s) return false;
-        return (
-          Math.abs(Number(a.dataset.lng) - s.coords.lng) < 1e-4 && Math.abs(Number(a.dataset.lat) - s.coords.lat) < 1e-4
-        );
-      });
-      target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    });
+    marker.addEventListener('click', () => jumpToStopId(id));
   }
+}
+
+// ── 左側當日行程刻度尺：僅列出目前所在日的停靠點；hover 時浮動
+//    標籤隨游標 Y 位置移動，點擊任一刻度／軌道即跳到最近的停靠點。
+interface DayRulerController {
+  rebuild: (dayNum: number | null) => void;
+  markActive: (stopId: string | null) => void;
+}
+
+function initDayRuler(
+  dayByNum: Map<number, DayData>,
+  stopById: Map<string, Stop>,
+  jumpToStopId: (stopId: string) => void
+): DayRulerController {
+  const rulerEl = document.getElementById('immersive-day-ruler');
+  const trackEl = document.getElementById('immersive-day-ruler-track');
+  const dayLabelEl = document.getElementById('immersive-day-ruler-daylabel');
+  const cursorEl = document.getElementById('immersive-day-ruler-cursor');
+  const cursorNameEl = document.getElementById('immersive-day-ruler-cursor-name');
+  if (!rulerEl || !trackEl || !dayLabelEl || !cursorEl || !cursorNameEl) {
+    return { rebuild: () => {}, markActive: () => {} };
+  }
+
+  let ticks: Array<{ el: HTMLButtonElement; stopId: string; pct: number }> = [];
+  let currentDay: number | null = null;
+
+  const nearestTick = (relYPct: number) => {
+    let best = ticks[0];
+    let bestDist = Infinity;
+    for (const t of ticks) {
+      const dist = Math.abs(t.pct - relYPct);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = t;
+      }
+    }
+    return best;
+  };
+
+  const rebuild = (dayNum: number | null): void => {
+    if (dayNum === currentDay) return;
+    currentDay = dayNum;
+    trackEl.innerHTML = '';
+    ticks = [];
+    const d = dayNum != null ? dayByNum.get(dayNum) : undefined;
+    if (!d || d.stopIds.length === 0) {
+      rulerEl.classList.remove('is-visible');
+      return;
+    }
+    rulerEl.classList.add('is-visible');
+    dayLabelEl.textContent = `DAY ${String(dayNum).padStart(2, '0')}`;
+    const n = d.stopIds.length;
+    d.stopIds.forEach((stopId, i) => {
+      const pct = n === 1 ? 50 : (i / (n - 1)) * 100;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'immersive-day-ruler__tick';
+      btn.style.top = `${pct}%`;
+      btn.setAttribute('aria-label', stopById.get(stopId)?.name || '');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        jumpToStopId(stopId);
+      });
+      trackEl.appendChild(btn);
+      ticks.push({ el: btn, stopId, pct });
+    });
+  };
+
+  trackEl.addEventListener('mousemove', (e) => {
+    if (ticks.length === 0) return;
+    const rect = trackEl.getBoundingClientRect();
+    const relY = rect.height > 0 ? ((e.clientY - rect.top) / rect.height) * 100 : 0;
+    const nearest = nearestTick(relY);
+    for (const t of ticks) t.el.classList.toggle('is-near', t === nearest);
+    cursorNameEl.textContent = stopById.get(nearest.stopId)?.name || '';
+    cursorEl.style.top = `${Math.max(0, Math.min(rect.height, e.clientY - rect.top))}px`;
+    cursorEl.hidden = false;
+  });
+  trackEl.addEventListener('mouseleave', () => {
+    cursorEl.hidden = true;
+    for (const t of ticks) t.el.classList.remove('is-near');
+  });
+  trackEl.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('.immersive-day-ruler__tick')) return;
+    if (ticks.length === 0) return;
+    const rect = trackEl.getBoundingClientRect();
+    const relY = rect.height > 0 ? ((e.clientY - rect.top) / rect.height) * 100 : 0;
+    jumpToStopId(nearestTick(relY).stopId);
+  });
+
+  return {
+    rebuild,
+    markActive: (stopId: string | null): void => {
+      for (const t of ticks) t.el.classList.toggle('is-active', t.stopId === stopId);
+    },
+  };
 }
 
 function animateCounters(reduce: boolean): void {
