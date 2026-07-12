@@ -329,6 +329,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
       if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
       if (statusEl) statusEl.textContent = '';
       var responseOk = false;
+      var responseStatus = 0;
       fetch('/api/konbini-propose-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -336,6 +337,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
       })
         .then(function (res) {
           responseOk = res.ok;
+          responseStatus = res.status;
           if (res.status === 401) {
             // 快取的 token 過期／失效：清掉快取、讓登入按鈕重新出現，
             // 但表單維持可見、內容不清空，重新登入後可以直接再送出。
@@ -345,14 +347,23 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
           }
           return res.json();
         })
-        .then(function () {
-          announceStatus(responseOk ? form.getAttribute('data-msg-success') : form.getAttribute('data-msg-error'));
+        .then(function (data) {
           if (responseOk) {
+            announceStatus(form.getAttribute('data-msg-success'));
             form.reset();
             clearCoverPreview();
+            return;
           }
+          // 伺服器回的 error 訊息只印在 console（避免把內部細節直接曝露在
+          // 畫面上），畫面仍顯示固定的中／英文訊息；401 特別提示要重新
+          // 登入，其餘一律顯示通用錯誤。
+          if (data && data.error) {
+            console.error('[konbini-propose-product]', responseStatus, data.error);
+          }
+          announceStatus(responseStatus === 401 ? form.getAttribute('data-msg-signin') : form.getAttribute('data-msg-error'));
         })
-        .catch(function () {
+        .catch(function (err) {
+          console.error('[konbini-propose-product] request failed', err);
           announceStatus(form.getAttribute('data-msg-error'));
         })
         .finally(function () {
