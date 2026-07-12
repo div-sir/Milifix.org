@@ -130,7 +130,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     pitch: 0,
     bearing: 0,
     attributionControl: false,
-    cooperativeGestures: true,
+    // 此地圖完全由捲動驅動鏡頭，不開放手動拖曳／滾輪縮放，
+    // 否則滾動頁面時會被地圖攔截滾輪事件，跳出「⌘/Ctrl+滾輪」提示。
+    interactive: false,
   });
   map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
