@@ -338,6 +338,23 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const photoImgEl = document.getElementById('immersive-hud-img') as HTMLImageElement | null;
   const photoPlaceholderEl = document.getElementById('immersive-hud-placeholder');
 
+  // ── HUD 懸浮視差：文字塊隨游標在視窗中的相對位置緩緩漂移 ──
+  // 疊加在 applyPos 的 left/right/top/bottom 定位之上（transform 與
+  // 定位屬性互不干擾），也與 swapHud 的進退場 y 位移各自獨立、互不覆蓋
+  // （quickTo 只控制外層 hudEl 的 x/y，進退場動畫作用在內層子元素）。
+  if (hudEl && !reduce && window.matchMedia('(pointer: fine)').matches) {
+    const PARALLAX_X = 16;
+    const PARALLAX_Y = 11;
+    const parallaxX = gsap.quickTo(hudEl, 'x', { duration: 0.9, ease: 'power3.out' });
+    const parallaxY = gsap.quickTo(hudEl, 'y', { duration: 0.9, ease: 'power3.out' });
+    window.addEventListener('mousemove', (e) => {
+      const nx = e.clientX / window.innerWidth - 0.5;
+      const ny = e.clientY / window.innerHeight - 0.5;
+      parallaxX(nx * PARALLAX_X * 2);
+      parallaxY(ny * PARALLAX_Y * 2);
+    });
+  }
+
   const applyPos = (pos: AnchorData['pos']): void => {
     if (!hudEl) return;
     const p = POS_STYLE[pos] ?? POS_STYLE['bottom-left'];
