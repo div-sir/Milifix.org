@@ -83,7 +83,6 @@ export interface KonbiniStrings {
     success: string;
     errorGeneric: string;
     errorSignIn: string;
-    moderationNote: string;
     notConfigured: string;
     noChains: string;
   };
@@ -165,7 +164,6 @@ const en: KonbiniStrings = {
     success: 'Thanks! Your product is live now (it may take a little while to appear after the next site rebuild).',
     errorGeneric: 'Something went wrong. Please try again.',
     errorSignIn: 'Please sign in with Google first.',
-    moderationNote: 'Submissions go live right away without manual review — please keep it accurate and respectful.',
     notConfigured: 'Submissions are not enabled yet. Please check back soon.',
     noChains: 'No chains available yet — please check back soon.',
   },
@@ -247,7 +245,6 @@ const zh: KonbiniStrings = {
     success: '感謝投稿！商品已經上架（下次網站重新建置後就會顯示）。',
     errorGeneric: '發生錯誤，請再試一次。',
     errorSignIn: '請先用 Google 登入。',
-    moderationNote: '投稿會直接上架，不經人工審核——請確保內容正確、友善。',
     notConfigured: '投稿功能尚未開放，敬請期待。',
     noChains: '目前還沒有可選的連鎖店，敬請期待。',
   },
