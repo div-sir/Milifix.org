@@ -797,6 +797,20 @@ body.konbini-modal-open {
   line-height: 1.65;
   margin: 0 0 1.2rem;
 }
+.konbini-report-link {
+  display: inline-block;
+  font-size: 0.76rem;
+  color: var(--muted-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+@media (hover: hover) {
+  .konbini-report-link:hover { color: var(--muted); }
+}
+.konbini-report-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 /* ── Reviews ── */
 .konbini-reviews {

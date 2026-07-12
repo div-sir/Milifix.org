@@ -8,6 +8,7 @@
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import type { KonbiniProduct } from '../../lib/cms';
+import { getCmsUrl } from '../../lib/cms-env';
 import { chainName, priceLabel, starString } from '../../lib/konbini-view';
 import { averageRating } from '../../lib/konbini';
 
@@ -24,6 +25,12 @@ const avg = averageRating(reviews);
 
 const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
 const configured = clientId.length > 0;
+
+// 「回報錯誤」直接連到 CMS 後台這筆商品的編輯頁——CMS_URL 只在 build
+// 期間（server 端 frontmatter）讀取，連結是 build 時就烤進靜態 HTML 的
+// 固定網址，不會把任何機密暴露到瀏覽器端；未登入 CMS 的人點了只會看到
+// 後台登入頁，不算資安風險，純粹對他們沒用而已。
+const reportUrl = `${getCmsUrl()}/admin/collections/konbini-products/${product.id}`;
 ---
 
 <article>
@@ -49,6 +56,9 @@ const configured = clientId.length > 0;
         <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
       )}
       {product.description && <p class="konbini-detail__desc">{product.description}</p>}
+      <a class="konbini-report-link" href={reportUrl} target="_blank" rel="noopener noreferrer">
+        {t.reportError}
+      </a>
     </div>
   </header>
 

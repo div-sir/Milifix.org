@@ -40,6 +40,8 @@ export interface KonbiniStrings {
   storeLabel: string;
   by: string;
   relatedInChain: string;
+  /** 商品詳情：連到 CMS 後台該筆商品編輯頁的小連結 */
+  reportError: string;
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
@@ -116,6 +118,7 @@ const en: KonbiniStrings = {
   storeLabel: 'Where',
   by: 'by',
   relatedInChain: 'More from this chain',
+  reportError: 'Report an error',
   countryNames: { taiwan: 'Taiwan', japan: 'Japan' },
   categoryNames: {
     onigiri: 'Rice balls',
@@ -198,6 +201,7 @@ const zh: KonbiniStrings = {
   storeLabel: '購買地點',
   by: '投稿者',
   relatedInChain: '同品牌更多推薦',
+  reportError: '回報錯誤',
   countryNames: { taiwan: '台灣', japan: '日本' },
   categoryNames: {
     onigiri: '飯糰',
