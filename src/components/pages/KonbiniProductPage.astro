@@ -96,6 +96,7 @@ const configured = clientId.length > 0;
                   data-max-photos="3"
                 >
                   <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
+                  <p class="konbini-form__note" id="konbini-already-rated-note" hidden>{r.alreadyRated}</p>
 
                   <div class="konbini-form__row">
                     <span>{t.ratingLabel}：<strong id="konbini-rating-value">3</strong> / 5</span>
@@ -313,6 +314,37 @@ const configured = clientId.length > 0;
       // 導覽，純記憶體變數會被重置，若不快取就得每次重新登入一次。
       var TOKEN_KEY = 'konbini-id-token';
 
+      // ── 這台裝置先前是否已經評價過這個商品：只是前端記憶（localStorage，
+      // 跨瀏覽階段仍在），換裝置或清瀏覽器資料不會同步，伺服器端仍是以
+      // Google 帳號 authorId 判斷是否為同一人、決定要新增還是更新既有評價
+      // （見 api/konbini-submit.js 的 findExistingReview）；這裡純粹是讓使用
+      // 者一進頁面就知道自己已經評過、並且直接看到上次填的內容可以改，不用
+      // 每次都從空白的 3 星、空白留言重新填一次。 ──
+      var MY_RATING_KEY = 'konbini-my-rating-' + productSlug;
+      var alreadyRatedNote = document.getElementById('konbini-already-rated-note');
+
+      function saveMyRating(rating, bodyText) {
+        try {
+          localStorage.setItem(MY_RATING_KEY, JSON.stringify({ rating: rating, body: bodyText || '' }));
+        } catch (e) {}
+      }
+
+      function applyMyRating() {
+        var raw;
+        try { raw = localStorage.getItem(MY_RATING_KEY); } catch (e) { return; }
+        if (!raw) return;
+        var mine;
+        try { mine = JSON.parse(raw); } catch (e) { return; }
+        if (!mine) return;
+        if (ratingInput && mine.rating) {
+          ratingInput.value = String(mine.rating);
+          renderRating();
+        }
+        var bodyField = form.querySelector('textarea[name="body"]');
+        if (bodyField && mine.body) bodyField.value = mine.body;
+        if (alreadyRatedNote) alreadyRatedNote.hidden = false;
+      }
+
       function showSignedIn(token) {
         idToken = token;
         if (gate) gate.hidden = true;
@@ -322,6 +354,7 @@ const configured = clientId.length > 0;
           var u = document.getElementById('konbini-user');
           if (u) u.textContent = payload.name || payload.email || '';
         } catch (e) {}
+        applyMyRating();
       }
 
       function tryRestoreSession() {
@@ -411,6 +444,8 @@ const configured = clientId.length > 0;
           })
           .then(function (data) {
             if (responseOk) {
+              saveMyRating(payload.rating, payload.body);
+              if (alreadyRatedNote) alreadyRatedNote.hidden = false;
               announceStatus(
                 data && data.updated
                   ? form.getAttribute('data-msg-success-updated')

@@ -197,14 +197,22 @@ const countryTitleHidden = countryGroups.length > 1;
       )
     }
 
-    <section class="konbini-add-section" id="konbini-add-section" hidden>
-      <button type="button" class="konbini-add-section__close" id="konbini-add-close" aria-label={t.closeAddSection}>
-        <span aria-hidden="true">×</span>
-      </button>
-      <h2 class="konbini-add-section__title" id="konbini-add-section-title" tabindex="-1">{n.pageTitle}</h2>
-      <p class="konbini-add-section__intro">{n.intro}</p>
-      <KonbiniNewProductForm lang={lang} />
-    </section>
+    <div class="konbini-add-section" id="konbini-add-section" hidden>
+      <div
+        class="konbini-add-section__panel"
+        id="konbini-add-section-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="konbini-add-section-title"
+      >
+        <button type="button" class="konbini-add-section__close" id="konbini-add-close" aria-label={t.closeAddSection}>
+          <span aria-hidden="true">×</span>
+        </button>
+        <h2 class="konbini-add-section__title" id="konbini-add-section-title" tabindex="-1">{n.pageTitle}</h2>
+        <p class="konbini-add-section__intro">{n.intro}</p>
+        <KonbiniNewProductForm lang={lang} />
+      </div>
+    </div>
   </main>
 
   <script is:inline>
@@ -232,13 +240,17 @@ const countryTitleHidden = countryGroups.length > 1;
         }
       }
 
-      // ── 「新增商品」：展開頁尾表單、捲動過去、若從特定連鎖店點入則
-      // 預選連鎖店，最後把焦點交給第一個可用欄位。所有入口（每個連鎖
-      // 店卡片列尾巴的「＋」、空連鎖店的提示卡、整站沒有商品時的按鈕）
-      // 都走這同一個函式，行為保證一致。 ──
+      var addPanel = document.getElementById('konbini-add-section-panel');
+      var lastAddOpener = null;
+
+      // ── 「新增商品」視窗：以 modal 開啟（鎖住背景捲動），若從特定連鎖
+      // 店點入則預選連鎖店，最後把焦點交給第一個可用欄位。所有入口（每個
+      // 連鎖店卡片列尾巴的「＋」、空連鎖店的提示卡、整站沒有商品時的按
+      // 鈕）都走這同一個函式，行為保證一致。 ──
       function openAddSection(presetSlug, opts) {
         if (!addSection) return;
         addSection.hidden = false;
+        document.body.classList.add('konbini-modal-open');
         // GSI 的 initialize/renderButton 要等區塊真的顯示出來才跑，否則
         // renderButton 塞進 display:none 容器量到的寬度是 0。表單腳本監聽
         // 這個事件，第一次收到才初始化。
@@ -252,27 +264,62 @@ const countryTitleHidden = countryGroups.length > 1;
           }
         }
         var reduced = prefersReducedMotion();
-        addSection.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-        window.setTimeout(focusFirstAddField, reduced ? 0 : 380);
+        window.setTimeout(focusFirstAddField, reduced ? 0 : 200);
         if (!(opts && opts.skipHash)) {
           history.replaceState(null, '', '#add');
         }
       }
 
+      function closeAddSection() {
+        if (!addSection || addSection.hidden) return;
+        addSection.hidden = true;
+        document.body.classList.remove('konbini-modal-open');
+        history.replaceState(null, '', location.pathname + location.search);
+        var opener = lastAddOpener || document.querySelector('[data-goto-add]');
+        if (opener) opener.focus();
+      }
+
       document.querySelectorAll('[data-goto-add]').forEach(function (btn) {
         btn.addEventListener('click', function () {
+          lastAddOpener = btn;
           openAddSection(btn.getAttribute('data-preset-chain'));
         });
       });
 
       if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-          addSection.hidden = true;
-          history.replaceState(null, '', location.pathname + location.search);
-          var opener = document.querySelector('[data-goto-add]');
-          if (opener) opener.focus();
+        closeBtn.addEventListener('click', closeAddSection);
+      }
+
+      // 點視窗外的半透明背景（不是點到裡面的卡片）也關閉。
+      if (addSection) {
+        addSection.addEventListener('click', function (ev) {
+          if (ev.target === addSection) closeAddSection();
         });
       }
+
+      // Esc 關閉；Tab／Shift+Tab 在視窗開著時把焦點鎖在視窗內（簡易
+      // focus trap，符合 WAI-ARIA dialog pattern 的基本要求）。
+      document.addEventListener('keydown', function (ev) {
+        if (!addSection || addSection.hidden) return;
+        if (ev.key === 'Escape') {
+          closeAddSection();
+          return;
+        }
+        if (ev.key !== 'Tab' || !addPanel) return;
+        var focusable = Array.prototype.slice.call(
+          addPanel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+        ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (ev.shiftKey && document.activeElement === first) {
+          ev.preventDefault();
+          last.focus();
+        } else if (!ev.shiftKey && document.activeElement === last) {
+          ev.preventDefault();
+          first.focus();
+        }
+      });
 
       // ── 分頁籤共用邏輯：滑鼠點擊 + roving tabindex 鍵盤操作
       // （←/→、Home/End），符合 WAI-ARIA tabs pattern。台灣／日本國家
