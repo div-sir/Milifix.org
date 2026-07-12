@@ -37,6 +37,10 @@
         const href = a.getAttribute('href');
         if (!href || href.startsWith('#') || href.startsWith('mailto:')) return;
         if (a.target === '_blank') return;
+        // konbini 商品卡片：一般點擊由卡片自己的腳本攔截去開快速預覽視窗
+        // （而不是整頁跳轉），這裡的動畫式頁面轉場要讓開，否則兩邊搶著
+        // 處理同一次點擊，視窗才剛開就被這裡的 window.location.href 蓋掉。
+        if (a.hasAttribute('data-product-slug')) return;
 
         let url;
         try {

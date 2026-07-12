@@ -372,6 +372,12 @@ html[data-theme='light'] {
   padding: clamp(1.5rem, 4vw, 2.2rem);
   box-shadow: var(--shadow-card);
 }
+/* 商品快速預覽視窗內容比新增商品視窗豐富（完整商品頁：說明＋評論列
+   表），給寬一點；裡面疊出來的評分視窗仍是預設寬度（640px），不用跟著
+   放寬。 */
+.konbini-product-modal__panel {
+  width: min(100%, 820px);
+}
 .konbini-add-section__title {
   font-size: 1.5rem;
   font-weight: 700;

@@ -1,0 +1,162 @@
+---
+// 商品詳情內容（封面／基本資訊／評分觸發鈕＋評分視窗／評論列表），被
+// KonbiniProductPage（獨立頁 /konbini/{slug}）與 KonbiniIndexPage 的
+// 商品快速預覽視窗（<template> 裡）共用同一份標記，避免兩處各自維護
+// 一份幾乎一樣的 JSX。互動腳本各自處理（獨立頁固定跑一次；快速預覽
+// 視窗每次載入不同商品的樣板都要重新跑一次，兩邊邏輯是同一套但各自
+// 保留一份，跟站內其他 is:inline 腳本的慣例一致，不特別抽共用模組）。
+import type { Lang } from '../../i18n/types';
+import { konbini } from '../../i18n/konbini';
+import type { KonbiniProduct } from '../../lib/cms';
+import { chainName, priceLabel, starString } from '../../lib/konbini-view';
+import { averageRating } from '../../lib/konbini';
+
+interface Props {
+  lang: Lang;
+  product: KonbiniProduct;
+}
+const { lang, product } = Astro.props;
+const t = konbini(lang);
+const r = t.rate;
+
+const reviews = product.reviews ?? [];
+const avg = averageRating(reviews);
+
+const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
+const configured = clientId.length > 0;
+---
+
+<article>
+  <header class={`konbini-detail__head konbini-accent--${product.country}`}>
+    <div class="konbini-detail__cover" aria-hidden="true">
+      <span class="konbini-card__cover-category">{t.categoryNames[product.category]}</span>
+    </div>
+    <div class="konbini-detail__meta">
+      <p class="konbini-detail__chain">
+        {chainName(product.chain)} · {t.countryNames[product.country]} · {t.categoryNames[product.category]}
+      </p>
+      <h1 class="konbini-detail__name">{product.name}</h1>
+      {reviews.length > 0 ? (
+        <p class="konbini-detail__rating">
+          <strong class="konbini-card__rating-value">{avg.toFixed(1)}</strong>
+          <span class="konbini-stars" aria-hidden="true">{starString(avg)}</span>
+          <span>{reviews.length} {t.reviewsUnit}</span>
+        </p>
+      ) : (
+        <p class="konbini-detail__rating konbini-detail__rating--empty">{t.noReviews}</p>
+      )}
+      {product.price != null && (
+        <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
+      )}
+      {product.description && <p class="konbini-detail__desc">{product.description}</p>}
+    </div>
+  </header>
+
+  {
+    configured ? (
+      <>
+        <button type="button" class="konbini-rate-trigger" data-rate-trigger>
+          {r.heading}
+        </button>
+
+        <div class="konbini-add-section konbini-add-section--nested" data-rate-section hidden>
+          <div class="konbini-add-section__panel" data-rate-panel role="dialog" aria-modal="true">
+            <button type="button" class="konbini-add-section__close" data-rate-close aria-label={t.closeAddSection}>
+              <span aria-hidden="true">×</span>
+            </button>
+            <h2 class="konbini-add-section__title" data-rate-title tabindex="-1">{r.heading}</h2>
+
+            <div class="konbini-rate__gate" data-rate-gate>
+              <div data-gsi class="konbini-form__gsi" />
+              <p class="konbini-rate__reason">{r.signInReason}</p>
+            </div>
+
+            <form
+              class="konbini-form konbini-rate__form"
+              data-rate-form
+              hidden
+              data-client-id={clientId}
+              data-product-slug={product.slug}
+              data-msg-signin={r.errorSignIn}
+              data-msg-success={r.success}
+              data-msg-success-updated={r.successUpdated}
+              data-msg-error={r.errorGeneric}
+              data-msg-toomany={r.photoTooMany}
+              data-max-photos="3"
+            >
+              <p class="konbini-form__signed">{r.signedInAs} <span data-user /></p>
+              <p class="konbini-form__note" data-already-rated-note hidden>{r.alreadyRated}</p>
+
+              <label class="konbini-form__row">
+                <span>{r.fieldBody} <em>({r.optional})</em></span>
+                <textarea name="body" rows="3" maxlength="1000" />
+              </label>
+
+              <div class="konbini-form__row">
+                <span>{r.fieldPhotos} <em>({r.optional})</em></span>
+                <input type="file" data-photos accept="image/*" multiple />
+                <small class="konbini-form__note">{r.photoHint}</small>
+                <div class="konbini-form__previews" data-previews />
+              </div>
+
+              <p class="konbini-form__note">{r.moderationNote}</p>
+
+              <div class="konbini-form__row">
+                <span data-rating-label>{t.ratingLabel}</span>
+                <div class="konbini-rate__starpicker" data-rating-picker role="group">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button type="button" class="konbini-rate__star" data-star-value={n} aria-label={`${n} / 5`}>★</button>
+                  ))}
+                </div>
+                <p class="konbini-form__note">{r.tapToSubmit}</p>
+              </div>
+
+              <p class="konbini-form__status" data-status role="status" aria-live="polite" tabindex="-1" />
+            </form>
+          </div>
+        </div>
+      </>
+    ) : (
+      <p class="konbini-empty">{r.notConfigured}</p>
+    )
+  }
+
+  {reviews.length > 0 && (
+    <section class="konbini-reviews" aria-label={t.reviewsUnit}>
+      {reviews.map((rev) => (
+        <article class="konbini-review">
+          <header class="konbini-review__head">
+            <span class="konbini-stars konbini-stars--sm" aria-label={`${t.ratingLabel} ${rev.rating} / 5`}>
+              {starString(rev.rating)}
+            </span>
+            {rev.title && <h3 class="konbini-review__title">{rev.title}</h3>}
+          </header>
+          {rev.body && <p class="konbini-review__body">{rev.body}</p>}
+          {rev.photos && rev.photos.length > 0 && (
+            <div class="konbini-review__photos">
+              {rev.photos.map(
+                (ph) =>
+                  ph.image?.url && (
+                    <img
+                      src={ph.image.url}
+                      alt={ph.image.alt ?? rev.title ?? product.name}
+                      width="240"
+                      height="180"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ),
+              )}
+            </div>
+          )}
+          <footer class="konbini-review__foot">
+            {rev.store && <span>{t.storeLabel}：{rev.store}</span>}
+            {rev.price != null && <span>{priceLabel(rev.price, rev.currency, t)}</span>}
+            {rev.authorName && <span>{t.by} {rev.authorName}</span>}
+            {rev.submittedAt && <span>{rev.submittedAt}</span>}
+          </footer>
+        </article>
+      ))}
+    </section>
+  )}
+</article>

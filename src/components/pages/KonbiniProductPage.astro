@@ -3,11 +3,11 @@ import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import KonbiniProductDetailMarkup from './KonbiniProductDetailMarkup.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
-import { loadKonbiniProduct, averageRating } from '../../lib/konbini';
-import { chainName, priceLabel, starString } from '../../lib/konbini-view';
+import { loadKonbiniProduct } from '../../lib/konbini';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/konbini.css';
@@ -18,15 +18,11 @@ interface Props {
 }
 const { lang, slug } = Astro.props;
 const t = konbini(lang);
-const r = t.rate;
 
 const product = await loadKonbiniProduct(slug);
-const reviews = product?.reviews ?? [];
-const avg = averageRating(reviews);
 
 // 用 PUBLIC_ 前綴才會注入到瀏覽器端。未設定時只顯示「尚未開放」訊息。
-const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
-const configured = clientId.length > 0;
+const configured = (import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '').length > 0;
 ---
 
 <BaseLayout
@@ -46,178 +42,71 @@ const configured = clientId.length > 0;
       !product ? (
         <p class="konbini-empty">{t.noProducts}</p>
       ) : (
-        <article>
-          <header class={`konbini-detail__head konbini-accent--${product.country}`}>
-            <div class="konbini-detail__cover" aria-hidden="true">
-              <span class="konbini-card__cover-category">{t.categoryNames[product.category]}</span>
-            </div>
-            <div class="konbini-detail__meta">
-              <p class="konbini-detail__chain">
-                {chainName(product.chain)} · {t.countryNames[product.country]} · {t.categoryNames[product.category]}
-              </p>
-              <h1 class="konbini-detail__name">{product.name}</h1>
-              {reviews.length > 0 ? (
-                <p class="konbini-detail__rating">
-                  <strong class="konbini-card__rating-value">{avg.toFixed(1)}</strong>
-                  <span class="konbini-stars" aria-hidden="true">{starString(avg)}</span>
-                  <span>{reviews.length} {t.reviewsUnit}</span>
-                </p>
-              ) : (
-                <p class="konbini-detail__rating konbini-detail__rating--empty">{t.noReviews}</p>
-              )}
-              {product.price != null && (
-                <p class="konbini-detail__price">{t.priceLabel}：{priceLabel(product.price, product.currency, t)}</p>
-              )}
-              {product.description && <p class="konbini-detail__desc">{product.description}</p>}
-            </div>
-          </header>
-
-          {
-            configured ? (
-              <>
-                <button type="button" class="konbini-rate-trigger" id="konbini-rate-trigger">
-                  {r.heading}
-                </button>
-
-                <div class="konbini-add-section" id="konbini-rate-section" hidden>
-                  <div
-                    class="konbini-add-section__panel"
-                    id="konbini-rate-section-panel"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="konbini-rate-section-title"
-                  >
-                    <button type="button" class="konbini-add-section__close" id="konbini-rate-close" aria-label={t.closeAddSection}>
-                      <span aria-hidden="true">×</span>
-                    </button>
-                    <h2 id="konbini-rate-section-title" class="konbini-add-section__title" tabindex="-1">{r.heading}</h2>
-
-                    <div class="konbini-rate__gate" id="konbini-rate-gate">
-                      <div id="konbini-gsi" class="konbini-form__gsi" />
-                      <p class="konbini-rate__reason">{r.signInReason}</p>
-                    </div>
-
-                    <form
-                      class="konbini-form konbini-rate__form"
-                      id="konbini-form"
-                      hidden
-                      data-client-id={clientId}
-                      data-product-slug={product.slug}
-                      data-msg-signin={r.errorSignIn}
-                      data-msg-success={r.success}
-                      data-msg-success-updated={r.successUpdated}
-                      data-msg-error={r.errorGeneric}
-                      data-msg-toomany={r.photoTooMany}
-                      data-max-photos="3"
-                    >
-                      <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
-                      <p class="konbini-form__note" id="konbini-already-rated-note" hidden>{r.alreadyRated}</p>
-
-                      <label class="konbini-form__row">
-                        <span>{r.fieldBody} <em>({r.optional})</em></span>
-                        <textarea name="body" rows="3" maxlength="1000" />
-                      </label>
-
-                      <div class="konbini-form__row">
-                        <span>{r.fieldPhotos} <em>({r.optional})</em></span>
-                        <input type="file" id="konbini-photos" accept="image/*" multiple />
-                        <small class="konbini-form__note">{r.photoHint}</small>
-                        <div class="konbini-form__previews" id="konbini-previews" />
-                      </div>
-
-                      <p class="konbini-form__note">{r.moderationNote}</p>
-
-                      <div class="konbini-form__row">
-                        <span id="konbini-rating-label">{t.ratingLabel}</span>
-                        <div class="konbini-rate__starpicker" id="konbini-rating-picker" role="group" aria-labelledby="konbini-rating-label">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button type="button" class="konbini-rate__star" data-star-value={n} aria-label={`${n} / 5`}>★</button>
-                          ))}
-                        </div>
-                        <p class="konbini-form__note">{r.tapToSubmit}</p>
-                      </div>
-
-                      <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
-                    </form>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p class="konbini-empty">{r.notConfigured}</p>
-            )
-          }
-
-          {reviews.length > 0 && (
-            <section class="konbini-reviews" aria-label={t.reviewsUnit}>
-              {reviews.map((rev) => (
-                <article class="konbini-review">
-                  <header class="konbini-review__head">
-                    <span class="konbini-stars konbini-stars--sm" aria-label={`${t.ratingLabel} ${rev.rating} / 5`}>
-                      {starString(rev.rating)}
-                    </span>
-                    {rev.title && <h3 class="konbini-review__title">{rev.title}</h3>}
-                  </header>
-                  {rev.body && <p class="konbini-review__body">{rev.body}</p>}
-                  {rev.photos && rev.photos.length > 0 && (
-                    <div class="konbini-review__photos">
-                      {rev.photos.map(
-                        (ph) =>
-                          ph.image?.url && (
-                            <img
-                              src={ph.image.url}
-                              alt={ph.image.alt ?? rev.title ?? product.name}
-                              width="240"
-                              height="180"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          ),
-                      )}
-                    </div>
-                  )}
-                  <footer class="konbini-review__foot">
-                    {rev.store && <span>{t.storeLabel}：{rev.store}</span>}
-                    {rev.price != null && <span>{priceLabel(rev.price, rev.currency, t)}</span>}
-                    {rev.authorName && <span>{t.by} {rev.authorName}</span>}
-                    {rev.submittedAt && <span>{rev.submittedAt}</span>}
-                  </footer>
-                </article>
-              ))}
-            </section>
-          )}
-        </article>
+        <KonbiniProductDetailMarkup lang={lang} product={product} />
       )
     }
   </main>
 
   {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
 
-  <script is:inline define:vars={{ sendingLabel: r.sending, removeLabel: t.removePhoto }}>
-    (function () {
-      var form = document.getElementById('konbini-form');
-      if (!form) return;
+  <script is:inline define:vars={{ sendingLabel: t.rate.sending, removeLabel: t.removePhoto }}>
+    // 商品詳情的評分視窗互動邏輯，寫成可重複呼叫的函式（root 底下用
+    // data-* 屬性找元素，不用 id——這樣同一份標記／腳本可以被
+    // KonbiniIndexPage.astro 的商品快速預覽視窗（一次只會有一份 clone
+    // 出來的內容是「活的」）重複使用，不用整份複製一遍。獨立頁只會呼叫
+    // 一次（root = document）。
+    function wireKonbiniProductDetail(root) {
+      var trigger = root.querySelector('[data-rate-trigger]');
+      if (!trigger) return { destroy: function () {} }; // 未設定 GSI 時整塊不會渲染
+
+      var rateSection = root.querySelector('[data-rate-section]');
+      var ratePanel = root.querySelector('[data-rate-panel]');
+      var rateTitle = root.querySelector('[data-rate-title]');
+      var closeBtn = root.querySelector('[data-rate-close]');
+      var gate = root.querySelector('[data-rate-gate]');
+      var form = root.querySelector('[data-rate-form]');
+      var statusEl = root.querySelector('[data-status]');
+      var gsiTargetEl = root.querySelector('[data-gsi]');
+      var userEl = root.querySelector('[data-user]');
+      var alreadyRatedNote = root.querySelector('[data-already-rated-note]');
+      var photoInput = root.querySelector('[data-photos]');
+      var previews = root.querySelector('[data-previews]');
+      var starPicker = root.querySelector('[data-rating-picker]');
+      var starButtons = starPicker ? Array.prototype.slice.call(starPicker.querySelectorAll('.konbini-rate__star')) : [];
+
       var clientId = form.getAttribute('data-client-id');
       var productSlug = form.getAttribute('data-product-slug');
-      var gate = document.getElementById('konbini-rate-gate');
-      var statusEl = document.getElementById('konbini-status');
       var maxPhotos = parseInt(form.getAttribute('data-max-photos'), 10) || 3;
       var tooManyMsg = form.getAttribute('data-msg-toomany');
       var idToken = null;
       var photos = []; // base64 data URLs（已縮圖），與 selectedFiles 一一對應
       var selectedFiles = []; // 目前選取的 File；移除縮圖時要跟 photos 同步剔除
+      var currentRating = 3;
+      var gsiInited = false;
+      var gsiRetryTimer = null;
 
       function prefersReducedMotion() {
         return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+
+      // ── 視窗背景捲動鎖：用計數而不是單純布林，因為評分視窗可能疊在
+      // 商品快速預覽視窗「裡面」——關掉評分視窗時，如果外層視窗還開著，
+      // 不能把 body 捲動解鎖。 ──
+      function lockModalScroll() {
+        var n = (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) + 1;
+        document.body.setAttribute('data-konbini-modal-count', String(n));
+        document.body.classList.add('konbini-modal-open');
+      }
+      function unlockModalScroll() {
+        var n = Math.max(0, (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) - 1);
+        document.body.setAttribute('data-konbini-modal-count', String(n));
+        if (n === 0) document.body.classList.remove('konbini-modal-open');
       }
 
       // ── 評分改成點星星直接送出（不用拉滑桿、也不用另外按送出鍵）：
       // 點第 N 顆星＝評 N 分，點下去馬上打 API。心得／照片都是選填，
       // 所以這兩個欄位排在星星「前面」——想留言就先打好，再點星星送出；
       // 不想留言可以直接點星星，一步完成。 ──
-      var starPicker = document.getElementById('konbini-rating-picker');
-      var starButtons = starPicker ? Array.prototype.slice.call(starPicker.querySelectorAll('.konbini-rate__star')) : [];
-      var currentRating = 3;
-
       function renderStars(previewValue) {
         var active = previewValue || currentRating;
         starButtons.forEach(function (btn) {
@@ -257,8 +146,6 @@ const configured = clientId.length > 0;
           img.src = url;
         });
       }
-      var photoInput = document.getElementById('konbini-photos');
-      var previews = document.getElementById('konbini-previews');
 
       // 用 DataTransfer 重建 input.files，讓移除某張縮圖後 input 內容跟著
       // 同步（原生 FileList 不能直接砍元素）。
@@ -334,7 +221,6 @@ const configured = clientId.length > 0;
       // 者一進頁面就知道自己已經評過、並且直接看到上次填的內容可以改，不用
       // 每次都從空白的 3 星、空白留言重新填一次。 ──
       var MY_RATING_KEY = 'konbini-my-rating-' + productSlug;
-      var alreadyRatedNote = document.getElementById('konbini-already-rated-note');
 
       function saveMyRating(rating, bodyText) {
         try {
@@ -364,8 +250,7 @@ const configured = clientId.length > 0;
         form.hidden = false;
         try {
           var payload = JSON.parse(atob(token.split('.')[1]));
-          var u = document.getElementById('konbini-user');
-          if (u) u.textContent = payload.name || payload.email || '';
+          if (userEl) userEl.textContent = payload.name || payload.email || '';
         } catch (e) {}
         applyMyRating();
       }
@@ -394,35 +279,29 @@ const configured = clientId.length > 0;
       function initGsi() {
         if (!window.google || !google.accounts || !google.accounts.id) return false;
         google.accounts.id.initialize({ client_id: clientId, callback: onCredential });
-        var target = document.getElementById('konbini-gsi');
-        if (target) google.accounts.id.renderButton(target, { theme: 'outline', size: 'large' });
+        if (gsiTargetEl) google.accounts.id.renderButton(gsiTargetEl, { theme: 'outline', size: 'large' });
         return true;
       }
       // renderButton 塞進目前是 hidden 的視窗容器，量到的寬度會是 0——所以
-      // 延後到視窗第一次打開（openRateSection）才初始化，跟新增商品視窗
-      // （KonbiniIndexPage.astro）用的是同一套處理方式。
+      // 延後到視窗第一次打開（openRateSection）才初始化。
       function attemptInitGsi() {
         if (!initGsi()) {
           var tries = 0;
-          var iv = setInterval(function () {
-            if (initGsi() || ++tries > 40) clearInterval(iv);
+          gsiRetryTimer = setInterval(function () {
+            if (initGsi() || ++tries > 40) {
+              clearInterval(gsiRetryTimer);
+              gsiRetryTimer = null;
+            }
           }, 150);
         }
       }
 
-      // ── 評分視窗：跟新增商品一樣做成置中彈窗，不是內嵌在頁面裡固定佔
-      // 位置——瀏覽商品說明／評論時畫面更乾淨，要評分才點按鈕開視窗。 ──
-      var rateSection = document.getElementById('konbini-rate-section');
-      var ratePanel = document.getElementById('konbini-rate-section-panel');
-      var rateTrigger = document.getElementById('konbini-rate-trigger');
-      var rateCloseBtn = document.getElementById('konbini-rate-close');
-      var rateTitle = document.getElementById('konbini-rate-section-title');
-      var gsiInited = false;
-
+      // ── 評分視窗：置中彈窗，可能疊在商品快速預覽視窗「裡面」——瀏覽
+      // 商品說明／評論時畫面更乾淨，要評分才點按鈕開視窗。 ──
       function focusFirstRateField() {
         var field =
-          (ratePanel && ratePanel.querySelector('#konbini-form:not([hidden]) textarea, #konbini-form:not([hidden]) input, #konbini-form:not([hidden]) button:not([disabled])')) ||
-          (ratePanel && ratePanel.querySelector('#konbini-gsi iframe'));
+          (ratePanel && ratePanel.querySelector('[data-rate-form]:not([hidden]) textarea, [data-rate-form]:not([hidden]) input, [data-rate-form]:not([hidden]) button:not([disabled])')) ||
+          (ratePanel && ratePanel.querySelector('[data-gsi] iframe'));
         if (field) {
           field.focus();
         } else if (rateTitle) {
@@ -433,7 +312,7 @@ const configured = clientId.length > 0;
       function openRateSection() {
         if (!rateSection) return;
         rateSection.hidden = false;
-        document.body.classList.add('konbini-modal-open');
+        lockModalScroll();
         if (!gsiInited) {
           gsiInited = true;
           attemptInitGsi();
@@ -445,12 +324,12 @@ const configured = clientId.length > 0;
       function closeRateSection() {
         if (!rateSection || rateSection.hidden) return;
         rateSection.hidden = true;
-        document.body.classList.remove('konbini-modal-open');
-        if (rateTrigger) rateTrigger.focus();
+        unlockModalScroll();
+        trigger.focus();
       }
 
-      if (rateTrigger) rateTrigger.addEventListener('click', openRateSection);
-      if (rateCloseBtn) rateCloseBtn.addEventListener('click', closeRateSection);
+      trigger.addEventListener('click', openRateSection);
+      if (closeBtn) closeBtn.addEventListener('click', closeRateSection);
       if (rateSection) {
         // 點視窗外的半透明背景（不是點到裡面的卡片）也關閉。
         rateSection.addEventListener('click', function (ev) {
@@ -459,9 +338,10 @@ const configured = clientId.length > 0;
       }
       // Esc 關閉；Tab／Shift+Tab 在視窗開著時把焦點鎖在視窗內（簡易
       // focus trap）。
-      document.addEventListener('keydown', function (ev) {
+      function onKeydown(ev) {
         if (!rateSection || rateSection.hidden) return;
         if (ev.key === 'Escape') {
+          ev.stopPropagation();
           closeRateSection();
           return;
         }
@@ -479,7 +359,8 @@ const configured = clientId.length > 0;
           ev.preventDefault();
           first.focus();
         }
-      });
+      }
+      document.addEventListener('keydown', onKeydown);
 
       // 把狀態訊息（成功／錯誤）捲進畫面並交焦點過去，尊重減少動態偏好；
       // 表單可能已經捲出畫面外（尤其手機），不主動捲過去使用者容易漏看。
@@ -546,6 +427,18 @@ const configured = clientId.length > 0;
             starButtons.forEach(function (b) { b.disabled = false; });
           });
       }
-    })();
+
+      return {
+        destroy: function () {
+          document.removeEventListener('keydown', onKeydown);
+          if (gsiRetryTimer) {
+            clearInterval(gsiRetryTimer);
+            gsiRetryTimer = null;
+          }
+        },
+      };
+    }
+
+    wireKonbiniProductDetail(document);
   </script>
 </BaseLayout>

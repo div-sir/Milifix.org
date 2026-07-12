@@ -4,6 +4,7 @@ import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import KonbiniNewProductForm from './KonbiniNewProductForm.astro';
+import KonbiniProductDetailMarkup from './KonbiniProductDetailMarkup.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
@@ -21,6 +22,8 @@ interface Props {
 const { lang } = Astro.props;
 const t = konbini(lang);
 const n = t.newProduct;
+
+const configured = (import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '').length > 0;
 
 const [products, chains] = await Promise.all([loadKonbiniProducts(), getKonbiniChains()]);
 
@@ -155,7 +158,7 @@ const countryTitleHidden = countryGroups.length > 1;
                       <ul class="konbini-grid">
                         {chain.items.map((c) => (
                           <li class="konbini-card">
-                            <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
+                            <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)} data-product-slug={c.slug}>
                               <div class="konbini-card__cover" aria-hidden="true">
                                 <span class="konbini-card__cover-category">{t.categoryNames[c.category as KonbiniCategory]}</span>
                               </div>
@@ -174,7 +177,7 @@ const countryTitleHidden = countryGroups.length > 1;
                                   class={`konbini-card__price ${c.price ? '' : 'konbini-card__price--empty'}`}
                                   aria-hidden={c.price ? undefined : 'true'}
                                 >
-                                  {c.price || ' '}
+                                  {c.price || ' '}
                                 </p>
                               </div>
                             </a>
@@ -213,10 +216,52 @@ const countryTitleHidden = countryGroups.length > 1;
         <KonbiniNewProductForm lang={lang} />
       </div>
     </div>
+
+    {/* 商品快速預覽視窗：點商品卡片不跳頁，直接彈窗看完整商品頁內容
+       （含評分按鈕，點了再彈出評分視窗，視窗疊視窗）。每個商品的完整
+       內容先各自放進 <template>（瀏覽器對 <template> 內容不會執行
+       script／載入圖片，也不算進 document.getElementById 的查詢範圍，
+       彼此不會撞名），點卡片時才 clone 進下面這個共用的視窗殼。 */}
+    {products.map((p) => (
+      <template id={`konbini-product-tpl-${p.slug}`}>
+        <KonbiniProductDetailMarkup lang={lang} product={p} />
+      </template>
+    ))}
+
+    <div class="konbini-add-section" id="konbini-product-modal" hidden>
+      <div
+        class="konbini-add-section__panel konbini-product-modal__panel"
+        id="konbini-product-modal-panel"
+        role="dialog"
+        aria-modal="true"
+      >
+        <button type="button" class="konbini-add-section__close" id="konbini-product-modal-close" aria-label={t.closeAddSection}>
+          <span aria-hidden="true">×</span>
+        </button>
+        <div id="konbini-product-modal-body"></div>
+      </div>
+    </div>
   </main>
 
-  <script is:inline>
+  {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
+
+  <script is:inline define:vars={{ sendingLabel: t.rate.sending, removeLabel: t.removePhoto }}>
     (function () {
+      // ── 視窗背景捲動鎖：用計數而不是單純布林。商品快速預覽視窗裡面還
+      // 會再疊一層評分視窗，內層關掉時如果外層還開著，不能把 body 捲動
+      // 解鎖；新增商品視窗跟商品快速預覽視窗理論上不會同時開，但共用同
+      // 一個計數器也沒有壞處。 ──
+      function lockModalScroll() {
+        var n = (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) + 1;
+        document.body.setAttribute('data-konbini-modal-count', String(n));
+        document.body.classList.add('konbini-modal-open');
+      }
+      function unlockModalScroll() {
+        var n = Math.max(0, (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) - 1);
+        document.body.setAttribute('data-konbini-modal-count', String(n));
+        if (n === 0) document.body.classList.remove('konbini-modal-open');
+      }
+
       var addSection = document.getElementById('konbini-add-section');
       var addTitle = document.getElementById('konbini-add-section-title');
       var chainSelect = document.getElementById('konbini-new-chain-select');
@@ -250,7 +295,7 @@ const countryTitleHidden = countryGroups.length > 1;
       function openAddSection(presetSlug, opts) {
         if (!addSection) return;
         addSection.hidden = false;
-        document.body.classList.add('konbini-modal-open');
+        lockModalScroll();
         // GSI 的 initialize/renderButton 要等區塊真的顯示出來才跑，否則
         // renderButton 塞進 display:none 容器量到的寬度是 0。表單腳本監聽
         // 這個事件，第一次收到才初始化。
@@ -273,7 +318,7 @@ const countryTitleHidden = countryGroups.length > 1;
       function closeAddSection() {
         if (!addSection || addSection.hidden) return;
         addSection.hidden = true;
-        document.body.classList.remove('konbini-modal-open');
+        unlockModalScroll();
         history.replaceState(null, '', location.pathname + location.search);
         var opener = lastAddOpener || document.querySelector('[data-goto-add]');
         if (opener) opener.focus();
@@ -308,6 +353,443 @@ const countryTitleHidden = countryGroups.length > 1;
         if (ev.key !== 'Tab' || !addPanel) return;
         var focusable = Array.prototype.slice.call(
           addPanel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+        ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (ev.shiftKey && document.activeElement === first) {
+          ev.preventDefault();
+          last.focus();
+        } else if (!ev.shiftKey && document.activeElement === last) {
+          ev.preventDefault();
+          first.focus();
+        }
+      });
+
+      // ══════════════════════════════════════════════════════════════
+      // 商品快速預覽視窗：點商品卡片彈出完整商品內容（跟獨立頁
+      // /konbini/{slug} 同一份標記，來自共用元件 KonbiniProductDetailMarkup），
+      // 裡面的「幫這個商品評分」再彈出評分視窗（視窗疊視窗）。
+      // ══════════════════════════════════════════════════════════════
+
+      // wireKonbiniProductDetail：跟 KonbiniProductPage.astro 裡的同名函式
+      // 邏輯完全一樣（GSI 登入、星星評分直接送出、已評價過預填、評分
+      // 視窗開關），這裡另外複製一份是因為兩個檔案是不同頁面、無法共用
+      // JS 作用域——這裡多了一個關鍵差異：每次切換到不同商品時，舊的
+      // clone 會被整個換掉，所以回傳 destroy()，讓呼叫端在換下一個商品
+      // 前清掉舊的 document 層級事件監聽與計時器，避免堆積。
+      function wireKonbiniProductDetail(root) {
+        var trigger = root.querySelector('[data-rate-trigger]');
+        if (!trigger) return { destroy: function () {} };
+
+        var rateSection = root.querySelector('[data-rate-section]');
+        var ratePanel = root.querySelector('[data-rate-panel]');
+        var rateTitle = root.querySelector('[data-rate-title]');
+        var rateCloseBtn = root.querySelector('[data-rate-close]');
+        var gate = root.querySelector('[data-rate-gate]');
+        var form = root.querySelector('[data-rate-form]');
+        var statusEl = root.querySelector('[data-status]');
+        var gsiTargetEl = root.querySelector('[data-gsi]');
+        var userEl = root.querySelector('[data-user]');
+        var alreadyRatedNote = root.querySelector('[data-already-rated-note]');
+        var photoInput = root.querySelector('[data-photos]');
+        var previews = root.querySelector('[data-previews]');
+        var starPicker = root.querySelector('[data-rating-picker]');
+        var starButtons = starPicker ? Array.prototype.slice.call(starPicker.querySelectorAll('.konbini-rate__star')) : [];
+
+        var clientId = form.getAttribute('data-client-id');
+        var productSlug = form.getAttribute('data-product-slug');
+        var maxPhotos = parseInt(form.getAttribute('data-max-photos'), 10) || 3;
+        var tooManyMsg = form.getAttribute('data-msg-toomany');
+        var idToken = null;
+        var photos = [];
+        var selectedFiles = [];
+        var currentRating = 3;
+        var gsiInited = false;
+        var gsiRetryTimer = null;
+
+        function renderStars(previewValue) {
+          var active = previewValue || currentRating;
+          starButtons.forEach(function (btn) {
+            var v = parseInt(btn.getAttribute('data-star-value'), 10);
+            btn.classList.toggle('is-filled', v <= active);
+          });
+        }
+        renderStars();
+        starButtons.forEach(function (btn) {
+          var v = parseInt(btn.getAttribute('data-star-value'), 10);
+          btn.addEventListener('mouseenter', function () { renderStars(v); });
+          btn.addEventListener('mouseleave', function () { renderStars(); });
+          btn.addEventListener('click', function () {
+            currentRating = v;
+            renderStars();
+            submitRating();
+          });
+        });
+
+        var MAX_EDGE = 1600;
+        function downscale(file) {
+          return new Promise(function (resolve) {
+            var img = new Image();
+            var url = URL.createObjectURL(file);
+            img.onload = function () {
+              var w = img.width, h = img.height;
+              var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+              var cw = Math.round(w * scale), ch = Math.round(h * scale);
+              var canvas = document.createElement('canvas');
+              canvas.width = cw; canvas.height = ch;
+              canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+              URL.revokeObjectURL(url);
+              resolve(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+            img.src = url;
+          });
+        }
+
+        function rebuildPhotoInputFiles() {
+          if (typeof DataTransfer === 'undefined' || !photoInput) return;
+          var dt = new DataTransfer();
+          selectedFiles.forEach(function (f) { dt.items.add(f); });
+          photoInput.files = dt.files;
+        }
+
+        function renderPhotoPreviews() {
+          if (!previews) return;
+          previews.innerHTML = '';
+          photos.forEach(function (dataUrl, index) {
+            var wrap = document.createElement('div');
+            wrap.className = 'konbini-form__thumb-wrap';
+            var im = document.createElement('img');
+            im.src = dataUrl;
+            im.alt = '';
+            im.className = 'konbini-form__thumb';
+            im.width = 64; im.height = 64;
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'konbini-form__thumb-remove';
+            removeBtn.setAttribute('aria-label', removeLabel);
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', function () {
+              photos.splice(index, 1);
+              selectedFiles.splice(index, 1);
+              rebuildPhotoInputFiles();
+              renderPhotoPreviews();
+            });
+            wrap.appendChild(im);
+            wrap.appendChild(removeBtn);
+            previews.appendChild(wrap);
+          });
+        }
+
+        if (photoInput) {
+          photoInput.addEventListener('change', function () {
+            var files = [].slice.call(photoInput.files || []);
+            if (files.length > maxPhotos) {
+              if (statusEl) statusEl.textContent = tooManyMsg;
+              photoInput.value = '';
+              return;
+            }
+            if (statusEl) statusEl.textContent = '';
+            selectedFiles = files;
+            photos = [];
+            Promise.all(files.map(downscale)).then(function (results) {
+              photos = [];
+              var keptFiles = [];
+              results.forEach(function (dataUrl, i) {
+                if (!dataUrl) return;
+                photos.push(dataUrl);
+                keptFiles.push(selectedFiles[i]);
+              });
+              selectedFiles = keptFiles;
+              renderPhotoPreviews();
+            });
+          });
+        }
+
+        var TOKEN_KEY = 'konbini-id-token';
+        var MY_RATING_KEY = 'konbini-my-rating-' + productSlug;
+
+        function saveMyRating(rating, bodyText) {
+          try {
+            localStorage.setItem(MY_RATING_KEY, JSON.stringify({ rating: rating, body: bodyText || '' }));
+          } catch (e) {}
+        }
+
+        function applyMyRating() {
+          var raw;
+          try { raw = localStorage.getItem(MY_RATING_KEY); } catch (e) { return; }
+          if (!raw) return;
+          var mine;
+          try { mine = JSON.parse(raw); } catch (e) { return; }
+          if (!mine) return;
+          if (mine.rating) {
+            currentRating = mine.rating;
+            renderStars();
+          }
+          var bodyField = form.querySelector('textarea[name="body"]');
+          if (bodyField && mine.body) bodyField.value = mine.body;
+          if (alreadyRatedNote) alreadyRatedNote.hidden = false;
+        }
+
+        function showSignedIn(token) {
+          idToken = token;
+          if (gate) gate.hidden = true;
+          form.hidden = false;
+          try {
+            var payload = JSON.parse(atob(token.split('.')[1]));
+            if (userEl) userEl.textContent = payload.name || payload.email || '';
+          } catch (e) {}
+          applyMyRating();
+        }
+
+        function tryRestoreSession() {
+          try {
+            var cached = sessionStorage.getItem(TOKEN_KEY);
+            if (!cached) return;
+            var payload = JSON.parse(atob(cached.split('.')[1]));
+            if (!payload.exp || payload.exp * 1000 <= Date.now()) {
+              sessionStorage.removeItem(TOKEN_KEY);
+              return;
+            }
+            showSignedIn(cached);
+          } catch (e) {}
+        }
+        tryRestoreSession();
+
+        function onCredential(resp) {
+          var token = resp && resp.credential;
+          if (!token) return;
+          try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+          showSignedIn(token);
+        }
+
+        function initGsi() {
+          if (!window.google || !google.accounts || !google.accounts.id) return false;
+          google.accounts.id.initialize({ client_id: clientId, callback: onCredential });
+          if (gsiTargetEl) google.accounts.id.renderButton(gsiTargetEl, { theme: 'outline', size: 'large' });
+          return true;
+        }
+        function attemptInitGsi() {
+          if (!initGsi()) {
+            var tries = 0;
+            gsiRetryTimer = setInterval(function () {
+              if (initGsi() || ++tries > 40) {
+                clearInterval(gsiRetryTimer);
+                gsiRetryTimer = null;
+              }
+            }, 150);
+          }
+        }
+
+        function focusFirstRateField() {
+          var field =
+            (ratePanel && ratePanel.querySelector('[data-rate-form]:not([hidden]) textarea, [data-rate-form]:not([hidden]) input, [data-rate-form]:not([hidden]) button:not([disabled])')) ||
+            (ratePanel && ratePanel.querySelector('[data-gsi] iframe'));
+          if (field) {
+            field.focus();
+          } else if (rateTitle) {
+            rateTitle.focus();
+          }
+        }
+
+        function openRateSection() {
+          if (!rateSection) return;
+          rateSection.hidden = false;
+          lockModalScroll();
+          if (!gsiInited) {
+            gsiInited = true;
+            attemptInitGsi();
+          }
+          var reduced = prefersReducedMotion();
+          window.setTimeout(focusFirstRateField, reduced ? 0 : 200);
+        }
+
+        function closeRateSection() {
+          if (!rateSection || rateSection.hidden) return;
+          rateSection.hidden = true;
+          unlockModalScroll();
+          trigger.focus();
+        }
+
+        trigger.addEventListener('click', openRateSection);
+        if (rateCloseBtn) rateCloseBtn.addEventListener('click', closeRateSection);
+        if (rateSection) {
+          rateSection.addEventListener('click', function (ev) {
+            if (ev.target === rateSection) closeRateSection();
+          });
+        }
+        function onRateKeydown(ev) {
+          if (!rateSection || rateSection.hidden) return;
+          if (ev.key === 'Escape') {
+            ev.stopPropagation();
+            closeRateSection();
+            return;
+          }
+          if (ev.key !== 'Tab' || !ratePanel) return;
+          var focusable = Array.prototype.slice.call(
+            ratePanel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+          ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+          if (focusable.length === 0) return;
+          var first = focusable[0];
+          var last = focusable[focusable.length - 1];
+          if (ev.shiftKey && document.activeElement === first) {
+            ev.preventDefault();
+            last.focus();
+          } else if (!ev.shiftKey && document.activeElement === last) {
+            ev.preventDefault();
+            first.focus();
+          }
+        }
+        document.addEventListener('keydown', onRateKeydown);
+
+        function announceStatus(text) {
+          if (!statusEl) return;
+          statusEl.textContent = text;
+          var reduced = prefersReducedMotion();
+          statusEl.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+          statusEl.focus();
+        }
+
+        function submitRating() {
+          if (!idToken) {
+            announceStatus(form.getAttribute('data-msg-signin'));
+            return;
+          }
+          var payload = {
+            idToken: idToken,
+            productSlug: productSlug,
+            rating: currentRating,
+            body: new FormData(form).get('body'),
+            photos: photos,
+          };
+          starButtons.forEach(function (b) { b.disabled = true; });
+          if (statusEl) statusEl.textContent = sendingLabel;
+          var responseOk = false;
+          fetch('/api/konbini-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+            .then(function (res) {
+              responseOk = res.ok;
+              if (res.status === 401) {
+                try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+                idToken = null;
+                if (gate) gate.hidden = false;
+              }
+              return res.json();
+            })
+            .then(function (data) {
+              if (responseOk) {
+                saveMyRating(payload.rating, payload.body);
+                if (alreadyRatedNote) alreadyRatedNote.hidden = false;
+                announceStatus(
+                  data && data.updated
+                    ? form.getAttribute('data-msg-success-updated')
+                    : form.getAttribute('data-msg-success'),
+                );
+              } else {
+                announceStatus(form.getAttribute('data-msg-error'));
+              }
+            })
+            .catch(function () {
+              announceStatus(form.getAttribute('data-msg-error'));
+            })
+            .finally(function () {
+              starButtons.forEach(function (b) { b.disabled = false; });
+            });
+        }
+
+        return {
+          destroy: function () {
+            document.removeEventListener('keydown', onRateKeydown);
+            if (gsiRetryTimer) {
+              clearInterval(gsiRetryTimer);
+              gsiRetryTimer = null;
+            }
+          },
+        };
+      }
+
+      // ── 商品快速預覽視窗本身（外層）的開關 ──
+      var productModal = document.getElementById('konbini-product-modal');
+      var productModalPanel = document.getElementById('konbini-product-modal-panel');
+      var productModalBody = document.getElementById('konbini-product-modal-body');
+      var productModalClose = document.getElementById('konbini-product-modal-close');
+      var activeProductDetail = null;
+      var lastProductOpener = null;
+
+      function loadProductIntoModal(slug) {
+        var tpl = document.getElementById('konbini-product-tpl-' + slug);
+        if (!tpl || !productModalBody) return false;
+        if (activeProductDetail) {
+          activeProductDetail.destroy();
+          activeProductDetail = null;
+        }
+        productModalBody.innerHTML = '';
+        productModalBody.appendChild(tpl.content.cloneNode(true));
+        activeProductDetail = wireKonbiniProductDetail(productModalBody);
+        return true;
+      }
+
+      function openProductModal(slug, opener, opts) {
+        if (!productModal || !loadProductIntoModal(slug)) return;
+        productModal.hidden = false;
+        lockModalScroll();
+        lastProductOpener = opener || null;
+        if (!(opts && opts.skipHash)) {
+          history.replaceState(null, '', '#product/' + slug);
+        }
+        var reduced = prefersReducedMotion();
+        window.setTimeout(function () {
+          var heading = productModalBody.querySelector('h1');
+          if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus();
+          }
+        }, reduced ? 0 : 200);
+      }
+
+      function closeProductModal() {
+        if (!productModal || productModal.hidden) return;
+        productModal.hidden = true;
+        unlockModalScroll();
+        if (activeProductDetail) {
+          activeProductDetail.destroy();
+          activeProductDetail = null;
+        }
+        history.replaceState(null, '', location.pathname + location.search);
+        if (lastProductOpener) lastProductOpener.focus();
+      }
+
+      document.querySelectorAll('.konbini-card__link[data-product-slug]').forEach(function (link) {
+        link.addEventListener('click', function (ev) {
+          // 修飾鍵點擊（開新分頁等）或中鍵，維持原生行為，不攔截。
+          if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+          ev.preventDefault();
+          openProductModal(link.getAttribute('data-product-slug'), link);
+        });
+      });
+
+      if (productModalClose) productModalClose.addEventListener('click', closeProductModal);
+      if (productModal) {
+        productModal.addEventListener('click', function (ev) {
+          if (ev.target === productModal) closeProductModal();
+        });
+      }
+      document.addEventListener('keydown', function (ev) {
+        if (!productModal || productModal.hidden) return;
+        // 裡面的評分視窗開著時，Esc／Tab 交給它自己的 handler 處理，
+        // 只關評分視窗，不要連商品視窗也一起關掉或搶走焦點循環。
+        if (productModalBody.querySelector('[data-rate-section]:not([hidden])')) return;
+        if (ev.key === 'Escape') {
+          closeProductModal();
+          return;
+        }
+        if (ev.key !== 'Tab' || !productModalPanel) return;
+        var focusable = Array.prototype.slice.call(
+          productModalPanel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
         ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
         if (focusable.length === 0) return;
         var first = focusable[0];
@@ -373,8 +855,8 @@ const countryTitleHidden = countryGroups.length > 1;
 
       // ── URL hash 反映目前選到的國家／連鎖店，讓連結可以分享
       // （例如 #japan 或 #japan/lawson-jp），用 replaceState 避免洗
-      // 瀏覽紀錄；載入時也讀 hash 還原選取狀態，#add 則直接展開新增
-      // 商品表單。 ──
+      // 瀏覽紀錄；載入時也讀 hash 還原選取狀態，#add 直接展開新增商品
+      // 視窗，#product/{slug} 直接展開該商品的快速預覽視窗。 ──
       function currentCountry() {
         if (countryTabs.length) {
           var active = countryTabs.filter(function (t) { return t.classList.contains('is-active'); })[0];
@@ -405,6 +887,10 @@ const countryTitleHidden = countryGroups.length > 1;
         if (!raw) return;
         if (raw === 'add') {
           openAddSection(null, { skipHash: true });
+          return;
+        }
+        if (raw.indexOf('product/') === 0) {
+          openProductModal(raw.slice('product/'.length), null, { skipHash: true });
           return;
         }
         var parts = raw.split('/');
