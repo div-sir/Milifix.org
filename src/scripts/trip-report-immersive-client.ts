@@ -210,8 +210,14 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const markDay = (dayIds: Set<string>): void => {
     for (const [id, m] of markerByStop) m.classList.toggle('is-day', dayIds.has(id));
   };
-  const activateDay = (dayNum: number | null): void => {
-    if (activeDay === dayNum) return;
+  // 粗金色路線只在「當日概覽」鏡頭（低傾角、可看到整段路線）畫出；
+  // 貼近單一停靠點時（高 zoom、低傾角仍會朝地平線拉伸）改為隱藏，
+  // 避免長距離路段在透視下被拉成貫穿畫面的尖刺。
+  const activateDay = (dayNum: number | null, showRoute: boolean): void => {
+    if (activeDay === dayNum) {
+      paintActiveRoute(showRoute ? (dayByNum.get(dayNum ?? -1)?.segments ?? []) : []);
+      return;
+    }
     activeDay = dayNum;
     if (dayNum == null) {
       paintActiveRoute([]);
@@ -220,7 +226,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
     const d = dayByNum.get(dayNum);
     if (!d) return;
-    paintActiveRoute(d.segments);
+    paintActiveRoute(showRoute ? d.segments : []);
     markDay(new Set(d.stopIds));
   };
 
@@ -290,7 +296,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
 
     const dayNum = d.day ? Number(d.day) : null;
-    activateDay(Number.isFinite(dayNum) ? dayNum : null);
+    activateDay(Number.isFinite(dayNum) ? dayNum : null, d.dayIntro === '1');
 
     for (const m of markerByStop.values()) m.classList.remove('is-active');
     if (!d.dayIntro) {

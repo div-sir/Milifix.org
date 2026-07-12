@@ -150,7 +150,9 @@ for (const day of trip.days) {
       lng: stop.coords.lng,
       lat: stop.coords.lat,
       zoom: zoomForKind(stop.kind),
-      pitch: 46,
+      // 停靠點鏡頭刻意用較淺的傾角：高 pitch + 粗色路線在透視下會朝地平線
+      // 方向被拉伸成長條「尖刺」，貼近單一景點時改以淺傾角只強調 marker。
+      pitch: 24,
       bearing: (day.day % 2 === 0 ? -1 : 1) * 16,
       pos: nextPos(),
       tag: `DAY ${dayNum} · STOP ${String(i + 1).padStart(2, '0')}`,
