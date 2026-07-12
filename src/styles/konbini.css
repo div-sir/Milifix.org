@@ -797,19 +797,42 @@ body.konbini-modal-open {
   line-height: 1.65;
   margin: 0 0 1.2rem;
 }
-.konbini-report-link {
-  display: inline-block;
-  font-size: 0.76rem;
-  color: var(--muted-dim);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+/* ── 整個 konbini 共用的懸浮「回報錯誤」按鈕，固定在畫面右下角。
+   z-index 故意比視窗（.konbini-add-section 的 250）還高，商品快速預覽
+   視窗或評分視窗開著時也點得到、也看得到（連結內容由頁面腳本動態換成
+   當下正在看的商品，見 KonbiniIndexPage.astro）。 ── */
+.konbini-report-fab {
+  position: fixed;
+  right: clamp(1rem, 3vw, 1.6rem);
+  bottom: clamp(1rem, 3vw, 1.6rem);
+  z-index: 260;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg2);
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-decoration: none;
+  box-shadow: var(--shadow-card);
 }
 @media (hover: hover) {
-  .konbini-report-link:hover { color: var(--muted); }
+  .konbini-report-fab:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
 }
-.konbini-report-link:focus-visible {
+.konbini-report-fab:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+.konbini-report-fab__label {
+  display: none;
+}
+@media (min-width: 640px) {
+  .konbini-report-fab__label { display: inline; }
 }
 
 /* ── Reviews ── */

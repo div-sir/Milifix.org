@@ -4,6 +4,7 @@ import PageTransition from '../PageTransition.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import KonbiniProductDetailMarkup from './KonbiniProductDetailMarkup.astro';
+import KonbiniReportButton from '../KonbiniReportButton.astro';
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
@@ -46,6 +47,8 @@ const configured = (import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '').length 
       )
     }
   </main>
+
+  <KonbiniReportButton lang={lang} productId={product?.id} />
 
   {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
 
