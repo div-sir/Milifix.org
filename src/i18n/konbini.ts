@@ -61,6 +61,8 @@ export interface KonbiniStrings {
     errorSignIn: string;
     moderationNote: string;
     notConfigured: string;
+    /** 這台裝置先前已對這個商品送出過評價時顯示（純前端記憶，換裝置不會同步） */
+    alreadyRated: string;
   };
   /** 新增商品頁（/konbini/new） */
   newProduct: {
@@ -94,7 +96,7 @@ const en: KonbiniStrings = {
   metaDesc:
     'Community-sourced reviews of the best things to buy at Taiwan and Japan convenience stores and chains.',
   heroTag: 'Community reviews',
-  heroTitle: 'Convenience-store must-tries',
+  heroTitle: 'Must-Try & Must-Buy Guide',
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
   addProductCta: 'Add a product',
@@ -143,6 +145,7 @@ const en: KonbiniStrings = {
     errorSignIn: 'Please sign in with Google first.',
     moderationNote: 'All ratings are moderated before publishing.',
     notConfigured: 'Rating is not enabled yet. Please check back soon.',
+    alreadyRated: 'You already rated this on this device — editing below updates it.',
   },
   newProduct: {
     pageTitle: 'Add a product',
@@ -175,7 +178,7 @@ const zh: KonbiniStrings = {
   metaDesc:
     '由社群投稿整理的台灣、日本便利商店與大型連鎖店必吃商品推薦與評價。',
   heroTag: '社群評價',
-  heroTitle: '便利商店必吃的東西',
+  heroTitle: '必吃必買圖鑑',
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
   addProductCta: '新增商品',
@@ -224,6 +227,7 @@ const zh: KonbiniStrings = {
     errorSignIn: '請先用 Google 登入。',
     moderationNote: '所有評分都會先經過審核才會發佈。',
     notConfigured: '評分功能尚未開放，敬請期待。',
+    alreadyRated: '這台裝置已經評價過這個商品了，下面可以直接更新。',
   },
   newProduct: {
     pageTitle: '新增商品',
