@@ -4,7 +4,7 @@ import PageTransition from '../PageTransition.astro';
 import DaySection from '../trips/DaySection.astro';
 import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
-import { travelPath, homePath, availableLangsForPath } from '../../i18n/routes';
+import { travelPath, homePath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import type { TripReport, TripStop } from '../../data/trips/types';
 import '@fontsource-variable/fraunces';
@@ -22,9 +22,6 @@ interface Props {
 
 const { lang, trip } = Astro.props;
 const N = ui(lang).nav;
-// 報告書內容目前僅有 zh 版，語言切換無同等頁面可對應，
-// 退而求其次導向該語言的旅遊分區首頁，避免連到不存在的頁面。
-const navLangs = availableLangsForPath(Astro.url.pathname);
 
 const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
   airport: '機場',
@@ -406,25 +403,6 @@ const mapData = {
             </span>
           </a>
         </li>
-
-        <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
-
-        {
-          navLangs.map((l) => (
-            <li class="dock-pill-nav__cell" role="none">
-              <a
-                class="dock-pill-nav__pill"
-                href={l === lang ? Astro.url.pathname : travelPath(l)}
-                aria-current={l === lang ? 'page' : undefined}
-                aria-label={N.langNames[l]}
-                title={N.langNames[l]}
-                translate="no"
-              >
-                {N.langShort[l]}
-              </a>
-            </li>
-          ))
-        }
 
         <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
 
