@@ -40,11 +40,23 @@ export interface KonbiniStrings {
   storeLabel: string;
   by: string;
   relatedInChain: string;
-  /** 商品詳情：連到 CMS 後台該筆商品編輯頁的小連結 */
+  /** 整個 konbini 共用的懸浮「回報錯誤」按鈕文字 */
   reportError: string;
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
+  /** 懸浮「回報錯誤」按鈕彈出的表單視窗 */
+  reportModal: {
+    heading: string;
+    intro: string;
+    fieldMessage: string;
+    fieldPhoto: string;
+    send: string;
+    sending: string;
+    success: string;
+    errorGeneric: string;
+    errorEmpty: string;
+  };
   /** 商品頁內嵌評分元件（以商品排行為核心，非開放式投稿表單） */
   rate: {
     heading: string;
@@ -132,6 +144,17 @@ const en: KonbiniStrings = {
     other: 'Other',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
+  reportModal: {
+    heading: 'Report an issue',
+    intro: 'Tell us what’s wrong — a photo helps a lot. This isn’t shown publicly; the site owner reviews it directly.',
+    fieldMessage: 'What went wrong?',
+    fieldPhoto: 'Screenshot',
+    send: 'Send report',
+    sending: 'Sending…',
+    success: 'Thanks — we got it.',
+    errorGeneric: 'Something went wrong. Please try again.',
+    errorEmpty: 'Please add a description or a photo.',
+  },
   rate: {
     heading: 'Rate this pick',
     signInReason: 'Sign in with Google to rate — this keeps voting honest.',
@@ -215,6 +238,17 @@ const zh: KonbiniStrings = {
     other: '其他',
   },
   currencySymbol: { TWD: 'NT$', JPY: '¥' },
+  reportModal: {
+    heading: '回報問題',
+    intro: '告訴我們哪裡怪怪的，附張截圖更清楚。這不會公開顯示，站主會直接在後台看到。',
+    fieldMessage: '發生什麼問題？',
+    fieldPhoto: '截圖',
+    send: '送出回報',
+    sending: '送出中…',
+    success: '收到了，謝謝回報！',
+    errorGeneric: '發生錯誤，請再試一次。',
+    errorEmpty: '請至少填寫說明或附上照片。',
+  },
   rate: {
     heading: '幫這個商品評分',
     signInReason: '用 Google 登入才能評分，避免灌票。',
