@@ -1,4 +1,5 @@
 import type maplibregl from 'maplibre-gl';
+import { gsap } from 'gsap';
 
 // ── 由 <script id="immersive-map-data"> 傳入的資料型別 ─────
 interface GeoPoint {
@@ -46,9 +47,16 @@ interface MapData {
   anchors: AnchorData[];
 }
 
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/dark';
+const STYLE_URL: Record<'dark' | 'light', string> = {
+  dark: 'https://tiles.openfreemap.org/styles/dark',
+  light: 'https://tiles.openfreemap.org/styles/positron',
+};
 const SRC_ALL = 'immersive-route-all';
 const SRC_ACTIVE = 'immersive-route-active';
+
+function currentTheme(): 'dark' | 'light' {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
 
 const POS_STYLE: Record<
   AnchorData['pos'],
@@ -192,9 +200,10 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   const allFeatures = toFeatures(data.days.flatMap((d) => d.segments));
 
+  let theme = currentTheme();
   const map = new maplibregl.Map({
     container: mapEl,
-    style: STYLE_URL,
+    style: STYLE_URL[theme],
     center: [data.mapDefault.center.lng, data.mapDefault.center.lat],
     zoom: data.mapDefault.zoom,
     pitch: 0,
@@ -279,9 +288,8 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     // 不需要讓使用者對著讀取畫面多等圖磚全部到齊。
     loader.complete();
   });
-  map.on('style.load', addLayers);
-
   let activeDay: number | null = null;
+  let activeShowRoute = false;
   const paintActiveRoute = (segs: Seg[]): void => {
     const src = map.getSource(SRC_ACTIVE) as maplibregl.GeoJSONSource | undefined;
     if (src) src.setData(toFeatures(segs));
@@ -293,6 +301,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   // 貼近單一停靠點時（高 zoom、低傾角仍會朝地平線拉伸）改為隱藏，
   // 避免長距離路段在透視下被拉成貫穿畫面的尖刺。
   const activateDay = (dayNum: number | null, showRoute: boolean): void => {
+    activeShowRoute = showRoute;
     if (activeDay === dayNum) {
       paintActiveRoute(showRoute ? (dayByNum.get(dayNum ?? -1)?.segments ?? []) : []);
       return;
@@ -308,6 +317,16 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     paintActiveRoute(showRoute ? d.segments : []);
     markDay(new Set(d.stopIds));
   };
+
+  // style.load 於初次載入與每次 setStyle（主題切換）後皆會觸發：重新加回被清空的
+  // sources/layers，並依當前作用中的日期重畫路線／當日標記（marker 為 DOM，
+  // 其 class 於 setStyle 後仍保留，但路線 source 會被清空需重畫）。
+  map.on('style.load', () => {
+    addLayers();
+    const d = activeDay != null ? dayByNum.get(activeDay) : undefined;
+    paintActiveRoute(activeShowRoute && d ? d.segments : []);
+    if (d) markDay(new Set(d.stopIds));
+  });
 
   // ── HUD DOM ──────────────────────────────────────────
   const hudEl = document.getElementById('immersive-hud');
@@ -328,6 +347,64 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     hudEl.style.bottom = p.bottom;
     hudEl.style.flexDirection = p.direction;
     hudEl.dataset.align = p.direction === 'row-reverse' ? 'right' : 'left';
+  };
+
+  // ── HUD 內容切換動畫（GSAP）──────────────────────────────
+  // 立即把新內容寫進 DOM（避免捲動快速切換時殘留舊資料），再由 GSAP
+  // 時間軸播放「退場（舊內容淡出下沉）→ 寫入 → 進場（新內容錯落淡入）」。
+  // 每次切換都先 kill 前一條時間軸；因寫入永遠用當下最新的錨點資料，
+  // 即使中途被打斷也只會略過中間畫格、直接呈現最新內容，不會停在舊資料。
+  const writeHudContent = (d: DOMStringMap): void => {
+    if (tagEl) tagEl.textContent = d.tag || '';
+    if (titleEl) titleEl.textContent = d.title || '';
+    if (descEl) descEl.textContent = d.desc || '';
+    if (noteBoxEl) {
+      if (d.note) {
+        noteBoxEl.textContent = '▸ ' + d.note;
+        noteBoxEl.hidden = false;
+      } else {
+        noteBoxEl.hidden = true;
+      }
+    }
+    if (photoBoxEl && photoImgEl && photoPlaceholderEl) {
+      if (d.photo) {
+        photoImgEl.src = d.photo;
+        photoImgEl.alt = d.photoAlt || d.title || '';
+        photoImgEl.hidden = false;
+        photoPlaceholderEl.hidden = true;
+        photoBoxEl.hidden = false;
+      } else if (!d.dayIntro && d.title) {
+        photoImgEl.hidden = true;
+        photoPlaceholderEl.hidden = false;
+        photoBoxEl.hidden = false;
+      } else {
+        photoBoxEl.hidden = true;
+      }
+    }
+  };
+
+  const hudAnimTargets = [photoBoxEl, tagEl, titleEl, descEl, noteBoxEl].filter(
+    (el): el is HTMLElement => el != null
+  );
+  let hudTl: gsap.core.Timeline | null = null;
+  let hudFirst = true;
+  const swapHud = (d: DOMStringMap): void => {
+    if (hudFirst || reduce) {
+      // 首次（尚在讀取遮罩下，隨場景一起淡入）或減少動態：直接寫入定位
+      writeHudContent(d);
+      gsap.set(hudAnimTargets, { clearProps: 'opacity,transform' });
+      hudFirst = false;
+      return;
+    }
+    hudTl?.kill();
+    hudTl = gsap.timeline();
+    hudTl.to(hudAnimTargets, { opacity: 0, y: 7, duration: 0.16, ease: 'power2.in' });
+    hudTl.add(() => writeHudContent(d));
+    hudTl.fromTo(
+      hudAnimTargets,
+      { opacity: 0, y: -9 },
+      { opacity: 1, y: 0, duration: 0.38, stagger: 0.045, ease: 'power3.out' }
+    );
   };
 
   const dayNavDots = Array.from(document.querySelectorAll<HTMLElement>('.immersive-daynav__dot'));
@@ -360,34 +437,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
 
     applyPos((d.pos as AnchorData['pos']) || 'bottom-left');
-    if (tagEl) tagEl.textContent = d.tag || '';
-    if (titleEl) titleEl.textContent = d.title || '';
-    if (descEl) descEl.textContent = d.desc || '';
-    if (noteBoxEl) {
-      if (d.note) {
-        noteBoxEl.textContent = '▸ ' + d.note;
-        noteBoxEl.hidden = false;
-      } else {
-        noteBoxEl.hidden = true;
-      }
-    }
-
-    if (photoBoxEl && photoImgEl && photoPlaceholderEl) {
-      if (d.photo) {
-        photoImgEl.src = d.photo;
-        photoImgEl.alt = d.photoAlt || d.title || '';
-        photoImgEl.hidden = false;
-        photoPlaceholderEl.hidden = true;
-        photoBoxEl.hidden = false;
-      } else if (!d.dayIntro && d.title) {
-        // 停靠點但無真實照片：顯示佔位圖示，維持版面節奏
-        photoImgEl.hidden = true;
-        photoPlaceholderEl.hidden = false;
-        photoBoxEl.hidden = false;
-      } else {
-        photoBoxEl.hidden = true;
-      }
-    }
+    swapHud(d);
 
     const dayNum = d.day ? Number(d.day) : null;
     const isDayIntro = d.dayIntro === '1';
@@ -434,6 +484,16 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   for (const [id, marker] of markerByStop) {
     marker.addEventListener('click', () => jumpToStopId(id));
   }
+
+  // ── 主題切換：監聽 html data-theme，切換深色／positron 淺色地圖底圖 ──
+  // setStyle 會清空 sources/layers，於上方 style.load 事件重新加回並重畫當前路線。
+  const themeObserver = new MutationObserver(() => {
+    const next = currentTheme();
+    if (next === theme) return;
+    theme = next;
+    map.setStyle(STYLE_URL[theme]);
+  });
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 }
 
 // ── 左側當日行程刻度尺：僅列出目前所在日的停靠點；hover 時浮動
