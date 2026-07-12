@@ -98,23 +98,6 @@ const configured = clientId.length > 0;
                   <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
                   <p class="konbini-form__note" id="konbini-already-rated-note" hidden>{r.alreadyRated}</p>
 
-                  <div class="konbini-form__row">
-                    <span>{t.ratingLabel}：<strong id="konbini-rating-value">3</strong> / 5</span>
-                    <input
-                      type="range"
-                      name="rating"
-                      min="1"
-                      max="5"
-                      step="1"
-                      value="3"
-                      class="konbini-rate__slider"
-                      id="konbini-rating-input"
-                    />
-                    <div class="konbini-stars konbini-rate__stars" id="konbini-rating-stars" aria-hidden="true">
-                      ★★★☆☆
-                    </div>
-                  </div>
-
                   <label class="konbini-form__row">
                     <span>{r.fieldBody} <em>({r.optional})</em></span>
                     <textarea name="body" rows="3" maxlength="1000" />
@@ -128,7 +111,17 @@ const configured = clientId.length > 0;
                   </div>
 
                   <p class="konbini-form__note">{r.moderationNote}</p>
-                  <button type="submit" class="konbini-form__submit" id="konbini-send">{r.send}</button>
+
+                  <div class="konbini-form__row">
+                    <span id="konbini-rating-label">{t.ratingLabel}</span>
+                    <div class="konbini-rate__starpicker" id="konbini-rating-picker" role="group" aria-labelledby="konbini-rating-label">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button type="button" class="konbini-rate__star" data-star-value={n} aria-label={`${n} / 5`}>★</button>
+                      ))}
+                    </div>
+                    <p class="konbini-form__note">{r.tapToSubmit}</p>
+                  </div>
+
                   <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
                 </form>
               </section>
@@ -182,7 +175,7 @@ const configured = clientId.length > 0;
 
   {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
 
-  <script is:inline define:vars={{ sendLabel: r.send, sendingLabel: r.sending, removeLabel: t.removePhoto }}>
+  <script is:inline define:vars={{ sendingLabel: r.sending, removeLabel: t.removePhoto }}>
     (function () {
       var form = document.getElementById('konbini-form');
       if (!form) return;
@@ -190,7 +183,6 @@ const configured = clientId.length > 0;
       var productSlug = form.getAttribute('data-product-slug');
       var gate = document.getElementById('konbini-rate-gate');
       var statusEl = document.getElementById('konbini-status');
-      var sendBtn = document.getElementById('konbini-send');
       var maxPhotos = parseInt(form.getAttribute('data-max-photos'), 10) || 3;
       var tooManyMsg = form.getAttribute('data-msg-toomany');
       var idToken = null;
@@ -201,28 +193,32 @@ const configured = clientId.length > 0;
         return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       }
 
-      // ── 送出前的原生驗證：checkValidity() 沒過就標紅並交給瀏覽器原生
-      // 提示（reportValidity），不送出；:user-invalid 支援的瀏覽器會自動
-      // 加樣式，這裡另外加 is-invalid class 當作舊瀏覽器的 fallback。 ──
-      var validatableFields = Array.prototype.slice.call(form.querySelectorAll('input, select, textarea'));
-      validatableFields.forEach(function (el) {
-        el.addEventListener('input', function () { el.classList.remove('is-invalid'); });
-        el.addEventListener('change', function () { el.classList.remove('is-invalid'); });
-      });
+      // ── 評分改成點星星直接送出（不用拉滑桿、也不用另外按送出鍵）：
+      // 點第 N 顆星＝評 N 分，點下去馬上打 API。心得／照片都是選填，
+      // 所以這兩個欄位排在星星「前面」——想留言就先打好，再點星星送出；
+      // 不想留言可以直接點星星，一步完成。 ──
+      var starPicker = document.getElementById('konbini-rating-picker');
+      var starButtons = starPicker ? Array.prototype.slice.call(starPicker.querySelectorAll('.konbini-rate__star')) : [];
+      var currentRating = 3;
 
-      // ── 評分滑桿：即時更新數字與星號顯示 ──
-      var ratingInput = document.getElementById('konbini-rating-input');
-      var ratingValue = document.getElementById('konbini-rating-value');
-      var ratingStars = document.getElementById('konbini-rating-stars');
-      function renderRating() {
-        var n = parseInt(ratingInput.value, 10) || 0;
-        if (ratingValue) ratingValue.textContent = String(n);
-        if (ratingStars) ratingStars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - n, 10 - n);
+      function renderStars(previewValue) {
+        var active = previewValue || currentRating;
+        starButtons.forEach(function (btn) {
+          var v = parseInt(btn.getAttribute('data-star-value'), 10);
+          btn.classList.toggle('is-filled', v <= active);
+        });
       }
-      if (ratingInput) {
-        ratingInput.addEventListener('input', renderRating);
-        renderRating();
-      }
+      renderStars();
+      starButtons.forEach(function (btn) {
+        var v = parseInt(btn.getAttribute('data-star-value'), 10);
+        btn.addEventListener('mouseenter', function () { renderStars(v); });
+        btn.addEventListener('mouseleave', function () { renderStars(); });
+        btn.addEventListener('click', function () {
+          currentRating = v;
+          renderStars();
+          submitRating();
+        });
+      });
 
       // ── 照片：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85 ──
       var MAX_EDGE = 1600;
@@ -336,9 +332,9 @@ const configured = clientId.length > 0;
         var mine;
         try { mine = JSON.parse(raw); } catch (e) { return; }
         if (!mine) return;
-        if (ratingInput && mine.rating) {
-          ratingInput.value = String(mine.rating);
-          renderRating();
+        if (mine.rating) {
+          currentRating = mine.rating;
+          renderStars();
         }
         var bodyField = form.querySelector('textarea[name="body"]');
         if (bodyField && mine.body) bodyField.value = mine.body;
@@ -402,16 +398,11 @@ const configured = clientId.length > 0;
         statusEl.focus();
       }
 
-      form.addEventListener('submit', function (ev) {
-        ev.preventDefault();
-        validatableFields.forEach(function (el) { el.classList.remove('is-invalid'); });
-        if (!form.checkValidity()) {
-          validatableFields.forEach(function (el) {
-            if (el.willValidate && !el.checkValidity()) el.classList.add('is-invalid');
-          });
-          form.reportValidity();
-          return;
-        }
+      // 點星星呼叫的送出函式（見上面 starButtons 的 click handler）。
+      // 表單本身已經沒有送出鍵了：點星星＝選分數＋送出，一步完成；沒登入
+      // 時星星所在的整個表單本來就是 hidden（gate 還沒讓步），所以「先登
+      // 入才能送」這件事是既有的顯示結構保證的，這裡只是保險再檢查一次。
+      function submitRating() {
         if (!idToken) {
           announceStatus(form.getAttribute('data-msg-signin'));
           return;
@@ -419,12 +410,12 @@ const configured = clientId.length > 0;
         var payload = {
           idToken: idToken,
           productSlug: productSlug,
-          rating: ratingInput ? ratingInput.value : 3,
+          rating: currentRating,
           body: new FormData(form).get('body'),
           photos: photos,
         };
-        if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
-        if (statusEl) statusEl.textContent = '';
+        starButtons.forEach(function (b) { b.disabled = true; });
+        if (statusEl) statusEl.textContent = sendingLabel;
         var responseOk = false;
         fetch('/api/konbini-submit', {
           method: 'POST',
@@ -435,7 +426,7 @@ const configured = clientId.length > 0;
             responseOk = res.ok;
             if (res.status === 401) {
               // 快取的 token 過期／失效：清掉快取、讓登入按鈕重新出現，
-              // 但表單維持可見、內容不清空，重新登入後可以直接再送出。
+              // 但表單維持可見、內容不清空，重新登入後可以直接再點星星送出。
               try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
               idToken = null;
               if (gate) gate.hidden = false;
@@ -459,9 +450,9 @@ const configured = clientId.length > 0;
             announceStatus(form.getAttribute('data-msg-error'));
           })
           .finally(function () {
-            if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = sendLabel; }
+            starButtons.forEach(function (b) { b.disabled = false; });
           });
-      });
+      }
     })();
   </script>
 </BaseLayout>
