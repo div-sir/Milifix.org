@@ -1,0 +1,37 @@
+---
+// 整個 konbini 區塊共用的懸浮「回報錯誤」按鈕，固定在畫面右下角。
+// 有帶 productId 時連到該商品在 CMS 後台的編輯頁（例如首頁商品快速
+// 預覽視窗開著時，由 KonbiniIndexPage.astro 的腳本動態把 href 換成當下
+// 正在看的商品）；沒有特定商品可指時（首頁瀏覽狀態、新增商品頁）連到
+// 後台商品清單頁。z-index 故意設得比視窗（.konbini-add-section 的
+// 250）還高，視窗開著時也點得到，反應的是「正在看的東西」而不會被
+// 視窗背景蓋住。
+import type { Lang } from '../i18n/types';
+import { konbini } from '../i18n/konbini';
+import { getCmsUrl } from '../lib/cms-env';
+
+interface Props {
+  lang: Lang;
+  productId?: string;
+}
+const { lang, productId } = Astro.props;
+const t = konbini(lang);
+
+const href = productId
+  ? `${getCmsUrl()}/admin/collections/konbini-products/${productId}`
+  : `${getCmsUrl()}/admin/collections/konbini-products`;
+---
+
+<a
+  class="konbini-report-fab"
+  id="konbini-report-fab"
+  href={href}
+  data-default-href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  title={t.reportError}
+  aria-label={t.reportError}
+>
+  <span aria-hidden="true">⚑</span>
+  <span class="konbini-report-fab__label">{t.reportError}</span>
+</a>

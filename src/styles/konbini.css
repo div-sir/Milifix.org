@@ -139,6 +139,69 @@ html[data-theme='light'] {
   margin-top: 0;
 }
 
+/* ── 商品頁評分觸發鈕：點下去才開評分視窗（見 .konbini-add-section，
+   跟新增商品共用同一套彈窗樣式） ── */
+.konbini-rate-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: clamp(1.6rem, 4vw, 2.4rem) 0;
+}
+@media (hover: hover) {
+  .konbini-rate-trigger:hover { opacity: 0.9; }
+}
+.konbini-rate-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── 商品頁評分：點星星直接送出，不用滑桿也不用另外按送出鍵 ── */
+.konbini-rate__starpicker {
+  display: flex;
+  gap: 0.4rem;
+}
+.konbini-rate__star {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--muted-dim);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.konbini-rate__star.is-filled {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--bg3); /* color-mix() fallback */
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg));
+}
+@media (hover: hover) {
+  .konbini-rate__star:hover { transform: translateY(-1px); }
+}
+.konbini-rate__star:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.konbini-rate__star:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ── Rating/review form fields（滑桿元件與底下的評論輸入共用） ── */
 .konbini-form {
   display: flex;
@@ -309,6 +372,12 @@ html[data-theme='light'] {
   padding: clamp(1.5rem, 4vw, 2.2rem);
   box-shadow: var(--shadow-card);
 }
+/* 商品快速預覽視窗內容比新增商品視窗豐富（完整商品頁：說明＋評論列
+   表），給寬一點；裡面疊出來的評分視窗仍是預設寬度（640px），不用跟著
+   放寬。 */
+.konbini-product-modal__panel {
+  width: min(100%, 820px);
+}
 .konbini-add-section__title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -359,20 +428,27 @@ body.konbini-modal-open {
   overflow: hidden;
 }
 
-/* ── Country switcher：切換只看台灣或只看日本 ── */
+/* ── Country switcher：分段控制（segmented control）切換只看台灣或
+   只看日本。原本是浮動的膠囊按鈕，改成一體成形、等寬對分的樣式（比照
+   claude.ai/design「Konbini介面改進」1a 方向），視覺上更清楚只有兩個
+   互斥選項。 ── */
 .konbini-country-tabs {
   display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: clamp(1.6rem, 4vw, 2.4rem);
-  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 340px;
+  margin: 0 auto clamp(1.6rem, 4vw, 2.4rem);
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg2);
 }
 .konbini-country-tab {
-  border: 1px solid var(--line);
-  background: var(--bg2);
+  flex: 1;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--muted);
-  padding: 0.5rem 1.1rem;
-  border-radius: 999px;
+  padding: 0.55rem 0.5rem;
+  border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -389,13 +465,13 @@ body.konbini-modal-open {
   color: var(--konbini-taiwan-accent-text);
   border-color: var(--konbini-taiwan-accent);
   background: var(--bg3); /* color-mix() fallback，較舊瀏覽器會忽略下一行 */
-  background: color-mix(in srgb, var(--konbini-taiwan-accent) 12%, var(--bg2));
+  background: color-mix(in srgb, var(--konbini-taiwan-accent) 14%, var(--bg2));
 }
 .konbini-country-tab--japan.is-active {
   color: var(--konbini-japan-accent-text);
   border-color: var(--konbini-japan-accent);
   background: var(--bg3); /* color-mix() fallback */
-  background: color-mix(in srgb, var(--konbini-japan-accent) 12%, var(--bg2));
+  background: color-mix(in srgb, var(--konbini-japan-accent) 14%, var(--bg2));
 }
 
 /* ── Chain switcher：單一國家區塊內，切換只看某連鎖店 ── */
@@ -720,6 +796,43 @@ body.konbini-modal-open {
   color: var(--muted);
   line-height: 1.65;
   margin: 0 0 1.2rem;
+}
+/* ── 整個 konbini 共用的懸浮「回報錯誤」按鈕，固定在畫面右下角。
+   z-index 故意比視窗（.konbini-add-section 的 250）還高，商品快速預覽
+   視窗或評分視窗開著時也點得到、也看得到（連結內容由頁面腳本動態換成
+   當下正在看的商品，見 KonbiniIndexPage.astro）。 ── */
+.konbini-report-fab {
+  position: fixed;
+  right: clamp(1rem, 3vw, 1.6rem);
+  bottom: clamp(1rem, 3vw, 1.6rem);
+  z-index: 260;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg2);
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-decoration: none;
+  box-shadow: var(--shadow-card);
+}
+@media (hover: hover) {
+  .konbini-report-fab:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+}
+.konbini-report-fab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.konbini-report-fab__label {
+  display: none;
+}
+@media (min-width: 640px) {
+  .konbini-report-fab__label { display: inline; }
 }
 
 /* ── Reviews ── */

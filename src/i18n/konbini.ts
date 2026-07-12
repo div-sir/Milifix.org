@@ -40,6 +40,8 @@ export interface KonbiniStrings {
   storeLabel: string;
   by: string;
   relatedInChain: string;
+  /** 商品詳情：連到 CMS 後台該筆商品編輯頁的小連結 */
+  reportError: string;
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
@@ -53,7 +55,6 @@ export interface KonbiniStrings {
     photoHint: string;
     photoTooMany: string;
     optional: string;
-    send: string;
     sending: string;
     success: string;
     successUpdated: string;
@@ -63,6 +64,8 @@ export interface KonbiniStrings {
     notConfigured: string;
     /** 這台裝置先前已對這個商品送出過評價時顯示（純前端記憶，換裝置不會同步） */
     alreadyRated: string;
+    /** 星星評分區塊下的提示：點星星就是送出，不用另外按鈕 */
+    tapToSubmit: string;
   };
   /** 新增商品頁（/konbini/new） */
   newProduct: {
@@ -115,6 +118,7 @@ const en: KonbiniStrings = {
   storeLabel: 'Where',
   by: 'by',
   relatedInChain: 'More from this chain',
+  reportError: 'Report an error',
   countryNames: { taiwan: 'Taiwan', japan: 'Japan' },
   categoryNames: {
     onigiri: 'Rice balls',
@@ -137,7 +141,6 @@ const en: KonbiniStrings = {
     photoHint: 'Up to 3 photos. Large images are resized automatically.',
     photoTooMany: 'You can attach at most 3 photos.',
     optional: 'optional',
-    send: 'Submit rating',
     sending: 'Submitting…',
     success: 'Thanks! Your rating was submitted and will appear after moderation.',
     successUpdated: 'Your rating was updated and will appear after moderation.',
@@ -146,6 +149,7 @@ const en: KonbiniStrings = {
     moderationNote: 'All ratings are moderated before publishing.',
     notConfigured: 'Rating is not enabled yet. Please check back soon.',
     alreadyRated: 'You already rated this on this device — editing below updates it.',
+    tapToSubmit: 'Tap a star to submit your rating.',
   },
   newProduct: {
     pageTitle: 'Add a product',
@@ -197,6 +201,7 @@ const zh: KonbiniStrings = {
   storeLabel: '購買地點',
   by: '投稿者',
   relatedInChain: '同品牌更多推薦',
+  reportError: '回報錯誤',
   countryNames: { taiwan: '台灣', japan: '日本' },
   categoryNames: {
     onigiri: '飯糰',
@@ -219,7 +224,6 @@ const zh: KonbiniStrings = {
     photoHint: '最多 3 張；過大的圖片會自動縮小。',
     photoTooMany: '最多只能附上 3 張照片。',
     optional: '選填',
-    send: '送出評分',
     sending: '送出中…',
     success: '感謝評分！內容經審核後就會顯示。',
     successUpdated: '評分已更新，經審核後就會顯示。',
@@ -228,6 +232,7 @@ const zh: KonbiniStrings = {
     moderationNote: '所有評分都會先經過審核才會發佈。',
     notConfigured: '評分功能尚未開放，敬請期待。',
     alreadyRated: '這台裝置已經評價過這個商品了，下面可以直接更新。',
+    tapToSubmit: '點星星就會直接送出評分。',
   },
   newProduct: {
     pageTitle: '新增商品',
