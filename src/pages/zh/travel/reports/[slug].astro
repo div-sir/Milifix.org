@@ -1,5 +1,6 @@
 ---
 import TripReportPage from '../../../../components/pages/TripReportPage.astro';
+import TripReportImmersivePage from '../../../../components/pages/TripReportImmersivePage.astro';
 import { tripReports } from '../../../../data/trips/index';
 
 export async function getStaticPaths() {
@@ -8,6 +9,14 @@ export async function getStaticPaths() {
     props: { trip },
   }));
 }
+
+const { trip } = Astro.props;
 ---
 
-<TripReportPage lang="zh" trip={Astro.props.trip} />
+{
+  trip.presentation === 'immersive' ? (
+    <TripReportImmersivePage lang="zh" trip={trip} />
+  ) : (
+    <TripReportPage lang="zh" trip={trip} />
+  )
+}

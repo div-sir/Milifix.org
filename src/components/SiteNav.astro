@@ -605,7 +605,9 @@ const langUrls = Object.fromEntries(
   import { initSiteNav } from '../scripts/site-nav-client';
   import { initTheme, toggleTheme } from '../scripts/theme-init';
 
-  initTheme();
+  // 強制主題頁（BaseLayout htmlDataTheme）在 SSR 就已鎖定 data-theme，
+  // 此處不可再用 localStorage／系統偏好覆寫，否則鎖定形同虛設。
+  if (!document.documentElement.dataset.theme) initTheme();
   initSiteNav();
 
   const btn = document.getElementById('site-nav-theme');

@@ -6,6 +6,7 @@ import type { TripReport } from './types';
  */
 export const japanJrPass2026: TripReport = {
   slug: 'japan-jr-pass-2026',
+  presentation: 'immersive',
   title: '日本 JR Pass 七日：本州・四國縱走',
   subtitle: '橫濱鎌倉海岸線、上越新幹線、埼玉地下神殿、廣島宮島與四國金刀比羅宮',
   country: '日本',
