@@ -138,4 +138,7 @@ export interface TripReport {
   days: TripDay[];
   /** 未捲入任何一天時的預設鏡頭（通常涵蓋全行程範圍） */
   mapDefault: { center: GeoPoint; zoom: number };
+  /** 頁面呈現風格；未填時預設 'magazine'（現有雙欄雜誌版型）。
+   *  'immersive' 為全螢幕地圖 + 浮動 HUD 的沈浸式捲動敘事版型。 */
+  presentation?: 'magazine' | 'immersive';
 }

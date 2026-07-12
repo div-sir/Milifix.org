@@ -1,0 +1,367 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../SiteNav.astro';
+import PageTransition from '../PageTransition.astro';
+import DaySection from '../trips/DaySection.astro';
+import type { DayLabels } from '../trips/DaySection.astro';
+import type { Lang } from '../../i18n/types';
+import { travelPath } from '../../i18n/routes';
+import type { TripReport, TripStop } from '../../data/trips/types';
+import '@fontsource-variable/fraunces';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+import '../../styles/travel.css';
+import '../../styles/trip-report.css';
+import '../../styles/trip-report-immersive.css';
+
+interface Props {
+  lang: Lang;
+  trip: TripReport;
+}
+
+const { lang, trip } = Astro.props;
+
+const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
+  airport: '機場',
+  station: '車站',
+  sight: '名勝',
+  shrine: '神社',
+  castle: '城郭',
+  garden: '庭園',
+  viewpoint: '展望',
+  facility: '設施',
+  area: '地區',
+};
+
+const labels: DayLabels = {
+  dayWord: 'Day',
+  timeline: '時間節點',
+  activities: '行程',
+  costs: '費用紀錄',
+  tips: '容易忽略的',
+  links: '實用連結',
+  photos: '影像',
+  passBadge: 'PASS',
+  stopsHeading: '沿途景點',
+  dossier: '行程手記',
+  kindLabels: KIND_LABELS_ZH,
+};
+
+const reportsPath = `${travelPath(lang)}/reports`;
+const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} — Milifix`;
+
+// ── 沈浸式錨點：由完整行程資料生成，鏡頭捲到哪就飛到哪 ──────
+interface ImmersiveAnchor {
+  lng: number;
+  lat: number;
+  zoom: number;
+  pitch: number;
+  bearing: number;
+  pos: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+  tag: string;
+  title: string;
+  desc: string;
+  note?: string;
+  photoSrc?: string;
+  photoAlt?: string;
+  day?: number;
+  dayIntro?: boolean;
+}
+
+const POS_CYCLE = ['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const;
+let posIdx = 0;
+const nextPos = (): ImmersiveAnchor['pos'] => POS_CYCLE[posIdx++ % POS_CYCLE.length];
+
+const zoomForKind = (kind?: TripStop['kind']): number => {
+  switch (kind) {
+    case 'airport':
+    case 'area':
+      return 11;
+    case 'station':
+    case 'facility':
+      return 12;
+    case 'sight':
+    case 'shrine':
+    case 'castle':
+    case 'garden':
+    case 'viewpoint':
+      return 13;
+    default:
+      return 12;
+  }
+};
+
+const anchors: ImmersiveAnchor[] = [];
+
+// 刊頭：行程總覽
+anchors.push({
+  lng: trip.mapDefault.center.lng,
+  lat: trip.mapDefault.center.lat,
+  zoom: trip.mapDefault.zoom,
+  pitch: 0,
+  bearing: 0,
+  pos: 'bottom-left',
+  tag: `${trip.country} · ${trip.year} · JR PASS ${trip.durationDays}D`,
+  title: trip.title,
+  desc: trip.summary,
+});
+
+// 核心票券
+trip.essentials.forEach((e, i) => {
+  anchors.push({
+    lng: trip.mapDefault.center.lng,
+    lat: trip.mapDefault.center.lat,
+    zoom: trip.mapDefault.zoom + 0.15 * (i + 1),
+    pitch: 8,
+    bearing: i % 2 === 0 ? 8 : -8,
+    pos: nextPos(),
+    tag: '核心票券',
+    title: e.title,
+    desc: e.desc ?? '',
+  });
+});
+
+// 逐日：日概覽 + 各停靠點
+for (const day of trip.days) {
+  const dayNum = String(day.day).padStart(2, '0');
+  const avgLng = day.stops.reduce((s, p) => s + p.coords.lng, 0) / (day.stops.length || 1);
+  const avgLat = day.stops.reduce((s, p) => s + p.coords.lat, 0) / (day.stops.length || 1);
+  const dayDesc = day.activities.slice(0, 2).join('；');
+  const tipNote = day.tips && day.tips.length > 0 ? day.tips[0] : undefined;
+
+  anchors.push({
+    lng: day.camera?.center?.lng ?? avgLng,
+    lat: day.camera?.center?.lat ?? avgLat,
+    zoom: day.camera?.zoom ?? 10.3,
+    pitch: day.camera?.pitch ?? 12,
+    bearing: day.camera?.bearing ?? (day.day % 2 === 0 ? 10 : -10),
+    pos: nextPos(),
+    tag: `DAY ${dayNum}${day.regionLabel ? ' · ' + day.regionLabel : ''}`,
+    title: day.title,
+    desc: dayDesc,
+    note: tipNote,
+    day: day.day,
+    dayIntro: true,
+  });
+
+  day.stops.forEach((stop, i) => {
+    const photo = stop.photos?.[0];
+    anchors.push({
+      lng: stop.coords.lng,
+      lat: stop.coords.lat,
+      zoom: zoomForKind(stop.kind),
+      pitch: 46,
+      bearing: (day.day % 2 === 0 ? -1 : 1) * 16,
+      pos: nextPos(),
+      tag: `DAY ${dayNum} · STOP ${String(i + 1).padStart(2, '0')}`,
+      title: stop.name,
+      desc: stop.desc ?? '',
+      note: stop.note,
+      photoSrc: photo?.src,
+      photoAlt: photo?.alt ?? photo?.caption,
+      day: day.day,
+    });
+  });
+}
+
+// ── 地圖資料（完整路線／全部停靠點，供沈浸式階段與偵測頁一起使用）──
+const stopById = new Map<string, TripStop>();
+for (const d of trip.days) for (const s of d.stops) if (!stopById.has(s.id)) stopById.set(s.id, s);
+const allStops = [...stopById.values()];
+
+let totalCost = 0;
+for (const d of trip.days) for (const c of d.costs ?? []) if (typeof c.amountJpy === 'number') totalCost += c.amountJpy;
+
+const stats = [
+  { value: trip.durationDays, unit: '', label: '天數' },
+  { value: allStops.length, unit: '', label: '停靠點' },
+  { value: totalCost, unit: '¥', label: '費用合計', prefix: true },
+];
+
+const mapData = {
+  mapDefault: trip.mapDefault,
+  allStops: allStops.map((s) => ({ id: s.id, name: s.name, coords: s.coords, kind: s.kind })),
+  days: trip.days.map((d) => ({
+    day: d.day,
+    title: d.title,
+    stopIds: d.stops.map((s) => s.id),
+    segments: (d.segments ?? []).map((s) => ({
+      mode: s.mode,
+      from: s.from,
+      to: s.to,
+      viaCoords: s.viaCoords ?? [],
+    })),
+  })),
+  anchors,
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={metaTitle}
+  description={trip.summary}
+  canonicalPath={Astro.url.pathname}
+  hreflangAlternates={false}
+  htmlDataTheme="dark"
+>
+  <PageTransition />
+
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+
+  <main
+    id="main-content"
+    class="immersive-main"
+    data-lightbox-close="關閉"
+    data-lightbox-prev="上一張"
+    data-lightbox-next="下一張"
+  >
+    <a class="immersive-back" href={reportsPath}>← 返回報告書列表</a>
+
+    <!-- ── 沈浸式階段：全螢幕地圖 + 浮動 HUD，捲動即飛鏡頭 ── -->
+    <div class="immersive-stage">
+      <div class="immersive-map-col">
+        <div id="immersive-map" class="immersive-map"></div>
+
+        <!-- HUD 裝飾框：外框、四角括號、頂部刻度、中央十字準星 -->
+        <div class="immersive-frame" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--tl" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--tr" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--bl" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--br" aria-hidden="true"></div>
+        <div class="immersive-ticks" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="immersive-reticle" aria-hidden="true">
+          <span></span><span></span>
+        </div>
+        <div class="immersive-scroll-hint" aria-hidden="true">SCROLL ↓</div>
+
+        <!-- HUD 文字：無卡片邊框，直接浮在地圖上，靠 text-shadow 保持可讀 -->
+        <div id="immersive-hud" class="immersive-hud">
+          <div id="immersive-hud-photo" class="immersive-hud__photo" hidden>
+            <img id="immersive-hud-img" alt="" />
+            <span id="immersive-hud-placeholder" class="immersive-hud__placeholder" aria-hidden="true">📷</span>
+          </div>
+          <div class="immersive-hud__body">
+            <div class="immersive-hud__eyebrow">
+              <span aria-hidden="true"></span>
+              <span id="immersive-hud-tag"></span>
+            </div>
+            <div id="immersive-hud-title" class="immersive-hud__title"></div>
+            <div id="immersive-hud-desc" class="immersive-hud__desc"></div>
+            <div id="immersive-hud-note" class="immersive-hud__note" hidden></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="immersive-track" id="immersive-track">
+        {
+          anchors.map((a) => (
+            <div
+              class="immersive-anchor"
+              data-lng={a.lng}
+              data-lat={a.lat}
+              data-zoom={a.zoom}
+              data-pitch={a.pitch}
+              data-bearing={a.bearing}
+              data-pos={a.pos}
+              data-tag={a.tag}
+              data-title={a.title}
+              data-desc={a.desc}
+              data-note={a.note ?? ''}
+              data-photo={a.photoSrc ?? ''}
+              data-photo-alt={a.photoAlt ?? ''}
+              data-day={a.day ?? ''}
+              data-day-intro={a.dayIntro ? '1' : ''}
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- ── Day 導覽（跳到對應日的段落）── -->
+    {
+      trip.days.length > 1 && (
+        <nav class="trip-daynav" aria-label="每日行程導覽">
+          {trip.days.map((day) => (
+            <button
+              type="button"
+              class="immersive-daynav__dot trip-daynav__dot"
+              data-day={day.day}
+              data-label={`Day ${day.day}`}
+              aria-label={`Day ${day.day} · ${day.title}`}
+            />
+          ))}
+        </nav>
+      )
+    }
+
+    <!-- ── 詳細行程資料：延續沈浸式的深色主題，逐日完整內容 ── -->
+    <section class="immersive-detail">
+      <p class="immersive-detail__label">詳細行程資料</p>
+      <div class="trip-stats immersive-detail__stats">
+        {
+          stats.map((s) => (
+            <div class="trip-stats__item">
+              <span class="trip-stats__value">
+                {s.prefix && <span class="trip-stats__unit">{s.unit}</span>}
+                <span data-count-to={s.value}>0</span>
+              </span>
+              <span class="trip-stats__label">{s.label}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      {
+        trip.essentials.length > 0 && (
+          <div class="trip-essentials-wrap">
+            <h2 class="trip-section-label">核心票券與工具</h2>
+            <div class="trip-essentials__grid">
+              {trip.essentials.map((e) => (
+                <article class="trip-essential">
+                  <h3 class="trip-essential__title">{e.title}</h3>
+                  {e.desc && <p class="trip-essential__desc">{e.desc}</p>}
+                  {e.links && e.links.length > 0 && (
+                    <div class="trip-essential__links">
+                      {e.links.map((link) =>
+                        link.url ? (
+                          <a class="trip-link" href={link.url} target="_blank" rel="noopener noreferrer">
+                            {link.label}
+                            <span class="trip-link__ext" aria-hidden="true">
+                              ↗
+                            </span>
+                          </a>
+                        ) : (
+                          <span class="trip-link trip-link--text">{link.label}</span>
+                        )
+                      )}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <div class="trip-days">
+        {trip.days.map((day) => <DaySection day={day} labels={labels} />)}
+      </div>
+    </section>
+  </main>
+
+  <footer class="trip-footer">{trip.title} · Milifix</footer>
+
+  <script is:inline type="application/json" id="immersive-map-data" set:html={JSON.stringify(mapData)}></script>
+
+  <script>
+    import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
+    import { initTripReportImmersiveClient } from '../../scripts/trip-report-immersive-client';
+    import { initTripPhotoLightbox } from '../../scripts/trip-photo-lightbox';
+
+    initAnimeOnScrollReveals();
+    initTripReportImmersiveClient();
+    initTripPhotoLightbox();
+  </script>
+</BaseLayout>
