@@ -338,22 +338,45 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const photoImgEl = document.getElementById('immersive-hud-img') as HTMLImageElement | null;
   const photoPlaceholderEl = document.getElementById('immersive-hud-placeholder');
 
-  // ── HUD 懸浮視差：文字塊隨游標在視窗中的相對位置緩緩漂移 ──
-  // 疊加在 applyPos 的 left/right/top/bottom 定位之上（transform 與
-  // 定位屬性互不干擾），也與 swapHud 的進退場 y 位移各自獨立、互不覆蓋
-  // （quickTo 只控制外層 hudEl 的 x/y，進退場動畫作用在內層子元素）。
-  if (hudEl && !reduce && window.matchMedia('(pointer: fine)').matches) {
-    const PARALLAX_X = 16;
-    const PARALLAX_Y = 11;
-    const parallaxX = gsap.quickTo(hudEl, 'x', { duration: 0.9, ease: 'power3.out' });
-    const parallaxY = gsap.quickTo(hudEl, 'y', { duration: 0.9, ease: 'power3.out' });
+  // ── 懸浮視差（分層）：HUD 文字（前景）位移最大，中層裝飾（刻度／準星／
+  // 座標讀數）次之，深層裝飾（外框／四角括號）幾乎不動，疊出真正的縱深。
+  // 都疊加在各自既有的定位方式之上（transform 供視差獨用；.immersive-ticks
+  // 原本用 transform:translateX(-50%) 置中，改由 gsap xPercent:-50 設定，
+  // 與 quickTo 的 x 位移在同一條 transform 上組合，不會互相覆寫）。
+  if (!reduce && window.matchMedia('(pointer: fine)').matches) {
+    const midEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-parallax-mid'));
+    const deepEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-parallax-deep'));
+    const ticksEl = document.querySelector<HTMLElement>('.immersive-ticks');
+    if (ticksEl) gsap.set(ticksEl, { xPercent: -50 });
+
+    const layers: Array<{ els: HTMLElement[]; x: number; y: number }> = [
+      { els: hudEl ? [hudEl] : [], x: 34, y: 22 },
+      { els: midEls, x: 20, y: 13 },
+      { els: deepEls, x: 8, y: 5 },
+    ];
+    const movers = layers
+      .filter((l) => l.els.length > 0)
+      .map((l) => ({
+        x: gsap.quickTo(l.els, 'x', { duration: 0.9, ease: 'power3.out' }),
+        y: gsap.quickTo(l.els, 'y', { duration: 0.9, ease: 'power3.out' }),
+        magX: l.x,
+        magY: l.y,
+      }));
+
     window.addEventListener('mousemove', (e) => {
       const nx = e.clientX / window.innerWidth - 0.5;
       const ny = e.clientY / window.innerHeight - 0.5;
-      parallaxX(nx * PARALLAX_X * 2);
-      parallaxY(ny * PARALLAX_Y * 2);
+      for (const m of movers) {
+        m.x(nx * m.magX * 2);
+        m.y(ny * m.magY * 2);
+      }
     });
   }
+
+  // ── 座標讀數：隨鏡頭飛行的目的地即時更新 ─────────────────
+  const coordsEl = document.getElementById('immersive-coords');
+  const fmtCoord = (lat: number, lng: number): string =>
+    `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(4)}°${lng >= 0 ? 'E' : 'W'}`;
 
   const applyPos = (pos: AnchorData['pos']): void => {
     if (!hudEl) return;
@@ -452,6 +475,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     };
     if (reduce) map.jumpTo(camera);
     else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
+    if (coordsEl) coordsEl.textContent = fmtCoord(camera.center[1], camera.center[0]);
 
     applyPos((d.pos as AnchorData['pos']) || 'bottom-left');
     swapHud(d);
