@@ -8,8 +8,9 @@ import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import { konbiniPath, konbiniProductPath } from '../../i18n/routes';
 import { loadKonbiniProducts, averageRating } from '../../lib/konbini';
-import { chainName, priceLabel, starString } from '../../lib/konbini-view';
-import type { KonbiniCountry } from '../../lib/cms';
+import { chainName, chainSlug as chainSlugOf, priceLabel, starString } from '../../lib/konbini-view';
+import { buildKonbiniCountryGroups } from '../../lib/konbini-groups';
+import { getKonbiniChains, type KonbiniCategory } from '../../lib/cms';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/konbini.css';
@@ -19,8 +20,9 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = konbini(lang);
+const n = t.newProduct;
 
-const products = await loadKonbiniProducts();
+const [products, chains] = await Promise.all([loadKonbiniProducts(), getKonbiniChains()]);
 
 const cards = products.map((p) => {
   const reviews = p.reviews ?? [];
@@ -30,28 +32,24 @@ const cards = products.map((p) => {
     country: p.country,
     category: p.category,
     chain: chainName(p.chain),
+    chainSlug: chainSlugOf(p.chain),
     avg: averageRating(reviews),
     count: reviews.length,
     price: priceLabel(p.price, p.currency, t),
   };
 });
 
-// 「店家評分」分頁：先按國家分區（台灣／日本各自不同主題色），
-// 再按連鎖店分組，讓「網站收錄了哪些店家」一眼看清楚。
-const COUNTRY_ORDER: KonbiniCountry[] = ['taiwan', 'japan'];
-const countryGroups = COUNTRY_ORDER.map((country) => {
-  const inCountry = cards.filter((c) => c.country === country);
-  const chainMap = new Map<string, typeof cards>();
-  for (const c of inCountry) {
-    const list = chainMap.get(c.chain) ?? [];
-    list.push(c);
-    chainMap.set(c.chain, list);
-  }
-  const chains = [...chainMap.entries()]
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([name, items]) => ({ name, items }));
-  return { country, chains };
-}).filter((g) => g.chains.length > 0);
+// 依國家（台灣／日本各自不同主題色）→ 連鎖店分組、組內依評分排序，實際
+// 邏輯抽到 lib/konbini-groups.ts（純函式、有自己的單元測試），這裡只
+// 負責把 CMS 資料組成分組函式要的形狀。畫面上目前用「國家氣泡標籤 +
+// 連鎖店氣泡標籤（一次只顯示一個分頁）＋ 頁尾共用新增商品表單」的
+// pill-switcher + bottom-sheet 設計，不是舊版分頁籤（新增商品分頁已拆
+// 到獨立區塊，見下方 #konbini-add-section）。
+const countryGroups = buildKonbiniCountryGroups(chains, cards);
+
+// 有氣泡標籤可切換時，標題文字已經跟標籤重複；標題還是要留著（避免
+// h1 → h4 跳級），只是視覺上隱藏，唸讀器仍讀得到。
+const countryTitleHidden = countryGroups.length > 1;
 ---
 
 <BaseLayout
@@ -71,81 +69,318 @@ const countryGroups = COUNTRY_ORDER.map((country) => {
       <p class="konbini-hero__desc">{t.heroDesc}</p>
     </header>
 
-    <div class="konbini-tabs" role="tablist" aria-label={t.navLabel}>
-      <button class="konbini-tab is-active" data-tab="stores" type="button" role="tab" aria-selected="true">
-        {t.tabStores}
-      </button>
-      <button class="konbini-tab" data-tab="add" type="button" role="tab" aria-selected="false">
-        {t.tabAdd}
-      </button>
-    </div>
-
-    <div class="konbini-tabpanel" data-panel="stores">
-      {
-        countryGroups.length === 0 ? (
-          <p class="konbini-empty">{t.noProducts}</p>
-        ) : (
-          countryGroups.map((g) => (
-            <section class={`konbini-country konbini-country--${g.country}`}>
-              <h2 class="konbini-country__title">{t.countryNames[g.country]}</h2>
-              {g.chains.map((chain) => (
-                <div class="konbini-chain-group">
-                  <h3 class="konbini-chain-group__title">{chain.name}</h3>
-                  <ul class="konbini-grid">
-                    {chain.items.map((c) => (
-                      <li class="konbini-card">
-                        <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
-                          <div class={`konbini-card__cover konbini-card__cover--${c.category}`} aria-hidden="true">
-                            <span class="konbini-card__cover-label">{c.name}</span>
-                          </div>
-                          <div class="konbini-card__body">
-                            <h4 class="konbini-card__name">{c.name}</h4>
-                            <p class="konbini-card__meta">
-                              <span class="konbini-stars" aria-label={`${t.ratingLabel} ${c.avg.toFixed(1)} / 5`}>
-                                {starString(c.avg)}
-                              </span>
-                              <span class="konbini-card__count">
-                                {c.count > 0 ? `${c.avg.toFixed(1)} · ${c.count} ${t.reviewsUnit}` : t.noReviews}
-                              </span>
-                            </p>
-                            {c.price && <p class="konbini-card__price">{c.price}</p>}
-                          </div>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+    {
+      countryGroups.length === 0 ? (
+        <div class="konbini-empty">
+          <p>{t.noProducts}</p>
+          <button type="button" class="konbini-empty__cta" data-goto-add>
+            {t.addProductCta}
+          </button>
+        </div>
+      ) : (
+        <>
+          {countryGroups.length > 1 && (
+            <div class="konbini-country-tabs" role="tablist" aria-label={t.filterCountry}>
+              {countryGroups.map((g, i) => (
+                <button
+                  type="button"
+                  id={`konbini-tab-country-${g.country}`}
+                  class={`konbini-country-tab konbini-country-tab--${g.country} ${i === 0 ? 'is-active' : ''}`}
+                  data-country-tab={g.country}
+                  role="tab"
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  aria-controls={`konbini-panel-country-${g.country}`}
+                  tabindex={i === 0 ? 0 : -1}
+                >
+                  {t.countryNames[g.country]}
+                </button>
               ))}
-            </section>
-          ))
-        )
-      }
-    </div>
+            </div>
+          )}
+          {countryGroups.map((g, gi) => {
+            const chainTabsVisible = g.chains.length > 1;
+            return (
+              <section
+                id={`konbini-panel-country-${g.country}`}
+                class={`konbini-country konbini-country--${g.country} konbini-accent--${g.country}`}
+                data-country-panel={g.country}
+                role={countryGroups.length > 1 ? 'tabpanel' : undefined}
+                aria-labelledby={countryGroups.length > 1 ? `konbini-tab-country-${g.country}` : undefined}
+                hidden={countryGroups.length > 1 && gi !== 0}
+              >
+                <h2 class={`konbini-country__title ${countryTitleHidden ? 'konbini-sr-only' : ''}`}>
+                  {t.countryNames[g.country]}
+                </h2>
+                {chainTabsVisible && (
+                  <div class="konbini-chain-tabs" role="tablist" aria-label={t.filterChain}>
+                    {g.chains.map((chain, ci) => (
+                      <button
+                        type="button"
+                        id={`konbini-tab-chain-${g.country}-${chain.slug}`}
+                        class={`konbini-chain-tab ${ci === 0 ? 'is-active' : ''}`}
+                        data-chain-tab={chain.slug}
+                        role="tab"
+                        aria-selected={ci === 0 ? 'true' : 'false'}
+                        aria-controls={`konbini-panel-chain-${g.country}-${chain.slug}`}
+                        tabindex={ci === 0 ? 0 : -1}
+                      >
+                        {chain.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {g.chains.map((chain, ci) => (
+                  <div
+                    id={`konbini-panel-chain-${g.country}-${chain.slug}`}
+                    class="konbini-chain-group"
+                    data-chain-panel={chain.slug}
+                    role={chainTabsVisible ? 'tabpanel' : undefined}
+                    aria-labelledby={chainTabsVisible ? `konbini-tab-chain-${g.country}-${chain.slug}` : undefined}
+                    hidden={chainTabsVisible && ci !== 0}
+                  >
+                    <h3 class={`konbini-chain-group__title ${chainTabsVisible ? 'konbini-sr-only' : ''}`}>
+                      {chain.name}
+                    </h3>
+                    {chain.items.length === 0 ? (
+                      <ul class="konbini-grid konbini-grid--single">
+                        <li class="konbini-card konbini-card--add">
+                          <button type="button" class="konbini-card__add" data-goto-add data-preset-chain={chain.slug}>
+                            <span class="konbini-card__add-icon" aria-hidden="true">＋</span>
+                            <span class="konbini-card__add-empty-text">{t.emptyChain}</span>
+                            <span class="konbini-card__add-cta-text">{t.addFirstProduct}</span>
+                          </button>
+                        </li>
+                      </ul>
+                    ) : (
+                      <ul class="konbini-grid">
+                        {chain.items.map((c) => (
+                          <li class="konbini-card">
+                            <a class="konbini-card__link" href={konbiniProductPath(lang, c.slug)}>
+                              <div class="konbini-card__cover" aria-hidden="true">
+                                <span class="konbini-card__cover-category">{t.categoryNames[c.category as KonbiniCategory]}</span>
+                              </div>
+                              <div class="konbini-card__body">
+                                <h4 class="konbini-card__name">{c.name}</h4>
+                                {c.count > 0 ? (
+                                  <p class="konbini-card__meta">
+                                    <strong class="konbini-card__rating-value">{c.avg.toFixed(1)}</strong>
+                                    <span class="konbini-stars" aria-hidden="true">{starString(c.avg)}</span>
+                                    <span class="konbini-card__count">{c.count} {t.reviewsUnit}</span>
+                                  </p>
+                                ) : (
+                                  <p class="konbini-card__meta konbini-card__meta--empty">{t.noReviews}</p>
+                                )}
+                                <p
+                                  class={`konbini-card__price ${c.price ? '' : 'konbini-card__price--empty'}`}
+                                  aria-hidden={c.price ? undefined : 'true'}
+                                >
+                                  {c.price || ' '}
+                                </p>
+                              </div>
+                            </a>
+                          </li>
+                        ))}
+                        <li class="konbini-card konbini-card--add">
+                          <button type="button" class="konbini-card__add" data-goto-add data-preset-chain={chain.slug}>
+                            <span class="konbini-card__add-icon" aria-hidden="true">＋</span>
+                            <span>{t.addProductCta}</span>
+                          </button>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </section>
+            );
+          })}
+        </>
+      )
+    }
 
-    <div class="konbini-tabpanel" data-panel="add" hidden>
-      <p class="konbini-tabpanel__intro">{t.heroHint}</p>
+    <section class="konbini-add-section" id="konbini-add-section" hidden>
+      <button type="button" class="konbini-add-section__close" id="konbini-add-close" aria-label={t.closeAddSection}>
+        <span aria-hidden="true">×</span>
+      </button>
+      <h2 class="konbini-add-section__title" id="konbini-add-section-title" tabindex="-1">{n.pageTitle}</h2>
+      <p class="konbini-add-section__intro">{n.intro}</p>
       <KonbiniNewProductForm lang={lang} />
-    </div>
+    </section>
   </main>
 
   <script is:inline>
     (function () {
-      var tabs = document.querySelectorAll('.konbini-tab');
-      var panels = document.querySelectorAll('.konbini-tabpanel');
-      tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-          tabs.forEach(function (t) {
-            t.classList.remove('is-active');
-            t.setAttribute('aria-selected', 'false');
-          });
-          tab.classList.add('is-active');
-          tab.setAttribute('aria-selected', 'true');
-          var target = tab.getAttribute('data-tab');
-          panels.forEach(function (p) {
-            p.hidden = p.getAttribute('data-panel') !== target;
-          });
+      var addSection = document.getElementById('konbini-add-section');
+      var addTitle = document.getElementById('konbini-add-section-title');
+      var chainSelect = document.getElementById('konbini-new-chain-select');
+      var closeBtn = document.getElementById('konbini-add-close');
+
+      function prefersReducedMotion() {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+
+      // 表單第一個實際可見的欄位：登入前只有 GSI 的登入按鈕（跑在
+      // iframe 裡），登入後才會揭露真正的欄位；兩者都拿不到時退回聚焦
+      // 標題（tabindex="-1"），確保一定有東西接住焦點。
+      function focusFirstAddField() {
+        var field =
+          addSection.querySelector('#konbini-form:not([hidden]) input, #konbini-form:not([hidden]) select, #konbini-form:not([hidden]) textarea') ||
+          addSection.querySelector('#konbini-gsi iframe');
+        if (field) {
+          field.focus();
+        } else if (addTitle) {
+          addTitle.focus();
+        }
+      }
+
+      // ── 「新增商品」：展開頁尾表單、捲動過去、若從特定連鎖店點入則
+      // 預選連鎖店，最後把焦點交給第一個可用欄位。所有入口（每個連鎖
+      // 店卡片列尾巴的「＋」、空連鎖店的提示卡、整站沒有商品時的按鈕）
+      // 都走這同一個函式，行為保證一致。 ──
+      function openAddSection(presetSlug, opts) {
+        if (!addSection) return;
+        addSection.hidden = false;
+        // GSI 的 initialize/renderButton 要等區塊真的顯示出來才跑，否則
+        // renderButton 塞進 display:none 容器量到的寬度是 0。表單腳本監聽
+        // 這個事件，第一次收到才初始化。
+        addSection.dispatchEvent(new CustomEvent('konbini:add-open', { bubbles: true }));
+        if (presetSlug && chainSelect) {
+          for (var i = 0; i < chainSelect.options.length; i++) {
+            if (chainSelect.options[i].value === presetSlug) {
+              chainSelect.value = presetSlug;
+              break;
+            }
+          }
+        }
+        var reduced = prefersReducedMotion();
+        addSection.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+        window.setTimeout(focusFirstAddField, reduced ? 0 : 380);
+        if (!(opts && opts.skipHash)) {
+          history.replaceState(null, '', '#add');
+        }
+      }
+
+      document.querySelectorAll('[data-goto-add]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openAddSection(btn.getAttribute('data-preset-chain'));
         });
       });
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+          addSection.hidden = true;
+          history.replaceState(null, '', location.pathname + location.search);
+          var opener = document.querySelector('[data-goto-add]');
+          if (opener) opener.focus();
+        });
+      }
+
+      // ── 分頁籤共用邏輯：滑鼠點擊 + roving tabindex 鍵盤操作
+      // （←/→、Home/End），符合 WAI-ARIA tabs pattern。台灣／日本國家
+      // 標籤、以及各國家底下的連鎖店標籤都是同一套。 ──
+      function wireTabGroup(tabs, panels, onChange) {
+        function activate(index) {
+          tabs.forEach(function (tab, i) {
+            var active = i === index;
+            tab.classList.toggle('is-active', active);
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+            tab.tabIndex = active ? 0 : -1;
+          });
+          panels.forEach(function (panel, i) {
+            panel.hidden = i !== index;
+          });
+          if (onChange) onChange(index);
+        }
+        tabs.forEach(function (tab, i) {
+          tab.addEventListener('click', function () {
+            activate(i);
+          });
+          tab.addEventListener('keydown', function (ev) {
+            var target = -1;
+            if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') target = (i + 1) % tabs.length;
+            else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') target = (i - 1 + tabs.length) % tabs.length;
+            else if (ev.key === 'Home') target = 0;
+            else if (ev.key === 'End') target = tabs.length - 1;
+            if (target > -1) {
+              ev.preventDefault();
+              activate(target);
+              tabs[target].focus();
+            }
+          });
+        });
+        return { activate: activate };
+      }
+
+      var countryTabs = Array.prototype.slice.call(document.querySelectorAll('.konbini-country-tab'));
+      var countryPanels = Array.prototype.slice.call(document.querySelectorAll('[data-country-panel]'));
+      var countryTabGroup = countryTabs.length ? wireTabGroup(countryTabs, countryPanels, function () { updateHash(); }) : null;
+
+      var chainGroupsByCountry = {};
+      countryPanels.forEach(function (panel) {
+        var country = panel.getAttribute('data-country-panel');
+        var chainTabs = Array.prototype.slice.call(panel.querySelectorAll('.konbini-chain-tab'));
+        var chainPanels = Array.prototype.slice.call(panel.querySelectorAll('[data-chain-panel]'));
+        chainGroupsByCountry[country] = chainTabs.length
+          ? { handle: wireTabGroup(chainTabs, chainPanels, function () { updateHash(); }), tabs: chainTabs }
+          : null;
+      });
+
+      // ── URL hash 反映目前選到的國家／連鎖店，讓連結可以分享
+      // （例如 #japan 或 #japan/lawson-jp），用 replaceState 避免洗
+      // 瀏覽紀錄；載入時也讀 hash 還原選取狀態，#add 則直接展開新增
+      // 商品表單。 ──
+      function currentCountry() {
+        if (countryTabs.length) {
+          var active = countryTabs.filter(function (t) { return t.classList.contains('is-active'); })[0];
+          return active ? active.getAttribute('data-country-tab') : null;
+        }
+        return countryPanels[0] ? countryPanels[0].getAttribute('data-country-panel') : null;
+      }
+      function currentChain(country) {
+        if (!country) return null;
+        var group = chainGroupsByCountry[country];
+        if (group) {
+          var active = group.tabs.filter(function (t) { return t.classList.contains('is-active'); })[0];
+          return active ? active.getAttribute('data-chain-tab') : null;
+        }
+        var panel = countryPanels.filter(function (p) { return p.getAttribute('data-country-panel') === country; })[0];
+        var onlyChainPanel = panel ? panel.querySelector('[data-chain-panel]') : null;
+        return onlyChainPanel ? onlyChainPanel.getAttribute('data-chain-panel') : null;
+      }
+      function updateHash() {
+        var country = currentCountry();
+        if (!country) return;
+        var chain = currentChain(country);
+        history.replaceState(null, '', '#' + country + (chain ? '/' + chain : ''));
+      }
+
+      function activateFromHash() {
+        var raw = (location.hash || '').replace(/^#/, '');
+        if (!raw) return;
+        if (raw === 'add') {
+          openAddSection(null, { skipHash: true });
+          return;
+        }
+        var parts = raw.split('/');
+        var country = parts[0];
+        var chainSlugFromHash = parts[1];
+        if (countryTabGroup) {
+          var countryIndex = -1;
+          countryTabs.forEach(function (t, i) {
+            if (t.getAttribute('data-country-tab') === country) countryIndex = i;
+          });
+          if (countryIndex > -1) countryTabGroup.activate(countryIndex);
+        }
+        var group = chainGroupsByCountry[country];
+        if (chainSlugFromHash && group) {
+          var chainIndex = -1;
+          group.tabs.forEach(function (t, i) {
+            if (t.getAttribute('data-chain-tab') === chainSlugFromHash) chainIndex = i;
+          });
+          if (chainIndex > -1) group.handle.activate(chainIndex);
+        }
+      }
+      activateFromHash();
+      window.addEventListener('hashchange', activateFromHash);
     })();
   </script>
 </BaseLayout>

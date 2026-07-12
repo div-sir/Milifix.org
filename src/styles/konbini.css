@@ -7,6 +7,39 @@
   color: var(--text);
 }
 
+/* 視覺隱藏但唸讀器讀得到：用在氣泡標籤已經顯示同樣文字、但標題階層
+   （h2/h3）仍要存在、不能跳級的地方。 */
+.konbini-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 台灣／日本兩地主題色。淺色主題下原色當文字用對比不夠（WCAG AA
+   4.5:1），另外提供加深過的 *-text 版本，只用在「顏色本身就是文字色」
+   的地方（氣泡標籤選取態文字、區塊標題文字）；邊框、背景、漸層等非
+   文字用途仍用原色，飽和度才不會被洗淡。 */
+:root {
+  --konbini-taiwan-accent: #e8734a;
+  --konbini-taiwan-accent-text: #e8734a;
+  --konbini-japan-accent: #6b7fe8;
+  --konbini-japan-accent-text: #6b7fe8;
+  /* 表單欄位驗證失敗時的紅框，跟站內主題色系保持同飽和度、深淺主題各
+     自可讀 */
+  --konbini-invalid-border: #d1453b;
+}
+html[data-theme='light'] {
+  --konbini-invalid-border: #b3261e;
+  --konbini-taiwan-accent-text: #b64017;
+  --konbini-japan-accent-text: #3f59e1;
+}
+
 /* ── Hero ── */
 .konbini-hero {
   text-align: center;
@@ -44,7 +77,13 @@
   transition: opacity 0.15s;
   margin-bottom: 0.6rem;
 }
-.konbini-hero__cta:hover { opacity: 0.88; }
+@media (hover: hover) {
+  .konbini-hero__cta:hover { opacity: 0.88; }
+}
+.konbini-hero__cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .konbini-hero__hint {
   font-size: 0.82rem;
   color: var(--muted-dim);
@@ -144,6 +183,25 @@
   font: inherit;
 }
 .konbini-form textarea { resize: vertical; }
+.konbini-form input:focus-visible,
+.konbini-form select:focus-visible,
+.konbini-form textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* 送出後沒通過原生驗證的欄位：標紅框。:user-invalid 支援度較新（沒碰過
+   的欄位不會提早標紅，只在「使用者互動過又不合法」時生效），這裡另外
+   用 JS 加的 .is-invalid 當舊瀏覽器 fallback，兩者疊加不衝突。 */
+.konbini-form input:user-invalid,
+.konbini-form select:user-invalid,
+.konbini-form textarea:user-invalid,
+.konbini-form input.is-invalid,
+.konbini-form select.is-invalid,
+.konbini-form textarea.is-invalid {
+  border-color: var(--konbini-invalid-border);
+  background: var(--bg2); /* color-mix() fallback */
+  background: color-mix(in srgb, var(--konbini-invalid-border) 8%, var(--bg2));
+}
 .konbini-form__note {
   font-size: 0.78rem;
   color: var(--muted-dim);
@@ -181,59 +239,192 @@
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid var(--line);
+  display: block;
+}
+.konbini-form__thumb-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.konbini-form__thumb-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .konbini-form__thumb-remove:hover {
+    border-color: var(--konbini-invalid-border);
+    color: var(--konbini-invalid-border);
+  }
+}
+.konbini-form__thumb-remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 .konbini-form input[type='file'] {
   font: inherit;
   color: var(--muted);
 }
 
-/* ── Tabs（店家評分／新增商品）── */
-.konbini-tabs {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: clamp(2rem, 5vw, 3rem);
-  border-bottom: 1px solid var(--line);
+/* ── 頁尾「新增商品」表單：從各店家卡片點入才展開 ── */
+.konbini-add-section {
+  position: relative;
+  margin-top: clamp(3rem, 7vw, 4.5rem);
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 5rem;
 }
-.konbini-tab {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  padding: 0.7rem 1.2rem;
-  font-size: 0.92rem;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s, border-color 0.15s;
+.konbini-add-section__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  text-align: center;
 }
-.konbini-tab:hover { color: var(--text); }
-.konbini-tab.is-active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  font-weight: 600;
+.konbini-add-section__title:focus-visible,
+.konbini-add-section__title:focus {
+  outline: none;
 }
-.konbini-tabpanel[hidden] { display: none; }
-.konbini-tabpanel__intro {
+.konbini-add-section__intro {
   max-width: 52ch;
   margin: 0 auto 1.5rem;
   text-align: center;
   color: var(--muted);
   font-size: 0.9rem;
 }
+.konbini-add-section__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--muted);
+  border-radius: 999px;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+@media (hover: hover) {
+  .konbini-add-section__close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+}
+.konbini-add-section__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
-/* ── Country sections：台灣／日本各自不同主題色 ── */
+/* ── Country switcher：切換只看台灣或只看日本 ── */
+.konbini-country-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: clamp(1.6rem, 4vw, 2.4rem);
+  flex-wrap: wrap;
+}
+.konbini-country-tab {
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--muted);
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+@media (hover: hover) {
+  .konbini-country-tab:hover { color: var(--text); }
+}
+.konbini-country-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.konbini-country-tab--taiwan.is-active {
+  color: var(--konbini-taiwan-accent-text);
+  border-color: var(--konbini-taiwan-accent);
+  background: var(--bg3); /* color-mix() fallback，較舊瀏覽器會忽略下一行 */
+  background: color-mix(in srgb, var(--konbini-taiwan-accent) 12%, var(--bg2));
+}
+.konbini-country-tab--japan.is-active {
+  color: var(--konbini-japan-accent-text);
+  border-color: var(--konbini-japan-accent);
+  background: var(--bg3); /* color-mix() fallback */
+  background: color-mix(in srgb, var(--konbini-japan-accent) 12%, var(--bg2));
+}
+
+/* ── Chain switcher：單一國家區塊內，切換只看某連鎖店 ── */
+.konbini-chain-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.3rem;
+}
+.konbini-chain-tab {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+@media (hover: hover) {
+  .konbini-chain-tab:hover { color: var(--text); }
+}
+.konbini-chain-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.konbini-chain-tab.is-active {
+  color: var(--konbini-country-accent-text);
+  border-color: var(--konbini-country-accent);
+  background: transparent; /* color-mix() fallback */
+  background: color-mix(in srgb, var(--konbini-country-accent) 12%, transparent);
+}
+
+/* ── Country sections：台灣／日本各自不同主題色 ──
+   --konbini-country-accent／--konbini-country-accent-text 兩個自訂屬性
+   由 .konbini-accent--taiwan/--japan 設值（見下方），套在區塊或商品詳情
+   頁封面等任何需要「依國家換色」的元素上，跟版面用的 .konbini-country
+   拆開，方便重複使用。 */
 .konbini-country {
   margin-bottom: clamp(2.5rem, 6vw, 4rem);
 }
-.konbini-country--taiwan { --konbini-country-accent: #e8734a; }
-.konbini-country--japan { --konbini-country-accent: #6b7fe8; }
+.konbini-accent--taiwan {
+  --konbini-country-accent: var(--konbini-taiwan-accent);
+  --konbini-country-accent-text: var(--konbini-taiwan-accent-text);
+}
+.konbini-accent--japan {
+  --konbini-country-accent: var(--konbini-japan-accent);
+  --konbini-country-accent-text: var(--konbini-japan-accent-text);
+}
 .konbini-country__title {
   font-size: 1.3rem;
   font-weight: 700;
   margin: 0 0 1.3rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--konbini-country-accent);
-  color: var(--konbini-country-accent);
+  color: var(--konbini-country-accent-text);
 }
 .konbini-chain-group {
   margin-bottom: 1.8rem;
@@ -248,6 +439,74 @@
 }
 .konbini-country .konbini-card {
   border-top: 3px solid var(--konbini-country-accent);
+}
+.konbini-card--add {
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+.konbini-card__add {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+@media (hover: hover) {
+  .konbini-card__add:hover { color: var(--konbini-country-accent-text, var(--accent)); }
+}
+.konbini-card__add:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px; /* 卡片 overflow:hidden 會裁掉貼邊的 outline，往內縮一點 */
+}
+.konbini-card__add-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+/* 空連鎖店（還沒有商品）：跟卡片列尾巴的「＋新增商品」共用同一顆虛線
+   卡片樣式，只是文案換成「這家店還沒有商品」＋「新增第一個商品」。 */
+.konbini-grid--single {
+  grid-template-columns: minmax(220px, 360px);
+}
+.konbini-card__add-empty-text {
+  color: var(--muted);
+}
+.konbini-card__add-cta-text {
+  font-weight: 600;
+}
+
+/* ── 整站沒有任何商品時的引導按鈕 ── */
+.konbini-empty__cta {
+  display: inline-block;
+  margin-top: 1rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+@media (hover: hover) {
+  .konbini-empty__cta:hover { opacity: 0.88; }
+}
+.konbini-empty__cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ── Grid & cards ── */
@@ -267,49 +526,51 @@
   box-shadow: var(--shadow-card);
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
-.konbini-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--accent);
+@media (hover: hover) {
+  .konbini-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
 }
 .konbini-card__link {
   display: block;
   color: inherit;
   text-decoration: none;
 }
+.konbini-card__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px; /* 卡片 overflow:hidden 會裁掉貼邊的 outline，往內縮一點 */
+}
+/* 封面漸層改用當前國家主題色（--konbini-country-accent，由外層
+   .konbini-accent--taiwan/--japan 或商品詳情頁自己套上同一組 class 提
+   供），不再照分類各自寫死一組顏色——分類改用小字標籤區分，漸層本身
+   跟國家主題連動，橘色（台灣）區塊底下不會冒出一塊藍（日本配色）的
+   封面。 */
 .konbini-card__cover {
   aspect-ratio: 4 / 3;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  text-align: center;
-  background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0.85rem;
+  text-align: left;
+  background: var(--bg3); /* color-mix() fallback，較舊瀏覽器會忽略下兩行 */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--konbini-country-accent, var(--accent)) 62%, var(--bg3)),
+    color-mix(in srgb, var(--konbini-country-accent, var(--accent)) 28%, var(--bg2))
+  );
 }
-.konbini-card__cover-label {
+.konbini-card__cover-category {
+  display: inline-block;
   font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--text);
-  opacity: 0.85;
-}
-/* 分類色調 */
-.konbini-card__cover--hotfood { background: linear-gradient(135deg, #7a2e1e, #c2603f); }
-.konbini-card__cover--dessert { background: linear-gradient(135deg, #7a2e5e, #c25f9e); }
-.konbini-card__cover--frozen  { background: linear-gradient(135deg, #1e4a7a, #4f97c2); }
-.konbini-card__cover--drink   { background: linear-gradient(135deg, #1e6a5a, #3fc2a0); }
-.konbini-card__cover--onigiri { background: linear-gradient(135deg, #5a5a2e, #b5b04f); }
-.konbini-card__cover--bento   { background: linear-gradient(135deg, #6a4a1e, #c2903f); }
-.konbini-card__cover--bread   { background: linear-gradient(135deg, #7a5a2e, #c2a05f); }
-.konbini-card__cover--snack   { background: linear-gradient(135deg, #4a4a5a, #8f8fb5); }
-.konbini-card__cover--hotfood .konbini-card__cover-label,
-.konbini-card__cover--dessert .konbini-card__cover-label,
-.konbini-card__cover--frozen .konbini-card__cover-label,
-.konbini-card__cover--drink .konbini-card__cover-label,
-.konbini-card__cover--onigiri .konbini-card__cover-label,
-.konbini-card__cover--bento .konbini-card__cover-label,
-.konbini-card__cover--bread .konbini-card__cover-label,
-.konbini-card__cover--snack .konbini-card__cover-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #fff;
-  opacity: 0.95;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
 }
 .konbini-card__body { padding: 0.9rem 1rem 1.1rem; }
 .konbini-card__chain {
@@ -322,20 +583,33 @@
   margin: 0 0 0.5rem;
   line-height: 1.3;
 }
+/* 保留固定高度給評分列與價格列（價格列可能整個不存在資料），讓同一
+   排卡片的價格／評分不會因為內容多寡而高低不齊。 */
 .konbini-card__meta {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin: 0;
+  min-height: 1.4rem;
   font-size: 0.8rem;
   color: var(--muted);
+}
+.konbini-card__meta--empty {
+  color: var(--muted-dim);
+}
+.konbini-card__rating-value {
+  color: var(--text);
 }
 .konbini-card__count { color: var(--muted-dim); }
 .konbini-card__price {
   margin: 0.4rem 0 0;
+  min-height: 1.2em;
   font-size: 0.85rem;
   color: var(--text);
   font-weight: 600;
+}
+.konbini-card__price--empty {
+  visibility: hidden;
 }
 
 /* ── Stars ── */
@@ -360,7 +634,13 @@
   text-decoration: none;
   font-size: 0.9rem;
 }
-.konbini-back:hover { color: var(--accent); }
+@media (hover: hover) {
+  .konbini-back:hover { color: var(--accent); }
+}
+.konbini-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .konbini-detail__head {
   display: grid;
   grid-template-columns: minmax(0, 320px) 1fr;
@@ -374,10 +654,19 @@
   aspect-ratio: 4 / 3;
   border-radius: 16px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
   padding: 1rem;
-  text-align: center;
+  text-align: left;
+  background: var(--bg3); /* color-mix() fallback */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--konbini-country-accent, var(--accent)) 62%, var(--bg3)),
+    color-mix(in srgb, var(--konbini-country-accent, var(--accent)) 28%, var(--bg2))
+  );
+}
+.konbini-detail__rating--empty {
+  color: var(--muted-dim);
 }
 .konbini-detail__chain {
   font-size: 0.78rem;

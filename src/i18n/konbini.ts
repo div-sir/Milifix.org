@@ -18,21 +18,22 @@ export interface KonbiniStrings {
   heroTag: string;
   heroTitle: string;
   heroDesc: string;
-  /** 首頁 hero：新增商品 CTA */
+  /** 每個連鎖店商品清單最後的「新增商品」卡片 */
   addProductCta: string;
-  /** 首頁 hero：提示使用者也可以點進商品評分 */
-  heroHint: string;
-  /** 頁內分頁：店家評分／新增商品 */
-  tabStores: string;
-  tabAdd: string;
-  /** 篩選 */
-  filterAll: string;
+  /** 頁尾新增商品表單右上角的關閉按鈕 */
+  closeAddSection: string;
+  /** 照片／封面預覽縮圖上的移除按鈕（新增商品表單與評分表單共用） */
+  removePhoto: string;
+  /** 篩選（用在 tablist 的 aria-label） */
   filterCountry: string;
-  filterCategory: string;
+  filterChain: string;
   /** 卡片與詳情 */
   reviewsUnit: string;
   noReviews: string;
   noProducts: string;
+  /** 連鎖店還沒有任何商品時的提示 */
+  emptyChain: string;
+  addFirstProduct: string;
   backToIndex: string;
   ratingLabel: string;
   priceLabel: string;
@@ -98,15 +99,15 @@ const en: KonbiniStrings = {
   heroDesc:
     'The best things to grab at Taiwan and Japan convenience stores and chains — ranked and reviewed by the community.',
   addProductCta: 'Add a product',
-  heroHint: 'Or tap an existing pick to rate it.',
-  tabStores: 'Store ratings',
-  tabAdd: 'Add a product',
-  filterAll: 'All',
+  closeAddSection: 'Close',
+  removePhoto: 'Remove photo',
   filterCountry: 'Country',
-  filterCategory: 'Category',
+  filterChain: 'Chain',
   reviewsUnit: 'reviews',
   noReviews: 'No reviews yet — be the first.',
   noProducts: 'No picks published yet. Check back soon.',
+  emptyChain: 'No products yet for this chain.',
+  addFirstProduct: 'Add the first product',
   backToIndex: 'Back to Konbini',
   ratingLabel: 'Rating',
   priceLabel: 'Price',
@@ -180,15 +181,15 @@ const zh: KonbiniStrings = {
   heroDesc:
     '台灣、日本便利商店與連鎖店裡最值得買的東西——由社群投稿、評分與排行。',
   addProductCta: '新增商品',
-  heroHint: '或點進商品幫它評分。',
-  tabStores: '店家評分',
-  tabAdd: '新增商品',
-  filterAll: '全部',
+  closeAddSection: '關閉',
+  removePhoto: '移除照片',
   filterCountry: '國家',
-  filterCategory: '分類',
+  filterChain: '連鎖店',
   reviewsUnit: '則評價',
   noReviews: '還沒有評價——搶頭香吧。',
   noProducts: '目前還沒有推薦上架，敬請期待。',
+  emptyChain: '這家店還沒有商品。',
+  addFirstProduct: '新增第一個商品',
   backToIndex: '回超商必吃',
   ratingLabel: '評分',
   priceLabel: '價格',
