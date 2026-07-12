@@ -11,8 +11,9 @@
 }
 
 .immersive-back {
+  /* 此頁不使用頂部導覽列（改用底部氣泡導覽），offset 只需避開四角框線 */
   position: absolute;
-  top: calc(var(--trip-nav-h) + 18px);
+  top: 22px;
   left: clamp(1.25rem, 4vw, 3.5rem);
   z-index: 20;
   font-family: var(--mono);
@@ -129,7 +130,7 @@
 .immersive-scroll-hint {
   position: absolute;
   right: 16px;
-  top: calc(var(--trip-nav-h) + 22px);
+  top: 26px;
   z-index: 2;
   font-family: var(--mono);
   font-size: 0.62rem;
@@ -217,6 +218,230 @@
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
 .immersive-daynav__dot { position: relative; }
 
+/* ── 底部氣泡導覽（取代頂部導覽列）───────────────────────── */
+.immersive-dock { z-index: 190; }
+.immersive-theme-swap { position: relative; width: 17px; height: 17px; flex-shrink: 0; }
+.immersive-theme-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1), transform 0.48s cubic-bezier(0.33, 1.28, 0.64, 1);
+}
+.immersive-theme-icon svg { display: block; }
+html[data-theme='dark'] .immersive-theme-icon--sun,
+html:not([data-theme]) .immersive-theme-icon--sun {
+  opacity: 0;
+  transform: scale(0.52) rotate(78deg);
+  pointer-events: none;
+}
+html[data-theme='dark'] .immersive-theme-icon--moon,
+html:not([data-theme]) .immersive-theme-icon--moon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+html[data-theme='light'] .immersive-theme-icon--moon {
+  opacity: 0;
+  transform: scale(0.52) rotate(-78deg);
+  pointer-events: none;
+}
+html[data-theme='light'] .immersive-theme-icon--sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .immersive-theme-icon { transition: none; }
+}
+
+/* ── 當日行程刻度尺（左側）────────────────────────────────
+   只顯示目前所在日的停靠點；hover 時浮動標籤隨游標 Y 位置移動，
+   點擊任一刻度可直接跳到該停靠點。 */
+.immersive-day-ruler {
+  position: absolute;
+  left: clamp(18px, 3vw, 34px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 44vh;
+  min-height: 220px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.immersive-day-ruler.is-visible { opacity: 1; pointer-events: auto; }
+.immersive-day-ruler__label {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+.immersive-day-ruler__track {
+  /* 實際互動熱區加寬（32px），視覺上仍只顯示中央 1px 細線（::before），
+     避免游標必須精準落在單一像素上才能觸發 hover／點擊。 */
+  position: relative;
+  flex: 1;
+  width: 32px;
+  cursor: pointer;
+}
+.immersive-day-ruler__track::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--accent) 30%, transparent) 10%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 90%,
+    transparent
+  );
+  pointer-events: none;
+}
+.immersive-day-ruler__tick {
+  position: absolute;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.immersive-day-ruler__tick::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(10, 11, 14, 0.7);
+  transition: background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.immersive-day-ruler__tick:hover::before,
+.immersive-day-ruler__tick.is-near::before {
+  background: color-mix(in srgb, var(--accent) 70%, white);
+  transform: scale(1.4);
+}
+.immersive-day-ruler__tick.is-active::before {
+  background: var(--accent);
+  transform: scale(1.7);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.immersive-day-ruler__cursor {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  z-index: 6;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: top 0.06s linear;
+}
+.immersive-day-ruler__cursor-name {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: color-mix(in srgb, var(--accent) 32%, rgba(10, 11, 14, 0.82));
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  padding: 3px 8px;
+  border-radius: 3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+/* ── 地圖載入進度（工業風）────────────────────────────────── */
+.immersive-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0b0e;
+  transition: opacity 0.6s ease;
+}
+.immersive-loader.is-done { opacity: 0; pointer-events: none; }
+.immersive-loader__corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: var(--accent);
+  border-style: solid;
+  border-width: 0;
+  opacity: 0.5;
+}
+.immersive-loader__corner--tl { top: 18px; left: 18px; border-top-width: 2px; border-left-width: 2px; }
+.immersive-loader__corner--tr { top: 18px; right: 18px; border-top-width: 2px; border-right-width: 2px; }
+.immersive-loader__corner--bl { bottom: 18px; left: 18px; border-bottom-width: 2px; border-left-width: 2px; }
+.immersive-loader__corner--br { bottom: 18px; right: 18px; border-bottom-width: 2px; border-right-width: 2px; }
+.immersive-loader__body { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
+.immersive-loader__label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: color-mix(in srgb, var(--accent) 80%, white);
+}
+.immersive-loader__bar {
+  position: relative;
+  width: min(52vw, 280px);
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.immersive-loader__bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: width 0.25s ease-out;
+}
+.immersive-loader__bar-ticks {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(10, 11, 14, 0.9) 0,
+    rgba(10, 11, 14, 0.9) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+  pointer-events: none;
+}
+.immersive-loader__pct {
+  margin: 0;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── 場景進場特效：loader 淡出的同時，地圖／HUD 由淡出微縮放進場 ── */
+.immersive-map-col {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.32, 1), transform 0.8s cubic-bezier(0.22, 1, 0.32, 1);
+}
+.immersive-map-col.is-revealed { opacity: 1; transform: scale(1); }
+
 /* ── 詳細行程資料（沈浸式階段結束後，正常文件流） ────────── */
 
 .immersive-detail {
@@ -246,6 +471,8 @@
   .immersive-hud { max-width: 84vw; }
   .immersive-hud__body { max-width: 20rem; }
   .immersive-anchor { height: 62vh; }
+  /* 窄螢幕留給 HUD 文字的空間有限，刻度尺讓位 */
+  .immersive-day-ruler { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -256,5 +483,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .immersive-hud { transition: none; }
+  .immersive-hud,
+  .immersive-loader,
+  .immersive-map-col,
+  .immersive-day-ruler,
+  .immersive-day-ruler__cursor,
+  .immersive-day-ruler__tick::before,
+  .immersive-loader__bar-fill { transition: none; }
+  .immersive-map-col { opacity: 1; transform: none; }
 }

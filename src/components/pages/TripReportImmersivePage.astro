@@ -1,17 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import SiteNav from '../SiteNav.astro';
 import PageTransition from '../PageTransition.astro';
 import DaySection from '../trips/DaySection.astro';
 import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
-import { travelPath } from '../../i18n/routes';
+import { travelPath, homePath, availableLangsForPath } from '../../i18n/routes';
+import { ui } from '../../i18n/ui';
 import type { TripReport, TripStop } from '../../data/trips/types';
 import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import '../../styles/travel.css';
 import '../../styles/trip-report.css';
+import '../../styles/dock-nav.css';
 import '../../styles/trip-report-immersive.css';
 
 interface Props {
@@ -20,6 +21,10 @@ interface Props {
 }
 
 const { lang, trip } = Astro.props;
+const N = ui(lang).nav;
+// 報告書內容目前僅有 zh 版，語言切換無同等頁面可對應，
+// 退而求其次導向該語言的旅遊分區首頁，避免連到不存在的頁面。
+const navLangs = availableLangsForPath(Astro.url.pathname);
 
 const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
   airport: '機場',
@@ -208,7 +213,21 @@ const mapData = {
 >
   <PageTransition />
 
-  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <!-- ── 地圖載入進度（工業風）：地圖 ready 前顯示，完成後淡出＋場景進場 ── -->
+  <div id="immersive-loader" class="immersive-loader" role="status" aria-live="polite">
+    <div class="immersive-loader__corner immersive-loader__corner--tl" aria-hidden="true"></div>
+    <div class="immersive-loader__corner immersive-loader__corner--tr" aria-hidden="true"></div>
+    <div class="immersive-loader__corner immersive-loader__corner--bl" aria-hidden="true"></div>
+    <div class="immersive-loader__corner immersive-loader__corner--br" aria-hidden="true"></div>
+    <div class="immersive-loader__body">
+      <p class="immersive-loader__label">INITIALIZING MAP</p>
+      <div class="immersive-loader__bar">
+        <div class="immersive-loader__bar-fill" id="immersive-loader-fill"></div>
+        <div class="immersive-loader__bar-ticks" aria-hidden="true"></div>
+      </div>
+      <p class="immersive-loader__pct"><span id="immersive-loader-pct">0</span>%</p>
+    </div>
+  </div>
 
   <main
     id="main-content"
@@ -237,6 +256,15 @@ const mapData = {
           <span></span><span></span>
         </div>
         <div class="immersive-scroll-hint" aria-hidden="true">SCROLL ↓</div>
+
+        <!-- 當日行程刻度尺：僅列出目前所在日的停靠點，資訊隨游標相對位置浮動 -->
+        <div class="immersive-day-ruler" id="immersive-day-ruler" aria-hidden="true">
+          <p class="immersive-day-ruler__label" id="immersive-day-ruler-daylabel"></p>
+          <div class="immersive-day-ruler__track" id="immersive-day-ruler-track"></div>
+          <div class="immersive-day-ruler__cursor" id="immersive-day-ruler-cursor" hidden>
+            <span class="immersive-day-ruler__cursor-name" id="immersive-day-ruler-cursor-name"></span>
+          </div>
+        </div>
 
         <!-- HUD 文字：無卡片邊框，直接浮在地圖上，靠 text-shadow 保持可讀 -->
         <div id="immersive-hud" class="immersive-hud">
@@ -355,15 +383,117 @@ const mapData = {
 
   <footer class="trip-footer">{trip.title} · Milifix</footer>
 
+  <!-- ── 底部氣泡導覽：回首頁／語言切換／深淺色切換（取代頂部導覽列） ── -->
+  <nav class="dock-pill-nav dock-nav immersive-dock" aria-label={N.dockAria}>
+    <div class="dock-pill-nav__shell">
+      <ul class="dock-pill-nav__row" role="menubar">
+        <li class="dock-pill-nav__cell" role="none">
+          <a
+            class="dock-pill-nav__pill dock-pill-nav__pill--home"
+            href={homePath(lang)}
+            aria-label={N.dockHome}
+            title={N.dockHome}
+          >
+            <span class="dock-pill-nav__home-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H8v6H4a1 1 0 0 1-1-1v-9.5z"
+                  stroke="currentColor"
+                  stroke-width="1.65"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </a>
+        </li>
+
+        <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
+
+        {
+          navLangs.map((l) => (
+            <li class="dock-pill-nav__cell" role="none">
+              <a
+                class="dock-pill-nav__pill"
+                href={l === lang ? Astro.url.pathname : travelPath(l)}
+                aria-current={l === lang ? 'page' : undefined}
+                aria-label={N.langNames[l]}
+                title={N.langNames[l]}
+                translate="no"
+              >
+                {N.langShort[l]}
+              </a>
+            </li>
+          ))
+        }
+
+        <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
+
+        <li class="dock-pill-nav__cell" role="none">
+          <button
+            type="button"
+            class="dock-pill-nav__pill dock-pill-nav__pill--icon"
+            id="immersive-theme-toggle"
+            aria-label={N.themeToLight}
+            title={N.themeToLight}
+            data-label-dark={N.themeToDark}
+            data-label-light={N.themeToLight}
+          >
+            <span class="immersive-theme-swap" aria-hidden="true">
+              <span class="immersive-theme-icon immersive-theme-icon--sun">
+                <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2" />
+                  <path
+                    d="M8 1.2v1.5M8 13.3v1.5M14.8 8h-1.5M2.7 8H1.2M12.5 3.5l-1.06 1.06M4.56 11.44l-1.06 1.06M12.5 12.5l-1.06-1.06M4.56 4.56L3.5 3.5"
+                    stroke="currentColor"
+                    stroke-width="1.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              <span class="immersive-theme-icon immersive-theme-icon--moon">
+                <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M13.2 9.1A4.2 4.2 0 0 1 6.9 2.8 5 5 0 1 0 13.2 9.1z"
+                    stroke="currentColor"
+                    stroke-width="1.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
   <script is:inline type="application/json" id="immersive-map-data" set:html={JSON.stringify(mapData)}></script>
 
   <script>
     import { initAnimeOnScrollReveals } from '../../scripts/init-anime-onscroll-reveals';
     import { initTripReportImmersiveClient } from '../../scripts/trip-report-immersive-client';
     import { initTripPhotoLightbox } from '../../scripts/trip-photo-lightbox';
+    import { toggleTheme } from '../../scripts/theme-init';
 
     initAnimeOnScrollReveals();
     initTripReportImmersiveClient();
     initTripPhotoLightbox();
+
+    // 底部氣泡導覽的深淺色切換：此頁預設鎖定深色（htmlDataTheme="dark"），
+    // 但仍提供切換開關讓使用者可自行改回淺色。
+    const themeBtn = document.getElementById('immersive-theme-toggle');
+    const labelDark = themeBtn?.getAttribute('data-label-dark') || '';
+    const labelLight = themeBtn?.getAttribute('data-label-light') || '';
+    const syncThemeButton = (): void => {
+      const isLight = document.documentElement.dataset.theme === 'light';
+      themeBtn?.setAttribute('aria-label', isLight ? labelDark : labelLight);
+      themeBtn?.setAttribute('title', isLight ? labelDark : labelLight);
+    };
+    syncThemeButton();
+    themeBtn?.addEventListener('click', (e) => {
+      toggleTheme(e);
+      syncThemeButton();
+    });
   </script>
 </BaseLayout>
