@@ -229,6 +229,7 @@ const mapData = {
   <main
     id="main-content"
     class="immersive-main"
+    tabindex="-1"
     data-lightbox-close="關閉"
     data-lightbox-prev="上一張"
     data-lightbox-next="下一張"
@@ -240,19 +241,30 @@ const mapData = {
       <div class="immersive-map-col">
         <div id="immersive-map" class="immersive-map"></div>
 
-        <!-- HUD 裝飾框：外框、四角括號、頂部刻度、中央十字準星 -->
-        <div class="immersive-frame" aria-hidden="true"></div>
-        <div class="immersive-corner immersive-corner--tl" aria-hidden="true"></div>
-        <div class="immersive-corner immersive-corner--tr" aria-hidden="true"></div>
-        <div class="immersive-corner immersive-corner--bl" aria-hidden="true"></div>
-        <div class="immersive-corner immersive-corner--br" aria-hidden="true"></div>
-        <div class="immersive-ticks" aria-hidden="true">
+        <!-- HUD 裝飾框：外框、四角括號、頂部刻度、中央十字準星
+             （分兩層視差深度：深層框線位移小，中層刻度／準星／座標位移較大，
+             搭配 HUD 文字的前景位移，營造真正的層次懸浮感） -->
+        <div class="immersive-frame immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--tl immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--tr immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--bl immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-corner immersive-corner--br immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-ticks immersive-parallax-mid" aria-hidden="true">
           <span></span><span></span><span></span>
         </div>
-        <div class="immersive-reticle" aria-hidden="true">
-          <span></span><span></span>
+        <div class="immersive-side-ticks immersive-side-ticks--left immersive-parallax-mid" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
         </div>
-        <div class="immersive-scroll-hint" aria-hidden="true">SCROLL ↓</div>
+        <div class="immersive-side-ticks immersive-side-ticks--right immersive-parallax-mid" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="immersive-reticle immersive-parallax-mid" aria-hidden="true">
+          <span class="immersive-reticle__h"></span>
+          <span class="immersive-reticle__v"></span>
+          <span class="immersive-reticle__ring"></span>
+        </div>
+        <p class="immersive-coords immersive-parallax-mid" id="immersive-coords" aria-hidden="true"></p>
+        <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓</div>
 
         <!-- 當日行程刻度尺：僅列出目前所在日的停靠點，資訊隨游標相對位置浮動 -->
         <div class="immersive-day-ruler" id="immersive-day-ruler" aria-hidden="true">
@@ -442,6 +454,30 @@ const mapData = {
             </span>
           </button>
         </li>
+
+        <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
+
+        <li class="dock-pill-nav__cell" role="none">
+          <button
+            type="button"
+            class="dock-pill-nav__pill dock-pill-nav__pill--top"
+            id="immersive-scroll-top"
+            aria-label={N.dockScrollTop}
+            title={N.dockScrollTop}
+          >
+            <span class="dock-pill-nav__home-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M7 14.5L12 9l5 5.5"
+                  stroke="currentColor"
+                  stroke-width="1.65"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </button>
+        </li>
       </ul>
     </div>
   </nav>
@@ -472,6 +508,14 @@ const mapData = {
     themeBtn?.addEventListener('click', (e) => {
       toggleTheme(e);
       syncThemeButton();
+    });
+
+    // 底部氣泡導覽的回頂部：整篇報告書（沈浸式階段 + 詳細行程資料）很長，
+    // 提供快速回到刊頭的方式。
+    document.getElementById('immersive-scroll-top')?.addEventListener('click', () => {
+      const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
+      document.getElementById('main-content')?.focus({ preventScroll: true });
     });
   </script>
 </BaseLayout>

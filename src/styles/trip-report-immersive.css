@@ -136,10 +136,11 @@ html[data-theme='light'] .immersive-main {
 .immersive-corner--br { bottom: 10px; right: 10px; border-bottom-width: 2px; border-right-width: 2px; }
 
 .immersive-ticks {
+  /* 水平置中改由 JS 以 gsap xPercent:-50 設定（見 client script），
+     transform 留給游標視差用，避免兩者互相覆寫。 */
   position: absolute;
   top: 10px;
   left: 50%;
-  transform: translateX(-50%);
   z-index: 2;
   display: flex;
   gap: 5px;
@@ -147,6 +148,44 @@ html[data-theme='light'] .immersive-main {
 }
 .immersive-ticks span { width: 1px; height: 8px; background: color-mix(in srgb, var(--accent) 40%, transparent); }
 .immersive-ticks span:nth-child(2) { height: 5px; opacity: 0.7; }
+
+/* 左右邊緣刻度尺：呼應頂部刻度，強化「量測儀器」的工業風語彙 */
+.immersive-side-ticks {
+  position: absolute;
+  top: 50%;
+  margin-top: -60px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  pointer-events: none;
+}
+.immersive-side-ticks--left { left: 22px; }
+.immersive-side-ticks--right { right: 22px; }
+.immersive-side-ticks span {
+  width: 10px;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.immersive-side-ticks span:nth-child(3) {
+  width: 16px;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* 座標讀數：呼應地圖 HUD，隨鏡頭飛行即時更新 */
+.immersive-coords {
+  position: absolute;
+  left: 22px;
+  bottom: 34px;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--imm-ink-faint);
+  pointer-events: none;
+}
 
 .immersive-reticle {
   position: absolute;
@@ -159,8 +198,22 @@ html[data-theme='light'] .immersive-main {
   opacity: 0.3;
   pointer-events: none;
 }
-.immersive-reticle span:first-child { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--accent); }
-.immersive-reticle span:last-child { position: absolute; left: 50%; top: 0; height: 100%; width: 1px; background: var(--accent); }
+.immersive-reticle__h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--accent); }
+.immersive-reticle__v { position: absolute; left: 50%; top: 0; height: 100%; width: 1px; background: var(--accent); }
+/* 外圈慢速旋轉的虛線環，呼應雷達／測繪儀器的工業感 */
+.immersive-reticle__ring {
+  position: absolute;
+  inset: -13px;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  animation: immersiveReticleSpin 14s linear infinite;
+}
+@keyframes immersiveReticleSpin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .immersive-reticle__ring { animation: none; }
+}
 
 .immersive-scroll-hint {
   position: absolute;
@@ -512,6 +565,8 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-anchor { height: 62vh; }
   /* 窄螢幕留給 HUD 文字的空間有限，刻度尺讓位 */
   .immersive-day-ruler { display: none; }
+  .immersive-side-ticks,
+  .immersive-coords { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -530,4 +585,8 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-day-ruler__tick::before,
   .immersive-loader__bar-fill { transition: none; }
   .immersive-map-col { opacity: 1; transform: none; }
+  /* 游標懸浮視差本身就依 prefers-reduced-motion 停用（見 client script），
+     這裡額外保底：即使程式碼路徑漏判，深／中層裝飾也不會被拖出定位。 */
+  .immersive-parallax-deep,
+  .immersive-parallax-mid { transform: none !important; }
 }
