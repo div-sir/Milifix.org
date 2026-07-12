@@ -74,57 +74,74 @@ const configured = clientId.length > 0;
 
           {
             configured ? (
-              <section class="konbini-rate" aria-labelledby="konbini-rate-heading">
-                <h2 id="konbini-rate-heading" class="konbini-rate__heading">{r.heading}</h2>
+              <>
+                <button type="button" class="konbini-rate-trigger" id="konbini-rate-trigger">
+                  {r.heading}
+                </button>
 
-                <div class="konbini-rate__gate" id="konbini-rate-gate">
-                  <div id="konbini-gsi" class="konbini-form__gsi" />
-                  <p class="konbini-rate__reason">{r.signInReason}</p>
-                </div>
+                <div class="konbini-add-section" id="konbini-rate-section" hidden>
+                  <div
+                    class="konbini-add-section__panel"
+                    id="konbini-rate-section-panel"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="konbini-rate-section-title"
+                  >
+                    <button type="button" class="konbini-add-section__close" id="konbini-rate-close" aria-label={t.closeAddSection}>
+                      <span aria-hidden="true">×</span>
+                    </button>
+                    <h2 id="konbini-rate-section-title" class="konbini-add-section__title" tabindex="-1">{r.heading}</h2>
 
-                <form
-                  class="konbini-form konbini-rate__form"
-                  id="konbini-form"
-                  hidden
-                  data-client-id={clientId}
-                  data-product-slug={product.slug}
-                  data-msg-signin={r.errorSignIn}
-                  data-msg-success={r.success}
-                  data-msg-success-updated={r.successUpdated}
-                  data-msg-error={r.errorGeneric}
-                  data-msg-toomany={r.photoTooMany}
-                  data-max-photos="3"
-                >
-                  <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
-                  <p class="konbini-form__note" id="konbini-already-rated-note" hidden>{r.alreadyRated}</p>
-
-                  <label class="konbini-form__row">
-                    <span>{r.fieldBody} <em>({r.optional})</em></span>
-                    <textarea name="body" rows="3" maxlength="1000" />
-                  </label>
-
-                  <div class="konbini-form__row">
-                    <span>{r.fieldPhotos} <em>({r.optional})</em></span>
-                    <input type="file" id="konbini-photos" accept="image/*" multiple />
-                    <small class="konbini-form__note">{r.photoHint}</small>
-                    <div class="konbini-form__previews" id="konbini-previews" />
-                  </div>
-
-                  <p class="konbini-form__note">{r.moderationNote}</p>
-
-                  <div class="konbini-form__row">
-                    <span id="konbini-rating-label">{t.ratingLabel}</span>
-                    <div class="konbini-rate__starpicker" id="konbini-rating-picker" role="group" aria-labelledby="konbini-rating-label">
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <button type="button" class="konbini-rate__star" data-star-value={n} aria-label={`${n} / 5`}>★</button>
-                      ))}
+                    <div class="konbini-rate__gate" id="konbini-rate-gate">
+                      <div id="konbini-gsi" class="konbini-form__gsi" />
+                      <p class="konbini-rate__reason">{r.signInReason}</p>
                     </div>
-                    <p class="konbini-form__note">{r.tapToSubmit}</p>
-                  </div>
 
-                  <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
-                </form>
-              </section>
+                    <form
+                      class="konbini-form konbini-rate__form"
+                      id="konbini-form"
+                      hidden
+                      data-client-id={clientId}
+                      data-product-slug={product.slug}
+                      data-msg-signin={r.errorSignIn}
+                      data-msg-success={r.success}
+                      data-msg-success-updated={r.successUpdated}
+                      data-msg-error={r.errorGeneric}
+                      data-msg-toomany={r.photoTooMany}
+                      data-max-photos="3"
+                    >
+                      <p class="konbini-form__signed">{r.signedInAs} <span id="konbini-user" /></p>
+                      <p class="konbini-form__note" id="konbini-already-rated-note" hidden>{r.alreadyRated}</p>
+
+                      <label class="konbini-form__row">
+                        <span>{r.fieldBody} <em>({r.optional})</em></span>
+                        <textarea name="body" rows="3" maxlength="1000" />
+                      </label>
+
+                      <div class="konbini-form__row">
+                        <span>{r.fieldPhotos} <em>({r.optional})</em></span>
+                        <input type="file" id="konbini-photos" accept="image/*" multiple />
+                        <small class="konbini-form__note">{r.photoHint}</small>
+                        <div class="konbini-form__previews" id="konbini-previews" />
+                      </div>
+
+                      <p class="konbini-form__note">{r.moderationNote}</p>
+
+                      <div class="konbini-form__row">
+                        <span id="konbini-rating-label">{t.ratingLabel}</span>
+                        <div class="konbini-rate__starpicker" id="konbini-rating-picker" role="group" aria-labelledby="konbini-rating-label">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <button type="button" class="konbini-rate__star" data-star-value={n} aria-label={`${n} / 5`}>★</button>
+                          ))}
+                        </div>
+                        <p class="konbini-form__note">{r.tapToSubmit}</p>
+                      </div>
+
+                      <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
+                    </form>
+                  </div>
+                </div>
+              </>
             ) : (
               <p class="konbini-empty">{r.notConfigured}</p>
             )
@@ -381,12 +398,88 @@ const configured = clientId.length > 0;
         if (target) google.accounts.id.renderButton(target, { theme: 'outline', size: 'large' });
         return true;
       }
-      if (!initGsi()) {
-        var tries = 0;
-        var iv = setInterval(function () {
-          if (initGsi() || ++tries > 40) clearInterval(iv);
-        }, 150);
+      // renderButton 塞進目前是 hidden 的視窗容器，量到的寬度會是 0——所以
+      // 延後到視窗第一次打開（openRateSection）才初始化，跟新增商品視窗
+      // （KonbiniIndexPage.astro）用的是同一套處理方式。
+      function attemptInitGsi() {
+        if (!initGsi()) {
+          var tries = 0;
+          var iv = setInterval(function () {
+            if (initGsi() || ++tries > 40) clearInterval(iv);
+          }, 150);
+        }
       }
+
+      // ── 評分視窗：跟新增商品一樣做成置中彈窗，不是內嵌在頁面裡固定佔
+      // 位置——瀏覽商品說明／評論時畫面更乾淨，要評分才點按鈕開視窗。 ──
+      var rateSection = document.getElementById('konbini-rate-section');
+      var ratePanel = document.getElementById('konbini-rate-section-panel');
+      var rateTrigger = document.getElementById('konbini-rate-trigger');
+      var rateCloseBtn = document.getElementById('konbini-rate-close');
+      var rateTitle = document.getElementById('konbini-rate-section-title');
+      var gsiInited = false;
+
+      function focusFirstRateField() {
+        var field =
+          (ratePanel && ratePanel.querySelector('#konbini-form:not([hidden]) textarea, #konbini-form:not([hidden]) input, #konbini-form:not([hidden]) button:not([disabled])')) ||
+          (ratePanel && ratePanel.querySelector('#konbini-gsi iframe'));
+        if (field) {
+          field.focus();
+        } else if (rateTitle) {
+          rateTitle.focus();
+        }
+      }
+
+      function openRateSection() {
+        if (!rateSection) return;
+        rateSection.hidden = false;
+        document.body.classList.add('konbini-modal-open');
+        if (!gsiInited) {
+          gsiInited = true;
+          attemptInitGsi();
+        }
+        var reduced = prefersReducedMotion();
+        window.setTimeout(focusFirstRateField, reduced ? 0 : 200);
+      }
+
+      function closeRateSection() {
+        if (!rateSection || rateSection.hidden) return;
+        rateSection.hidden = true;
+        document.body.classList.remove('konbini-modal-open');
+        if (rateTrigger) rateTrigger.focus();
+      }
+
+      if (rateTrigger) rateTrigger.addEventListener('click', openRateSection);
+      if (rateCloseBtn) rateCloseBtn.addEventListener('click', closeRateSection);
+      if (rateSection) {
+        // 點視窗外的半透明背景（不是點到裡面的卡片）也關閉。
+        rateSection.addEventListener('click', function (ev) {
+          if (ev.target === rateSection) closeRateSection();
+        });
+      }
+      // Esc 關閉；Tab／Shift+Tab 在視窗開著時把焦點鎖在視窗內（簡易
+      // focus trap）。
+      document.addEventListener('keydown', function (ev) {
+        if (!rateSection || rateSection.hidden) return;
+        if (ev.key === 'Escape') {
+          closeRateSection();
+          return;
+        }
+        if (ev.key !== 'Tab' || !ratePanel) return;
+        var focusable = Array.prototype.slice.call(
+          ratePanel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+        ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (ev.shiftKey && document.activeElement === first) {
+          ev.preventDefault();
+          last.focus();
+        } else if (!ev.shiftKey && document.activeElement === last) {
+          ev.preventDefault();
+          first.focus();
+        }
+      });
 
       // 把狀態訊息（成功／錯誤）捲進畫面並交焦點過去，尊重減少動態偏好；
       // 表單可能已經捲出畫面外（尤其手機），不主動捲過去使用者容易漏看。

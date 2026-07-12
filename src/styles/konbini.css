@@ -139,6 +139,30 @@ html[data-theme='light'] {
   margin-top: 0;
 }
 
+/* ── 商品頁評分觸發鈕：點下去才開評分視窗（見 .konbini-add-section，
+   跟新增商品共用同一套彈窗樣式） ── */
+.konbini-rate-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: clamp(1.6rem, 4vw, 2.4rem) 0;
+}
+@media (hover: hover) {
+  .konbini-rate-trigger:hover { opacity: 0.9; }
+}
+.konbini-rate-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ── 商品頁評分：點星星直接送出，不用滑桿也不用另外按送出鍵 ── */
 .konbini-rate__starpicker {
   display: flex;
