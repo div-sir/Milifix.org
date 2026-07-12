@@ -52,6 +52,21 @@
 }
 .immersive-map .trip-marker__dot { width: 9px; height: 9px; }
 
+/* OSM／OpenFreeMap 授權標示為 ODbL 要求，保留但壓到最低調（同現有雙欄
+   版型 .trip-map-panel 的處理方式），常態收合成小 ⓘ，hover 才展開變實。 */
+.immersive-map .maplibregl-ctrl-attrib {
+  background: rgba(10, 11, 14, 0.35) !important;
+  font-size: 9px !important;
+  line-height: 1.4 !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+.immersive-map .maplibregl-ctrl-attrib:hover { opacity: 1; }
+.immersive-map .maplibregl-ctrl-attrib a { color: rgba(255, 255, 255, 0.55) !important; }
+.immersive-map .maplibregl-ctrl-bottom-left { bottom: 6px !important; left: 6px !important; }
+
 .immersive-track {
   grid-column: 1;
   grid-row: 1;
