@@ -8,7 +8,6 @@
 import type { Lang } from '../../i18n/types';
 import { konbini } from '../../i18n/konbini';
 import type { KonbiniProduct } from '../../lib/cms';
-import { getCmsUrl } from '../../lib/cms-env';
 import { chainName, priceLabel, starString } from '../../lib/konbini-view';
 import { averageRating } from '../../lib/konbini';
 
@@ -25,17 +24,9 @@ const avg = averageRating(reviews);
 
 const clientId = import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '';
 const configured = clientId.length > 0;
-
-// 這筆商品在 CMS 後台的編輯頁網址，塞進 data-report-url 給整個 konbini
-// 共用的懸浮「回報錯誤」按鈕讀取（見 KonbiniReportButton.astro）：商品
-// 快速預覽視窗開著時，KonbiniIndexPage.astro 的腳本會把懸浮鈕的連結換
-// 成「目前正在看的這個商品」。CMS_URL 只在 build 期間（server 端
-// frontmatter）讀取，網址是 build 時就烤進靜態 HTML 的固定連結，不會
-// 把任何機密暴露到瀏覽器端。
-const reportUrl = `${getCmsUrl()}/admin/collections/konbini-products/${product.id}`;
 ---
 
-<article data-report-url={reportUrl}>
+<article data-product-id={product.id} data-product-name={product.name}>
   <header class={`konbini-detail__head konbini-accent--${product.country}`}>
     <div class="konbini-detail__cover" aria-hidden="true">
       <span class="konbini-card__cover-category">{t.categoryNames[product.category]}</span>

@@ -797,10 +797,10 @@ body.konbini-modal-open {
   line-height: 1.65;
   margin: 0 0 1.2rem;
 }
-/* ── 整個 konbini 共用的懸浮「回報錯誤」按鈕，固定在畫面右下角。
-   z-index 故意比視窗（.konbini-add-section 的 250）還高，商品快速預覽
-   視窗或評分視窗開著時也點得到、也看得到（連結內容由頁面腳本動態換成
-   當下正在看的商品，見 KonbiniIndexPage.astro）。 ── */
+/* ── 整個 konbini 共用的懸浮「回報錯誤」按鈕，固定在畫面右下角，點下去
+   彈出表單（見 KonbiniReportButton.astro）。z-index 故意比視窗
+   （.konbini-add-section 的 250）還高，商品快速預覽視窗或評分視窗開著
+   時也點得到、也看得到。 ── */
 .konbini-report-fab {
   position: fixed;
   right: clamp(1rem, 3vw, 1.6rem);
@@ -814,7 +814,9 @@ body.konbini-modal-open {
   border-radius: 999px;
   background: var(--bg2);
   color: var(--muted);
+  font: inherit;
   font-size: 0.78rem;
+  cursor: pointer;
   text-decoration: none;
   box-shadow: var(--shadow-card);
 }

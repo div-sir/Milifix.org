@@ -48,7 +48,7 @@ const configured = (import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '').length 
     }
   </main>
 
-  <KonbiniReportButton lang={lang} productId={product?.id} />
+  <KonbiniReportButton lang={lang} />
 
   {configured && <script is:inline src="https://accounts.google.com/gsi/client" async></script>}
 

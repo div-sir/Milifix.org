@@ -723,11 +723,6 @@ const countryTitleHidden = countryGroups.length > 1;
       var activeProductDetail = null;
       var lastProductOpener = null;
 
-      // 整個 konbini 共用的懸浮「回報錯誤」按鈕：商品快速預覽視窗開著時，
-      // 把連結換成正在看的這個商品；關閉後換回預設（後台商品清單頁）。
-      var reportFab = document.getElementById('konbini-report-fab');
-      var reportFabDefaultHref = reportFab ? reportFab.getAttribute('data-default-href') : null;
-
       function loadProductIntoModal(slug) {
         var tpl = document.getElementById('konbini-product-tpl-' + slug);
         if (!tpl || !productModalBody) return false;
@@ -738,10 +733,6 @@ const countryTitleHidden = countryGroups.length > 1;
         productModalBody.innerHTML = '';
         productModalBody.appendChild(tpl.content.cloneNode(true));
         activeProductDetail = wireKonbiniProductDetail(productModalBody);
-        if (reportFab) {
-          var articleEl = productModalBody.querySelector('[data-report-url]');
-          reportFab.setAttribute('href', articleEl ? articleEl.getAttribute('data-report-url') : reportFabDefaultHref);
-        }
         return true;
       }
 
@@ -771,7 +762,6 @@ const countryTitleHidden = countryGroups.length > 1;
           activeProductDetail.destroy();
           activeProductDetail = null;
         }
-        if (reportFab && reportFabDefaultHref) reportFab.setAttribute('href', reportFabDefaultHref);
         history.replaceState(null, '', location.pathname + location.search);
         if (lastProductOpener) lastProductOpener.focus();
       }

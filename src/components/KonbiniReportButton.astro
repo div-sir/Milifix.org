@@ -1,37 +1,272 @@
 ---
-// 整個 konbini 區塊共用的懸浮「回報錯誤」按鈕，固定在畫面右下角。
-// 有帶 productId 時連到該商品在 CMS 後台的編輯頁（例如首頁商品快速
-// 預覽視窗開著時，由 KonbiniIndexPage.astro 的腳本動態把 href 換成當下
-// 正在看的商品）；沒有特定商品可指時（首頁瀏覽狀態、新增商品頁）連到
-// 後台商品清單頁。z-index 故意設得比視窗（.konbini-add-section 的
-// 250）還高，視窗開著時也點得到，反應的是「正在看的東西」而不會被
-// 視窗背景蓋住。
+// 整個 konbini 區塊（首頁、商品頁、新增商品頁）共用的懸浮「回報錯誤」
+// 按鈕，固定在畫面右下角。點下去彈出表單，讓訪客直接送出文字說明＋
+// 選填截圖（不要求 Google 登入，門檻越低越好），站主在 CMS 後台的
+// konbini-reports 收件匣查看。
+//
+// 「回報的是哪個頁面／哪個商品」不用伺服器端預先算好或用腳本動態換
+// 連結——送出當下直接在瀏覽器讀 location.href / document.title，商品
+// 脈絡則從畫面上目前「活著」的商品詳情（獨立頁本身，或首頁商品快速
+// 預覽視窗裡目前 clone 出來的那份，見 KonbiniProductDetailMarkup.astro
+// 的 data-product-id／data-product-name）讀取，找不到就是 undefined，
+// 不影響送出。
+//
+// z-index 故意設得比視窗（.konbini-add-section 的 250）還高，商品快速
+// 預覽視窗或評分視窗開著時，懸浮鈕跟它自己的表單視窗都還點得到。
 import type { Lang } from '../i18n/types';
 import { konbini } from '../i18n/konbini';
-import { getCmsUrl } from '../lib/cms-env';
 
 interface Props {
   lang: Lang;
-  productId?: string;
 }
-const { lang, productId } = Astro.props;
+const { lang } = Astro.props;
 const t = konbini(lang);
-
-const href = productId
-  ? `${getCmsUrl()}/admin/collections/konbini-products/${productId}`
-  : `${getCmsUrl()}/admin/collections/konbini-products`;
+const m = t.reportModal;
 ---
 
-<a
-  class="konbini-report-fab"
-  id="konbini-report-fab"
-  href={href}
-  data-default-href={href}
-  target="_blank"
-  rel="noopener noreferrer"
-  title={t.reportError}
-  aria-label={t.reportError}
->
+<button type="button" class="konbini-report-fab" id="konbini-report-fab" aria-label={t.reportError}>
   <span aria-hidden="true">⚑</span>
   <span class="konbini-report-fab__label">{t.reportError}</span>
-</a>
+</button>
+
+<div class="konbini-add-section" id="konbini-report-section" hidden>
+  <div
+    class="konbini-add-section__panel"
+    id="konbini-report-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="konbini-report-title"
+  >
+    <button type="button" class="konbini-add-section__close" id="konbini-report-close" aria-label={t.closeAddSection}>
+      <span aria-hidden="true">×</span>
+    </button>
+    <h2 class="konbini-add-section__title" id="konbini-report-title" tabindex="-1">{m.heading}</h2>
+    <p class="konbini-add-section__intro">{m.intro}</p>
+
+    <form
+      class="konbini-form"
+      id="konbini-report-form"
+      data-msg-empty={m.errorEmpty}
+      data-msg-success={m.success}
+      data-msg-error={m.errorGeneric}
+    >
+      <label class="konbini-form__row">
+        <span>{m.fieldMessage}</span>
+        <textarea name="message" rows="4" maxlength="2000" />
+      </label>
+
+      <div class="konbini-form__row">
+        <span>{m.fieldPhoto} <em>({t.rate.optional})</em></span>
+        <input type="file" id="konbini-report-photo" accept="image/*" />
+        <div class="konbini-form__previews" id="konbini-report-previews" />
+      </div>
+
+      <button type="submit" class="konbini-form__submit" id="konbini-report-send">{m.send}</button>
+      <p class="konbini-form__status" id="konbini-report-status" role="status" aria-live="polite" tabindex="-1" />
+    </form>
+  </div>
+</div>
+
+<script is:inline define:vars={{ sendLabel: m.send, sendingLabel: m.sending, removeLabel: t.removePhoto }}>
+  (function () {
+    var fab = document.getElementById('konbini-report-fab');
+    var section = document.getElementById('konbini-report-section');
+    var panel = document.getElementById('konbini-report-panel');
+    var title = document.getElementById('konbini-report-title');
+    var closeBtn = document.getElementById('konbini-report-close');
+    var form = document.getElementById('konbini-report-form');
+    if (!fab || !section || !form) return;
+    var statusEl = document.getElementById('konbini-report-status');
+    var sendBtn = document.getElementById('konbini-report-send');
+    var photoInput = document.getElementById('konbini-report-photo');
+    var previews = document.getElementById('konbini-report-previews');
+    var photoDataUrl = null;
+
+    function prefersReducedMotion() {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    // ── 視窗背景捲動鎖：跟站內其他懸浮視窗共用同一個計數器
+    // （data-konbini-modal-count），這顆回報視窗可能疊在商品快速預覽
+    // 視窗或評分視窗「上面」，關掉時如果其他視窗還開著不能解鎖背景捲動。 ──
+    function lockModalScroll() {
+      var n = (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) + 1;
+      document.body.setAttribute('data-konbini-modal-count', String(n));
+      document.body.classList.add('konbini-modal-open');
+    }
+    function unlockModalScroll() {
+      var n = Math.max(0, (parseInt(document.body.getAttribute('data-konbini-modal-count'), 10) || 0) - 1);
+      document.body.setAttribute('data-konbini-modal-count', String(n));
+      if (n === 0) document.body.classList.remove('konbini-modal-open');
+    }
+
+    function focusFirstField() {
+      var field = form.querySelector('textarea, input, button:not([disabled])');
+      if (field) field.focus();
+      else if (title) title.focus();
+    }
+
+    function openSection() {
+      section.hidden = false;
+      lockModalScroll();
+      window.setTimeout(focusFirstField, prefersReducedMotion() ? 0 : 200);
+    }
+    function closeSection() {
+      if (section.hidden) return;
+      section.hidden = true;
+      unlockModalScroll();
+      fab.focus();
+    }
+
+    fab.addEventListener('click', openSection);
+    if (closeBtn) closeBtn.addEventListener('click', closeSection);
+    section.addEventListener('click', function (ev) {
+      if (ev.target === section) closeSection();
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (section.hidden) return;
+      if (ev.key === 'Escape') {
+        closeSection();
+        return;
+      }
+      if (ev.key !== 'Tab' || !panel) return;
+      var focusable = Array.prototype.slice.call(
+        panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      ).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    });
+
+    // ── 截圖：選檔後以 canvas 縮圖到最長邊 1600px、JPEG q0.85（跟站內
+    // 其他上傳照片的表單同一套） ──
+    var MAX_EDGE = 1600;
+    function downscale(file) {
+      return new Promise(function (resolve) {
+        var img = new Image();
+        var url = URL.createObjectURL(file);
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+          var cw = Math.round(w * scale), ch = Math.round(h * scale);
+          var canvas = document.createElement('canvas');
+          canvas.width = cw; canvas.height = ch;
+          canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
+      });
+    }
+    function clearPhoto() {
+      photoDataUrl = null;
+      if (photoInput) photoInput.value = '';
+      if (previews) previews.innerHTML = '';
+    }
+    function renderPreview(dataUrl) {
+      if (!previews) return;
+      previews.innerHTML = '';
+      var wrap = document.createElement('div');
+      wrap.className = 'konbini-form__thumb-wrap';
+      var im = document.createElement('img');
+      im.src = dataUrl;
+      im.alt = '';
+      im.className = 'konbini-form__thumb';
+      im.width = 64; im.height = 64;
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'konbini-form__thumb-remove';
+      removeBtn.setAttribute('aria-label', removeLabel);
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', clearPhoto);
+      wrap.appendChild(im);
+      wrap.appendChild(removeBtn);
+      previews.appendChild(wrap);
+    }
+    if (photoInput) {
+      photoInput.addEventListener('change', function () {
+        var file = photoInput.files && photoInput.files[0];
+        photoDataUrl = null;
+        if (previews) previews.innerHTML = '';
+        if (!file) return;
+        downscale(file).then(function (dataUrl) {
+          if (!dataUrl) return;
+          photoDataUrl = dataUrl;
+          renderPreview(dataUrl);
+        });
+      });
+    }
+
+    function announceStatus(text) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      var reduced = prefersReducedMotion();
+      statusEl.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+      statusEl.focus();
+    }
+
+    // 「這是在講哪個商品」：找畫面上目前活著（不是躺在 <template> 裡的
+    // 商品詳情——獨立頁本身，或首頁商品快速預覽視窗目前 clone 出來的那
+    // 份，見 KonbiniProductDetailMarkup.astro 的 data-product-id／
+    // data-product-name。找不到就是 undefined，不影響送出。
+    function currentProductContext() {
+      var el = document.querySelector('article[data-product-id]');
+      if (!el) return { productId: undefined, productName: undefined };
+      return {
+        productId: el.getAttribute('data-product-id') || undefined,
+        productName: el.getAttribute('data-product-name') || undefined,
+      };
+    }
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var message = (new FormData(form).get('message') || '').toString().trim();
+      if (!message && !photoDataUrl) {
+        announceStatus(form.getAttribute('data-msg-empty'));
+        return;
+      }
+      var ctx = currentProductContext();
+      var payload = {
+        message: message || undefined,
+        photo: photoDataUrl,
+        pageUrl: location.href,
+        pageTitle: document.title,
+        productId: ctx.productId,
+        productName: ctx.productName,
+      };
+      if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
+      if (statusEl) statusEl.textContent = '';
+      var responseOk = false;
+      fetch('/api/konbini-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function (res) {
+          responseOk = res.ok;
+          return res.json();
+        })
+        .then(function () {
+          announceStatus(responseOk ? form.getAttribute('data-msg-success') : form.getAttribute('data-msg-error'));
+          if (responseOk) {
+            form.reset();
+            clearPhoto();
+          }
+        })
+        .catch(function () {
+          announceStatus(form.getAttribute('data-msg-error'));
+        })
+        .finally(function () {
+          if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = sendLabel; }
+        });
+    });
+  })();
+</script>
