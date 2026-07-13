@@ -6,7 +6,7 @@ import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
 import { travelPath, homePath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
-import type { TripReport, TripStop } from '../../data/trips/types';
+import type { TripReport, TripStop, TransportSegment } from '../../data/trips/types';
 import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
@@ -33,6 +33,19 @@ const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
   viewpoint: '展望',
   facility: '設施',
   area: '地區',
+};
+
+// 沿用 DaySection 的交通方式圖示對照，讓 HUD 上的移動方式與詳細行程資料一致。
+const MODE_ICON: Record<TransportSegment['mode'], string> = {
+  flight: '✈️',
+  shinkansen: '🚄',
+  'night-train': '🌙',
+  train: '🚃',
+  tram: '🚋',
+  monorail: '🚝',
+  ferry: '⛴️',
+  bus: '🚌',
+  walk: '🚶',
 };
 
 const labels: DayLabels = {
@@ -68,6 +81,8 @@ interface ImmersiveAnchor {
   photoAlt?: string;
   day?: number;
   dayIntro?: boolean;
+  transportIcon?: string;
+  transportLabel?: string;
 }
 
 const POS_CYCLE = ['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const;
@@ -148,6 +163,9 @@ for (const day of trip.days) {
 
   day.stops.forEach((stop, i) => {
     const photo = stop.photos?.[0];
+    // 抵達本站的交通段（同日相鄰景點或跨日銜接皆算在 day.segments 內），
+    // 供 HUD 顯示「怎麼到這裡」。
+    const arrivingSeg = (day.segments ?? []).find((sg) => sg.to === stop.id);
     anchors.push({
       lng: stop.coords.lng,
       lat: stop.coords.lat,
@@ -164,6 +182,8 @@ for (const day of trip.days) {
       photoSrc: photo?.src,
       photoAlt: photo?.alt ?? photo?.caption,
       day: day.day,
+      transportIcon: arrivingSeg ? MODE_ICON[arrivingSeg.mode] : undefined,
+      transportLabel: arrivingSeg?.label,
     });
   });
 }
@@ -241,9 +261,13 @@ const mapData = {
       <div class="immersive-map-col">
         <div id="immersive-map" class="immersive-map"></div>
 
+        <!-- 景深裝飾：經緯格線（背景層，填補畫面空白處）＋ 暗角漸層（強化立體縱深） -->
+        <div class="immersive-grid immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-vignette" aria-hidden="true"></div>
+
         <!-- HUD 裝飾框：外框、四角括號、頂部刻度、中央十字準星
-             （分兩層視差深度：深層框線位移小，中層刻度／準星／座標位移較大，
-             搭配 HUD 文字的前景位移，營造真正的層次懸浮感） -->
+             （分兩層視差深度：深層框線位移小＋隨游標做細微 3D 傾斜，中層刻度／準星／
+             座標位移較大，搭配 HUD 文字的前景位移，營造真正的層次懸浮感） -->
         <div class="immersive-frame immersive-parallax-deep" aria-hidden="true"></div>
         <div class="immersive-corner immersive-corner--tl immersive-parallax-deep" aria-hidden="true"></div>
         <div class="immersive-corner immersive-corner--tr immersive-parallax-deep" aria-hidden="true"></div>
@@ -263,7 +287,9 @@ const mapData = {
           <span class="immersive-reticle__v"></span>
           <span class="immersive-reticle__ring"></span>
         </div>
+        <!-- 經緯度讀數（左下）＋ 相機讀數（右下，對稱填補原本空白的右下角） -->
         <p class="immersive-coords immersive-parallax-mid" id="immersive-coords" aria-hidden="true"></p>
+        <p class="immersive-cam immersive-parallax-mid" id="immersive-cam" aria-hidden="true"></p>
         <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓</div>
 
         <!-- 當日行程刻度尺：僅列出目前所在日的停靠點，資訊隨游標相對位置浮動 -->
@@ -287,6 +313,10 @@ const mapData = {
               <span id="immersive-hud-tag"></span>
             </div>
             <div id="immersive-hud-title" class="immersive-hud__title"></div>
+            <div id="immersive-hud-transport" class="immersive-hud__transport" hidden>
+              <span id="immersive-hud-transport-icon" aria-hidden="true"></span>
+              <span id="immersive-hud-transport-label"></span>
+            </div>
             <div id="immersive-hud-desc" class="immersive-hud__desc"></div>
             <div id="immersive-hud-note" class="immersive-hud__note" hidden></div>
           </div>
@@ -312,6 +342,8 @@ const mapData = {
               data-photo-alt={a.photoAlt ?? ''}
               data-day={a.day ?? ''}
               data-day-intro={a.dayIntro ? '1' : ''}
+              data-transport-icon={a.transportIcon ?? ''}
+              data-transport-label={a.transportLabel ?? ''}
             />
           ))
         }

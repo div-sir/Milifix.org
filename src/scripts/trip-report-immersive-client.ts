@@ -39,6 +39,8 @@ interface AnchorData {
   photoAlt: string;
   day: string;
   dayIntro: string;
+  transportIcon: string;
+  transportLabel: string;
 }
 interface MapData {
   mapDefault: { center: GeoPoint; zoom: number };
@@ -332,6 +334,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const hudEl = document.getElementById('immersive-hud');
   const tagEl = document.getElementById('immersive-hud-tag');
   const titleEl = document.getElementById('immersive-hud-title');
+  const transportEl = document.getElementById('immersive-hud-transport');
+  const transportIconEl = document.getElementById('immersive-hud-transport-icon');
+  const transportLabelEl = document.getElementById('immersive-hud-transport-label');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
   const photoBoxEl = document.getElementById('immersive-hud-photo');
@@ -348,6 +353,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     const deepEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-parallax-deep'));
     const ticksEl = document.querySelector<HTMLElement>('.immersive-ticks');
     if (ticksEl) gsap.set(ticksEl, { xPercent: -50 });
+    if (deepEls.length > 0) gsap.set(deepEls, { transformPerspective: 1400, transformOrigin: 'center' });
 
     const layers: Array<{ els: HTMLElement[]; x: number; y: number }> = [
       { els: hudEl ? [hudEl] : [], x: 34, y: 22 },
@@ -362,6 +368,15 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
         magX: l.x,
         magY: l.y,
       }));
+    // 深層裝飾（外框／四角括號）額外疊加輕微 3D 傾斜（非單純位移），
+    // 讓整個場景隨游標像被「往裡看」一樣轉動，比純平移更有立體縱深感。
+    const tilt =
+      deepEls.length > 0
+        ? {
+            rx: gsap.quickTo(deepEls, 'rotationX', { duration: 0.9, ease: 'power3.out' }),
+            ry: gsap.quickTo(deepEls, 'rotationY', { duration: 0.9, ease: 'power3.out' }),
+          }
+        : null;
 
     window.addEventListener('mousemove', (e) => {
       const nx = e.clientX / window.innerWidth - 0.5;
@@ -370,13 +385,18 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
         m.x(nx * m.magX * 2);
         m.y(ny * m.magY * 2);
       }
+      tilt?.ry(nx * 10);
+      tilt?.rx(ny * -10);
     });
   }
 
-  // ── 座標讀數：隨鏡頭飛行的目的地即時更新 ─────────────────
+  // ── 座標／相機讀數：隨鏡頭飛行的目的地即時更新（經緯度 + 縮放／方位／傾角）──
   const coordsEl = document.getElementById('immersive-coords');
+  const camEl = document.getElementById('immersive-cam');
   const fmtCoord = (lat: number, lng: number): string =>
     `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(4)}°${lng >= 0 ? 'E' : 'W'}`;
+  const fmtCam = (zoom: number, bearing: number, pitch: number): string =>
+    `ZOOM ${zoom.toFixed(1)} · BRG ${bearing >= 0 ? '+' : ''}${bearing.toFixed(0)}° · PITCH ${pitch.toFixed(0)}°`;
 
   const applyPos = (pos: AnchorData['pos']): void => {
     if (!hudEl) return;
@@ -397,6 +417,15 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const writeHudContent = (d: DOMStringMap): void => {
     if (tagEl) tagEl.textContent = d.tag || '';
     if (titleEl) titleEl.textContent = d.title || '';
+    if (transportEl && transportIconEl && transportLabelEl) {
+      if (d.transportLabel) {
+        transportIconEl.textContent = d.transportIcon || '';
+        transportLabelEl.textContent = d.transportLabel;
+        transportEl.hidden = false;
+      } else {
+        transportEl.hidden = true;
+      }
+    }
     if (descEl) descEl.textContent = d.desc || '';
     if (noteBoxEl) {
       if (d.note) {
@@ -423,7 +452,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, tagEl, titleEl, descEl, noteBoxEl].filter(
+  const hudAnimTargets = [photoBoxEl, tagEl, titleEl, transportEl, descEl, noteBoxEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;
@@ -465,7 +494,14 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const ruler = initDayRuler(dayByNum, stopById, jumpToStopId);
 
   let activeStopId: string | null = null;
+  let activeAnchorEl: HTMLElement | null = null;
   const activate = (el: HTMLElement): void => {
+    // 「與視窗中心最近」的判定每個 scroll rAF 都會重算一次，同一個錨點
+    // 停留在中心附近時每次都會拿到同一個 el；沒有這道防呆的話，flyTo／
+    // HUD 進退場動畫就會在使用者停止捲動後仍每一幀重播，造成閃爍與
+    // 不必要的地圖鏡頭重置。
+    if (el === activeAnchorEl) return;
+    activeAnchorEl = el;
     const d = el.dataset;
     const camera = {
       center: [Number(d.lng), Number(d.lat)] as [number, number],
@@ -476,6 +512,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (reduce) map.jumpTo(camera);
     else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
     if (coordsEl) coordsEl.textContent = fmtCoord(camera.center[1], camera.center[0]);
+    if (camEl) camEl.textContent = fmtCam(camera.zoom, camera.bearing, camera.pitch);
 
     applyPos((d.pos as AnchorData['pos']) || 'bottom-left');
     swapHud(d);
@@ -504,14 +541,41 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   if (anchorEls.length > 0) activate(anchorEls[0]);
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const hit = entries.find((e) => e.isIntersecting);
-      if (hit) activate(hit.target as HTMLElement);
-    },
-    { root: null, rootMargin: '-45% 0px -45% 0px', threshold: 0 }
-  );
-  anchorEls.forEach((a) => observer.observe(a));
+  // ── 捲動 → 啟用錨點：改用「與視窗中心最近」精準判定 ──────────
+  // 原本用 IntersectionObserver 搭配一條縮出來的中央帶（rootMargin），
+  // entries.find 只取批次中「第一個」符合的 entry；快速捲動時同一批
+  // 可能有多個 entry 同時觸發，取到的未必是真正離畫面中心最近、使用者
+  // 視覺焦點所在的那個，且窄帶本身在極快速捲動（如觸控板慣性滑動）下
+  // 可能整段被跳過，導致 HUD 卡在舊資料不更新。改為在每個 rAF 節流的
+  // scroll 事件中，直接算出全部錨點裡「中點離視窗中心最近」的那一個
+  // 再啟用，精準且不會有帶寬漏判的問題；錨點數量（數十個）逐一讀取
+  // getBoundingClientRect 的成本可忽略。
+  let scrollTicking = false;
+  const pickClosestAnchor = (): void => {
+    const centerY = window.innerHeight / 2;
+    let best: HTMLElement | null = null;
+    let bestDist = Infinity;
+    for (const a of anchorEls) {
+      const rect = a.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      const dist = Math.abs(mid - centerY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = a;
+      }
+    }
+    if (best) activate(best);
+  };
+  const onScrollOrResize = (): void => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      pickClosestAnchor();
+      scrollTicking = false;
+    });
+  };
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize, { passive: true });
 
   // ── Day 導覽：跳到該日的日概覽錨點 ─────────────────────
   for (const dot of dayNavDots) {
