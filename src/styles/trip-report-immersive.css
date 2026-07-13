@@ -45,9 +45,10 @@ html[data-theme='light'] .immersive-main {
 }
 
 .immersive-back {
-  /* 此頁不使用頂部導覽列（改用底部氣泡導覽），offset 只需避開四角框線 */
+  /* 此頁不使用頂部導覽列（改用底部氣泡導覽），offset 需讓開頂部四角框線／
+     刻度的視覺範圍（約到 36px 高），避免疊在裝飾框上顯得太貼近螢幕邊緣。 */
   position: absolute;
-  top: 22px;
+  top: clamp(2.75rem, 7vh, 4rem);
   left: clamp(1.25rem, 4vw, 3.5rem);
   z-index: 20;
   font-family: var(--mono);
@@ -78,6 +79,8 @@ html[data-theme='light'] .immersive-main {
   z-index: 1;
   background: var(--imm-scene-bg);
   transition: background 0.5s ease;
+  /* 讓深層裝飾（外框／四角括號）隨游標做細微 3D 傾斜時有透視縱深，而非平面滑動 */
+  perspective: 1400px;
 }
 
 .immersive-map {
@@ -110,6 +113,45 @@ html[data-theme='light'] .immersive-main {
   pointer-events: none;
 }
 .immersive-anchor { height: 56vh; }
+
+/* ── 經緯格線／暗角：填補畫面空白處的量測儀器裝飾，並強化立體縱深 ── */
+
+/* 以經緯度為意象的細格線背景，常態極淡，只在原本空白的地圖底層增加層次，
+   不隨主題切換調整顏色深淺（本身已極低透明度，深淺主題下都幾乎看不出差異）。 */
+.immersive-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0,
+      color-mix(in srgb, var(--accent) 7%, transparent) 1px,
+      transparent 1px,
+      transparent 96px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0,
+      color-mix(in srgb, var(--accent) 7%, transparent) 1px,
+      transparent 1px,
+      transparent 96px
+    );
+}
+/* 暗角漸層：邊緣略為壓暗、中心留亮，讀圖時視線自然聚焦在 HUD 與地圖中央，
+   同時是最直接堆出「縱深」錯覺的一層（越靠邊緣感覺越遠）。 */
+.immersive-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    color-mix(in srgb, var(--imm-scene-bg) 55%, transparent) 100%
+  );
+}
 
 /* ── HUD 裝飾框：外框、四角括號、刻度、十字準星 ──────────── */
 
@@ -179,6 +221,23 @@ html[data-theme='light'] .immersive-main {
   bottom: 34px;
   z-index: 2;
   margin: 0;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--imm-ink-faint);
+  pointer-events: none;
+}
+
+/* 相機讀數（ZOOM／BRG／PITCH）：對稱疊在右下角，原本這一角只有四角括號，
+   加這一組讀數把空白處填成完整的「量測儀器」HUD 語彙。 */
+.immersive-cam {
+  position: absolute;
+  right: 22px;
+  bottom: 34px;
+  z-index: 2;
+  margin: 0;
+  text-align: right;
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.08em;
@@ -284,6 +343,19 @@ html[data-theme='light'] .immersive-main {
   margin-bottom: 9px;
   text-shadow: var(--imm-shadow-title);
 }
+.immersive-hud__transport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 9px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--imm-ink-soft);
+  text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud[data-align='right'] .immersive-hud__transport { flex-direction: row-reverse; }
+#immersive-hud-transport-icon { font-size: 0.9rem; line-height: 1; }
 .immersive-hud__desc {
   font-family: var(--serif);
   font-weight: 360;
@@ -566,7 +638,9 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   /* 窄螢幕留給 HUD 文字的空間有限，刻度尺讓位 */
   .immersive-day-ruler { display: none; }
   .immersive-side-ticks,
-  .immersive-coords { display: none; }
+  .immersive-coords,
+  .immersive-cam,
+  .immersive-grid { display: none; }
 }
 
 @media (max-width: 640px) {
