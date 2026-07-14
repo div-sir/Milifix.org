@@ -100,6 +100,12 @@ const configured = clientId.length > 0;
               </div>
 
               <p class="konbini-form__note">{r.moderationNote}</p>
+              <p class="konbini-form__note">
+                {lang === 'zh' ? '送出即表示你同意' : 'By submitting, you agree to the'}
+                {' '}<a href={`${lang === 'zh' ? '/zh' : ''}/terms`}>{lang === 'zh' ? '投稿規範' : 'community rules'}</a>
+                {lang === 'zh' ? '與' : ' and '}
+                <a href={`${lang === 'zh' ? '/zh' : ''}/privacy`}>{lang === 'zh' ? '隱私權政策' : 'privacy policy'}</a>。
+              </p>
 
               <div class="konbini-form__row">
                 <span data-rating-label>{t.ratingLabel}</span>
@@ -154,6 +160,14 @@ const configured = clientId.length > 0;
             {rev.price != null && <span>{priceLabel(rev.price, rev.currency, t)}</span>}
             {rev.authorName && <span>{t.by} {rev.authorName}</span>}
             {rev.submittedAt && <span>{rev.submittedAt}</span>}
+            <button
+              type="button"
+              class="konbini-review__report"
+              data-report-review-id={rev.id}
+              aria-label={t.reportReview}
+            >
+              {t.reportReview}
+            </button>
           </footer>
         </article>
       ))}

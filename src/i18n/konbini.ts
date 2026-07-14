@@ -42,6 +42,7 @@ export interface KonbiniStrings {
   relatedInChain: string;
   /** 整個 konbini 共用的懸浮「回報錯誤」按鈕文字 */
   reportError: string;
+  reportReview: string;
   countryNames: Record<KonbiniCountry, string>;
   categoryNames: Record<KonbiniCategory, string>;
   currencySymbol: Record<KonbiniCurrency, string>;
@@ -131,6 +132,7 @@ const en: KonbiniStrings = {
   by: 'by',
   relatedInChain: 'More from this chain',
   reportError: 'Report an error',
+  reportReview: 'Report this review',
   countryNames: { taiwan: 'Taiwan', japan: 'Japan' },
   categoryNames: {
     onigiri: 'Rice balls',
@@ -176,7 +178,7 @@ const en: KonbiniStrings = {
   },
   newProduct: {
     pageTitle: 'Add a product',
-    intro: 'Suggest a convenience-store must-try that isn’t listed yet, along with your rating — no need to come back later. Sign in with Google, and it goes live after a quick review.',
+    intro: 'Suggest a convenience-store must-try that isn’t listed yet. The product can go live quickly so the discussion can start; your rating appears after moderation.',
     signInReason: 'Sign in with Google to add a product — this keeps submissions honest.',
     signedInAs: 'Signed in as',
     fieldName: 'Product name',
@@ -225,6 +227,7 @@ const zh: KonbiniStrings = {
   by: '投稿者',
   relatedInChain: '同品牌更多推薦',
   reportError: '回報錯誤',
+  reportReview: '檢舉這則評價',
   countryNames: { taiwan: '台灣', japan: '日本' },
   categoryNames: {
     onigiri: '飯糰',
@@ -270,7 +273,7 @@ const zh: KonbiniStrings = {
   },
   newProduct: {
     pageTitle: '新增商品',
-    intro: '分享一個還沒被收錄的超商必吃，順便附上你的評分——不用等審核通過再跑一趟。用 Google 登入投稿，內容經審核後就會上線。',
+    intro: '分享一個還沒被收錄的超商必吃。商品會先快速上架延續討論，你的評分與留言則會經後台審核後公開。',
     signInReason: '用 Google 登入才能新增商品，避免濫投。',
     signedInAs: '目前登入',
     fieldName: '商品名稱',

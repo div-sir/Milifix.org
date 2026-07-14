@@ -1,4 +1,5 @@
 // @ts-check
+import { createHash } from 'node:crypto';
 // Security helpers for the public generate-pass endpoint.
 // Files/directories prefixed with "_" are ignored by Vercel's builder,
 // so this module is a plain helper import, NOT its own serverless route.
@@ -12,17 +13,28 @@
 
 /**
  * Decide whether a hostname is one of ours.
- * Allowed: milifix.com and any subdomain, *.vercel.app preview domains,
- * and localhost / 127.0.0.1 / *.local for local dev.
+ * Allowed: milifix.com and any subdomain, this deployment's exact Vercel hosts,
+ * and localhost / 127.0.0.1 / *.local outside production.
  * @param {string} host bare hostname (no scheme, no port)
+ * @param {NodeJS.ProcessEnv} [env]
  */
-function isAllowedHost(host) {
+function isAllowedHost(host, env = process.env) {
   if (!host) return false;
   const h = host.toLowerCase();
   if (h === 'milifix.com' || h.endsWith('.milifix.com')) return true;
-  if (h.endsWith('.vercel.app')) return true; // Vercel preview / prod deployments
-  if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return true;
-  if (h.endsWith('.local') || h.endsWith('.localhost')) return true; // dev hostnames
+  const exactVercelHosts = [
+    env.VERCEL_URL,
+    env.VERCEL_BRANCH_URL,
+    env.VERCEL_PROJECT_PRODUCTION_URL,
+    ...(env.ALLOWED_PREVIEW_HOSTS ?? '').split(','),
+  ]
+    .map((value) => String(value ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0])
+    .filter(Boolean);
+  if (exactVercelHosts.includes(h)) return true;
+  if (env.NODE_ENV !== 'production') {
+    if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return true;
+    if (h.endsWith('.local') || h.endsWith('.localhost')) return true;
+  }
   return false;
 }
 
@@ -44,17 +56,15 @@ function hostFromHeader(value) {
 /**
  * Origin/Referer allowlist check.
  *
- * Tradeoff: some in-app browsers (LINE / FB / IG webviews) strip Origin AND
- * Referer on cross-navigation POSTs, and legitimate users rely on those.
- * So we adopt a pragmatic "verify-if-present" policy:
+ * Some in-app browsers (LINE / FB / IG webviews) strip Origin AND Referer.
+ * Those requests must carry the first-party X-Milifix-Request marker:
  *   - If Origin (preferred) or Referer IS present, it MUST be one of our hosts,
  *     otherwise the request is rejected (this blocks the easy scripted-abuse and
  *     other-site-embedded cases).
- *   - If BOTH are absent, we allow the request through — but the caller still
- *     subjects it to rate limiting, which is the real backstop against the
- *     header-less abuse path.
+ *   - If BOTH are absent, the marker is required; rate limiting remains the
+ *     backstop against scripted clients that can forge arbitrary headers.
  *
- * @param {{origin?: string|string[]|undefined, referer?: string|string[]|undefined}} headers
+ * @param {{origin?: string|string[]|undefined, referer?: string|string[]|undefined, 'x-milifix-request'?: string|string[]|undefined}} headers
  * @returns {{ allowed: boolean, present: boolean, host: string | null }}
  */
 function checkOrigin(headers) {
@@ -64,8 +74,12 @@ function checkOrigin(headers) {
   const host = hostFromHeader(originVal) ?? hostFromHeader(refererVal);
 
   if (host === null) {
-    // Neither header carried a parseable host — tolerate, lean on rate limiting.
-    return { allowed: true, present: false, host: null };
+    // 部分 in-app browser 會移除 Origin/Referer。這時仍要求前端 fetch 加上
+    // 自訂 header；一般跨站 HTML form 無法自行帶這個 header。
+    const markerValue = Array.isArray(headers['x-milifix-request'])
+      ? headers['x-milifix-request'][0]
+      : headers['x-milifix-request'];
+    return { allowed: markerValue === '1', present: false, host: null };
   }
   return { allowed: isAllowedHost(host), present: true, host };
 }
@@ -127,6 +141,63 @@ function checkRateLimit(store, ip, now = Date.now()) {
   withinDay.push(now);
   store.set(ip, withinDay);
   return { limited: false, retryAfter: 0 };
+}
+
+let warnedSharedRateLimitFailure = false;
+
+/**
+ * 優先使用 Upstash / Vercel Marketplace Redis 的 REST pipeline，讓不同
+ * serverless instance 共用計數器；未設定或服務暫時不可用時才退回本機 Map。
+ * @param {Map<string, number[]>} fallbackStore
+ * @param {string} scope
+ * @param {string} ip
+ * @param {number} [now]
+ */
+async function checkSharedRateLimit(fallbackStore, scope, ip, now = Date.now()) {
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return checkRateLimit(fallbackStore, ip, now);
+
+  const salt = process.env.RATE_LIMIT_KEY_SALT ?? 'milifix-rate-limit';
+  const subject = createHash('sha256').update(`${salt}:${ip}`).digest('hex').slice(0, 32);
+  const safeScope = scope.replace(/[^a-z0-9_-]/gi, '-').slice(0, 48);
+  const minuteWindow = Math.floor(now / MINUTE_MS);
+  const dayWindow = Math.floor(now / DAY_MS);
+  const minuteKey = `rl:${safeScope}:m:${minuteWindow}:${subject}`;
+  const dayKey = `rl:${safeScope}:d:${dayWindow}:${subject}`;
+
+  try {
+    const response = await fetch(`${url.replace(/\/$/, '')}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['INCR', minuteKey],
+        ['EXPIRE', minuteKey, '120', 'NX'],
+        ['INCR', dayKey],
+        ['EXPIRE', dayKey, '172800', 'NX'],
+      ]),
+    });
+    if (!response.ok) throw new Error(`shared rate limit ${response.status}`);
+    const result = await response.json();
+    const minuteCount = Number(result?.[0]?.result);
+    const dayCount = Number(result?.[2]?.result);
+    if (!Number.isFinite(minuteCount) || !Number.isFinite(dayCount)) {
+      throw new Error('shared rate limit returned invalid counters');
+    }
+    if (dayCount > RATE_LIMIT_PER_DAY) {
+      return { limited: true, retryAfter: Math.max(1, Math.ceil(((dayWindow + 1) * DAY_MS - now) / 1000)) };
+    }
+    if (minuteCount > RATE_LIMIT_PER_MINUTE) {
+      return { limited: true, retryAfter: Math.max(1, Math.ceil(((minuteWindow + 1) * MINUTE_MS - now) / 1000)) };
+    }
+    return { limited: false, retryAfter: 0 };
+  } catch (error) {
+    if (!warnedSharedRateLimitFailure) {
+      warnedSharedRateLimitFailure = true;
+      console.error('[rate-limit] shared store unavailable; using per-instance fallback', error);
+    }
+    return checkRateLimit(fallbackStore, ip, now);
+  }
 }
 
 /**
@@ -202,6 +273,7 @@ export {
   hostFromHeader,
   checkOrigin,
   checkRateLimit,
+  checkSharedRateLimit,
   getClientIp,
   decodeImage,
   isValidCarrier,

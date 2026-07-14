@@ -75,6 +75,84 @@ function isExternalHref(href: string): boolean {
   return /^https?:/i.test(href);
 }
 
+function renderInlineMarkdown(text: string): string {
+  const linkRe = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let html = '';
+  let cursor = 0;
+  for (const match of text.matchAll(linkRe)) {
+    const index = match.index ?? 0;
+    html += renderText({ type: 'text', text: text.slice(cursor, index) });
+    const label = renderText({ type: 'text', text: match[1] ?? '' });
+    const href = sanitizeHref(match[2]);
+    if (!href) {
+      html += renderText({ type: 'text', text: match[0] });
+    } else {
+      const external = isExternalHref(href);
+      const relAttr = external ? ' target="_blank" rel="noopener noreferrer"' : '';
+      html += `<a href="${escapeAttr(href)}"${relAttr}>${label}</a>`;
+    }
+    cursor = index + match[0].length;
+  }
+  html += renderText({ type: 'text', text: text.slice(cursor) });
+  return html;
+}
+
+function markdownTable(text: string): string | null {
+  if (!text.trim().startsWith('|')) return null;
+
+  // AI 初譯有時會把原本的換行壓成「| |」。先恢復列邊界，再驗證第二列
+  // 是否為 Markdown 的 --- 分隔列，避免把一般含 pipe 的段落誤判成表格。
+  const lines = text
+    .trim()
+    .replace(/\s*\|\s+\|\s*/g, '\n')
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const rows = lines.map((line) =>
+    line
+      .replace(/^\|\s*/, '')
+      .replace(/\s*\|$/, '')
+      .split('|')
+      .map((cell) => cell.trim()),
+  );
+  if (rows.length < 3 || rows[0].length < 2) return null;
+  if (!rows[1].every((cell) => /^:?-{3,}:?$/.test(cell))) return null;
+  const width = rows[0].length;
+  if (rows.slice(2).some((row) => row.length !== width)) return null;
+
+  const head = `<thead><tr>${rows[0].map((cell) => `<th>${renderInlineMarkdown(cell)}</th>`).join('')}</tr></thead>`;
+  const body = `<tbody>${rows
+    .slice(2)
+    .map((row) => `<tr>${row.map((cell) => `<td>${renderInlineMarkdown(cell)}</td>`).join('')}</tr>`)
+    .join('')}</tbody>`;
+  return `<table>${head}${body}</table>`;
+}
+
+function markdownList(text: string): string | null {
+  const trimmed = text.trim();
+  const bullet = /^[-*+]\s+/.test(trimmed);
+  const numbered = /^\d+[.)]\s+/.test(trimmed);
+  if (!bullet && !numbered) return null;
+
+  const boundary = bullet ? /\s+(?=[-*+]\s+)/ : /\s+(?=\d+[.)]\s+)/;
+  const items = trimmed
+    .replace(/\r/g, '')
+    .split(/\n+|(?<=\S) {1,}(?=[-*+]\s+|\d+[.)]\s+)/)
+    .flatMap((line) => line.split(boundary))
+    .map((item) => item.replace(bullet ? /^[-*+]\s+/ : /^\d+[.)]\s+/, '').trim())
+    .filter(Boolean);
+  if (items.length === 0) return null;
+  const tag = numbered ? 'ol' : 'ul';
+  return `<${tag}>${items.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join('')}</${tag}>`;
+}
+
+function renderMarkdownParagraph(node: Extract<LexicalNode, { type: 'paragraph' }>): string | null {
+  if (node.children.length !== 1) return null;
+  const child = node.children[0];
+  if (child.type !== 'text' || child.format) return null;
+  return markdownTable(child.text) ?? markdownList(child.text);
+}
+
 const warnedUnknownTypes = new Set<string>();
 
 function warnUnknownNodeType(type: string): void {
@@ -92,7 +170,7 @@ export function renderNode(node: LexicalNode): string {
     case 'text':
       return renderText(node);
     case 'paragraph':
-      return `<p>${renderChildren(node.children)}</p>`;
+      return renderMarkdownParagraph(node) ?? `<p>${renderChildren(node.children)}</p>`;
     case 'heading':
       return `<${node.tag}>${renderChildren(node.children)}</${node.tag}>`;
     case 'list': {

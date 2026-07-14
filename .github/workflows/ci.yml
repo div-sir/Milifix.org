@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.12.0
           cache: npm
 
       - name: Install dependencies
@@ -46,3 +46,12 @@ jobs:
         run: npm run build
         env:
           CMS_ALLOW_EMPTY: '1'
+
+      - name: Check asset performance budget
+        run: npm run test:budget
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser smoke and accessibility tests
+        run: npm run test:e2e

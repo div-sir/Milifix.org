@@ -4,7 +4,8 @@ import type { CollectionConfig } from 'payload'
  * 商品。konbini 評價專案的核心被評對象——某連鎖店的某項「必吃的東西」。
  * 平均分由已核准的 konbini-reviews 於前端 build 時聚合，不存在本 collection。
  *
- * 權威 schema 規格，需同步到 milifix-cms repo。
+ * 前端 repo 內的參考快照；權威 schema 在 milifix-cms repo。公開投稿商品
+ * 刻意直接 approved，附帶的第一則評論仍須後台審核。
  */
 export const KonbiniProducts: CollectionConfig = {
   slug: 'konbini-products',
@@ -97,6 +98,18 @@ export const KonbiniProducts: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: '商品說明',
+    },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'approved',
+      label: '審核狀態',
+      options: [
+        { label: '待審核', value: 'pending' },
+        { label: '已核准', value: 'approved' },
+        { label: '已退回', value: 'rejected' },
+      ],
     },
   ],
 }

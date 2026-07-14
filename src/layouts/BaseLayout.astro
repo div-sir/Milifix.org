@@ -2,6 +2,7 @@
 import type { Lang } from '../i18n/types';
 import { HTML_LANG } from '../i18n/types';
 import { availableLangsForPath, equivalentUrl } from '../i18n/routes';
+import LegalLinks from '../components/LegalLinks.astro';
 
 interface Props {
   /** 邏輯語系；決定 <html lang> 與 hreflang */
@@ -137,5 +138,6 @@ const ogImageUrl = new URL(resolvedOgImage, Astro.site).href;
   </head>
   <body class={bodyClass} {...bodyAttrs}>
     <slot />
+    <LegalLinks lang={lang} />
   </body>
 </html>

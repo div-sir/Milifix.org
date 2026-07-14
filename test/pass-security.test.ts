@@ -101,11 +101,24 @@ describe('checkOrigin', () => {
     expect(result.allowed).toBe(false);
   });
 
-  it('falls back to allowed when both Origin and Referer are missing (relies on rate limiting)', () => {
-    const result = checkOrigin({});
+  it('allows an in-app request without Origin only when the first-party marker is present', () => {
+    const result = checkOrigin({ 'x-milifix-request': '1' });
     expect(result.allowed).toBe(true);
     expect(result.present).toBe(false);
     expect(result.host).toBeNull();
+  });
+
+  it('rejects a header-less request without the first-party marker', () => {
+    expect(checkOrigin({}).allowed).toBe(false);
+  });
+
+  it('only allows the exact Vercel deployment hosts supplied by the environment', () => {
+    const env = {
+      NODE_ENV: 'production',
+      VERCEL_URL: 'milifix-org-git-main-soliliums-projects.vercel.app',
+    } as NodeJS.ProcessEnv;
+    expect(isAllowedHost('milifix-org-git-main-soliliums-projects.vercel.app', env)).toBe(true);
+    expect(isAllowedHost('attacker.vercel.app', env)).toBe(false);
   });
 });
 

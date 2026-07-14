@@ -4,7 +4,7 @@ import type { CollectionConfig } from 'payload'
  * 投稿評價。開放外部使用者（第三方 Google 登入）投稿，一律先存 pending，
  * 站主於後台審核後轉 approved，排程 rebuild 才會顯示於靜態站。
  *
- * 權威 schema 規格，需同步到 milifix-cms repo。
+ * 前端 repo 內的參考快照；權威 schema 在 milifix-cms repo。
  *
  * ── Phase 2 存取控制（於 milifix-cms 實作，這裡先以註解記錄）──
  *   access: {
@@ -115,7 +115,32 @@ export const KonbiniReviews: CollectionConfig = {
         { label: '待審核', value: 'pending' },
         { label: '已核准', value: 'approved' },
         { label: '已退回', value: 'rejected' },
+        { label: '已下架', value: 'hidden' },
       ],
+    },
+    {
+      name: 'moderationNote',
+      type: 'textarea',
+      label: '本次審核／下架原因',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'moderatedAt',
+      type: 'date',
+      label: '最近審核時間',
+      admin: { position: 'sidebar', readOnly: true },
+    },
+    {
+      name: 'moderatedBy',
+      type: 'text',
+      label: '最近審核者',
+      admin: { position: 'sidebar', readOnly: true },
+    },
+    {
+      name: 'moderationHistory',
+      type: 'json',
+      label: '審核歷史',
+      admin: { readOnly: true },
     },
     {
       name: 'submittedAt',

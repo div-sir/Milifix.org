@@ -4,10 +4,17 @@
 // 外公開）。不要求 Google 登入——回報問題的門檻應該越低越好，rate limit
 // 是防濫用的第一道關卡（跟其他 konbini 端點一樣，公眾不直接接觸
 // Payload；Payload 對外維持唯讀）。
-import { checkOrigin, checkRateLimit, getClientIp } from './_pass-security.js';
+import { checkOrigin, checkSharedRateLimit, getClientIp } from './_pass-security.js';
 import { validateReport } from './_konbini-report-validate.js';
-import { decodeReviewImage } from './_konbini-image.js';
-import { CMS_URL, SUBMIT_API_KEY, fetchWithTimeout, apiKeyHeaders, uploadMedia } from './_konbini-cms-client.js';
+import { sanitizeReviewImage } from './_konbini-image.js';
+import {
+  CMS_URL,
+  SUBMIT_API_KEY,
+  fetchWithTimeout,
+  apiKeyHeaders,
+  uploadMedia,
+  deleteMedia,
+} from './_konbini-cms-client.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
 const RATE_LIMIT_STORE = new Map();
@@ -24,7 +31,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const rl = checkRateLimit(RATE_LIMIT_STORE, getClientIp(req));
+  const rl = await checkSharedRateLimit(RATE_LIMIT_STORE, 'konbini-report', getClientIp(req));
   if (rl.limited) {
     res.setHeader('Retry-After', String(rl.retryAfter));
     res.status(429).json({ error: 'Too many requests. Please try again later.' });
@@ -44,31 +51,33 @@ export default async function handler(req, res) {
   }
   const v = check.value;
 
-  let photoId;
+  let photoImage;
   if (body.photo) {
-    const img = decodeReviewImage(body.photo);
+    const img = await sanitizeReviewImage(body.photo);
     if (!img) {
       res.status(400).json({ error: 'Invalid or oversized photo' });
       return;
     }
-    const id = await uploadMedia(img, v.pageTitle || 'konbini report');
-    if (!id) {
-      res.status(502).json({ error: 'Photo upload failed' });
-      return;
-    }
-    photoId = id;
+    photoImage = img;
   }
 
+  let photoId;
   try {
+    if (photoImage) {
+      photoId = await uploadMedia(photoImage, v.pageTitle || 'konbini report');
+      if (!photoId) throw new Error('photo upload failed');
+    }
     const doc = {
       pageUrl: v.pageUrl,
       message: v.message,
       pageTitle: v.pageTitle,
       productName: v.productName,
       status: 'new',
+      kind: v.kind,
       submittedAt: new Date().toISOString(),
       ...(photoId ? { photo: photoId } : {}),
       ...(v.productId ? { product: v.productId } : {}),
+      ...(v.reviewId ? { review: v.reviewId } : {}),
     };
 
     const create = await fetchWithTimeout(`${CMS_URL}/api/konbini-reports`, {
@@ -80,6 +89,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ ok: true });
   } catch (err) {
+    if (photoId) await deleteMedia(photoId).catch(() => false);
     // 僅伺服器端記錄，不外洩內部細節
     console.error('[konbini-report]', err);
     res.status(500).json({ error: 'Failed to submit report' });

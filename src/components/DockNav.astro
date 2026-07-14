@@ -57,7 +57,7 @@ const hasSections = dockSections.length > 0;
 
 <nav class="dock-nav dock-pill-nav" aria-label={N.dockAria} data-no-section-spy={disableSectionSpy ? '' : undefined}>
   <div class="dock-pill-nav__shell">
-    <ul class="dock-pill-nav__row" role="menubar">
+    <ul class="dock-pill-nav__row">
       {
         dockOrder === 'sections-first' &&
           hasSections &&
@@ -74,7 +74,7 @@ const hasSections = dockSections.length > 0;
         )
       }
 
-      <li class="dock-pill-nav__cell" role="none">
+      <li class="dock-pill-nav__cell">
         <a
           class:list={['dock-pill-nav__pill', 'dock-pill-nav__pill--home']}
           href={homeHref}
@@ -126,7 +126,7 @@ const hasSections = dockSections.length > 0;
 
       {
         showScrollTop && (
-          <li class="dock-pill-nav__cell" role="none">
+          <li class="dock-pill-nav__cell">
             <button
               type="button"
               class="dock-pill-nav__pill dock-pill-nav__pill--top"

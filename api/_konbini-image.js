@@ -1,4 +1,5 @@
 // @ts-check
+import sharp from 'sharp';
 // 投稿照片的解碼與驗證。純函式，可單元測試。底線前綴讓 Vercel builder 略過。
 //
 // 前端會先以 canvas 縮圖再上傳，故此處以「magic bytes 判型 + 位元組上限」把關，
@@ -7,6 +8,8 @@
 const MAX_PHOTOS = 3;
 // 單張解碼後上限（前端縮圖後遠低於此；配合 Vercel 請求體上限）。
 const MAX_IMAGE_BYTES = 3_500_000;
+const MAX_IMAGE_DIMENSION = 2048;
+const MAX_IMAGE_PIXELS = 20_000_000;
 // base64 膨脹約 4/3，另含可能的 data URL 前綴，給寬鬆上限先擋超大字串。
 const MAX_IMAGE_BASE64_LENGTH = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 100;
 
@@ -55,4 +58,43 @@ function decodeReviewImage(input) {
   return null;
 }
 
-export { decodeReviewImage, MAX_PHOTOS, MAX_IMAGE_BYTES, MAX_IMAGE_BASE64_LENGTH };
+/**
+ * 完整解碼並重編碼投稿圖片。Sharp 會在讀取時驗證實際影像結構；rotate()
+ * 依 EXIF 修正方向，而輸出 WebP 不帶原檔 metadata。limitInputPixels 防止
+ * 小檔案宣告超大尺寸造成 decompression bomb。
+ * @param {unknown} input
+ */
+async function sanitizeReviewImage(input) {
+  const decoded = decodeReviewImage(input);
+  if (!decoded) return null;
+  try {
+    const { data, info } = await sharp(decoded.buffer, {
+      failOn: 'warning',
+      limitInputPixels: MAX_IMAGE_PIXELS,
+    })
+      .rotate()
+      .resize({
+        width: MAX_IMAGE_DIMENSION,
+        height: MAX_IMAGE_DIMENSION,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 82, effort: 4 })
+      .toBuffer({ resolveWithObject: true });
+    if (!info.width || !info.height) return null;
+    if (info.width > MAX_IMAGE_DIMENSION || info.height > MAX_IMAGE_DIMENSION) return null;
+    return { buffer: data, contentType: 'image/webp', ext: 'webp', width: info.width, height: info.height };
+  } catch {
+    return null;
+  }
+}
+
+export {
+  decodeReviewImage,
+  sanitizeReviewImage,
+  MAX_PHOTOS,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_BASE64_LENGTH,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
+};

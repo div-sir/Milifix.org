@@ -10,6 +10,7 @@ const MAX_PAGE_URL = 500;
 const MAX_PAGE_TITLE = 200;
 const MAX_PRODUCT_NAME = 200;
 const PRODUCT_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
+const REPORT_KINDS = new Set(['website', 'product', 'review']);
 
 /** @param {unknown} v */
 function asTrimmedString(v) {
@@ -23,6 +24,8 @@ function asTrimmedString(v) {
  * @property {string} [pageTitle]
  * @property {string} [productName]
  * @property {string} [productId]
+ * @property {string} [reviewId]
+ * @property {'website'|'product'|'review'} kind
  */
 /**
  * @typedef {{ ok: true, value: KonbiniReport } | { ok: false, error: string }} ReportValidateResult
@@ -61,6 +64,20 @@ function validateReport(body) {
     if (PRODUCT_ID_RE.test(raw)) productId = raw;
   }
 
+  let reviewId;
+  if (body.reviewId !== undefined && body.reviewId !== null && body.reviewId !== '') {
+    const raw = String(body.reviewId).trim();
+    if (PRODUCT_ID_RE.test(raw)) reviewId = raw;
+  }
+  const requestedKind = asTrimmedString(body.kind);
+  const kind = REPORT_KINDS.has(requestedKind)
+    ? requestedKind
+    : reviewId
+      ? 'review'
+      : productId
+        ? 'product'
+        : 'website';
+
   return {
     ok: true,
     value: {
@@ -69,8 +86,10 @@ function validateReport(body) {
       pageTitle: pageTitle || undefined,
       productName: productName || undefined,
       productId,
+      reviewId,
+      kind,
     },
   };
 }
 
-export { validateReport, MAX_MESSAGE, MAX_PAGE_URL, MAX_PAGE_TITLE, MAX_PRODUCT_NAME };
+export { validateReport, MAX_MESSAGE, MAX_PAGE_URL, MAX_PAGE_TITLE, MAX_PRODUCT_NAME, REPORT_KINDS };

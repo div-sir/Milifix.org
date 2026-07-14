@@ -114,7 +114,7 @@ function bindTocChrome(root: HTMLElement, toggle: HTMLButtonElement, shell: HTML
 
 export function initBlogPostToc(): void {
   const root = document.getElementById(TOC_ROOT_ID);
-  const article = document.querySelector<HTMLElement>('article.wrap');
+  const article = document.querySelector<HTMLElement>('article[data-blog-post]');
   if (!root || !article) return;
 
   const prose = article.querySelector<HTMLElement>('.prose');

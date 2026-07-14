@@ -1,21 +1,15 @@
-name: Scheduled rebuild
+name: Manual recovery rebuild
 
-# 排程重建：定時打 Vercel Deploy Hook，把 CMS 上「已核准」的新投稿／內容
-# 重新 build 上線。符合「不用即時更新」——投稿進 CMS 待審，核准後由這條
-# 排程於下一輪重建時發佈。
+# 正常發布由 CMS 在公開內容變更時觸發 Vercel Deploy Hook。
+# 這條 workflow 只保留為 deploy hook 漏接時的人工復原手段，避免每兩小時
+# 無條件建置、浪費額度並製造無內容變更的部署。
 #
 # 前置設定（一次性）：
 #   1. Vercel 專案 → Settings → Git → Deploy Hooks 建一個 hook（branch: main）
 #   2. 複製 hook URL，存成 GitHub repo secret：VERCEL_DEPLOY_HOOK_URL
 #
-# 調整頻率：改下方 cron 即可。
-#   每 2 小時： '0 */2 * * *'（預設）
-#   每天一次： '0 16 * * *'（UTC 16:00 = 台灣 00:00）
-
 on:
-  schedule:
-    - cron: '0 */2 * * *'
-  workflow_dispatch: {} # 允許手動觸發
+  workflow_dispatch: {}
 
 jobs:
   trigger-rebuild:

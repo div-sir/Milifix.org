@@ -11,6 +11,16 @@ describe('validateReport', () => {
       expect(r.value.pageUrl).toBe('https://milifix.com/zh/konbini');
       expect(r.value.message).toBe('這張圖片壞掉了');
       expect(r.value.productId).toBeUndefined();
+      expect(r.value.kind).toBe('website');
+    }
+  });
+
+  it('accepts a review report and infers its kind', () => {
+    const r = validateReport({ ...base, message: '疑似廣告內容', reviewId: '42' });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value.reviewId).toBe('42');
+      expect(r.value.kind).toBe('review');
     }
   });
 

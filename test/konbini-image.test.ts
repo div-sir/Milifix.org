@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { decodeReviewImage, MAX_IMAGE_BYTES } from '../api/_konbini-image.js';
+import sharp from 'sharp';
+import { decodeReviewImage, sanitizeReviewImage, MAX_IMAGE_BYTES } from '../api/_konbini-image.js';
 
 /** 用指定 magic bytes + padding 組出一個假影像 buffer 的 base64。 */
 function fakeImage(magic: number[], totalLen = 64): string {
@@ -51,5 +52,25 @@ describe('decodeReviewImage', () => {
     expect(decodeReviewImage(JPEG)?.ext).toBe('jpg');
     expect(decodeReviewImage(PNG)?.ext).toBe('png');
     expect(decodeReviewImage(fakeWebp())?.ext).toBe('webp');
+  });
+
+  it('fully decodes, strips metadata and re-encodes a real image as bounded WebP', async () => {
+    const source = await sharp({
+      create: { width: 2600, height: 1300, channels: 3, background: '#d1453b' },
+    })
+      .jpeg()
+      .withMetadata({ orientation: 1 })
+      .toBuffer();
+    const result = await sanitizeReviewImage(source.toString('base64'));
+    expect(result?.contentType).toBe('image/webp');
+    expect(result?.width).toBe(2048);
+    expect(result?.height).toBe(1024);
+    const metadata = await sharp(result!.buffer).metadata();
+    expect(metadata.format).toBe('webp');
+    expect(metadata.exif).toBeUndefined();
+  });
+
+  it('rejects a truncated image that only has valid magic bytes', async () => {
+    expect(await sanitizeReviewImage(JPEG)).toBeNull();
   });
 });

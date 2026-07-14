@@ -55,12 +55,12 @@ describe('equivalentUrl', () => {
 });
 
 describe('availableLangsForPath', () => {
-  it('returns only en/zh for /travel', () => {
-    expect(availableLangsForPath('/travel')).toEqual(['en', 'zh']);
+  it('returns only zh for /travel', () => {
+    expect(availableLangsForPath('/travel')).toEqual(['zh']);
   });
 
-  it('returns only en/zh for /travel subpaths regardless of lang prefix', () => {
-    expect(availableLangsForPath('/zh/travel/cards')).toEqual(['en', 'zh']);
+  it('returns only zh for /travel subpaths regardless of lang prefix', () => {
+    expect(availableLangsForPath('/zh/travel/cards')).toEqual(['zh']);
   });
 
   it('returns en/zh/ja for other paths', () => {
@@ -83,13 +83,13 @@ describe('path builders: en gets no prefix, zh/ja do', () => {
   });
 
   it('cardSlugPath', () => {
-    expect(cardSlugPath('en', 'my-card')).toBe('/travel/cards/my-card');
+    expect(cardSlugPath('en', 'my-card')).toBe('/zh/travel/cards/my-card');
     expect(cardSlugPath('zh', 'my-card')).toBe('/zh/travel/cards/my-card');
-    expect(cardSlugPath('ja', 'my-card')).toBe('/ja/travel/cards/my-card');
+    expect(cardSlugPath('ja', 'my-card')).toBe('/zh/travel/cards/my-card');
   });
 
   it('travelPath', () => {
-    expect(travelPath('en')).toBe('/travel');
+    expect(travelPath('en')).toBe('/zh/travel');
     expect(travelPath('zh')).toBe('/zh/travel');
   });
 });

@@ -81,6 +81,7 @@ const m = t.reportModal;
     var photoInput = document.getElementById('konbini-report-photo');
     var previews = document.getElementById('konbini-report-previews');
     var photoDataUrl = null;
+    var selectedReviewId = null;
 
     function prefersReducedMotion() {
       return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -118,7 +119,16 @@ const m = t.reportModal;
       fab.focus();
     }
 
-    fab.addEventListener('click', openSection);
+    fab.addEventListener('click', function () {
+      selectedReviewId = null;
+      openSection();
+    });
+    document.addEventListener('click', function (ev) {
+      var target = ev.target && ev.target.closest && ev.target.closest('[data-report-review-id]');
+      if (!target) return;
+      selectedReviewId = target.getAttribute('data-report-review-id') || null;
+      openSection();
+    });
     if (closeBtn) closeBtn.addEventListener('click', closeSection);
     section.addEventListener('click', function (ev) {
       if (ev.target === section) closeSection();
@@ -241,13 +251,15 @@ const m = t.reportModal;
         pageTitle: document.title,
         productId: ctx.productId,
         productName: ctx.productName,
+        reviewId: selectedReviewId || undefined,
+        kind: selectedReviewId ? 'review' : (ctx.productId ? 'product' : 'website'),
       };
       if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = sendingLabel; }
       if (statusEl) statusEl.textContent = '';
       var responseOk = false;
       fetch('/api/konbini-report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Milifix-Request': '1' },
         body: JSON.stringify(payload),
       })
         .then(function (res) {

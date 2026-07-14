@@ -73,6 +73,9 @@ const page  = await getPage('home')        // 頁面文案
 | 變數 | 說明 |
 |---|---|
 | `CMS_URL` | Payload API 網址（本地 `http://localhost:3000`，正式 `https://milifix-cms.onrender.com`） |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 投稿與 Pass API 的跨 instance 共用 rate limit；可由 Vercel Marketplace Redis 提供 |
+| `RATE_LIMIT_KEY_SALT` | rate-limit key 的 IP 雜湊 salt，正式環境應使用隨機秘密值 |
+| `ALLOWED_PREVIEW_HOSTS` | 額外允許的精確 preview hostname，逗號分隔；禁止使用萬用 `*.vercel.app` |
 
 ### 多語系與路由
 

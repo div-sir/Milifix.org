@@ -105,6 +105,13 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
           <div class="konbini-form__previews" id="konbini-previews" />
         </div>
 
+        <p class="konbini-form__note">
+          {lang === 'zh' ? '送出即表示你同意' : 'By submitting, you agree to the'}
+          {' '}<a href={`${lang === 'zh' ? '/zh' : ''}/terms`}>{lang === 'zh' ? '投稿規範' : 'community rules'}</a>
+          {lang === 'zh' ? '與' : ' and '}
+          <a href={`${lang === 'zh' ? '/zh' : ''}/privacy`}>{lang === 'zh' ? '隱私權政策' : 'privacy policy'}</a>。
+        </p>
+
         <button type="submit" class="konbini-form__submit" id="konbini-send">{n.send}</button>
         <p class="konbini-form__status" id="konbini-status" role="status" aria-live="polite" tabindex="-1" />
       </form>
@@ -332,7 +339,7 @@ const categoryOptions = Object.entries(t.categoryNames) as [string, string][];
       var responseStatus = 0;
       fetch('/api/konbini-propose-product', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Milifix-Request': '1' },
         body: JSON.stringify(payload),
       })
         .then(function (res) {

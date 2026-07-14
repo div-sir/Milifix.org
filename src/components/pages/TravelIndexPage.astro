@@ -92,7 +92,7 @@ const airlinesData = airlines.map((a) => ({
   alliance: t.allianceNames[a.alliance] ?? a.alliance,
   isAlliance: a.alliance !== 'none',
   description: a.description ?? '',
-  logo: a.logo?.url ?? `https://pics.avs.io/240/240/${a.iataCode}.png`,
+  logo: a.logo?.url ?? '/airline-placeholder.svg',
   cards: airlineCards[a.slug] ?? [],
 }));
 
@@ -418,7 +418,7 @@ const hasAlliedPrograms = alliedProgramTypes.some((type) => (programsByType[type
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <div class="airline-modal__head">
-          <img class="airline-modal__logo" id="airline-modal-logo" src="" alt="" width="64" height="64" loading="lazy" decoding="async" />
+          <img class="airline-modal__logo" id="airline-modal-logo" src="/airline-placeholder.svg" alt="" width="64" height="64" loading="lazy" decoding="async" />
           <div class="airline-modal__title-wrap">
             <span class="airline-modal__iata" id="airline-modal-iata"></span>
             <h2 class="airline-modal__name" id="airline-modal-name"></h2>

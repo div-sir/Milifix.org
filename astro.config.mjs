@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import { unified } from '@astrojs/markdown-remark';
 import rehypeSlug from 'rehype-slug';
 
 // https://astro.build/config
@@ -35,7 +36,7 @@ export default defineConfig({
   },
 
   markdown: {
-    rehypePlugins: [rehypeSlug],
+    processor: unified({ rehypePlugins: [rehypeSlug] }),
   },
 
   // babel 設成函式可避免 @vitejs/plugin-react 在 configResolved 刪除 transform，

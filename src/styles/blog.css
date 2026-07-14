@@ -82,11 +82,11 @@ html[data-theme='light'] body::before { opacity: 0.32; }
 }
 
 /* Google Translate cleanup */
-:global(.skiptranslate iframe),
-:global(.goog-te-banner-frame.skiptranslate) {
+.skiptranslate iframe,
+.goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
-:global(body) {
+body {
   top: 0 !important;
 }
 
@@ -299,8 +299,8 @@ html[data-theme='light'] body::before { opacity: 0.32; }
   line-height: 1.85;
 }
 
-.prose :global(h1),
-.prose :global(h2) {
+.prose h1,
+.prose h2 {
   font-size: 1.15rem;
   color: var(--text);
   margin: 2rem 0 0.75rem;
@@ -308,25 +308,25 @@ html[data-theme='light'] body::before { opacity: 0.32; }
 }
 
 /* 頁面已有主標題，隱藏 markdown 內第一個 h1 避免重複 */
-.prose :global(h1:first-child) { display: none; }
+.prose h1:first-child { display: none; }
 
-.prose :global(h3),
-.prose :global(h4) {
+.prose h3,
+.prose h4 {
   color: var(--text);
   margin: 1.6rem 0 0.7rem;
   scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
 }
 
-.prose :global(p) { margin-bottom: 1rem; }
+.prose p { margin-bottom: 1rem; }
 
-.prose :global(ul),
-.prose :global(ol) {
+.prose ul,
+.prose ol {
   margin: 1rem 0 1rem 1.25rem;
 }
 
-.prose :global(li) { margin-bottom: 0.35rem; }
+.prose li { margin-bottom: 0.35rem; }
 
-.prose :global(pre) {
+.prose pre {
   margin: 1.25rem 0;
   padding: 1rem 1.1rem;
   border-radius: 4px;
@@ -337,57 +337,57 @@ html[data-theme='light'] body::before { opacity: 0.32; }
   font-size: 0.82rem;
 }
 
-.prose :global(code) {
+.prose code {
   font-family: var(--mono);
   font-size: 0.88em;
 }
 
-.prose :global(blockquote) {
+.prose blockquote {
   margin: 1.2rem 0;
   padding: 0.35rem 0 0.35rem 0.9rem;
   border-left: 2px solid color-mix(in srgb, var(--accent) 45%, var(--line2) 55%);
   color: color-mix(in srgb, var(--muted) 85%, var(--text) 15%);
 }
 
-.prose :global(hr) {
+.prose hr {
   border: 0;
   border-top: 1px solid color-mix(in srgb, var(--line2) 72%, transparent);
   margin: 1.4rem 0;
 }
 
-.prose :global(table) {
+.prose table {
   width: 100%;
   border-collapse: collapse;
   margin: 1.25rem 0;
   font-size: 0.95rem;
 }
 
-.prose :global(th),
-.prose :global(td) {
+.prose th,
+.prose td {
   border-bottom: 1px solid color-mix(in srgb, var(--line2) 70%, transparent);
   padding: 0.55rem 0.45rem;
   text-align: left;
   vertical-align: top;
 }
 
-.prose :global(thead th) { color: var(--text); }
+.prose thead th { color: var(--text); }
 
-.prose :global(img),
-.prose :global(video),
-.prose :global(iframe) {
+.prose img,
+.prose video,
+.prose iframe {
   max-width: 100%;
   height: auto;
   border-radius: 4px;
   margin: 1rem 0;
 }
 
-.prose :global(del) { opacity: 0.8; }
+.prose del { opacity: 0.8; }
 
-.prose :global(a) { color: var(--accent); }
+.prose a { color: var(--accent); }
 
 /* ─── Data Snapshot Widget ──────────────────────── */
 
-.prose :global(.data-snapshot) {
+.prose .data-snapshot {
   margin: 1.25rem 0 1.75rem;
   padding: 1rem;
   border: 1px solid color-mix(in srgb, var(--line2) 70%, var(--accent) 30%);
@@ -395,16 +395,16 @@ html[data-theme='light'] body::before { opacity: 0.32; }
   background: color-mix(in srgb, var(--bg2) 72%, transparent);
 }
 
-.prose :global(.data-bars) { display: grid; gap: 0.52rem; }
+.prose .data-bars { display: grid; gap: 0.52rem; }
 
-.prose :global(.data-bars__row) {
+.prose .data-bars__row {
   display: grid;
   grid-template-columns: 6.5rem minmax(0, 1fr);
   gap: 0.6rem;
   align-items: center;
 }
 
-.prose :global(.data-bars__row > span) {
+.prose .data-bars__row > span {
   font-family: var(--mono);
   font-size: 0.65rem;
   letter-spacing: 0.12em;
@@ -412,14 +412,14 @@ html[data-theme='light'] body::before { opacity: 0.32; }
   color: var(--muted);
 }
 
-.prose :global(.data-bars__track) {
+.prose .data-bars__track {
   height: 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--line2) 56%, transparent);
   overflow: hidden;
 }
 
-.prose :global(.data-bars__track > i) {
+.prose .data-bars__track > i {
   display: block;
   height: 100%;
   border-radius: inherit;
@@ -437,7 +437,7 @@ html[data-theme='light'] body::before { opacity: 0.32; }
 }
 
 @media (max-width: 640px) {
-  .prose :global(.data-bars__row) {
+  .prose .data-bars__row {
     grid-template-columns: 1fr;
     gap: 0.35rem;
   }
@@ -749,7 +749,7 @@ html:not([data-theme]) .blog-toc__toggle {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-#blog-post-toc :global(button.blog-toc__link) {
+#blog-post-toc button.blog-toc__link {
   --toc-slide: 6px;
   --toc-indent: 0rem;
   --toc-link-bg: var(--toc-card-bg);
@@ -798,7 +798,7 @@ html:not([data-theme]) .blog-toc__toggle {
   animation-delay: calc(var(--toc-stagger, 0) * 32ms);
 }
 
-html[data-theme='light'] #blog-post-toc :global(button.blog-toc__link) {
+html[data-theme='light'] #blog-post-toc button.blog-toc__link {
   --toc-card-bg: color-mix(in srgb, color-mix(in srgb, #fff 76%, var(--bg3) 24%) 86%, transparent);
   --toc-card-bg-hover: color-mix(in srgb, color-mix(in srgb, #fff 90%, var(--bg2) 10%) 90%, transparent);
   --toc-card-border: color-mix(in srgb, var(--line2) 95%, var(--text) 5%);
@@ -806,20 +806,20 @@ html[data-theme='light'] #blog-post-toc :global(button.blog-toc__link) {
   --toc-card-shadow-hover: 0 6px 16px color-mix(in srgb, var(--shadow-card) 80%, transparent);
 }
 
-html[data-theme='dark'] #blog-post-toc :global(button.blog-toc__link),
-html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
+html[data-theme='dark'] #blog-post-toc button.blog-toc__link,
+html:not([data-theme]) #blog-post-toc button.blog-toc__link {
   --toc-card-bg: color-mix(in srgb, color-mix(in srgb, var(--bg3) 55%, var(--bg2) 45%) 86%, transparent);
   --toc-card-bg-hover: color-mix(in srgb, color-mix(in srgb, var(--bg3) 35%, var(--nav-toolbar-bg) 65%) 88%, transparent);
   --toc-card-shadow: 0 2px 10px color-mix(in srgb, var(--shadow-card) 90%, transparent);
   --toc-card-shadow-hover: 0 8px 22px color-mix(in srgb, var(--shadow-card) 95%, transparent);
 }
 
-#blog-post-toc :global(button.blog-toc__link--depth-0) { --toc-indent: 0rem; }
-#blog-post-toc :global(button.blog-toc__link--depth-1) { --toc-indent: 0.72rem; }
-#blog-post-toc :global(button.blog-toc__link--depth-2) { --toc-indent: 1.44rem; }
-#blog-post-toc :global(button.blog-toc__link--depth-3) { --toc-indent: 2.16rem; }
+#blog-post-toc button.blog-toc__link--depth-0 { --toc-indent: 0rem; }
+#blog-post-toc button.blog-toc__link--depth-1 { --toc-indent: 0.72rem; }
+#blog-post-toc button.blog-toc__link--depth-2 { --toc-indent: 1.44rem; }
+#blog-post-toc button.blog-toc__link--depth-3 { --toc-indent: 2.16rem; }
 
-#blog-post-toc :global(button.blog-toc__link--h1) {
+#blog-post-toc button.blog-toc__link--h1 {
   border: 2px solid color-mix(in srgb, var(--nav-accent) 50%, var(--toc-card-border) 50%);
   border-radius: 8px;
   font-weight: 700;
@@ -832,7 +832,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
   box-shadow: var(--toc-card-shadow);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h2) {
+#blog-post-toc button.blog-toc__link--h2 {
   border: none;
   box-shadow: none;
   border-radius: 6px;
@@ -842,7 +842,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
   background: color-mix(in srgb, var(--line2) 10%, var(--toc-link-bg) 90%);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h3) {
+#blog-post-toc button.blog-toc__link--h3 {
   border: none;
   box-shadow: none;
   border-radius: 999px;
@@ -854,7 +854,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
   color: color-mix(in srgb, var(--muted) 22%, var(--text) 78%);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h4) {
+#blog-post-toc button.blog-toc__link--h4 {
   border: none;
   box-shadow: none;
   border-radius: 4px;
@@ -864,7 +864,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
   color: color-mix(in srgb, var(--muted) 92%, var(--text) 8%);
 }
 
-#blog-post-toc :global(button.blog-toc__link:hover) {
+#blog-post-toc button.blog-toc__link:hover {
   color: var(--text);
   --toc-link-bg: var(--toc-card-bg-hover);
   background: color-mix(in srgb, var(--toc-card-bg-hover) 88%, transparent);
@@ -874,36 +874,36 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
   transform: translateY(-2px) scale(1);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h1:hover) {
+#blog-post-toc button.blog-toc__link--h1:hover {
   background: color-mix(in srgb, var(--nav-accent) 12%, var(--toc-card-bg-hover) 88%);
   border-color: color-mix(in srgb, var(--nav-accent) 58%, var(--toc-card-border) 42%);
   box-shadow: var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h2:hover) {
+#blog-post-toc button.blog-toc__link--h2:hover {
   background: color-mix(in srgb, var(--line2) 14%, var(--toc-card-bg-hover) 86%);
   box-shadow: var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--h3:hover) {
+#blog-post-toc button.blog-toc__link--h3:hover {
   background: color-mix(in srgb, var(--line2) 10%, var(--toc-card-bg-hover) 90%);
   box-shadow: var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link:active) {
+#blog-post-toc button.blog-toc__link:active {
   transform: translateY(0) scale(1);
 }
 
-#blog-post-toc :global(button.blog-toc__link:hover:active) {
+#blog-post-toc button.blog-toc__link:hover:active {
   transform: translateY(-2px) scale(1);
 }
 
-#blog-post-toc :global(button.blog-toc__link:focus-visible) {
+#blog-post-toc button.blog-toc__link:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--nav-accent) 50%, transparent);
   outline-offset: 1px;
 }
 
-#blog-post-toc :global(button.blog-toc__link--active) {
+#blog-post-toc button.blog-toc__link--active {
   color: var(--text);
   --toc-link-bg: color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%);
   background: color-mix(in srgb, color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 88%, transparent);
@@ -914,7 +914,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h1) {
+#blog-post-toc button.blog-toc__link--active.blog-toc__link--h1 {
   color: var(--text);
   border: 2px solid color-mix(in srgb, var(--nav-accent) 64%, var(--toc-card-border) 36%);
   background: color-mix(in srgb, var(--nav-accent) 16%, color-mix(in srgb, var(--toc-card-bg-hover) 72%, var(--line2) 28%) 84%);
@@ -923,7 +923,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h2) {
+#blog-post-toc button.blog-toc__link--active.blog-toc__link--h2 {
   border: none;
   color: var(--text);
   background: color-mix(in srgb, var(--nav-accent) 9%, color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 91%);
@@ -932,7 +932,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h3) {
+#blog-post-toc button.blog-toc__link--active.blog-toc__link--h3 {
   border: none;
   color: var(--text);
   background: color-mix(in srgb, var(--nav-accent) 8%, color-mix(in srgb, var(--toc-card-bg-hover) 70%, var(--line2) 30%) 92%);
@@ -941,7 +941,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(button.blog-toc__link--active.blog-toc__link--h4) {
+#blog-post-toc button.blog-toc__link--active.blog-toc__link--h4 {
   border: none;
   background: color-mix(in srgb, color-mix(in srgb, var(--nav-accent) 14%, var(--toc-card-bg-hover) 86%) 90%, transparent);
   box-shadow:
@@ -949,7 +949,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     var(--toc-card-shadow-hover);
 }
 
-#blog-post-toc :global(.blog-toc__label) {
+#blog-post-toc .blog-toc__label {
   display: block;
   min-width: 0;
   width: 100%;
@@ -977,7 +977,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
     transition: none;
   }
 
-  #blog-post-toc :global(button.blog-toc__link) {
+  #blog-post-toc button.blog-toc__link {
     animation: none;
     transition:
       background 0.22s cubic-bezier(0.4, 0, 0.2, 1),
@@ -987,7 +987,7 @@ html:not([data-theme]) #blog-post-toc :global(button.blog-toc__link) {
       transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #blog-post-toc :global(button.blog-toc__link:hover) {
+  #blog-post-toc button.blog-toc__link:hover {
     transform: none;
   }
 }

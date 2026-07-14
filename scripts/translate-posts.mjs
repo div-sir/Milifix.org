@@ -105,6 +105,7 @@ async function translateBatch(strings, lang) {
     `Translate each string in the following JSON array from Traditional Chinese to ${LANG_NAME[lang]}.\n` +
     `- Preserve meaning and tone; natural for the target language.\n` +
     `- Keep proper nouns, brand/program names, IATA codes, URLs and numbers as-is (use the standard target-language name where one clearly exists).\n` +
+    `- Preserve every line break and Markdown marker exactly, especially list markers (- / 1.) and table pipes (|). Never flatten a list or table into one paragraph.\n` +
     `- Do NOT merge or split entries. Return exactly the same number of elements, same order.\n` +
     `- Return ONLY a JSON array of strings. No commentary, no code fence.\n\n` +
     JSON.stringify(payload)

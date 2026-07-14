@@ -7,12 +7,19 @@
 // 評價（並重置為 pending 待重新審核），而不是無限累加新的一筆。
 import {
   checkOrigin,
-  checkRateLimit,
+  checkSharedRateLimit,
   getClientIp,
 } from './_pass-security.js';
 import { validateSubmission } from './_konbini-submit-validate.js';
-import { decodeReviewImage, MAX_PHOTOS } from './_konbini-image.js';
-import { CMS_URL, SUBMIT_API_KEY, fetchWithTimeout, apiKeyHeaders, uploadMedia } from './_konbini-cms-client.js';
+import { sanitizeReviewImage, MAX_PHOTOS } from './_konbini-image.js';
+import {
+  CMS_URL,
+  SUBMIT_API_KEY,
+  fetchWithTimeout,
+  apiKeyHeaders,
+  uploadMedia,
+  deleteMedia,
+} from './_konbini-cms-client.js';
 import { CLIENT_ID, verifyGoogleIdToken } from './_konbini-google-auth.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
@@ -52,7 +59,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const rl = checkRateLimit(RATE_LIMIT_STORE, getClientIp(req));
+  const rl = await checkSharedRateLimit(RATE_LIMIT_STORE, 'konbini-submit', getClientIp(req));
   if (rl.limited) {
     res.setHeader('Retry-After', String(rl.retryAfter));
     res.status(429).json({ error: 'Too many requests. Please try again later.' });
@@ -73,7 +80,7 @@ export default async function handler(req, res) {
 
   // 登入是防灌票的第一道關卡：未通過 Google 驗證一律拒絕，不接受匿名評分。
   const identity = await verifyGoogleIdToken(idToken).catch(() => null);
-  if (!identity) {
+  if (!identity || !identity.emailVerified) {
     res.status(401).json({ error: 'Invalid sign-in' });
     return;
   }
@@ -93,7 +100,7 @@ export default async function handler(req, res) {
   }
   const decodedPhotos = [];
   for (const raw of rawPhotos) {
-    const img = decodeReviewImage(raw);
+    const img = await sanitizeReviewImage(raw);
     if (!img) {
       res.status(400).json({ error: 'Invalid or oversized photo' });
       return;
@@ -101,6 +108,7 @@ export default async function handler(req, res) {
     decodedPhotos.push(img);
   }
 
+  const uploadedMediaIds = [];
   try {
     // 1) 以 slug 查商品 id（公開唯讀）
     const lookup = await fetchWithTimeout(
@@ -115,11 +123,10 @@ export default async function handler(req, res) {
     }
 
     // 2) 先上傳照片到 media（任何一張失敗即整筆放棄，不建立缺圖評價）
-    const photoIds = [];
     for (const img of decodedPhotos) {
       const id = await uploadMedia(img, product.name);
       if (!id) throw new Error('media upload failed');
-      photoIds.push(id);
+      uploadedMediaIds.push(id);
     }
 
     // 3) 防灌票：同一人對同一商品已有評價就更新它，不再新增一筆。
@@ -134,7 +141,8 @@ export default async function handler(req, res) {
       authorId: identity.sub,
       status: 'pending',
       submittedAt: new Date().toISOString(),
-      ...(photoIds.length > 0 ? { photos: photoIds.map((id) => ({ image: id })) } : {}),
+      ...(uploadedMediaIds.length > 0 ? { photos: uploadedMediaIds.map((id) => ({ image: id })) } : {}),
+      ...(existing?.id ? { moderationNote: '投稿者更新內容，重新送審' } : {}),
     };
 
     const write = await fetchWithTimeout(
@@ -149,8 +157,21 @@ export default async function handler(req, res) {
     );
     if (!write.ok) throw new Error(`${existing?.id ? 'update' : 'create'} ${write.status}`);
 
+    // 更新既有評論且確實換了圖片後，刪除已不再被引用的舊媒體。
+    if (existing?.id && uploadedMediaIds.length > 0) {
+      const oldPhotoIds = (existing.photos ?? [])
+        .map((photo) => (typeof photo?.image === 'object' ? photo.image?.id : photo?.image))
+        .filter(Boolean)
+        .filter((id) => {
+          const coverId = typeof product.cover === 'object' ? product.cover?.id : product.cover;
+          return coverId === undefined || String(id) !== String(coverId);
+        });
+      await Promise.allSettled(oldPhotoIds.map((id) => deleteMedia(id)));
+    }
+
     res.status(200).json({ ok: true, updated: Boolean(existing?.id) });
   } catch (err) {
+    await Promise.allSettled(uploadedMediaIds.map((id) => deleteMedia(id)));
     // 僅伺服器端記錄，不外洩內部細節
     console.error('[konbini-submit]', err);
     res.status(500).json({ error: 'Failed to submit review' });
