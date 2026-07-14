@@ -37,7 +37,7 @@ const heroImage = lounge.images?.[0]?.image?.url;
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
 
-  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <SiteNav lang={lang} variant="project" pathname={Astro.url.pathname} projectHref={travelPath(lang)} projectLabel="Travel" />
 
   <main id="main-content">
     <article class="travel-detail">

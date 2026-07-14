@@ -34,9 +34,12 @@ type NavBlock =
     };
 
 interface Props {
-  variant: 'platform' | 'space-home' | 'space-work';
+  variant: 'platform' | 'project' | 'space-home' | 'space-work';
   lang: Lang;
   pathname: string;
+  /** 獨立 Project：品牌只連回 Project 根頁，不連回 Milifix 首頁。 */
+  projectHref?: string;
+  projectLabel?: string;
   spaceId?: string;
   spaceLabel?: string;
   workNavItems?: WorkNavItem[];
@@ -50,6 +53,8 @@ const {
   variant,
   lang,
   pathname,
+  projectHref = '',
+  projectLabel = '',
   spaceId = '',
   spaceLabel = '',
   workNavItems: workNavItemsProp,
@@ -69,9 +74,15 @@ const onPlatform = variant === 'platform' && logicalPath === '/';
 const onSpaceHome =
   variant === 'space-home' && spaceId && logicalPath === `/${spaceId}`;
 
-const logoText = variant === 'platform' ? N.logoPlatform : spaceLabel;
-const logoHref = variant === 'platform' ? homePath(lang) : spacePath(lang, spaceId);
-const logoCurrent = variant === 'platform' ? onPlatform : onSpaceHome;
+const normalizedPathname = pathname.replace(/\/$/, '') || '/';
+const normalizedProjectHref = projectHref.replace(/\/$/, '') || '/';
+const logoText = variant === 'platform' ? N.logoPlatform : variant === 'project' ? projectLabel : spaceLabel;
+const logoHref = variant === 'platform' ? homePath(lang) : variant === 'project' ? projectHref : spacePath(lang, spaceId);
+const logoCurrent = variant === 'platform'
+  ? onPlatform
+  : variant === 'project'
+    ? normalizedPathname === normalizedProjectHref
+    : onSpaceHome;
 
 const navBlocks: NavBlock[] = [];
 

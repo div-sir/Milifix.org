@@ -33,7 +33,7 @@ const configured = (import.meta.env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID ?? '').length 
   canonicalPath={konbiniProductPath(lang, slug)}
 >
   <AmbientBackdrop />
-  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <SiteNav lang={lang} variant="project" pathname={Astro.url.pathname} projectHref={konbiniPath(lang)} projectLabel={t.navLabel} />
   <PageTransition />
 
   <main class="konbini konbini-detail" id="main-content" tabindex="-1">

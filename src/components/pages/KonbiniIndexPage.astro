@@ -63,7 +63,7 @@ const countryTitleHidden = countryGroups.length > 1;
   canonicalPath={konbiniPath(lang)}
 >
   <AmbientBackdrop />
-  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <SiteNav lang={lang} variant="project" pathname={Astro.url.pathname} projectHref={konbiniPath(lang)} projectLabel={t.navLabel} />
   <PageTransition />
 
   <main class="konbini" id="main-content" tabindex="-1">

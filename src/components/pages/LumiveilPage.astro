@@ -483,14 +483,20 @@ const t = {
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
 
-  <SiteNav variant="platform" lang={lang} pathname={pathname} />
+  <SiteNav
+    variant="project"
+    lang={lang}
+    pathname={pathname}
+    projectHref={pathname}
+    projectLabel="Lumiveil"
+  />
 
   <PortfolioChrome
     lang={lang}
     pathname={pathname}
     dockSections={t.dockSections}
-    dockHomeHref={lang === 'en' ? '/' : `/${lang}/`}
-    dockHomeLabel="Milifix"
+    dockHomeHref={pathname}
+    dockHomeLabel="Lumiveil"
     dockHomeIcon="home"
     dockOrder="sections-first"
   />

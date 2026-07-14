@@ -67,10 +67,12 @@ const STRINGS: Record<
       lumiveilTagline: string;
       meridielTagline: string;
       travelTagline: string;
+      konbiniTagline: string;
       reportsTagline: string;
       blogCountUnit: string;
       cardsCountUnit: string;
       reportsCountUnit: string;
+      projectCountUnit: string;
     };
     blog: {
       /** 文章頁側欄目錄 */
@@ -281,10 +283,12 @@ const STRINGS: Record<
       lumiveilTagline: 'Reveal every step you have ever taken',
       meridielTagline: 'Every flight you have ever taken, drawn across a living globe',
       travelTagline: 'Taiwan credit card airline & lounge benefits',
+      konbiniTagline: 'Community picks and reviews for Taiwan and Japan convenience stores',
       reportsTagline: 'Illustrated travelogues with live route maps',
       blogCountUnit: 'Posts',
       cardsCountUnit: 'Cards',
       reportsCountUnit: 'Reports',
+      projectCountUnit: 'Project',
     },
     blog: {
       tocAria: 'On this page',
@@ -503,10 +507,12 @@ const STRINGS: Record<
       lumiveilTagline: '揭開你走過的每一步',
       meridielTagline: '把你飛過的每一段航線，畫上一顆會呼吸的地球',
       travelTagline: '台灣信用卡航空與貴賓室權益比較',
+      konbiniTagline: '台灣與日本便利商店新品、必吃與社群評價',
       reportsTagline: '圖文旅行報告書，隨行程帶入即時地圖',
       blogCountUnit: '篇文章',
       cardsCountUnit: '張卡片',
       reportsCountUnit: '篇報告',
+      projectCountUnit: '獨立專案',
     },
     blog: {
       tocAria: '本篇章節',
@@ -725,10 +731,12 @@ const STRINGS: Record<
       lumiveilTagline: '歩いてきた道を、光で明かす',
       meridielTagline: 'これまでの全フライトを、生きた地球儀に描く',
       travelTagline: '台湾のクレジットカードによる航空・ラウンジ特典比較',
+      konbiniTagline: '台湾と日本のコンビニ商品を集めたコミュニティレビュー',
       reportsTagline: 'ライブ路線地図つきの旅行レポート',
       blogCountUnit: '記事',
       cardsCountUnit: 'カード',
       reportsCountUnit: 'レポート',
+      projectCountUnit: 'プロジェクト',
     },
     blog: {
       tocAria: 'このページの見出し',
