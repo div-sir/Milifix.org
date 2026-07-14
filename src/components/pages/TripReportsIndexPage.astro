@@ -3,10 +3,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../SiteNav.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
-import TravelBottomNav from '../travel/TravelBottomNav.astro';
 import TripReportCard from '../trips/TripReportCard.astro';
 import type { Lang } from '../../i18n/types';
-import { travelPath } from '../../i18n/routes';
+import { reportsPath } from '../../i18n/routes';
 import { tripReports } from '../../data/trips/index';
 import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
@@ -56,7 +55,7 @@ const LABELS: Record<Lang, IndexLabels> = {
 
 const { lang } = Astro.props;
 const t = LABELS[lang];
-const base = `${travelPath(lang)}/reports`;
+const base = reportsPath();
 ---
 
 <BaseLayout
@@ -99,8 +98,6 @@ const base = `${travelPath(lang)}/reports`;
       }
     </section>
   </main>
-
-  <TravelBottomNav lang={lang} />
 
   <script>
     import { initPortfolioCursor } from '../../scripts/portfolio-cursor';

@@ -4,7 +4,7 @@ import PageTransition from '../PageTransition.astro';
 import DaySection from '../trips/DaySection.astro';
 import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
-import { travelPath, homePath } from '../../i18n/routes';
+import { reportsPath, homePath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import type { TripReport, TripStop, TransportSegment } from '../../data/trips/types';
 import '@fontsource-variable/fraunces';
@@ -62,7 +62,7 @@ const labels: DayLabels = {
   kindLabels: KIND_LABELS_ZH,
 };
 
-const reportsPath = `${travelPath(lang)}/reports`;
+const reportsIndexPath = reportsPath();
 const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} — Milifix`;
 
 // ── 沈浸式錨點：由完整行程資料生成，鏡頭捲到哪就飛到哪 ──────
@@ -255,7 +255,7 @@ const mapData = {
     data-lightbox-next="下一張"
   >
     <h1 class="sr-only">{trip.title}</h1>
-    <a class="immersive-back" href={reportsPath}>← 返回報告書列表</a>
+    <a class="immersive-back" href={reportsIndexPath}>← 返回報告書列表</a>
 
     <!-- ── 沈浸式階段：全螢幕地圖 + 浮動 HUD，捲動即飛鏡頭 ── -->
     <div class="immersive-stage">
