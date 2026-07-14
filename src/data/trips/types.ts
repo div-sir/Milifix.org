@@ -85,7 +85,7 @@ export interface PhotoSlot {
 }
 
 export interface TripDay {
-  /** 行程天數編號（本篇從 Day 2 開始） */
+  /** 行程天數編號（通常從 Day 1 開始） */
   day: number;
   /** 如「橫濱與鎌倉海岸線」 */
   title: string;
@@ -130,10 +130,16 @@ export interface TripReport {
   subtitle?: string;
   country: string;
   year: number;
-  /** 行程總天數（含未詳列的 Day 1） */
+  /** 行程總天數 */
   durationDays: number;
   /** 列表頁與 meta description 用摘要 */
   summary: string;
+  /** 內容審訂資訊：讓讀者分辨已查證的固定資訊與仍需依日期複核的班次。 */
+  review?: {
+    reviewedAt: string;
+    status: string;
+    notes: string[];
+  };
   essentials: TripEssential[];
   days: TripDay[];
   /** 未捲入任何一天時的預設鏡頭（通常涵蓋全行程範圍） */
