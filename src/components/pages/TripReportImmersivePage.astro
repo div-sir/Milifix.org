@@ -330,25 +330,25 @@ const mapData = {
           </div>
         </div>
 
-        <!-- HUD 文字：無卡片邊框，直接浮在地圖上，靠 text-shadow 保持可讀 -->
+        <!-- 分散式 HUD：標題、描述、交通與提醒各自佔用地圖留白區，不再擠成單一卡片。 -->
         <div id="immersive-hud" class="immersive-hud">
-          <div id="immersive-hud-photo" class="immersive-hud__photo" hidden>
+          <div id="immersive-hud-photo" class="immersive-hud__photo immersive-hud-fragment" hidden>
             <img id="immersive-hud-img" alt="" />
             <span id="immersive-hud-placeholder" class="immersive-hud__placeholder" aria-hidden="true">📷</span>
           </div>
-          <div class="immersive-hud__body">
+          <div id="immersive-hud-title-cluster" class="immersive-hud__title-cluster immersive-hud-fragment">
             <div class="immersive-hud__eyebrow">
               <span aria-hidden="true"></span>
               <span id="immersive-hud-tag"></span>
             </div>
             <div id="immersive-hud-title" class="immersive-hud__title"></div>
-            <div id="immersive-hud-transport" class="immersive-hud__transport" hidden>
-              <span id="immersive-hud-transport-icon" aria-hidden="true"></span>
-              <span id="immersive-hud-transport-label"></span>
-            </div>
-            <div id="immersive-hud-desc" class="immersive-hud__desc"></div>
-            <div id="immersive-hud-note" class="immersive-hud__note" hidden></div>
           </div>
+          <div id="immersive-hud-transport" class="immersive-hud__transport immersive-hud-fragment" hidden>
+            <span id="immersive-hud-transport-icon" aria-hidden="true"></span>
+            <span id="immersive-hud-transport-label"></span>
+          </div>
+          <div id="immersive-hud-desc" class="immersive-hud__desc immersive-hud-fragment"></div>
+          <div id="immersive-hud-note" class="immersive-hud__note immersive-hud-fragment" hidden></div>
         </div>
       </div>
 

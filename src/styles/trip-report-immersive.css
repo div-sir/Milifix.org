@@ -421,23 +421,92 @@ html[data-theme='light'] .immersive-main {
 #immersive-progress-day { color: var(--accent); font-weight: 750; }
 #immersive-progress-status { max-width: 68%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
 
-/* ── HUD 文字／照片：無卡片邊框，直接浮在地圖上 ──────────── */
+/* ── 分散式 HUD：每種資訊佔一個可預測的地圖留白區 ────────── */
 
 .immersive-hud {
   position: absolute;
+  inset: 0;
   z-index: 4;
-  display: flex;
-  align-items: flex-end;
-  gap: 18px;
-  max-width: 70vw;
   pointer-events: none;
-  transition: left 0.5s ease, right 0.5s ease, top 0.5s ease, bottom 0.5s ease;
+}
+.immersive-hud-fragment {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+}
+.immersive-hud-fragment[hidden] { display: none; }
+
+/* 標題是主要辨識點，固定在右下象限；避開中央地圖焦點、右側 Day 導覽與底部進度列。 */
+.immersive-hud__title-cluster {
+  right: clamp(7rem, 13vw, 12rem);
+  bottom: clamp(8.5rem, 20vh, 11rem);
+  width: min(34vw, 30rem);
+}
+.immersive-hud__title-cluster::after {
+  content: '';
+  display: block;
+  width: 3.25rem;
+  height: 1px;
+  margin-top: 0.8rem;
+  background: linear-gradient(to right, var(--accent), transparent);
+  opacity: 0.6;
+}
+
+/* 描述移到左上，與標題形成真正的空間分層，不再視覺黏成同一段落。 */
+.immersive-hud__desc {
+  top: clamp(6.5rem, 15vh, 9rem);
+  left: clamp(5rem, 7vw, 7rem);
+  width: min(33vw, 27rem);
+  padding-left: 0.9rem;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  font-family: var(--serif);
+  font-weight: 380;
+  font-size: clamp(0.9rem, 1.15vw, 1.02rem);
+  line-height: 1.68;
+  color: var(--imm-ink-soft);
+  text-shadow: var(--imm-shadow-desc);
+}
+
+/* 交通方式是短狀態，獨立放在右上，不與景點名稱爭奪層級。 */
+.immersive-hud__transport {
+  top: clamp(6.75rem, 15vh, 9rem);
+  right: clamp(7rem, 13vw, 12rem);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: min(30vw, 22rem);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--imm-ink-soft);
+  text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__transport::after {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  margin-left: 0.25rem;
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* 提醒位於左下，以細線而非大色塊表達警示，保留地圖的呼吸感。 */
+.immersive-hud__note {
+  left: clamp(5rem, 7vw, 7rem);
+  bottom: clamp(8rem, 18vh, 10rem);
+  width: min(27vw, 23rem);
+  padding: 0.15rem 0 0.15rem 0.85rem;
+  border-left: 2px solid var(--accent);
+  font-family: var(--mono);
+  font-size: clamp(0.68rem, 0.85vw, 0.78rem);
+  line-height: 1.55;
+  color: var(--imm-ink-soft);
+  text-shadow: var(--imm-shadow-desc);
 }
 .immersive-hud__photo {
-  position: relative;
+  right: clamp(2rem, 5vw, 5rem);
+  bottom: clamp(8rem, 18vh, 10rem);
   width: 108px;
   height: 108px;
-  flex: none;
   border-radius: 5px;
   overflow: hidden;
   background: color-mix(in srgb, var(--accent) 12%, var(--imm-photo-bg));
@@ -449,15 +518,12 @@ html[data-theme='light'] .immersive-main {
 .immersive-hud__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .immersive-hud__placeholder { font-size: 1.6rem; opacity: 0.55; }
 
-.immersive-hud__body { max-width: 30rem; }
 .immersive-hud__eyebrow {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 9px;
 }
-.immersive-hud[data-align='right'] .immersive-hud__eyebrow { flex-direction: row-reverse; }
-.immersive-hud[data-align='right'] .immersive-hud__body { text-align: right; }
 .immersive-hud__eyebrow span:first-child { width: 14px; height: 1px; background: var(--accent); }
 #immersive-hud-tag {
   font-family: var(--mono);
@@ -474,41 +540,9 @@ html[data-theme='light'] .immersive-main {
   font-size: clamp(1.5rem, 3vw, 2rem);
   line-height: 1.08;
   color: var(--imm-ink);
-  margin-bottom: 9px;
   text-shadow: var(--imm-shadow-title);
 }
-.immersive-hud__transport {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 9px;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.04em;
-  color: var(--imm-ink-soft);
-  text-shadow: var(--imm-shadow-tag);
-}
-.immersive-hud[data-align='right'] .immersive-hud__transport { flex-direction: row-reverse; }
 #immersive-hud-transport-icon { font-size: 0.9rem; line-height: 1; }
-.immersive-hud__desc {
-  font-family: var(--serif);
-  font-weight: 360;
-  font-size: 0.98rem;
-  line-height: 1.62;
-  color: var(--imm-ink-soft);
-  text-shadow: var(--imm-shadow-desc);
-}
-.immersive-hud__note {
-  margin-top: 10px;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: #fff;
-  background: var(--imm-note-bg);
-  padding: 7px 11px;
-  border-radius: 3px;
-  display: inline-block;
-}
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
 .immersive-daynav__dot { position: relative; }
@@ -797,8 +831,19 @@ html[data-theme='light'] .immersive-theme-icon--sun {
 /* ── 響應式 ────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .immersive-hud { max-width: 84vw; }
-  .immersive-hud__body { max-width: 20rem; }
+  .immersive-hud__title-cluster {
+    right: 5rem;
+    width: min(40vw, 25rem);
+  }
+  .immersive-hud__desc {
+    left: 4rem;
+    width: min(38vw, 23rem);
+  }
+  .immersive-hud__transport { right: 5rem; }
+  .immersive-hud__note {
+    left: 4rem;
+    width: min(32vw, 20rem);
+  }
   .immersive-anchor { height: 62vh; }
   /* 窄螢幕留給 HUD 文字的空間有限，刻度尺讓位 */
   .immersive-day-ruler { display: none; }
@@ -812,10 +857,41 @@ html[data-theme='light'] .immersive-theme-icon--sun {
 }
 
 @media (max-width: 640px) {
-  .immersive-hud { flex-direction: column !important; align-items: flex-start !important; gap: 12px; }
-  .immersive-hud[data-align='right'] .immersive-hud__body { text-align: left; }
-  .immersive-hud[data-align='right'] .immersive-hud__eyebrow { flex-direction: row; }
-  .immersive-hud__photo { width: 84px; height: 84px; }
+  /* 手機仍保留分散式 HUD，但改用單欄的四個固定高度帶，避免文字彼此覆蓋。 */
+  .immersive-hud__desc {
+    top: 9rem;
+    left: 20px;
+    right: 20px;
+    width: auto;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  .immersive-hud__transport {
+    top: 50vh;
+    left: 20px;
+    right: auto;
+    max-width: calc(100vw - 40px);
+  }
+  .immersive-hud__title-cluster {
+    left: 20px;
+    right: 20px;
+    bottom: 25vh;
+    width: auto;
+  }
+  .immersive-hud__title { font-size: clamp(1.35rem, 8vw, 1.8rem); }
+  .immersive-hud__note {
+    left: 20px;
+    right: 20px;
+    bottom: 8rem;
+    width: auto;
+    font-size: 0.68rem;
+  }
+  .immersive-hud__photo {
+    right: 20px;
+    bottom: 8rem;
+    width: 84px;
+    height: 84px;
+  }
   .immersive-mission { left: 20px; transform: none; }
   .immersive-mission__sep,
   .immersive-mission span:nth-last-child(-n + 2) { display: none; }
