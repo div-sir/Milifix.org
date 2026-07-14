@@ -60,16 +60,6 @@ function currentTheme(): 'dark' | 'light' {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
 }
 
-const POS_STYLE: Record<
-  AnchorData['pos'],
-  { left: string; right: string; top: string; bottom: string; direction: string }
-> = {
-  'bottom-left': { left: '5vw', right: 'auto', top: 'auto', bottom: '9vh', direction: 'row' },
-  'bottom-right': { left: 'auto', right: '11vw', top: 'auto', bottom: '9vh', direction: 'row-reverse' },
-  'top-left': { left: '5vw', right: 'auto', top: '14vh', bottom: 'auto', direction: 'row' },
-  'top-right': { left: 'auto', right: '11vw', top: '14vh', bottom: 'auto', direction: 'row-reverse' },
-};
-
 function readVar(name: string, fallback: string): string {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return v || fallback;
@@ -332,6 +322,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   // ── HUD DOM ──────────────────────────────────────────
   const hudEl = document.getElementById('immersive-hud');
+  const titleClusterEl = document.getElementById('immersive-hud-title-cluster');
   const tagEl = document.getElementById('immersive-hud-tag');
   const titleEl = document.getElementById('immersive-hud-title');
   const transportEl = document.getElementById('immersive-hud-transport');
@@ -406,13 +397,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   const applyPos = (pos: AnchorData['pos']): void => {
     if (!hudEl) return;
-    const p = POS_STYLE[pos] ?? POS_STYLE['bottom-left'];
-    hudEl.style.left = p.left;
-    hudEl.style.right = p.right;
-    hudEl.style.top = p.top;
-    hudEl.style.bottom = p.bottom;
-    hudEl.style.flexDirection = p.direction;
-    hudEl.dataset.align = p.direction === 'row-reverse' ? 'right' : 'left';
+    // 內容採固定的四區分散佈局，pos 只保留作為細微動態／除錯語意；
+    // 不再把整組文字搬到同一角落，避免重新形成文字牆。
+    hudEl.dataset.layout = pos;
   };
 
   // ── HUD 內容切換動畫（GSAP）──────────────────────────────
@@ -457,7 +444,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, tagEl, titleEl, transportEl, descEl, noteBoxEl].filter(
+  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;
