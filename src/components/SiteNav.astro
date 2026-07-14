@@ -10,7 +10,6 @@ import {
   konbiniPath,
   parseLocalizedPath,
   spacePath,
-  travelPath,
 } from '../i18n/routes';
 
 export interface NavLink {
@@ -77,9 +76,6 @@ const logoCurrent = variant === 'platform' ? onPlatform : onSpaceHome;
 const navBlocks: NavBlock[] = [];
 
 if (variant === 'platform') {
-  // Travel 僅 en + zh；其他語系（ja）退回 en，避免連到不存在的 /ja/travel
-  const travelLink = travelPath(availableLangsForPath('/travel').includes(lang) ? lang : 'en');
-  navBlocks.push({ type: 'link', href: travelLink, label: labels.travel.navLabel });
   // Konbini 僅 en + zh；其他語系（ja）退回 en，避免連到不存在的 /ja/konbini
   const konbiniLang = availableLangsForPath('/konbini').includes(lang) ? lang : 'en';
   navBlocks.push({ type: 'link', href: konbiniPath(konbiniLang), label: konbini(konbiniLang).navLabel });

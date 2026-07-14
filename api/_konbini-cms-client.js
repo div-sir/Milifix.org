@@ -43,4 +43,33 @@ async function uploadMedia(img, alt) {
   return json?.doc?.id ?? null;
 }
 
-export { CMS_URL, SUBMIT_API_KEY, fetchWithTimeout, apiKeyHeaders, uploadMedia };
+/** @param {string|number|undefined|null} id */
+async function deleteMedia(id) {
+  if (id === undefined || id === null || id === '') return true;
+  const res = await fetchWithTimeout(`${CMS_URL}/api/media/${encodeURIComponent(String(id))}`, {
+    method: 'DELETE',
+    headers: apiKeyHeaders(),
+  });
+  return res.ok || res.status === 404;
+}
+
+/** @param {string} collection @param {string|number|undefined|null} id */
+async function deleteDocument(collection, id) {
+  if (id === undefined || id === null || id === '') return true;
+  const safeCollection = collection.replace(/[^a-z0-9-]/gi, '');
+  const res = await fetchWithTimeout(
+    `${CMS_URL}/api/${safeCollection}/${encodeURIComponent(String(id))}`,
+    { method: 'DELETE', headers: apiKeyHeaders() },
+  );
+  return res.ok || res.status === 404;
+}
+
+export {
+  CMS_URL,
+  SUBMIT_API_KEY,
+  fetchWithTimeout,
+  apiKeyHeaders,
+  uploadMedia,
+  deleteMedia,
+  deleteDocument,
+};

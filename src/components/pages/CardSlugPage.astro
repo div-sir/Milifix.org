@@ -208,6 +208,15 @@ const jsonLd = {
         </div>
       )}
 
+      <div class="travel-info" style="margin-bottom: 1.5rem;">
+        <span class="travel-info__label">資料可信度</span>
+        <span class="travel-info__value">
+          {card.lastVerifiedAt
+            ? `最後查核：${new Intl.DateTimeFormat('zh-TW', { dateStyle: 'medium' }).format(new Date(card.lastVerifiedAt))}`
+            : '尚未標記查核日期，申辦前請以銀行官方條款為準'}
+        </span>
+      </div>
+
       {card.description && (
         <p class="travel-detail__summary">{card.description}</p>
       )}

@@ -8,7 +8,7 @@ body.portfolio-atmo {
 }
 
 .dock-pill-nav.dock-nav {
-  --dock-pill-h: 40px;
+  --dock-pill-h: 44px;
   --dock-pill-gap: 4px;
   --dock-pill-pad-x: clamp(13px, 3.2vw, 17px);
 
@@ -295,7 +295,7 @@ html[data-theme='light'] .dock-pill-nav.dock-nav {
 
 @media (max-width: 768px) {
   .dock-pill-nav.dock-nav {
-    --dock-pill-h: 36px;
+    --dock-pill-h: 44px;
     bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     max-width: calc(100vw - 0.85rem);
   }

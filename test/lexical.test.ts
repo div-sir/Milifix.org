@@ -226,4 +226,31 @@ describe('renderChildren', () => {
     ];
     expect(renderChildren(nodes)).toBe('<p>a</p><p>b</p>');
   });
+
+  it('recovers a flattened Markdown bullet list from a translated paragraph', () => {
+    const nodes: LexicalNode[] = [
+      {
+        type: 'paragraph',
+        children: [{ type: 'text', text: '- First item - Second item - Third item' }],
+      },
+    ];
+    expect(renderChildren(nodes)).toBe('<ul><li>First item</li><li>Second item</li><li>Third item</li></ul>');
+  });
+
+  it('recovers a flattened Markdown table and keeps safe links', () => {
+    const nodes: LexicalNode[] = [
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'text',
+            text: '| Name | Site | | --- | --- | | Milifix | [Home](https://milifix.com) |',
+          },
+        ],
+      },
+    ];
+    expect(renderChildren(nodes)).toBe(
+      '<table><thead><tr><th>Name</th><th>Site</th></tr></thead><tbody><tr><td>Milifix</td><td><a href="https://milifix.com" target="_blank" rel="noopener noreferrer">Home</a></td></tr></tbody></table>',
+    );
+  });
 });

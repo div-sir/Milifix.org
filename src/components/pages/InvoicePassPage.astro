@@ -1191,7 +1191,7 @@ const copyJson = JSON.stringify({ previewCarrier: copy.previewCarrier, sec1Label
 
       const res = await fetch('/api/generate-pass', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Milifix-Request': '1' },
         body: JSON.stringify({
           carrierId,
           passStyle: currentPassStyle,

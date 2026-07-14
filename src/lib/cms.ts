@@ -332,6 +332,7 @@ export type CmsCreditCard = {
   supplementaryCardMax?: number
   cardNetwork: CmsCardNetwork
   officialUrl?: string
+  lastVerifiedAt?: string
   tags: { id: string; tag: string }[]
   benefits: CmsCardBenefit[]
   description?: string
@@ -462,7 +463,7 @@ export type KonbiniCategory =
   | 'frozen'
   | 'other'
 export type KonbiniCurrency = 'TWD' | 'JPY'
-export type KonbiniReviewStatus = 'pending' | 'approved' | 'rejected'
+export type KonbiniReviewStatus = 'pending' | 'approved' | 'rejected' | 'hidden'
 
 export type KonbiniChain = {
   id: string

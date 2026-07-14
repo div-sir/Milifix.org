@@ -10,7 +10,7 @@ interface Props {
 
 const { lang, airline } = Astro.props;
 const t = ui(lang).travel;
-const logoUrl = airline.logo?.url ?? `https://pics.avs.io/200/200/${airline.iataCode}.png`;
+const logoUrl = airline.logo?.url ?? '/airline-placeholder.svg';
 ---
 
 <div class="travel-card travel-card--airline">

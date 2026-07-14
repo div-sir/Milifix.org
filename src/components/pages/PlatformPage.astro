@@ -2,8 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { availableLangsForPath, blogPath, spacePath, travelPath } from '../../i18n/routes';
-import { getWorks, getPosts, getCreditCards } from '../../lib/cms';
+import { blogPath, spacePath } from '../../i18n/routes';
+import { getWorks, getPosts } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import PortfolioChrome from '../PortfolioChrome.astro';
@@ -12,7 +12,6 @@ import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
 import { SPACE_IDS, type SpaceId } from '../../data/spaces';
 import { getLocalizedSpace } from '../../i18n/space-locale';
-import { tripReports } from '../../data/trips/index';
 interface Props {
   lang: Lang;
 }
@@ -23,7 +22,6 @@ const P = labels.platform;
 
 const allWorks = await getWorks();
 const allPosts = await getPosts();
-const allCards = await getCreditCards();
 
 const creators = SPACE_IDS.slice(0, 2).map((id: SpaceId, i) => {
   const def = getLocalizedSpace(id, lang);
@@ -46,44 +44,6 @@ creators.push({
   idx: creators.length,
 });
 
-creators.push({
-  name: 'LUMIVEIL',
-  tagline: P.lumiveilTagline,
-  href: '/lumiveil',
-  workCount: 0,
-  countUnit: 'iOS App',
-  idx: creators.length,
-});
-
-creators.push({
-  name: 'MERIDIEL',
-  tagline: P.meridielTagline,
-  href: '/meridiel/',
-  workCount: 0,
-  countUnit: 'Web App',
-  idx: creators.length,
-});
-
-creators.push({
-  name: 'TRAVEL',
-  tagline: P.travelTagline,
-  href: travelPath(availableLangsForPath('/travel').includes(lang) ? lang : 'en'),
-  workCount: allCards.length,
-  countUnit: P.cardsCountUnit,
-  idx: creators.length,
-});
-
-// 旅行報告書目前僅 zh 頁面，故一律連向 zh 路由
-if (tripReports.length > 0) {
-  creators.push({
-    name: 'REPORTS',
-    tagline: P.reportsTagline,
-    href: `${travelPath('zh')}/reports`,
-    workCount: tripReports.length,
-    countUnit: P.reportsCountUnit,
-    idx: creators.length,
-  });
-}
 
 const dockSections = [
   { id: 'platform-intro', label: P.dockIntro },

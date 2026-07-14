@@ -243,19 +243,19 @@ body::before {
   color: var(--muted);
   line-height: 1.92;
 }
-.work-body :global(p) { margin-bottom: 1.25em; }
-.work-body :global(p:last-child) { margin-bottom: 0; }
-.work-body :global(a) {
+.work-body p { margin-bottom: 1.25em; }
+.work-body p:last-child { margin-bottom: 0; }
+.work-body a {
   color: var(--accent);
   text-decoration: none;
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
 }
-.work-body :global(a:hover) { border-bottom-color: var(--accent); }
-.work-body :global(strong) { color: var(--text); font-weight: 500; }
-.work-body :global(ul), .work-body :global(ol) {
+.work-body a:hover { border-bottom-color: var(--accent); }
+.work-body strong { color: var(--text); font-weight: 500; }
+.work-body ul, .work-body ol {
   margin: 1em 0 1em 1.25em;
 }
-.work-body :global(li) { margin-bottom: 0.5em; }
+.work-body li { margin-bottom: 0.5em; }
 
 [data-onscroll-reveal] {
   opacity: 0;

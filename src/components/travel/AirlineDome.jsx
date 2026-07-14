@@ -5,7 +5,7 @@ const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
 export default function AirlineDome({ airlines, lang }) {
   const images = useMemo(() => airlines.map((a) => ({
-    src: a.logo?.url ?? `https://pics.avs.io/200/200/${a.iataCode}.png`,
+    src: a.logo?.url ?? '/airline-placeholder.svg',
     alt: `${a.name} (${a.iataCode})`,
     slug: a.slug,
     name: a.name,

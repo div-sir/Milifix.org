@@ -22,6 +22,23 @@ export function initSiteNav() {
   const desktopMq = window.matchMedia('(min-width: 769px)');
   let lastScrollY = window.scrollY;
 
+  function setPageInert(inert: boolean) {
+    for (const child of Array.from(document.body.children)) {
+      if (!(child instanceof HTMLElement) || child.classList.contains('site-nav-host')) continue;
+      if (inert) {
+        child.dataset.navPreviousAriaHidden = child.getAttribute('aria-hidden') ?? '';
+        child.inert = true;
+        child.setAttribute('aria-hidden', 'true');
+      } else if (child.dataset.navPreviousAriaHidden !== undefined) {
+        child.inert = false;
+        const previous = child.dataset.navPreviousAriaHidden;
+        if (previous) child.setAttribute('aria-hidden', previous);
+        else child.removeAttribute('aria-hidden');
+        delete child.dataset.navPreviousAriaHidden;
+      }
+    }
+  }
+
   // Keep global preference in sync with the current localized path.
   try {
     const p = window.location.pathname;
@@ -182,6 +199,7 @@ export function initSiteNav() {
       btn.setAttribute('aria-label', open ? closeL : openL);
     }
     document.body.style.overflow = open && mq.matches ? 'hidden' : '';
+    setPageInert(open && mq.matches);
   }
 
   function close() {
@@ -241,6 +259,22 @@ export function initSiteNav() {
   });
 
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && mq.matches && siteNav.classList.contains('is-open')) {
+      const focusable = Array.from(siteNav.querySelectorAll<HTMLElement>(focusableSelector))
+        .filter((item) => !item.closest('[hidden]') && item.getAttribute('aria-hidden') !== 'true');
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (first && last) {
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+      return;
+    }
     if (e.key !== 'Escape') return;
     if (isWorksOpen()) {
       closeWorks();
@@ -284,6 +318,14 @@ export function closeMobileSiteNavFlyout() {
   if (!siteNav?.classList.contains('is-open')) return;
   siteNav.classList.remove('is-open');
   document.body.style.overflow = '';
+  for (const child of Array.from(document.body.children)) {
+    if (!(child instanceof HTMLElement) || child.dataset.navPreviousAriaHidden === undefined) continue;
+    child.inert = false;
+    const previous = child.dataset.navPreviousAriaHidden;
+    if (previous) child.setAttribute('aria-hidden', previous);
+    else child.removeAttribute('aria-hidden');
+    delete child.dataset.navPreviousAriaHidden;
+  }
   const toggle = siteNav.querySelector<HTMLButtonElement>('.site-nav__toggle');
   if (toggle) {
     toggle.setAttribute('aria-expanded', 'false');

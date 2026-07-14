@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../SiteNav.astro';
+import AmbientBackdrop from '../AmbientBackdrop.astro';
+import type { Lang } from '../../i18n/types';
+import '../../styles/theme.css';
+import '../../styles/portfolio-atmosphere.css';
+
+interface Props { lang: Lang; kind: 'privacy' | 'terms' }
+const { lang, kind } = Astro.props;
+const zh = lang === 'zh';
+const updated = '2026-07-14';
+const path = `${zh ? '/zh' : ''}/${kind}`;
+
+const privacy = zh ? {
+  title: '隱私權政策', intro: '本頁說明 Milifix 與 Konbini 投稿功能如何處理你的資料。',
+  sections: [
+    ['我們收集什麼', '使用 Google 登入投稿時，我們會驗證 Google ID token 與 email 是否已驗證；CMS 保存 Google 帳號識別碼與顯示名稱，不保存你的 email。投稿內容可能包含評分、文字、價格與你主動上傳的圖片；安全紀錄可能包含時間、操作結果與經雜湊處理的網路識別資訊。'],
+    ['為什麼需要', '資料只用於確認投稿者、避免重複投票與濫用、執行檢舉及後台審核，以及維護服務安全。圖片會先檢查格式、大小與內容後才儲存。'],
+    ['分享與保存', '我們不販售個人資料。為提供服務，資料可能由 Google 登入、Payload CMS、UploadThing 與 Vercel 等處理者代管。資料會在營運、資安、爭議處理或法定需要的期間內保存，之後刪除或去識別化。'],
+    ['你的選擇', '你可以不登入而瀏覽公開內容。若要查詢、更正或刪除與投稿相關的個人資料，請使用下方信箱聯絡；為避免誤刪，我們可能需要先驗證帳號所有權。'],
+  ],
+} : {
+  title: 'Privacy policy', intro: 'This page explains how Milifix and Konbini submissions handle your data.',
+  sections: [
+    ['What we collect', 'When you submit with Google sign-in, we verify the Google ID token and that the email is verified. The CMS retains the Google account identifier and display name, but not your email address. Submissions may include ratings, text, prices, and images you choose to upload. Security logs may include timestamps, outcomes, and hashed network identifiers.'],
+    ['Why we need it', 'We use this data to identify contributors, prevent duplicate voting and abuse, moderate reports, and keep the service secure. Images are checked for type, size, and content before storage.'],
+    ['Sharing and retention', 'We do not sell personal data. Google sign-in, Payload CMS, UploadThing, and Vercel may process data to provide the service. We keep it only as long as needed for operations, security, disputes, or legal obligations, then delete or de-identify it.'],
+    ['Your choices', 'You can browse public content without signing in. To request access, correction, or deletion of submission-related personal data, contact us below. We may verify account ownership before acting.'],
+  ],
+};
+
+const terms = zh ? {
+  title: '使用與投稿規範', intro: '使用 Milifix 或送出 Konbini 內容，即表示你同意遵守以下規則。',
+  sections: [
+    ['投稿責任', '只投稿你有權分享、基於真實經驗且與商品相關的內容。不得冒充他人、灌票、騷擾、揭露個資，或上傳侵權、違法、惡意與誤導內容。'],
+    ['公開與授權', '新商品可先公開以延續討論；評論必須通過後台核准才會公開。你保有內容權利，並授予 Milifix 為營運、呈現、備份與宣傳該服務所必要的非專屬、全球、免權利金使用權。'],
+    ['審核與檢舉', '我們可依規範核准、隱藏、下架或編輯必要的格式資訊，並保留審核紀錄。公開內容旁提供檢舉機制；重大或重複違規可能限制投稿。'],
+    ['資訊限制', '評價、旅遊與信用卡資訊由社群或資料來源彙整，可能延遲或有誤，不構成財務、法律或旅遊建議。申辦或消費前請以業者官方條款為準。'],
+  ],
+} : {
+  title: 'Terms & community rules', intro: 'By using Milifix or submitting Konbini content, you agree to these rules.',
+  sections: [
+    ['Submission standards', 'Share only content you have the right to publish, based on genuine experience, and relevant to the product. Do not impersonate, manipulate votes, harass, disclose personal data, or submit unlawful, infringing, malicious, or misleading material.'],
+    ['Publication and licence', 'New products may appear immediately to keep discussion moving; reviews are public only after back-office approval. You retain ownership and grant Milifix a non-exclusive, worldwide, royalty-free licence needed to operate, display, back up, and promote the service.'],
+    ['Moderation and reports', 'We may approve, hide, remove, or make necessary formatting edits and retain moderation records. Published content includes a report route. Serious or repeated violations may lead to submission restrictions.'],
+    ['Information limits', 'Reviews, travel, and credit-card information may be community-sourced or delayed and is not financial, legal, or travel advice. Confirm current terms with the official provider before applying or spending.'],
+  ],
+};
+const content = kind === 'privacy' ? privacy : terms;
+---
+
+<BaseLayout lang={lang} title={`${content.title} — Milifix`} description={content.intro} canonicalPath={path}>
+  <AmbientBackdrop />
+  <SiteNav lang={lang} variant="platform" pathname={Astro.url.pathname} />
+  <main id="main-content" class="policy" tabindex="-1">
+    <p class="policy__eyebrow">MILIFIX · {kind.toUpperCase()}</p>
+    <h1>{content.title}</h1>
+    <p class="policy__intro">{content.intro}</p>
+    <p class="policy__updated">{zh ? '最後更新' : 'Last updated'}: {updated}</p>
+    {content.sections.map(([heading, body]) => <section><h2>{heading}</h2><p>{body}</p></section>)}
+    <section><h2>{zh ? '聯絡方式' : 'Contact'}</h2><p><a href="mailto:boss@milifix.com">boss@milifix.com</a></p></section>
+  </main>
+</BaseLayout>
+
+<style>
+  .policy { position: relative; z-index: 2; max-width: 760px; min-height: 80svh; margin: 0 auto; padding: 9rem 1.5rem 4rem; color: var(--text); }
+  .policy__eyebrow, .policy__updated { font: 500 .72rem/1.5 var(--mono, ui-monospace, monospace); letter-spacing: .12em; color: var(--muted); }
+  h1 { margin: .8rem 0; font: 650 clamp(2.2rem, 7vw, 4.6rem)/1.03 var(--sans, system-ui, sans-serif); letter-spacing: -.035em; }
+  .policy__intro { max-width: 56ch; font-size: 1.05rem; line-height: 1.7; color: var(--muted); }
+  .policy__updated { margin: 1rem 0 3rem; }
+  section { padding: 1.5rem 0; border-top: 1px solid var(--line2); }
+  h2 { margin: 0 0 .65rem; font: 600 1.08rem/1.4 var(--sans, system-ui, sans-serif); }
+  section p { margin: 0; line-height: 1.8; color: var(--muted); }
+  a { color: var(--text); text-underline-offset: .25em; }
+</style>

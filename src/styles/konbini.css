@@ -881,3 +881,17 @@ body.konbini-modal-open {
   font-size: 0.76rem;
   color: var(--muted-dim);
 }
+
+.konbini-review__report {
+  min-height: 2.75rem;
+  margin-left: auto;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.konbini-review__report:hover { color: var(--text); border-color: var(--muted); }
+.konbini-review__report:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

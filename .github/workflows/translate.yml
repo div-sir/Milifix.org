@@ -5,7 +5,7 @@ name: Translate blog posts
 # 需在 repo Settings → Secrets and variables → Actions 新增 secret：ANTHROPIC_API_KEY。
 #
 # 流程：讀 CMS 唯讀 API → Anthropic 翻譯 → 寫進 src/data/post-translations.json →
-#       有變更就 commit + push 到 main → Vercel 自動部署。
+#       有變更就建立／更新 PR，由 CI 驗證後再人工合併。
 # 完全不寫入 CMS、不改 schema。
 
 on:
@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: translate-blog
@@ -35,6 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,8 +51,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Commit & push if changed
+      - name: Commit to review branch and open PR
         if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -58,7 +62,13 @@ jobs:
           if git diff --staged --quiet; then
             echo "沒有新譯文，略過 commit。"
           else
-            git commit -m "feat(blog): AI 內文初譯 (en/ja) [skip ci]"
-            git push origin main
-            echo "已 push 譯文，Vercel 會自動部署。"
+            branch="automation/blog-translations"
+            git switch -C "$branch"
+            git commit -m "feat(blog): AI 內文初譯 (en/ja)"
+            git push --force-with-lease origin "$branch"
+            if ! gh pr view "$branch" >/dev/null 2>&1; then
+              gh pr create --base main --head "$branch" \
+                --title "feat(blog): AI 內文初譯 (en/ja)" \
+                --body "由 Translate blog posts workflow 產生。請在 CI 通過後檢查語意與專有名詞，再合併。"
+            fi
           fi

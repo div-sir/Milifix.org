@@ -254,6 +254,7 @@ const mapData = {
     data-lightbox-prev="上一張"
     data-lightbox-next="下一張"
   >
+    <h1 class="sr-only">{trip.title}</h1>
     <a class="immersive-back" href={reportsPath}>← 返回報告書列表</a>
 
     <!-- ── 沈浸式階段：全螢幕地圖 + 浮動 HUD，捲動即飛鏡頭 ── -->
@@ -427,8 +428,8 @@ const mapData = {
   <!-- ── 底部氣泡導覽：回首頁／語言切換／深淺色切換（取代頂部導覽列） ── -->
   <nav class="dock-pill-nav dock-nav immersive-dock" aria-label={N.dockAria}>
     <div class="dock-pill-nav__shell">
-      <ul class="dock-pill-nav__row" role="menubar">
-        <li class="dock-pill-nav__cell" role="none">
+      <ul class="dock-pill-nav__row">
+        <li class="dock-pill-nav__cell">
           <a
             class="dock-pill-nav__pill dock-pill-nav__pill--home"
             href={homePath(lang)}
@@ -450,7 +451,7 @@ const mapData = {
 
         <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
 
-        <li class="dock-pill-nav__cell" role="none">
+        <li class="dock-pill-nav__cell">
           <button
             type="button"
             class="dock-pill-nav__pill dock-pill-nav__pill--icon"
@@ -489,7 +490,7 @@ const mapData = {
 
         <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
 
-        <li class="dock-pill-nav__cell" role="none">
+        <li class="dock-pill-nav__cell">
           <button
             type="button"
             class="dock-pill-nav__pill dock-pill-nav__pill--top"

@@ -671,7 +671,7 @@ const countryTitleHidden = countryGroups.length > 1;
           var responseOk = false;
           fetch('/api/konbini-submit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Milifix-Request': '1' },
             body: JSON.stringify(payload),
           })
             .then(function (res) {

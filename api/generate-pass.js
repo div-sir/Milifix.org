@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { PKPass } from 'passkit-generator';
 import {
   checkOrigin,
-  checkRateLimit,
+  checkSharedRateLimit,
   getClientIp,
   decodeImage,
   isValidCarrier,
@@ -39,18 +39,17 @@ export default async function handler(req, res) {
   }
 
   // --- Origin / Referer allowlist ---
-  // "Verify-if-present": a supplied Origin/Referer must be one of our hosts;
-  // if both are absent (some in-app browsers strip them) we allow through and
-  // rely on rate limiting instead. See checkOrigin() for the full rationale.
+  // A supplied Origin/Referer must be one of our exact hosts. In-app browsers
+  // that strip both must carry the first-party request marker added by the UI.
   const origin = checkOrigin(req.headers ?? {});
   if (!origin.allowed) {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
 
-  // --- Rate limiting (best-effort, in-memory) ---
+  // --- Rate limiting (shared Redis when configured; per-instance fallback) ---
   const clientIp = getClientIp(req);
-  const rl = checkRateLimit(RATE_LIMIT_STORE, clientIp);
+  const rl = await checkSharedRateLimit(RATE_LIMIT_STORE, 'generate-pass', clientIp);
   if (rl.limited) {
     res.setHeader('Retry-After', String(rl.retryAfter));
     res.status(429).json({ error: 'Too many requests. Please try again later.' });
