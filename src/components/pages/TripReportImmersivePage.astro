@@ -290,9 +290,6 @@ const mapData = {
           <span class="immersive-reticle__v"></span>
           <span class="immersive-reticle__ring"></span>
         </div>
-        <!-- 經緯度讀數（左下）＋ 相機讀數（右下，對稱填補原本空白的右下角） -->
-        <p class="immersive-coords immersive-parallax-mid" id="immersive-coords" aria-hidden="true"></p>
-        <p class="immersive-cam immersive-parallax-mid" id="immersive-cam" aria-hidden="true"></p>
         <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓</div>
 
         <!-- 僅顯示可驗證的狀態，不製造虛構速度或高度等遙測資料。 -->
@@ -349,6 +346,16 @@ const mapData = {
           </div>
           <div id="immersive-hud-desc" class="immersive-hud__desc immersive-hud-fragment"></div>
           <div id="immersive-hud-note" class="immersive-hud__note immersive-hud-fragment" hidden></div>
+          <div id="immersive-hud-telemetry" class="immersive-hud__telemetry immersive-hud-fragment" aria-hidden="true">
+            <div>
+              <span>POSITION</span>
+              <strong id="immersive-coords"></strong>
+            </div>
+            <div>
+              <span>CAMERA</span>
+              <strong id="immersive-cam"></strong>
+            </div>
+          </div>
         </div>
       </div>
 

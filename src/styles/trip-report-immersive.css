@@ -239,38 +239,6 @@ html[data-theme='light'] .immersive-main {
   background: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
-/* 座標讀數：呼應地圖 HUD，隨鏡頭飛行即時更新 */
-.immersive-coords {
-  position: absolute;
-  left: 22px;
-  bottom: 34px;
-  z-index: 2;
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-  color: var(--imm-ink-faint);
-  pointer-events: none;
-}
-
-/* 相機讀數（ZOOM／BRG／PITCH）：對稱疊在右下角，原本這一角只有四角括號，
-   加這一組讀數把空白處填成完整的「量測儀器」HUD 語彙。 */
-.immersive-cam {
-  position: absolute;
-  right: 22px;
-  bottom: 34px;
-  z-index: 2;
-  margin: 0;
-  text-align: right;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-  color: var(--imm-ink-faint);
-  pointer-events: none;
-}
-
 .immersive-reticle {
   position: absolute;
   top: 50%;
@@ -543,6 +511,62 @@ html[data-theme='light'] .immersive-main {
   text-shadow: var(--imm-shadow-title);
 }
 #immersive-hud-transport-icon { font-size: 0.9rem; line-height: 1; }
+
+/* 地圖與鏡頭數值升格為 HUD 內容。兩列故意不等寬、不完全對齊，保留測繪介面的節奏。 */
+.immersive-hud__telemetry {
+  top: 39vh;
+  right: clamp(7rem, 13vw, 12rem);
+  width: min(25vw, 19rem);
+  display: grid;
+  gap: 0.65rem;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__telemetry > div {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: baseline;
+  gap: 0.8rem;
+}
+.immersive-hud__telemetry > div:last-child {
+  width: 88%;
+  margin-left: 1.25rem;
+}
+.immersive-hud__telemetry span {
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+}
+.immersive-hud__telemetry strong {
+  color: var(--imm-ink-faint);
+  font-size: clamp(0.58rem, 0.75vw, 0.68rem);
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+/* 每個錨點沿用原有 pos 語意產生四種錯位構圖；區域仍可預測，但不再像模板般整齊。 */
+@media (min-width: 641px) {
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__desc { top: 19vh; left: 9vw; width: min(31vw, 25rem); }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__transport { top: 12vh; right: 17vw; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__title-cluster { right: 10vw; bottom: 17vh; width: min(31vw, 27rem); }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__note { left: 6vw; bottom: 24vh; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__telemetry { top: 43vh; right: auto; left: 8vw; }
+
+  .immersive-hud[data-layout='top-left'] .immersive-hud__desc { top: 12vh; left: 12vw; width: min(29vw, 24rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__transport { top: 23vh; right: 9vw; }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__title-cluster { right: 15vw; bottom: 22vh; }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__note { left: 8vw; bottom: 14vh; width: min(31vw, 25rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__telemetry { top: auto; right: 8vw; bottom: 36vh; }
+
+  .immersive-hud[data-layout='top-right'] .immersive-hud__desc { top: 22vh; left: 6vw; width: min(36vw, 29rem); }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__transport { top: 11vh; right: 12vw; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__title-cluster { right: 9vw; bottom: 24vh; width: min(36vw, 31rem); }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__note { left: 13vw; bottom: 16vh; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__telemetry { top: auto; right: auto; bottom: 30vh; left: 8vw; }
+}
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
 .immersive-daynav__dot { position: relative; }
@@ -840,6 +864,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     width: min(38vw, 23rem);
   }
   .immersive-hud__transport { right: 5rem; }
+  .immersive-hud__telemetry { width: min(34vw, 19rem); }
   .immersive-hud__note {
     left: 4rem;
     width: min(32vw, 20rem);
@@ -857,7 +882,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
 }
 
 @media (max-width: 640px) {
-  /* 手機仍保留分散式 HUD，但改用單欄的四個固定高度帶，避免文字彼此覆蓋。 */
+  /* 手機改用單欄資訊帶；保留些微縮排差，不把數據重新排成一張整齊卡片。 */
   .immersive-hud__desc {
     top: 9rem;
     left: 20px;
@@ -872,6 +897,15 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     right: auto;
     max-width: calc(100vw - 40px);
   }
+  .immersive-hud__telemetry {
+    top: 28vh;
+    left: 32px;
+    right: 20px;
+    width: auto;
+    gap: 0.45rem;
+  }
+  .immersive-hud__telemetry > div { grid-template-columns: 4rem 1fr; }
+  .immersive-hud__telemetry > div:last-child { margin-left: 0.75rem; }
   .immersive-hud__title-cluster {
     left: 20px;
     right: 20px;

@@ -330,6 +330,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const transportLabelEl = document.getElementById('immersive-hud-transport-label');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
+  const telemetryEl = document.getElementById('immersive-hud-telemetry');
   const photoBoxEl = document.getElementById('immersive-hud-photo');
   const photoImgEl = document.getElementById('immersive-hud-img') as HTMLImageElement | null;
   const photoPlaceholderEl = document.getElementById('immersive-hud-placeholder');
@@ -444,7 +445,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl].filter(
+  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, telemetryEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;
