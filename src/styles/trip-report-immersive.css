@@ -153,6 +153,31 @@ html[data-theme='light'] .immersive-main {
   );
 }
 
+/* 掃描光與顆粒只補足儀器質感；透明度刻意壓低，避免地圖與文字變髒。 */
+.immersive-scanline {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.12;
+  background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--accent) 24%, transparent) 50%, transparent 100%);
+  background-size: 100% 28vh;
+  animation: immersiveScan 8s linear infinite;
+}
+.immersive-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: repeating-radial-gradient(circle at 20% 30%, var(--imm-ink) 0 0.45px, transparent 0.65px 3px);
+  mix-blend-mode: soft-light;
+}
+@keyframes immersiveScan {
+  from { background-position: 0 -28vh; }
+  to { background-position: 0 128vh; }
+}
+
 /* ── HUD 裝飾框：外框、四角括號、刻度、十字準星 ──────────── */
 
 .immersive-frame {
@@ -286,6 +311,115 @@ html[data-theme='light'] .immersive-main {
   pointer-events: none;
   transition: color 0.4s ease;
 }
+
+/* ── 任務狀態／羅盤／閱讀進度：HUD 的第二資訊層 ─────────── */
+.immersive-mission {
+  position: absolute;
+  top: 27px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  color: var(--imm-ink-faint);
+  text-shadow: var(--imm-shadow-tag);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.immersive-mission__pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.immersive-mission__sep { width: 1px; height: 10px; background: color-mix(in srgb, var(--imm-ink) 16%, transparent); }
+
+.immersive-compass {
+  position: absolute;
+  right: 76px;
+  top: 50%;
+  z-index: 3;
+  width: 46px;
+  height: 78px;
+  margin-top: -39px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  color: var(--imm-ink-faint);
+  font-family: var(--mono);
+  pointer-events: none;
+}
+.immersive-compass__north { font-size: 0.58rem; font-weight: 750; letter-spacing: 0.12em; color: var(--accent); }
+.immersive-compass__needle {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  border-radius: 50%;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.immersive-compass__needle::before,
+.immersive-compass__needle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 11px;
+  margin-left: -0.5px;
+}
+.immersive-compass__needle::before { top: 3px; background: var(--accent); }
+.immersive-compass__needle::after { bottom: 3px; background: var(--imm-ink-faint); }
+.immersive-compass__bearing { font-size: 0.55rem; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+
+.immersive-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 82px;
+  z-index: 4;
+  width: min(34vw, 420px);
+  transform: translateX(-50%);
+  color: var(--imm-ink-faint);
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.11em;
+  text-shadow: var(--imm-shadow-tag);
+  pointer-events: none;
+}
+.immersive-progress__copy,
+.immersive-progress__context { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.immersive-progress__copy { margin-bottom: 7px; color: var(--imm-ink-soft); font-weight: 700; }
+.immersive-progress__rail {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--imm-ink) 12%, transparent);
+}
+.immersive-progress__rail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to right, transparent 0 17px, var(--imm-scene-bg) 17px 18px);
+}
+#immersive-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 65%, transparent);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.immersive-progress__context { margin-top: 7px; }
+#immersive-progress-day { color: var(--accent); font-weight: 750; }
+#immersive-progress-status { max-width: 68%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
 
 /* ── HUD 文字／照片：無卡片邊框，直接浮在地圖上 ──────────── */
 
@@ -624,6 +758,37 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   margin-bottom: 1.4rem;
 }
 .immersive-detail__stats { margin-bottom: 2.5rem; }
+.trip-review {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.7fr) minmax(18rem, 1.3fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  margin: 0 0 2.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+.trip-review__head { display: flex; align-items: flex-start; gap: 0.85rem; }
+.trip-review__signal {
+  width: 8px;
+  height: 8px;
+  margin-top: 0.35rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.trip-review__kicker {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.trip-review h2 { margin: 0; font-family: var(--serif); font-size: clamp(1.15rem, 2vw, 1.5rem); line-height: 1.2; }
+.trip-review ul { margin: 0; padding-left: 1.15rem; color: var(--trip-ink-soft); font-size: 0.9rem; line-height: 1.75; }
+.trip-review li + li { margin-top: 0.45rem; }
 .trip-essentials-wrap { margin-bottom: 3rem; }
 /* .trip-days 的大量 padding-bottom 是原雙欄版型讓 sticky 地圖跑完剩餘捲動距離用的，
    此頁地圖只在上方沈浸式階段出現，這裡不需要，否則 footer 前會留一大段空白。 */
@@ -640,7 +805,10 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-side-ticks,
   .immersive-coords,
   .immersive-cam,
-  .immersive-grid { display: none; }
+  .immersive-grid,
+  .immersive-compass { display: none; }
+  .immersive-progress { width: min(48vw, 360px); }
+  .trip-review { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 640px) {
@@ -648,6 +816,24 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-hud[data-align='right'] .immersive-hud__body { text-align: left; }
   .immersive-hud[data-align='right'] .immersive-hud__eyebrow { flex-direction: row; }
   .immersive-hud__photo { width: 84px; height: 84px; }
+  .immersive-mission { left: 20px; transform: none; }
+  .immersive-mission__sep,
+  .immersive-mission span:nth-last-child(-n + 2) { display: none; }
+  .immersive-progress { left: 20px; right: 20px; top: 72px; bottom: auto; width: auto; transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .trip-review { background: var(--surface); }
+  .immersive-map .maplibregl-ctrl-attrib { background: var(--imm-scene-bg) !important; }
+}
+
+@media (prefers-contrast: more) {
+  .trip-review { border-color: var(--accent); }
+  .immersive-progress__rail { background: color-mix(in srgb, var(--imm-ink) 40%, transparent); }
+  .immersive-mission,
+  .immersive-progress,
+  .immersive-coords,
+  .immersive-cam { color: var(--imm-ink-soft); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -658,6 +844,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-day-ruler__cursor,
   .immersive-day-ruler__tick::before,
   .immersive-loader__bar-fill { transition: none; }
+  .immersive-scanline { display: none; }
   .immersive-map-col { opacity: 1; transform: none; }
   /* 游標懸浮視差本身就依 prefers-reduced-motion 停用（見 client script），
      這裡額外保底：即使程式碼路徑漏判，深／中層裝飾也不會被拖出定位。 */

@@ -199,7 +199,7 @@ for (const d of trip.days) for (const c of d.costs ?? []) if (typeof c.amountJpy
 const stats = [
   { value: trip.durationDays, unit: '', label: '天數' },
   { value: allStops.length, unit: '', label: '停靠點' },
-  { value: totalCost, unit: '¥', label: '費用合計', prefix: true },
+  { value: totalCost, unit: '¥', label: '已列額外費用', prefix: true },
 ];
 
 const mapData = {
@@ -264,6 +264,8 @@ const mapData = {
 
         <!-- 景深裝飾：經緯格線（背景層，填補畫面空白處）＋ 暗角漸層（強化立體縱深） -->
         <div class="immersive-grid immersive-parallax-deep" aria-hidden="true"></div>
+        <div class="immersive-scanline" aria-hidden="true"></div>
+        <div class="immersive-grain" aria-hidden="true"></div>
         <div class="immersive-vignette" aria-hidden="true"></div>
 
         <!-- HUD 裝飾框：外框、四角括號、頂部刻度、中央十字準星
@@ -292,6 +294,32 @@ const mapData = {
         <p class="immersive-coords immersive-parallax-mid" id="immersive-coords" aria-hidden="true"></p>
         <p class="immersive-cam immersive-parallax-mid" id="immersive-cam" aria-hidden="true"></p>
         <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓</div>
+
+        <!-- 僅顯示可驗證的狀態，不製造虛構速度或高度等遙測資料。 -->
+        <div class="immersive-mission" aria-hidden="true">
+          <span class="immersive-mission__pulse"></span>
+          <span>ROUTE VERIFIED</span>
+          <span class="immersive-mission__sep"></span>
+          <span>JST · UTC+09</span>
+          <span class="immersive-mission__sep"></span>
+          <span>{trip.review?.reviewedAt.replaceAll('-', '.')}</span>
+        </div>
+        <div class="immersive-compass immersive-parallax-mid" aria-hidden="true">
+          <span class="immersive-compass__north">N</span>
+          <span class="immersive-compass__needle" id="immersive-compass-needle"></span>
+          <span class="immersive-compass__bearing" id="immersive-compass-bearing">000°</span>
+        </div>
+        <div class="immersive-progress" aria-hidden="true">
+          <div class="immersive-progress__copy">
+            <span>ROUTE PROGRESS</span>
+            <span id="immersive-progress-count">01 / {String(anchors.length).padStart(2, '0')}</span>
+          </div>
+          <div class="immersive-progress__rail"><span id="immersive-progress-fill"></span></div>
+          <div class="immersive-progress__context">
+            <span id="immersive-progress-day">OVERVIEW</span>
+            <span id="immersive-progress-status">MAP SYNCHRONIZED</span>
+          </div>
+        </div>
 
         <!-- 當日行程刻度尺：僅列出目前所在日的停靠點，資訊隨游標相對位置浮動 -->
         <div class="immersive-day-ruler" id="immersive-day-ruler" aria-hidden="true">
@@ -326,7 +354,7 @@ const mapData = {
 
       <div class="immersive-track" id="immersive-track">
         {
-          anchors.map((a) => (
+          anchors.map((a, index) => (
             <div
               class="immersive-anchor"
               data-lng={a.lng}
@@ -345,6 +373,7 @@ const mapData = {
               data-day-intro={a.dayIntro ? '1' : ''}
               data-transport-icon={a.transportIcon ?? ''}
               data-transport-label={a.transportLabel ?? ''}
+              data-index={index + 1}
             />
           ))
         }
@@ -371,6 +400,22 @@ const mapData = {
     <!-- ── 詳細行程資料：延續沈浸式的深色主題，逐日完整內容 ── -->
     <section class="immersive-detail">
       <p class="immersive-detail__label">詳細行程資料</p>
+      {
+        trip.review && (
+          <aside class="trip-review" aria-labelledby="trip-review-title">
+            <div class="trip-review__head">
+              <span class="trip-review__signal" aria-hidden="true"></span>
+              <div>
+                <p class="trip-review__kicker">CONTENT REVIEW · {trip.review.reviewedAt}</p>
+                <h2 id="trip-review-title">{trip.review.status}</h2>
+              </div>
+            </div>
+            <ul>
+              {trip.review.notes.map((note) => <li>{note}</li>)}
+            </ul>
+          </aside>
+        )
+      }
       <div class="trip-stats immersive-detail__stats">
         {
           stats.map((s) => (

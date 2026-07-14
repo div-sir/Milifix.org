@@ -65,9 +65,9 @@ const POS_STYLE: Record<
   { left: string; right: string; top: string; bottom: string; direction: string }
 > = {
   'bottom-left': { left: '5vw', right: 'auto', top: 'auto', bottom: '9vh', direction: 'row' },
-  'bottom-right': { left: 'auto', right: '5vw', top: 'auto', bottom: '9vh', direction: 'row-reverse' },
+  'bottom-right': { left: 'auto', right: '11vw', top: 'auto', bottom: '9vh', direction: 'row-reverse' },
   'top-left': { left: '5vw', right: 'auto', top: '14vh', bottom: 'auto', direction: 'row' },
-  'top-right': { left: 'auto', right: '5vw', top: '14vh', bottom: 'auto', direction: 'row-reverse' },
+  'top-right': { left: 'auto', right: '11vw', top: '14vh', bottom: 'auto', direction: 'row-reverse' },
 };
 
 function readVar(name: string, fallback: string): string {
@@ -393,6 +393,12 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   // ── 座標／相機讀數：隨鏡頭飛行的目的地即時更新（經緯度 + 縮放／方位／傾角）──
   const coordsEl = document.getElementById('immersive-coords');
   const camEl = document.getElementById('immersive-cam');
+  const progressFillEl = document.getElementById('immersive-progress-fill');
+  const progressCountEl = document.getElementById('immersive-progress-count');
+  const progressDayEl = document.getElementById('immersive-progress-day');
+  const progressStatusEl = document.getElementById('immersive-progress-status');
+  const compassNeedleEl = document.getElementById('immersive-compass-needle');
+  const compassBearingEl = document.getElementById('immersive-compass-bearing');
   const fmtCoord = (lat: number, lng: number): string =>
     `${Math.abs(lat).toFixed(4)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(4)}°${lng >= 0 ? 'E' : 'W'}`;
   const fmtCam = (zoom: number, bearing: number, pitch: number): string =>
@@ -442,11 +448,10 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
         photoImgEl.hidden = false;
         photoPlaceholderEl.hidden = true;
         photoBoxEl.hidden = false;
-      } else if (!d.dayIntro && d.title) {
+      } else {
+        // 沒有實際圖片時不顯示「空白照片卡」；裝飾不能冒充內容。
         photoImgEl.hidden = true;
         photoPlaceholderEl.hidden = false;
-        photoBoxEl.hidden = false;
-      } else {
         photoBoxEl.hidden = true;
       }
     }
@@ -478,6 +483,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   const dayNavDots = Array.from(document.querySelectorAll<HTMLElement>('.immersive-daynav__dot'));
   const anchorEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-anchor'));
+  const anchorTotal = anchorEls.length;
 
   const jumpToStopId = (stopId: string): void => {
     const target = anchorEls.find((a) => {
@@ -513,6 +519,25 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
     if (coordsEl) coordsEl.textContent = fmtCoord(camera.center[1], camera.center[0]);
     if (camEl) camEl.textContent = fmtCam(camera.zoom, camera.bearing, camera.pitch);
+
+    const anchorIndex = Math.max(1, Number(d.index || '1'));
+    const progress = anchorTotal > 1 ? ((anchorIndex - 1) / (anchorTotal - 1)) * 100 : 100;
+    if (progressFillEl) progressFillEl.style.transform = `scaleX(${progress / 100})`;
+    if (progressCountEl) {
+      progressCountEl.textContent = `${String(anchorIndex).padStart(2, '0')} / ${String(anchorTotal).padStart(2, '0')}`;
+    }
+    if (progressDayEl) {
+      progressDayEl.textContent = d.day ? `DAY ${String(d.day).padStart(2, '0')}` : d.tag || 'OVERVIEW';
+    }
+    if (progressStatusEl) {
+      progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || 'MAP SYNCHRONIZED';
+    }
+    const normalizedBearing = ((camera.bearing % 360) + 360) % 360;
+    if (compassBearingEl) compassBearingEl.textContent = `${String(Math.round(normalizedBearing)).padStart(3, '0')}°`;
+    if (compassNeedleEl) {
+      // 地圖向右旋轉時，北向指針反向旋轉，維持真實方位關係。
+      compassNeedleEl.style.transform = `rotate(${-camera.bearing}deg)`;
+    }
 
     applyPos((d.pos as AnchorData['pos']) || 'bottom-left');
     swapHud(d);
