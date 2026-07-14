@@ -24,6 +24,8 @@
     }
   ],
   "redirects": [
+    { "source": "/zh/travel/reports", "destination": "/reports", "permanent": true },
+    { "source": "/zh/travel/reports/:path*", "destination": "/reports/:path*", "permanent": true },
     { "source": "/travel", "destination": "/zh/travel", "permanent": true },
     { "source": "/travel/:path*", "destination": "/zh/travel/:path*", "permanent": true },
     { "source": "/zh/travel/cards", "destination": "/zh/travel#cards", "permanent": true },

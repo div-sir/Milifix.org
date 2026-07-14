@@ -9,6 +9,11 @@ test('platform links to all standalone projects', async ({ page }) => {
   }
 });
 
+test('platform links directly to Milifix reports', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('main a[href="/reports"]')).toHaveCount(1);
+});
+
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
   for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
     await page.goto(path);
@@ -16,8 +21,8 @@ test('standalone projects do not link back to the platform homepage', async ({ p
   }
 });
 
-test('Travel reports can return to the platform homepage', async ({ page }) => {
-  await page.goto('/zh/travel/reports/japan-jr-pass-2026');
+test('Milifix reports can return to the platform homepage', async ({ page }) => {
+  await page.goto('/reports/japan-jr-pass-2026');
   await expect(page.locator('a[href="/zh/"]').first()).toBeVisible();
 });
 

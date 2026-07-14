@@ -69,6 +69,7 @@ const STRINGS: Record<
       travelTagline: string;
       konbiniTagline: string;
       reportsTagline: string;
+      reportsName: string;
       blogCountUnit: string;
       cardsCountUnit: string;
       reportsCountUnit: string;
@@ -285,6 +286,7 @@ const STRINGS: Record<
       travelTagline: 'Taiwan credit card airline & lounge benefits',
       konbiniTagline: 'Community picks and reviews for Taiwan and Japan convenience stores',
       reportsTagline: 'Illustrated travelogues with live route maps',
+      reportsName: 'TRAVEL REPORTS',
       blogCountUnit: 'Posts',
       cardsCountUnit: 'Cards',
       reportsCountUnit: 'Reports',
@@ -509,6 +511,7 @@ const STRINGS: Record<
       travelTagline: '台灣信用卡航空與貴賓室權益比較',
       konbiniTagline: '台灣與日本便利商店新品、必吃與社群評價',
       reportsTagline: '圖文旅行報告書，隨行程帶入即時地圖',
+      reportsName: '旅行報告書',
       blogCountUnit: '篇文章',
       cardsCountUnit: '張卡片',
       reportsCountUnit: '篇報告',
@@ -733,6 +736,7 @@ const STRINGS: Record<
       travelTagline: '台湾のクレジットカードによる航空・ラウンジ特典比較',
       konbiniTagline: '台湾と日本のコンビニ商品を集めたコミュニティレビュー',
       reportsTagline: 'ライブ路線地図つきの旅行レポート',
+      reportsName: '旅行レポート',
       blogCountUnit: '記事',
       cardsCountUnit: 'カード',
       reportsCountUnit: 'レポート',

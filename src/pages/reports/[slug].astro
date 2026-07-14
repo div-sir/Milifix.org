@@ -1,7 +1,7 @@
 ---
-import TripReportPage from '../../../../components/pages/TripReportPage.astro';
-import TripReportImmersivePage from '../../../../components/pages/TripReportImmersivePage.astro';
-import { tripReports } from '../../../../data/trips/index';
+import TripReportPage from '../../components/pages/TripReportPage.astro';
+import TripReportImmersivePage from '../../components/pages/TripReportImmersivePage.astro';
+import { tripReports } from '../../data/trips/index';
 
 export async function getStaticPaths() {
   return tripReports.map((trip) => ({

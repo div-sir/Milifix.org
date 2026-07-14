@@ -42,6 +42,7 @@ export function parseLocalizedPath(pathname: string): { lang: Lang; logicalPath:
 export function equivalentUrl(targetLang: Lang, pathname: string): string {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/') return homePath(targetLang);
+  if (logicalPath === '/reports' || logicalPath.startsWith('/reports/')) return logicalPath;
   const p = langPrefix(targetLang);
   return p ? `${p}${logicalPath}` : logicalPath;
 }
@@ -54,6 +55,7 @@ export function equivalentUrl(targetLang: Lang, pathname: string): string {
 export function availableLangsForPath(pathname: string): Lang[] {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/travel' || logicalPath.startsWith('/travel/')) return ['zh'];
+  if (logicalPath === '/reports' || logicalPath.startsWith('/reports/')) return ['zh'];
   if (logicalPath === '/konbini' || logicalPath.startsWith('/konbini/')) return ['en', 'zh'];
   if (logicalPath === '/privacy' || logicalPath === '/terms') return ['en', 'zh'];
   return ['en', 'zh', 'ja'];
@@ -74,6 +76,16 @@ export function blogSlugPath(lang: Lang, slug: string): string {
 
 export function travelPath(_lang: Lang): string {
   return '/zh/travel';
+}
+
+// ── Travel reports（Milifix 直屬內容，僅繁中）──────────────
+
+export function reportsPath(): string {
+  return '/reports';
+}
+
+export function reportSlugPath(slug: string): string {
+  return `${reportsPath()}/${slug}`;
 }
 
 export function cardListPath(lang: Lang): string {
