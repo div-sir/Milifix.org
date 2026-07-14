@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import type { Lang } from '../../i18n/types';
 import { ui } from '../../i18n/ui';
-import { blogPath, spacePath } from '../../i18n/routes';
+import { blogPath, konbiniPath, spacePath, travelPath } from '../../i18n/routes';
 import { getWorks, getPosts } from '../../lib/cms';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
@@ -43,6 +43,21 @@ creators.push({
   countUnit: P.blogCountUnit,
   idx: creators.length,
 });
+
+const projectLang = lang === 'ja' ? 'en' : lang;
+const projects = [
+  { name: 'LUMIVEIL', tagline: P.lumiveilTagline, href: lang === 'en' ? '/lumiveil' : `/${lang}/lumiveil` },
+  { name: 'MERIDIEL', tagline: P.meridielTagline, href: '/meridiel/' },
+  { name: 'TRAVEL', tagline: P.travelTagline, href: travelPath('zh') },
+  { name: 'KONBINI', tagline: P.konbiniTagline, href: konbiniPath(projectLang) },
+].map((project, i) => ({
+  ...project,
+  workCount: 0,
+  countUnit: P.projectCountUnit,
+  idx: creators.length + i,
+}));
+
+creators.push(...projects);
 
 
 const dockSections = [

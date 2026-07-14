@@ -1,11 +1,24 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test('platform keeps standalone products out of the homepage', async ({ page }) => {
+test('platform links to all standalone projects', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('main h1')).toBeVisible();
-  await expect(page.locator('main a[href^="/travel"], main a[href^="/zh/travel"]')).toHaveCount(0);
-  await expect(page.locator('main a[href^="/lumiveil"], main a[href^="/meridiel"]')).toHaveCount(0);
+  for (const href of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
+    await expect(page.locator(`main a[href="${href}"]`), href).toHaveCount(1);
+  }
+});
+
+test('standalone projects do not link back to the platform homepage', async ({ page }) => {
+  for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
+    await page.goto(path);
+    await expect(page.locator('a[href="/"], a[href="/zh/"]'), path).toHaveCount(0);
+  }
+});
+
+test('Travel reports can return to the platform homepage', async ({ page }) => {
+  await page.goto('/zh/travel/reports/japan-jr-pass-2026');
+  await expect(page.locator('a[href="/zh/"]').first()).toBeVisible();
 });
 
 test('Travel has one canonical Traditional Chinese entry', async ({ page }) => {
