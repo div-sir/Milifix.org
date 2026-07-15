@@ -204,7 +204,7 @@ pass-assets/            Wallet pass 靜態圖片資源（已納入 git 版控）
 
 ### 需求
 
-- Node.js **≥ 22.12**
+- Node.js **24.x**
 - Payload CMS 在本地或 Render 上運行
 
 ### 環境變數
@@ -240,7 +240,7 @@ CMS_URL=http://localhost:3000
 |---|---|
 | Build command | `npm run build` |
 | Output directory | `dist` |
-| Node.js | 22.x |
+| Node.js | 24.x |
 | 環境變數 | `CMS_URL=https://milifix-cms.onrender.com` |
 
 ### CMS（Render）

@@ -5,28 +5,14 @@ const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEf
 
 /* ---------- persisted helpers ---------- */
 function loadAccount() {
-  try { return JSON.parse(localStorage.getItem("fa-account") || "null"); } catch (e) { return null; }
+  return window.MeridielData.readJson(localStorage, "fa-account", null);
 }
 function loadTheme() {
-  return localStorage.getItem("fa-theme") || "light";
+  try { return localStorage.getItem("fa-theme") || "light"; } catch (e) { return "light"; }
 }
 function loadFlights() {
-  try { return JSON.parse(localStorage.getItem("fa-flights") || "[]"); } catch (e) { return []; }
-}
-
-// Union two flight lists by id instead of letting one side clobber the
-// other — so a flight added on this device while signed out (or on another
-// device) survives a sign-in instead of being overwritten by whichever copy
-// happened to load last. Ties (same id on both sides) go to whichever copy
-// was edited more recently, via the `updatedAt` stamp set on add/edit.
-function mergeByFlightId(local, cloud) {
-  const byId = new Map();
-  (cloud || []).forEach((f) => byId.set(f.id, f));
-  (local || []).forEach((f) => {
-    const existing = byId.get(f.id);
-    if (!existing || (f.updatedAt || 0) > (existing.updatedAt || 0)) byId.set(f.id, f);
-  });
-  return [...byId.values()];
+  const value = window.MeridielData.readJson(localStorage, "fa-flights", []);
+  return Array.isArray(value) ? value : [];
 }
 
 /* ---------- theme toggle: circular reveal from the click point, matching the rest of milifix.org ---------- */
@@ -53,7 +39,9 @@ function App() {
   // required for the view-transition screenshot below to capture the new theme.
   useLayoutEffectA(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("fa-theme", theme);
+    try { localStorage.setItem("fa-theme", theme); } catch (e) {
+      console.error("Meridiel: theme preference could not be saved —", e);
+    }
   }, [theme]);
 
   const toggleTheme = (ev) => {
@@ -68,17 +56,21 @@ function App() {
 
   const onLogin = (acct) => {
     setAccount(acct);
-    localStorage.setItem("fa-account", JSON.stringify(acct));
+    const result = window.MeridielData.writeJson(localStorage, "fa-account", acct);
+    if (!result.ok) console.error("Meridiel: account cache could not be saved —", result.error);
   };
   const onLogout = () => {
     setAccount(null);
     setAcctMenu(false);
-    localStorage.removeItem("fa-account");
+    try { localStorage.removeItem("fa-account"); } catch (e) {
+      console.error("Meridiel: account cache could not be cleared —", e);
+    }
   };
 
   /* ---- flights (cached in this browser + synced to Google Drive) ---- */
   const [extra, setExtra] = useStateA(loadFlights);   // user-added flights
-  const [syncStatus, setSyncStatus] = useStateA("local"); // local | syncing | synced | offline | reauth
+  const [syncStatus, setSyncStatus] = useStateA("local"); // local | syncing | synced | offline | reauth | storage-full
+  const [storageError, setStorageError] = useStateA(false);
   const extraRef = useRefA(extra);
   const cloudLoaded = useRefA(false);
   extraRef.current = extra;
@@ -100,7 +92,7 @@ function App() {
     setSyncStatus("syncing");
     window.MeridielStore.load().then((data) => {
       if (cancelled) return;
-      if (Array.isArray(data)) setExtra((local) => mergeByFlightId(local, data));
+      if (Array.isArray(data)) setExtra((local) => window.MeridielData.mergeByFlightId(local, data));
       else window.MeridielStore.save(extraRef.current).catch(() => {});
       cloudLoaded.current = true;
       setSyncStatus("synced");
@@ -113,7 +105,11 @@ function App() {
   // not continuous typing — so there's nothing to debounce; every change
   // gets its own sync instead of waiting on an artificial delay.
   useEffectA(() => {
-    localStorage.setItem("fa-flights", JSON.stringify(extra));
+    const localResult = window.MeridielData.writeJson(localStorage, "fa-flights", extra);
+    if (!localResult.ok) {
+      console.error("Meridiel: local flight save failed —", localResult.error);
+      setStorageError(true);
+    } else setStorageError(false);
     if (!cloudLoaded.current || !cloudSync) return;
     setSyncStatus("syncing");
     window.MeridielStore.save(extra)
@@ -130,7 +126,7 @@ function App() {
     window.MeridielAuth.signIn()
       .then(() => window.MeridielStore.load())
       .then((data) => {
-        if (Array.isArray(data)) setExtra((local) => mergeByFlightId(local, data));
+        if (Array.isArray(data)) setExtra((local) => window.MeridielData.mergeByFlightId(local, data));
         else window.MeridielStore.save(extraRef.current).catch(() => {});
         cloudLoaded.current = true;
         setSyncStatus("synced");
@@ -141,10 +137,12 @@ function App() {
   // Hydrate every flight so its embedded from/to are always present — an
   // older-schema or partially-synced record with only o/d codes would
   // otherwise crash any panel/stat that reads f.from.country etc.
-  const flightsAll = useMemoA(
-    () => [...ALL, ...extra].map((f) => window.ATLAS.hydrateFlight(f)),
-    [extra]
-  );
+  const flightsAll = useMemoA(() => {
+    const removed = window.MeridielData.deletedIds(extra);
+    const bundled = ALL.filter((f) => !removed.has(f.id));
+    return [...bundled, ...window.MeridielData.activeRecords(extra)]
+      .map((f) => window.ATLAS.hydrateFlight(f));
+  }, [extra]);
 
   const [selectedId, setSelectedId] = useStateA(null);
   const [autoRotate, setAutoRotate] = useStateA(true);
@@ -180,7 +178,7 @@ function App() {
     const A = window.ATLAS.AIRPORTS[form.o], B = window.ATLAS.AIRPORTS[form.d];
     const km = window.ATLAS.distKm(A, B);
     const f = {
-      id: Date.now(),
+      id: window.MeridielData.createId(),
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
       flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
@@ -208,7 +206,7 @@ function App() {
   };
 
   const deleteFlight = (id) => {
-    setExtra((e) => e.filter((f) => f.id !== id));
+    setExtra((e) => window.MeridielData.markDeleted(e, id));
     setSelectedId((sid) => (sid === id ? null : sid));
   };
 
@@ -333,8 +331,9 @@ function App() {
                     </div>
                   </div>
                   {cloudSync && (
-                    <div className={"am-sync am-sync--" + syncStatus}>
-                      {syncStatus === "synced" ? "✓ Synced to Google Drive"
+                    <div className={"am-sync am-sync--" + (storageError ? "storage-full" : syncStatus)}>
+                      {storageError ? "Device storage full · cloud sync only"
+                        : syncStatus === "synced" ? "✓ Synced to Google Drive"
                         : syncStatus === "syncing" ? (
                             <React.Fragment>
                               <span className="am-sync-spin" /> Syncing to Google Drive…
