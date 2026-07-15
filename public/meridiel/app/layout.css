@@ -4,6 +4,18 @@
 
 .app { position: fixed; inset: 0; overflow: hidden; }
 
+/* Visible immediately while deferred runtime scripts download. React replaces
+   this node on first render, so it adds no persistent application chrome. */
+.boot-shell {
+  position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px;
+  background: radial-gradient(circle at 50% 38%, var(--space-1) 0%, var(--space-2) 45%, var(--space-3) 78%, var(--space-4) 100%);
+  color: #F3EAD6; font-family: var(--mono); text-transform: uppercase; letter-spacing: .18em;
+}
+.boot-shell svg { width: 46px; height: 46px; color: var(--ochre); animation: boot-pulse 1.4s ease-in-out infinite; }
+.boot-shell b { font-family: var(--sans); font-size: 18px; letter-spacing: .16em; }
+.boot-shell span { font-size: 10px; color: rgba(243,234,214,.58); }
+@keyframes boot-pulse { 50% { opacity: .48; transform: scale(.94); } }
+
 /* ---- Globe stage ---- */
 .stage { position: absolute; inset: 0; }
 .globe-canvas {

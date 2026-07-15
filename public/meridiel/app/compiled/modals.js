@@ -5,6 +5,23 @@
    ============================================================ */
 
 /* ---------- Share Card modal ---------- */
+let html2canvasPromise = null;
+function loadHtml2Canvas() {
+  if (window.html2canvas) return Promise.resolve(window.html2canvas);
+  if (html2canvasPromise) return html2canvasPromise;
+  html2canvasPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = new URL("vendor/html2canvas.min.js?v=20260715d", document.baseURI).href;
+    script.async = true;
+    script.onload = () => window.html2canvas ? resolve(window.html2canvas) : reject(new Error("html2canvas did not initialize"));
+    script.onerror = () => reject(new Error("html2canvas failed to load"));
+    document.head.appendChild(script);
+  }).catch(error => {
+    html2canvasPromise = null;
+    throw error;
+  });
+  return html2canvasPromise;
+}
 function ShareModal({
   flights,
   account,
@@ -19,13 +36,11 @@ function ShareModal({
   const name = account && account.name || prof.name;
   const handle = account && account.handle || prof.handle;
   const exportPng = async () => {
-    if (!window.html2canvas || !cardRef.current) {
-      pushToast("Export library still loading…");
-      return;
-    }
+    if (!cardRef.current) return;
     setBusy(true);
     try {
-      const canvas = await window.html2canvas(cardRef.current, {
+      const html2canvas = await loadHtml2Canvas();
+      const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         backgroundColor: null,
         useCORS: true,
@@ -37,10 +52,14 @@ function ShareModal({
       a.click();
       pushToast("Saved your share card ✓");
     } catch (e) {
+      console.error("Meridiel: PNG export failed —", e);
       pushToast("Couldn't render — try again");
     } finally {
       setBusy(false);
     }
+  };
+  const warmExportLibrary = () => {
+    loadHtml2Canvas().catch(() => {});
   };
   const copyLink = async () => {
     const url = location.href.split("#")[0] + "#shared";
@@ -155,6 +174,8 @@ function ShareModal({
       justifyContent: "center"
     },
     onClick: exportPng,
+    onMouseEnter: warmExportLibrary,
+    onFocus: warmExportLibrary,
     disabled: busy
   }, /*#__PURE__*/React.createElement(window.Icon.download, null), " ", busy ? "Rendering…" : "Download image"), /*#__PURE__*/React.createElement("button", {
     className: "btn btn-ghost",
