@@ -2,6 +2,7 @@
    MERIDIEL — Modals: Share card, Add flight, Present overlay
    ============================================================ */
 import { UI } from "./ui-registry.js";
+import { ATLAS } from "./data.js";
 
 
 /* ---------- Share Card modal ---------- */
@@ -31,9 +32,9 @@ function loadHtml2Canvas() {
 function ShareModal({ flights, account, onClose, pushToast }) {
   const cardRef = React.useRef(null);
   const [busy, setBusy] = React.useState(false);
-  const s = React.useMemo(() => window.ATLAS.statsFor(flights), [flights]);
-  const countries = React.useMemo(() => window.ATLAS.countryList(flights), [flights]);
-  const prof = window.ATLAS.profile;
+  const s = React.useMemo(() => ATLAS.statsFor(flights), [flights]);
+  const countries = React.useMemo(() => ATLAS.countryList(flights), [flights]);
+  const prof = ATLAS.profile;
   const name = (account && account.name) || prof.name;
   const handle = (account && account.handle) || prof.handle;
 
@@ -77,7 +78,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
             <div className="sc-top">
               <div>
                 <div className="ttl">{name}'s<br />Meridiel</div>
-                <div className="sub">{handle} · {window.ATLAS.sinceOf(flights)}–{new Date().getFullYear()} · HOME {window.ATLAS.homeOf(flights)}</div>
+                <div className="sub">{handle} · {ATLAS.sinceOf(flights)}–{new Date().getFullYear()} · HOME {ATLAS.homeOf(flights)}</div>
               </div>
               <svg className="seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <circle cx="12" cy="12" r="10" />
@@ -130,10 +131,10 @@ UI.ShareModal = ShareModal;
 // lands) rather than on every render/keystroke.
 let airportIndexCache = null, airportIndexSize = -1;
 function airportIndex() {
-  const codes = Object.keys(window.ATLAS.AIRPORTS);
+  const codes = Object.keys(ATLAS.AIRPORTS);
   if (airportIndexCache && airportIndexSize === codes.length) return airportIndexCache;
   airportIndexCache = codes.map((code) => {
-    const a = window.ATLAS.AIRPORTS[code];
+    const a = ATLAS.AIRPORTS[code];
     return { code, codeLower: code.toLowerCase(), hay: `${code} ${a.city} ${a.name} ${a.country}`.toLowerCase() };
   });
   airportIndexSize = codes.length;
@@ -142,7 +143,7 @@ function airportIndex() {
 
 let airlineIndexCache = null, airlineIndexSize = -1;
 function airlineIndex() {
-  const list = window.ATLAS.AIRLINES;
+  const list = ATLAS.AIRLINES;
   if (airlineIndexCache && airlineIndexSize === list.length) return airlineIndexCache;
   airlineIndexCache = list.map((a) => ({ a, codeLower: a.code.toLowerCase(), nameLower: a.name.toLowerCase() }));
   airlineIndexSize = list.length;
@@ -159,7 +160,7 @@ function searchAirports(query) {
     else if (entry.hay.includes(q)) contains.push(entry.code);
   });
   return [...starts, ...contains].slice(0, 8).map((code) => {
-    const a = window.ATLAS.AIRPORTS[code];
+    const a = ATLAS.AIRPORTS[code];
     return { key: code, primary: `${code} — ${a.city}`, secondary: a.country, commit: code };
   });
 }
@@ -202,7 +203,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
   };
 
   const submit = () => {
-    if (!window.ATLAS.AIRPORTS[form.o] || !window.ATLAS.AIRPORTS[form.d]) { pushToast("Pick a valid airport for From and To"); return; }
+    if (!ATLAS.AIRPORTS[form.o] || !ATLAS.AIRPORTS[form.d]) { pushToast("Pick a valid airport for From and To"); return; }
     if (form.o === form.d) { pushToast("Origin and destination must differ"); return; }
     onSubmit(form);
     pushToast(isEdit ? "Flight updated ✓" : "Flight added to your log ✓");
@@ -232,7 +233,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                   <UI.SuggestField
                     value={form.o}
                     onCommit={setVal("o")}
-                    getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
+                    getDisplay={(code) => (ATLAS.AIRPORTS[code] ? `${code} — ${ATLAS.AIRPORTS[code].city}` : code)}
                     search={searchAirports}
                     placeholder="Type a city or code"
                   />
@@ -242,7 +243,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                   <UI.SuggestField
                     value={form.d}
                     onCommit={setVal("d")}
-                    getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
+                    getDisplay={(code) => (ATLAS.AIRPORTS[code] ? `${code} — ${ATLAS.AIRPORTS[code].city}` : code)}
                     search={searchAirports}
                     placeholder="Type a city or code"
                   />

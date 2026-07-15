@@ -1,6 +1,5 @@
-import { beforeAll, describe, expect, it } from 'vitest';
-import { readFile } from 'node:fs/promises';
-import vm from 'node:vm';
+import { describe, expect, it } from 'vitest';
+import { MeridielData } from '../public/meridiel/app/model.js';
 
 type FlightRecord = {
   id: string | number;
@@ -19,13 +18,7 @@ type MeridielDataApi = {
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem'>;
 
-let data: MeridielDataApi;
-
-beforeAll(async () => {
-  const source = await readFile(new URL('../public/meridiel/app/model.js', import.meta.url), 'utf8');
-  vm.runInThisContext(source, { filename: 'public/meridiel/app/model.js' });
-  data = (globalThis as typeof globalThis & { MeridielData: MeridielDataApi }).MeridielData;
-});
+const data = MeridielData as MeridielDataApi;
 
 describe('Meridiel flight conflict resolution', () => {
   it('keeps a newer deletion instead of resurrecting a stale cloud record', () => {

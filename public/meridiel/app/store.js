@@ -11,7 +11,6 @@
         screen (sensitive; fine for personal use in Testing mode
         with yourself as a test user).
    ============================================================ */
-(function () {
   var CLIENT_ID = "827299294563-uika95bhd5g8foi4ins9jo5f3oi2hqgp.apps.googleusercontent.com";
   var SCOPES = "openid email profile https://www.googleapis.com/auth/drive.appdata";
   var FILE_NAME = "meridiel-flights.json";
@@ -218,6 +217,5 @@
     return r.json();
   }
 
-  window.MeridielAuth = { enabled: !!CLIENT_ID, clientId: CLIENT_ID, signIn: signIn };
-  window.MeridielStore = { load: load, save: save };
-})();
+  export const MeridielAuth = { enabled: !!CLIENT_ID, clientId: CLIENT_ID, signIn: signIn };
+  export const MeridielStore = { load: load, save: save };

@@ -1,7 +1,6 @@
 /* ============================================================
-   MERIDIEL — Sample data + helpers (plain JS, global)
+   MERIDIEL — Sample data + helpers
    ============================================================ */
-(function () {
   // ---- Airports: code -> {name, city, country, cc, lat, lng} ----
   const AIRPORTS = {
     SFO: { city: "San Francisco", name: "San Francisco Intl", country: "United States", cc: "us", lat: 37.6213, lng: -122.3790 },
@@ -956,10 +955,9 @@
     return Object.keys(count).sort((a, b) => count[b] - count[a])[0];
   }
 
-  window.ATLAS = {
+  export const ATLAS = {
     AIRPORTS, AIRLINES, AIRLINE_CODES, FLIGHTS, YEARS,
     statsFor, countryList, distKm, durMin, sinceOf, homeOf, hydrateFlight,
     // name/handle fall back to these only when not signed in; a Google login overrides them.
     profile: { name: "Traveler", handle: "@traveler", home: "—", since: new Date().getFullYear() },
   };
-})();
