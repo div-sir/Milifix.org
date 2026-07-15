@@ -344,15 +344,24 @@ function App() {
               </div>
             </div>
 
-            <div className="top-owner btn-like" onClick={() => setAcctMenu((v) => !v)}>
-              <div className="avatar">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</div>
-              <div className="who">
-                <b>{account.name}</b>
-                <small>{account.handle}</small>
-              </div>
-              <window.Icon.chevron className="caret" />
+            <div className="account-control">
+              <button
+                type="button"
+                className="top-owner btn-like"
+                onClick={() => setAcctMenu((v) => !v)}
+                aria-label="Open account menu"
+                aria-expanded={acctMenu}
+                aria-controls="meridiel-account-menu"
+              >
+                <span className="avatar">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</span>
+                <span className="who">
+                  <b>{account.name}</b>
+                  <small>{account.handle}</small>
+                </span>
+                <window.Icon.chevron className="caret" />
+              </button>
               {acctMenu && (
-                <div className="acct-menu paper-tex" onClick={(e) => e.stopPropagation()}>
+                <div id="meridiel-account-menu" className="acct-menu paper-tex" onClick={(e) => e.stopPropagation()}>
                   <div className="am-head">
                     <div className="am-av">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</div>
                     <div className="am-id">
@@ -387,6 +396,12 @@ function App() {
                       <window.Icon.google /> Sync with Google Drive
                     </button>
                   )}
+                  <button className="am-item" onClick={() => { setAcctMenu(false); setModal("share"); }}>
+                    <window.Icon.share /> Share atlas
+                  </button>
+                  <button className="am-item" onClick={() => { setAcctMenu(false); setPresent(true); }}>
+                    <window.Icon.present /> Present mode
+                  </button>
                   <button className="am-item" onClick={(e) => toggleTheme(e)}>
                     {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}
@@ -399,14 +414,11 @@ function App() {
             </div>
 
             <div className="top-actions">
-              <button className="icon-btn" title="Toggle dark mode" onClick={toggleTheme}>
-                {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
-              </button>
-              <button className="icon-btn" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
+              <button className="icon-btn top-action-secondary" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
                 <window.Icon.rotate />
               </button>
-              <button className="btn btn-ghost" title="Present" onClick={() => setPresent(true)}><window.Icon.present /> <span className="btn-label">Present</span></button>
-              <button className="btn btn-accent" title="Share" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
+              <button className="btn btn-ghost top-action-secondary" title="Share atlas" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
+              <button className="btn btn-accent" title="Add flight" onClick={() => setModal("add")}><window.Icon.plus /> <span className="btn-label">Add flight</span></button>
             </div>
           </header>
 
@@ -439,10 +451,10 @@ function App() {
           )}
 
           {/* Mobile tab switch */}
-          <div className="mobile-tabs">
-            <button className={mobileTab === "log" ? "on" : ""} onClick={() => setMobileTab("log")}>Log</button>
-            <button className={mobileTab === "globe" ? "on" : ""} onClick={() => setMobileTab("globe")}>Globe</button>
-            <button className={mobileTab === "stats" ? "on" : ""} onClick={() => setMobileTab("stats")}>Stats</button>
+          <div className="mobile-tabs" role="tablist" aria-label="Atlas views">
+            <button role="tab" aria-selected={mobileTab === "log"} className={mobileTab === "log" ? "on" : ""} onClick={() => setMobileTab("log")}>Log</button>
+            <button role="tab" aria-selected={mobileTab === "globe"} className={mobileTab === "globe" ? "on" : ""} onClick={() => setMobileTab("globe")}>Globe</button>
+            <button role="tab" aria-selected={mobileTab === "stats"} className={mobileTab === "stats" ? "on" : ""} onClick={() => setMobileTab("stats")}>Stats</button>
           </div>
         </React.Fragment>
       )}
