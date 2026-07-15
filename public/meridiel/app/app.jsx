@@ -9,6 +9,7 @@ import "./login.jsx";
 import { ATLAS } from "./data.js";
 import { MeridielData } from "./model.js";
 import { MeridielAuth, MeridielStore } from "./store.js";
+import { loadGlobeRuntime } from "./globe-runtime.js";
 import { UI } from "./ui-registry.js";
 
 const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
@@ -45,6 +46,25 @@ function App() {
   const [account, setAccount] = useStateA(loadAccount);
   const [theme, setTheme] = useStateA(loadTheme);
   const [acctMenu, setAcctMenu] = useStateA(false);
+  const [runtimeStatus, setRuntimeStatus] = useStateA(
+    () => (window.Globe && window.gsap ? "ready" : "idle")
+  );
+
+  // The welcome screen does not need WebGL. Load the heavy globe and animation
+  // runtimes only after a visitor enters (or a remembered account resumes),
+  // and do not mount GlobeView until both globals are actually available.
+  useEffectA(() => {
+    if (!account || runtimeStatus !== "idle") return;
+    let cancelled = false;
+    setRuntimeStatus("loading");
+    loadGlobeRuntime()
+      .then(() => { if (!cancelled) setRuntimeStatus("ready"); })
+      .catch((error) => {
+        console.error("Meridiel: 3D runtime failed to load —", error);
+        if (!cancelled) setRuntimeStatus("error");
+      });
+    return () => { cancelled = true; };
+  }, [account, runtimeStatus]);
 
   // useLayoutEffect (not useEffect) so the DOM attribute flips synchronously —
   // required for the view-transition screenshot below to capture the new theme.
@@ -274,6 +294,30 @@ function App() {
   // ---- not logged in → gate ----
   if (!account) {
     return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
+  }
+
+  if (runtimeStatus !== "ready") {
+    return (
+      <div className="login-stage">
+        <div className="login-card paper-tex" role="status" aria-live="polite">
+          <div className="login-connecting">
+            {runtimeStatus === "error" ? (
+              <React.Fragment>
+                <div className="lc-name"><b>The globe couldn’t load.</b></div>
+                <div className="lc-sub">Check your connection, then try the 3D engine again.</div>
+                <button className="btn btn-solid" onClick={() => setRuntimeStatus("idle")}>Retry globe</button>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div className="spin" />
+                <div className="lc-name"><b>Preparing your globe…</b></div>
+                <div className="lc-sub">Loading the 3D atlas engine</div>
+              </React.Fragment>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const liveStats = ATLAS.statsFor(flightsAll);

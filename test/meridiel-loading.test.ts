@@ -10,6 +10,15 @@ describe('Meridiel loading strategy', () => {
     expect(html).toContain('class="boot-shell"');
   });
 
+  it('keeps the 3D runtime off the welcome screen', async () => {
+    const html = await readFile(new URL('index.html', root), 'utf8');
+    const loader = await readFile(new URL('app/globe-runtime.js', root), 'utf8');
+    expect(html).not.toMatch(/<script[^>]+src=["'][^"']*(globe\.gl|gsap)/i);
+    expect(loader).toContain('vendor/globe.gl.min.js');
+    expect(loader).toContain('vendor/gsap.min.js');
+    expect(loader).toContain('Promise.all');
+  });
+
   it('loads the PNG renderer only from the share workflow', async () => {
     const source = await readFile(new URL('app/modals.jsx', root), 'utf8');
     expect(source).toContain('function loadHtml2Canvas()');
