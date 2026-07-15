@@ -479,6 +479,7 @@
 .acct-menu .am-sync { padding: 8px 15px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 1px solid var(--line-soft); }
 .acct-menu .am-sync--synced { color: var(--teal); }
 .acct-menu .am-sync--offline { color: var(--vermilion); }
+.acct-menu .am-sync--storage-full { color: var(--vermilion); font-weight: 700; }
 .acct-menu .am-sync--reauth { color: var(--ochre); padding: 0; border-bottom: 1px solid var(--line-soft); }
 .acct-menu .am-sync--syncing { display: flex; align-items: center; gap: 7px; }
 .am-sync-spin {

@@ -4,13 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meridiel — Where I've Flown</title>
+  <meta name="description" content="Build a living atlas of every flight you've taken with Meridiel." />
+  <link rel="canonical" href="https://milifix.com/meridiel/" />
+  <meta property="og:title" content="Meridiel — Where I've Flown" />
+  <meta property="og:description" content="Build a living atlas of every flight you've taken." />
+  <meta property="og:url" content="https://milifix.com/meridiel/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://milifix.com/og-default.png" />
   <!-- ?v= busts browser/CDN caching of these same-origin files on every deploy
        that touches them — plain filenames with no content hash otherwise risk
        a returning visitor's browser serving a stale cached copy indefinitely.
        Bump this whenever app/*.css or app/*.js|jsx (or their compiled output)
        changes. -->
   <link rel="stylesheet" href="app/styles.css?v=20260710c" />
-  <link rel="stylesheet" href="app/layout.css?v=20260710c" />
+  <link rel="stylesheet" href="app/layout.css?v=20260715a" />
 
   <!-- Globe (open-source, no token) — globe.gl bundles its own Three.js.
        Vendored same-origin build (npm pack'd production dist, copied
@@ -36,8 +43,10 @@
 
   <!-- data first (plain JS) -->
   <script src="app/data.js?v=20260710c"></script>
+  <!-- shared persistence + merge helpers -->
+  <script src="app/model.js?v=20260715a"></script>
   <!-- Google auth + Drive appData storage (plain JS, needs GIS loaded) -->
-  <script src="app/store.js?v=20260710c"></script>
+  <script src="app/store.js?v=20260715a"></script>
   <!-- React components — pre-compiled by scripts/build-meridiel.mjs from the
        app/*.jsx sources (JSX → React.createElement at build time instead of
        shipping @babel/standalone and compiling in every visitor's browser).
@@ -48,6 +57,6 @@
   <script src="app/compiled/panels.js?v=20260710c"></script>
   <script src="app/compiled/modals.js?v=20260710c"></script>
   <script src="app/compiled/login.js?v=20260710c"></script>
-  <script src="app/compiled/app.js?v=20260710c"></script>
+  <script src="app/compiled/app.js?v=20260715a"></script>
 </body>
 </html>

@@ -14,6 +14,11 @@ test('platform links directly to Milifix reports', async ({ page }) => {
   await expect(page.locator('main a[href="/reports"]')).toHaveCount(1);
 });
 
+test('Meridiel publishes its canonical URL', async ({ page }) => {
+  await page.goto('/meridiel/');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://milifix.com/meridiel/');
+});
+
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
   for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
     await page.goto(path);

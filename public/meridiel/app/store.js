@@ -172,7 +172,8 @@
     var id = await findFile();
     if (!id) return null;
     var r = await driveFetch("https://www.googleapis.com/drive/v3/files/" + id + "?alt=media");
-    return r.ok ? r.json() : null;
+    if (!r.ok) throw new Error("drive load " + r.status);
+    return r.json();
   }
 
   // Create or overwrite the app-data file with `data`.
@@ -180,10 +181,12 @@
     var body = JSON.stringify(data);
     var id = await findFile();
     if (id) {
-      return driveFetch(
+      var updated = await driveFetch(
         "https://www.googleapis.com/upload/drive/v3/files/" + id + "?uploadType=media",
         { method: "PATCH", headers: { "Content-Type": "application/json" }, body: body }
       );
+      if (!updated.ok) throw new Error("drive save " + updated.status);
+      return updated;
     }
     var boundary = "meridiel" + Math.random().toString(36).slice(2);
     var metadata = { name: FILE_NAME, parents: ["appDataFolder"] };
@@ -199,6 +202,7 @@
       "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
       { method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body: multipart }
     );
+    if (!r.ok) throw new Error("drive create " + r.status);
     var j = await r.json();
     if (j && j.id) fileId = j.id;
     return j;

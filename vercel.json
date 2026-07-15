@@ -24,6 +24,9 @@
     }
   ],
   "redirects": [
+    { "source": "/meridiel", "destination": "/meridiel/", "permanent": true },
+    { "source": "/Meridiel", "destination": "/meridiel/", "permanent": true },
+    { "source": "/Meridiel/:path*", "destination": "/meridiel/:path*", "permanent": true },
     { "source": "/zh/travel/reports", "destination": "/reports", "permanent": true },
     { "source": "/zh/travel/reports/:path*", "destination": "/reports/:path*", "permanent": true },
     { "source": "/travel", "destination": "/zh/travel", "permanent": true },
