@@ -24,6 +24,8 @@ test('Meridiel can be explored without signing in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Explore atlas' })).toBeVisible();
   await page.getByRole('button', { name: 'Explore atlas' }).click();
   await expect(page.locator('.topbar')).toBeVisible();
+  await expect(page.locator('script[data-meridiel-runtime*="globe.gl"]')).toHaveCount(1);
+  await expect(page.locator('.globe-canvas')).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Open account menu' }).click();
   await expect(page.getByText('Local only · saved in this browser')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add flight' })).toBeVisible();

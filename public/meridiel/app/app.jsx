@@ -9,6 +9,7 @@ import "./login.jsx";
 import { ATLAS } from "./data.js";
 import { MeridielData } from "./model.js";
 import { MeridielAuth, MeridielStore } from "./store.js";
+import { loadGlobeRuntime } from "./globe-runtime.js";
 import { UI } from "./ui-registry.js";
 
 const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
@@ -45,6 +46,30 @@ function App() {
   const [account, setAccount] = useStateA(loadAccount);
   const [theme, setTheme] = useStateA(loadTheme);
   const [acctMenu, setAcctMenu] = useStateA(false);
+  const [runtimeStatus, setRuntimeStatus] = useStateA(
+    () => (window.Globe && window.gsap ? "ready" : "idle")
+  );
+  const [runtimeAttempt, setRuntimeAttempt] = useStateA(0);
+
+  // The welcome screen does not need WebGL. Load the heavy globe and animation
+  // runtimes only after a visitor enters (or a remembered account resumes),
+  // and do not mount GlobeView until both globals are actually available.
+  useEffectA(() => {
+    if (!account) return;
+    if (window.Globe && window.gsap) {
+      setRuntimeStatus("ready");
+      return;
+    }
+    let cancelled = false;
+    setRuntimeStatus("loading");
+    loadGlobeRuntime()
+      .then(() => { if (!cancelled) setRuntimeStatus("ready"); })
+      .catch((error) => {
+        console.error("Meridiel: 3D runtime failed to load —", error);
+        if (!cancelled) setRuntimeStatus("error");
+      });
+    return () => { cancelled = true; };
+  }, [account, runtimeAttempt]);
 
   // useLayoutEffect (not useEffect) so the DOM attribute flips synchronously —
   // required for the view-transition screenshot below to capture the new theme.
@@ -283,15 +308,17 @@ function App() {
     <div className="app">
       {/* ---- Globe stage ---- */}
       <div className="stage">
-        <UI.GlobeView
-          flights={flightsAll}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-          autoRotate={autoRotate}
-          onReady={onGlobeReady}
-          focusFlight={focusFlight}
-          theme={theme}
-        />
+        {runtimeStatus === "ready" && (
+          <UI.GlobeView
+            flights={flightsAll}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            autoRotate={autoRotate}
+            onReady={onGlobeReady}
+            focusFlight={focusFlight}
+            theme={theme}
+          />
+        )}
         <svg className="compass-wm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8">
           <circle cx="12" cy="12" r="11" />
           <circle cx="12" cy="12" r="8" strokeDasharray="1 2" />
@@ -299,11 +326,20 @@ function App() {
           <path d="M15 9l-2.4 5.6L7 17l2.4-5.6z" fill="currentColor" stroke="none" opacity="0.8" />
           <text x="12" y="5.5" fontSize="2.4" textAnchor="middle" fill="currentColor" fontFamily="monospace">N</text>
         </svg>
-        {loading && (
+        {(runtimeStatus !== "ready" || loading) && (
           <div className="loader">
             <div style={{ textAlign: "center" }}>
-              <div className="spin" style={{ margin: "0 auto" }} />
-              <div className="lbl">Charting your atlas…</div>
+              {runtimeStatus === "error" ? (
+                <React.Fragment>
+                  <div className="lbl">The 3D globe couldn’t load.</div>
+                  <button className="btn btn-solid" onClick={() => setRuntimeAttempt((attempt) => attempt + 1)}>Retry globe</button>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <div className="spin" style={{ margin: "0 auto" }} />
+                  <div className="lbl">{runtimeStatus === "ready" ? "Charting your atlas…" : "Loading the 3D atlas engine…"}</div>
+                </React.Fragment>
+              )}
             </div>
           </div>
         )}
