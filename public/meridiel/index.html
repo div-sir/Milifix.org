@@ -17,46 +17,43 @@
        Bump this whenever app/*.css or app/*.js|jsx (or their compiled output)
        changes. -->
   <link rel="stylesheet" href="app/styles.css?v=20260710c" />
-  <link rel="stylesheet" href="app/layout.css?v=20260715c" />
-
-  <!-- Globe (open-source, no token) — globe.gl bundles its own Three.js.
-       Vendored same-origin build (npm pack'd production dist, copied
-       verbatim — see scripts/build-meridiel.mjs's header comment for the
-       full vendoring story) instead of a public CDN: no outage / SRI-mismatch
-       risk, and lets the CSP script-src list stay same-origin only. -->
-  <script src="vendor/globe.gl.min.js?v=20260710c"></script>
-  <!-- GSAP -->
-  <script src="vendor/gsap.min.js?v=20260710c"></script>
-  <!-- html2canvas for PNG export -->
-  <script src="vendor/html2canvas.min.js?v=20260710c"></script>
+  <link rel="stylesheet" href="app/layout.css?v=20260715d" />
 
   <!-- Google Identity Services (real sign-in; set a Client ID in app/login.jsx).
        Third-party origin by nature — this one stays remote. -->
   <script src="https://accounts.google.com/gsi/client" async></script>
 
-  <!-- React — vendored production UMD build (no dev warnings/overhead in prod) -->
-  <script src="vendor/react.production.min.js?v=20260710c"></script>
-  <script src="vendor/react-dom.production.min.js?v=20260710c"></script>
+  <!-- Same-origin runtime. `defer` preserves dependency order while allowing
+       the document and loading shell to render during the ~1.4 MB download.
+       html2canvas is intentionally absent: ShareModal loads it on export intent. -->
+  <script defer src="vendor/globe.gl.min.js?v=20260710c"></script>
+  <script defer src="vendor/gsap.min.js?v=20260710c"></script>
+  <script defer src="vendor/react.production.min.js?v=20260710c"></script>
+  <script defer src="vendor/react-dom.production.min.js?v=20260710c"></script>
+
+  <!-- Data and precompiled React components. Deferred classic scripts execute
+       in document order, so the existing window-based dependency graph remains
+       deterministic while the larger module migration happens separately. -->
+  <script defer src="app/data.js?v=20260710c"></script>
+  <script defer src="app/model.js?v=20260715a"></script>
+  <script defer src="app/store.js?v=20260715a"></script>
+  <script defer src="app/compiled/components.js?v=20260710c"></script>
+  <script defer src="app/compiled/globe.js?v=20260710c"></script>
+  <script defer src="app/compiled/panels.js?v=20260710c"></script>
+  <script defer src="app/compiled/modals.js?v=20260715d"></script>
+  <script defer src="app/compiled/login.js?v=20260715b"></script>
+  <script defer src="app/compiled/app.js?v=20260715c"></script>
 </head>
 <body>
-  <div id="root"></div>
-
-  <!-- data first (plain JS) -->
-  <script src="app/data.js?v=20260710c"></script>
-  <!-- shared persistence + merge helpers -->
-  <script src="app/model.js?v=20260715a"></script>
-  <!-- Google auth + Drive appData storage (plain JS, needs GIS loaded) -->
-  <script src="app/store.js?v=20260715a"></script>
-  <!-- React components — pre-compiled by scripts/build-meridiel.mjs from the
-       app/*.jsx sources (JSX → React.createElement at build time instead of
-       shipping @babel/standalone and compiling in every visitor's browser).
-       Load order matters: later files use window.X globals set by earlier
-       ones (see app/*.jsx headers). -->
-  <script src="app/compiled/components.js?v=20260710c"></script>
-  <script src="app/compiled/globe.js?v=20260710c"></script>
-  <script src="app/compiled/panels.js?v=20260710c"></script>
-  <script src="app/compiled/modals.js?v=20260710c"></script>
-  <script src="app/compiled/login.js?v=20260715b"></script>
-  <script src="app/compiled/app.js?v=20260715c"></script>
+  <div id="root">
+    <div class="boot-shell" role="status" aria-live="polite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2c2.6 2.7 4 5.9 4 10s-1.4 7.3-4 10c-2.6-2.7-4-5.9-4-10s1.4-7.3 4-10z" />
+      </svg>
+      <b>Meridiel</b>
+      <span>Charting your atlas…</span>
+    </div>
+  </div>
 </body>
 </html>
