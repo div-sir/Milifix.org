@@ -296,30 +296,6 @@ function App() {
     return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
   }
 
-  if (runtimeStatus !== "ready") {
-    return (
-      <div className="login-stage">
-        <div className="login-card paper-tex" role="status" aria-live="polite">
-          <div className="login-connecting">
-            {runtimeStatus === "error" ? (
-              <React.Fragment>
-                <div className="lc-name"><b>The globe couldn’t load.</b></div>
-                <div className="lc-sub">Check your connection, then try the 3D engine again.</div>
-                <button className="btn btn-solid" onClick={() => setRuntimeStatus("idle")}>Retry globe</button>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <div className="spin" />
-                <div className="lc-name"><b>Preparing your globe…</b></div>
-                <div className="lc-sub">Loading the 3D atlas engine</div>
-              </React.Fragment>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const liveStats = ATLAS.statsFor(flightsAll);
   const presentCountries = ATLAS.countryList(flightsAll);
 
@@ -327,15 +303,17 @@ function App() {
     <div className="app">
       {/* ---- Globe stage ---- */}
       <div className="stage">
-        <UI.GlobeView
-          flights={flightsAll}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-          autoRotate={autoRotate}
-          onReady={onGlobeReady}
-          focusFlight={focusFlight}
-          theme={theme}
-        />
+        {runtimeStatus === "ready" && (
+          <UI.GlobeView
+            flights={flightsAll}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            autoRotate={autoRotate}
+            onReady={onGlobeReady}
+            focusFlight={focusFlight}
+            theme={theme}
+          />
+        )}
         <svg className="compass-wm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8">
           <circle cx="12" cy="12" r="11" />
           <circle cx="12" cy="12" r="8" strokeDasharray="1 2" />
@@ -343,11 +321,20 @@ function App() {
           <path d="M15 9l-2.4 5.6L7 17l2.4-5.6z" fill="currentColor" stroke="none" opacity="0.8" />
           <text x="12" y="5.5" fontSize="2.4" textAnchor="middle" fill="currentColor" fontFamily="monospace">N</text>
         </svg>
-        {loading && (
+        {(runtimeStatus !== "ready" || loading) && (
           <div className="loader">
             <div style={{ textAlign: "center" }}>
-              <div className="spin" style={{ margin: "0 auto" }} />
-              <div className="lbl">Charting your atlas…</div>
+              {runtimeStatus === "error" ? (
+                <React.Fragment>
+                  <div className="lbl">The 3D globe couldn’t load.</div>
+                  <button className="btn btn-solid" onClick={() => setRuntimeStatus("idle")}>Retry globe</button>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <div className="spin" style={{ margin: "0 auto" }} />
+                  <div className="lbl">{runtimeStatus === "ready" ? "Charting your atlas…" : "Loading the 3D atlas engine…"}</div>
+                </React.Fragment>
+              )}
             </div>
           </div>
         )}
