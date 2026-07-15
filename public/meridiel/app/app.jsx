@@ -1,6 +1,13 @@
 /* ============================================================
    MERIDIEL — Main App
    ============================================================ */
+import "./components.jsx";
+import "./globe.jsx";
+import "./panels.jsx";
+import "./modals.jsx";
+import "./login.jsx";
+import { UI } from "./ui-registry.js";
+
 const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
 
 /* ---------- persisted helpers ---------- */
@@ -156,7 +163,7 @@ function App() {
   const [editingFlight, setEditingFlight] = useStateA(null);
   const [present, setPresent] = useStateA(false);
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
-  const [pushToast, toastNode] = window.useToast();
+  const [pushToast, toastNode] = UI.useToast();
 
   const connectGoogle = () => {
     if (!(window.MeridielAuth && window.MeridielAuth.enabled)) {
@@ -263,7 +270,7 @@ function App() {
 
   // ---- not logged in → gate ----
   if (!account) {
-    return <window.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
+    return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
   }
 
   const liveStats = window.ATLAS.statsFor(flightsAll);
@@ -273,7 +280,7 @@ function App() {
     <div className="app">
       {/* ---- Globe stage ---- */}
       <div className="stage">
-        <window.GlobeView
+        <UI.GlobeView
           flights={flightsAll}
           selectedId={selectedId}
           onSelect={handleSelect}
@@ -311,7 +318,7 @@ function App() {
           <div className="present-ui present-flags">
             <div className="pf-label">{presentCountries.length} countries · passport stamps</div>
             {presentCountries.map((c) => (
-              <window.Flag key={c.country} cc={c.cc} label={c.country} />
+              <UI.Flag key={c.country} cc={c.cc} label={c.country} />
             ))}
           </div>
 
@@ -323,9 +330,9 @@ function App() {
           </div>
           <div className="present-exit">
             <button className="icon-btn" onClick={toggleTheme} title="Toggle theme" style={{ marginRight: 8, color: "#F3EAD6", borderColor: "rgba(243,234,214,0.35)" }}>
-              {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
+              {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
             </button>
-            <button className="btn btn-solid" onClick={() => setPresent(false)}><window.Icon.x /> Exit</button>
+            <button className="btn btn-solid" onClick={() => setPresent(false)}><UI.Icon.x /> Exit</button>
           </div>
         </React.Fragment>
       ) : (
@@ -358,7 +365,7 @@ function App() {
                   <b>{account.name}</b>
                   <small>{account.handle}</small>
                 </span>
-                <window.Icon.chevron className="caret" />
+                <UI.Icon.chevron className="caret" />
               </button>
               {acctMenu && (
                 <div id="meridiel-account-menu" className="acct-menu paper-tex" onClick={(e) => e.stopPropagation()}>
@@ -393,21 +400,21 @@ function App() {
                   )}
                   {account.mode === "local" && (
                     <button className="am-item" onClick={connectGoogle}>
-                      <window.Icon.google /> Sync with Google Drive
+                      <UI.Icon.google /> Sync with Google Drive
                     </button>
                   )}
                   <button className="am-item" onClick={() => { setAcctMenu(false); setModal("share"); }}>
-                    <window.Icon.share /> Share atlas
+                    <UI.Icon.share /> Share atlas
                   </button>
                   <button className="am-item" onClick={() => { setAcctMenu(false); setPresent(true); }}>
-                    <window.Icon.present /> Present mode
+                    <UI.Icon.present /> Present mode
                   </button>
                   <button className="am-item" onClick={(e) => toggleTheme(e)}>
-                    {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
+                    {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}
                   </button>
                   <button className="am-item" onClick={onLogout}>
-                    <window.Icon.logout /> Sign out
+                    <UI.Icon.logout /> Sign out
                   </button>
                 </div>
               )}
@@ -415,15 +422,15 @@ function App() {
 
             <div className="top-actions">
               <button className="icon-btn top-action-secondary" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
-                <window.Icon.rotate />
+                <UI.Icon.rotate />
               </button>
-              <button className="btn btn-ghost top-action-secondary" title="Share atlas" onClick={() => setModal("share")}><window.Icon.share /> <span className="btn-label">Share</span></button>
-              <button className="btn btn-accent" title="Add flight" onClick={() => setModal("add")}><window.Icon.plus /> <span className="btn-label">Add flight</span></button>
+              <button className="btn btn-ghost top-action-secondary" title="Share atlas" onClick={() => setModal("share")}><UI.Icon.share /> <span className="btn-label">Share</span></button>
+              <button className="btn btn-accent" title="Add flight" onClick={() => setModal("add")}><UI.Icon.plus /> <span className="btn-label">Add flight</span></button>
             </div>
           </header>
 
           {/* Panels */}
-          <window.FlightLog
+          <UI.FlightLog
             flights={flightsAll}
             selectedId={selectedId}
             onSelect={handleSelect}
@@ -433,7 +440,7 @@ function App() {
           />
 
           {selectedFlight ? (
-            <window.FlightDetail
+            <UI.FlightDetail
               flight={selectedFlight}
               onClose={() => setSelectedId(null)}
               onEdit={(f) => { setEditingFlight(f); setModal("edit"); }}
@@ -443,7 +450,7 @@ function App() {
               className={mobileTab === "stats" || mobileTab === "globe" ? "" : "hidden-mobile"}
             />
           ) : (
-            <window.StatsRail
+            <UI.StatsRail
               flights={flightsAll}
               allFlights={flightsAll}
               className={mobileTab === "stats" ? "" : "hidden-mobile"}
@@ -463,10 +470,10 @@ function App() {
       {acctMenu && <div style={{ position: "fixed", inset: 0, zIndex: 29 }} onClick={() => setAcctMenu(false)} />}
 
       {/* Modals */}
-      {modal === "share" && <window.ShareModal flights={flightsAll} account={account} onClose={() => setModal(null)} pushToast={pushToast} />}
-      {modal === "add" && <window.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} pushToast={pushToast} />}
+      {modal === "share" && <UI.ShareModal flights={flightsAll} account={account} onClose={() => setModal(null)} pushToast={pushToast} />}
+      {modal === "add" && <UI.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} pushToast={pushToast} />}
       {modal === "edit" && editingFlight && (
-        <window.AddFlightModal
+        <UI.AddFlightModal
           initial={editingFlight}
           onClose={() => { setModal(null); setEditingFlight(null); }}
           onSubmit={(form) => updateFlight(editingFlight.id, form)}

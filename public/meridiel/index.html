@@ -31,18 +31,13 @@
   <script defer src="vendor/react.production.min.js?v=20260710c"></script>
   <script defer src="vendor/react-dom.production.min.js?v=20260710c"></script>
 
-  <!-- Data and precompiled React components. Deferred classic scripts execute
-       in document order, so the existing window-based dependency graph remains
-       deterministic while the larger module migration happens separately. -->
+  <!-- Data/storage still expose compatibility globals. The React UI is built
+       from ES modules into one IIFE, so components no longer depend on six
+       ordered window.X scripts. -->
   <script defer src="app/data.js?v=20260710c"></script>
   <script defer src="app/model.js?v=20260715a"></script>
   <script defer src="app/store.js?v=20260715a"></script>
-  <script defer src="app/compiled/components.js?v=20260710c"></script>
-  <script defer src="app/compiled/globe.js?v=20260710c"></script>
-  <script defer src="app/compiled/panels.js?v=20260710c"></script>
-  <script defer src="app/compiled/modals.js?v=20260715d"></script>
-  <script defer src="app/compiled/login.js?v=20260715b"></script>
-  <script defer src="app/compiled/app.js?v=20260715c"></script>
+  <script defer src="app/compiled/app.bundle.js?v=20260715e"></script>
 </head>
 <body>
   <div id="root">

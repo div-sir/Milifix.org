@@ -1,6 +1,8 @@
 /* ============================================================
    MERIDIEL — Panels: Log, Rail (stats+flags), Detail, Timeline
    ============================================================ */
+import { UI } from "./ui-registry.js";
+
 const { useMemo: useMemoP } = React;
 
 /* ---------- Flight Log (left) ---------- */
@@ -29,7 +31,7 @@ function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, classN
               <span className="arrow">→</span>
               <span>{f.to.code}</span>
             </div>
-            <div className="lr-date">{window.fmtDate(f.date)}</div>
+            <div className="lr-date">{UI.fmtDate(f.date)}</div>
             <div className="lr-sub">{f.airline}</div>
             <div className="lr-miles">{f.miles.toLocaleString()} mi</div>
           </div>
@@ -37,7 +39,7 @@ function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, classN
         {/* Always-present closing CTA — gives a short log somewhere to land
             instead of trailing off into blank panel space. */}
         <button className="log-add-hint" onClick={onAddFlight} disabled={syncing}>
-          <window.Icon.plus />
+          <UI.Icon.plus />
           {flights.length === 0 ? "Log your first flight" : "Add your next flight"}
         </button>
       </div>
@@ -49,7 +51,7 @@ function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, classN
     </section>
   );
 }
-window.FlightLog = FlightLog;
+UI.FlightLog = FlightLog;
 
 /* ---------- Stats + Flag wall (right rail) ---------- */
 function StatsRail({ flights, allFlights, className }) {
@@ -64,28 +66,28 @@ function StatsRail({ flights, allFlights, className }) {
       <div className="panel-body">
         <div className="stat-grid">
           <div className="stat">
-            <span className="v"><window.StatNum value={s.miles} /></span>
+            <span className="v"><UI.StatNum value={s.miles} /></span>
             <span className="k">Miles flown</span>
           </div>
           <div className="stat">
-            <span className="v"><window.StatNum value={s.hours} /><small> hrs</small></span>
+            <span className="v"><UI.StatNum value={s.hours} /><small> hrs</small></span>
             <span className="k">In the air</span>
           </div>
           <div className="stat">
-            <span className="v"><window.StatNum value={s.countries} /></span>
+            <span className="v"><UI.StatNum value={s.countries} /></span>
             <span className="k">Countries</span>
           </div>
           <div className="stat">
-            <span className="v"><window.StatNum value={s.airports} /></span>
+            <span className="v"><UI.StatNum value={s.airports} /></span>
             <span className="k">Airports</span>
           </div>
           <div className="stat wide">
             <div>
-              <span className="v"><window.StatNum value={s.flights} /></span>
+              <span className="v"><UI.StatNum value={s.flights} /></span>
               <span className="k">Flight segments logged</span>
             </div>
             <div style={{ textAlign: "right" }}>
-              <span className="v"><window.StatNum value={s.laps} decimals={1} /></span>
+              <span className="v"><UI.StatNum value={s.laps} decimals={1} /></span>
               <span className="k">× around Earth</span>
             </div>
           </div>
@@ -94,14 +96,14 @@ function StatsRail({ flights, allFlights, className }) {
         <div className="section-label">Passport · {countries.length} stamps</div>
         <div className="flagwall">
           {countries.map((c) => (
-            <window.Flag key={c.country} cc={c.cc} label={c.country} />
+            <UI.Flag key={c.country} cc={c.cc} label={c.country} />
           ))}
         </div>
       </div>
     </section>
   );
 }
-window.StatsRail = StatsRail;
+UI.StatsRail = StatsRail;
 
 /* ---------- Flight Detail (replaces rail when a flight is picked) ---------- */
 function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, className }) {
@@ -118,13 +120,13 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
         <h3>Boarding Pass</h3>
         <div style={{ display: "flex", gap: 6 }}>
           <button className="icon-btn icon-btn-sm" onClick={() => onEdit(f)} title="Edit flight" disabled={syncing}>
-            <window.Icon.edit />
+            <UI.Icon.edit />
           </button>
           <button className="icon-btn icon-btn-sm" onClick={remove} title="Delete flight" disabled={syncing}>
-            <window.Icon.trash />
+            <UI.Icon.trash />
           </button>
           <button className="icon-btn icon-btn-sm" onClick={onClose}>
-            <window.Icon.x />
+            <UI.Icon.x />
           </button>
         </div>
       </div>
@@ -136,7 +138,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
               <span className="city">{f.from.city}</span>
             </div>
             <div className="detail-mid">
-              <span className="plane"><window.Icon.planeFill /></span>
+              <span className="plane"><UI.Icon.planeFill /></span>
               <span className="line" />
               <span style={{ fontFamily: "var(--mono)", fontSize: 10 }}>{f.miles.toLocaleString()} mi</span>
             </div>
@@ -148,22 +150,22 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
         </div>
 
         <figure className="detail-photo">
-          <window.ImageSlotMaybe flight={f} onSetPhoto={onSetPhoto} disabled={syncing} />
+          <UI.ImageSlotMaybe flight={f} onSetPhoto={onSetPhoto} disabled={syncing} />
         </figure>
 
         <div className="detail-rows">
-          <div className="drow"><span className="k">Date</span><span className="vv">{window.fmtDate(f.date)}</span></div>
+          <div className="drow"><span className="k">Date</span><span className="vv">{UI.fmtDate(f.date)}</span></div>
           <div className="drow"><span className="k">Airline</span><span className="vv">{f.airline}</span></div>
           {f.flightNo && <div className="drow"><span className="k">Flight</span><span className="vv">{f.flightNo}</span></div>}
           <div className="drow"><span className="k">Aircraft</span><span className="vv">{f.craft}</span></div>
           {f.reg && <div className="drow"><span className="k">Registration</span><span className="vv">{f.reg}</span></div>}
-          <div className="drow"><span className="k">Flight time</span><span className="vv">{window.fmtDur(f.dur)}</span></div>
+          <div className="drow"><span className="k">Flight time</span><span className="vv">{UI.fmtDur(f.dur)}</span></div>
           <div className="drow"><span className="k">Distance</span><span className="vv">{f.km.toLocaleString()} km · {f.miles.toLocaleString()} mi</span></div>
           <div className="drow"><span className="k">Seat</span><span className="vv">{f.seat}</span></div>
           <div className="drow">
             <span className="k">Route</span>
             <span className="vv" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <window.Flag cc={f.from.cc} size={20} /> → <window.Flag cc={f.to.cc} size={20} />
+              <UI.Flag cc={f.from.cc} size={20} /> → <UI.Flag cc={f.to.cc} size={20} />
             </span>
           </div>
         </div>
@@ -173,7 +175,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
     </section>
   );
 }
-window.FlightDetail = FlightDetail;
+UI.FlightDetail = FlightDetail;
 
 /* Resize + compress a picked image client-side (no upload, no server) so a
    photo stays small enough to live comfortably inside the synced flight
@@ -236,10 +238,10 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
         <img className="detail-photo-img" src={flight.photo} alt="" />
         <div className="detail-photo-tools">
           <button type="button" className="icon-btn icon-btn-sm" title="Change photo" onClick={pick} disabled={disabled}>
-            <window.Icon.edit />
+            <UI.Icon.edit />
           </button>
           <button type="button" className="icon-btn icon-btn-sm" title="Remove photo" onClick={remove} disabled={disabled}>
-            <window.Icon.trash />
+            <UI.Icon.trash />
           </button>
         </div>
         <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />
@@ -249,10 +251,10 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
 
   return (
     <button type="button" className="detail-photo-add" onClick={pick} disabled={busy || disabled}>
-      <window.Icon.plus />
+      <UI.Icon.plus />
       <span>{busy ? "Processing…" : error || `${flight.to.city} · add a photo`}</span>
       <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />
     </button>
   );
 }
-window.ImageSlotMaybe = ImageSlotMaybe;
+UI.ImageSlotMaybe = ImageSlotMaybe;

@@ -5,6 +5,8 @@
    store.js (window.MeridielAuth). Local exploration remains available
    when Google auth is not configured.
    ============================================================ */
+import { UI } from "./ui-registry.js";
+
 const { useState: useStateL } = React;
 
 function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
@@ -70,7 +72,7 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
       </svg>
 
       <button className="login-theme icon-btn" onClick={onToggleTheme} title="Toggle theme">
-        {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}
+        {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
       </button>
 
       <div className="login-card paper-tex">
@@ -95,11 +97,11 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
         {step === "signin" && (
           <React.Fragment>
             <button className="gbtn gbtn-primary" onClick={onExplore}>
-              <span className="gbtn-g"><window.Icon.globe /></span>
+              <span className="gbtn-g"><UI.Icon.globe /></span>
               <span>Explore atlas</span>
             </button>
             <button className="gbtn gbtn-secondary" onClick={onSignInClick}>
-              <span className="gbtn-g"><window.Icon.google /></span>
+              <span className="gbtn-g"><UI.Icon.google /></span>
               <span>Continue with Google</span>
             </button>
             {error && <div className="login-err">{error}</div>}
@@ -129,4 +131,4 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
     </div>
   );
 }
-window.LoginGate = LoginGate;
+UI.LoginGate = LoginGate;
