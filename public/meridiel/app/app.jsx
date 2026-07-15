@@ -49,12 +49,17 @@ function App() {
   const [runtimeStatus, setRuntimeStatus] = useStateA(
     () => (window.Globe && window.gsap ? "ready" : "idle")
   );
+  const [runtimeAttempt, setRuntimeAttempt] = useStateA(0);
 
   // The welcome screen does not need WebGL. Load the heavy globe and animation
   // runtimes only after a visitor enters (or a remembered account resumes),
   // and do not mount GlobeView until both globals are actually available.
   useEffectA(() => {
-    if (!account || runtimeStatus !== "idle") return;
+    if (!account) return;
+    if (window.Globe && window.gsap) {
+      setRuntimeStatus("ready");
+      return;
+    }
     let cancelled = false;
     setRuntimeStatus("loading");
     loadGlobeRuntime()
@@ -64,7 +69,7 @@ function App() {
         if (!cancelled) setRuntimeStatus("error");
       });
     return () => { cancelled = true; };
-  }, [account, runtimeStatus]);
+  }, [account, runtimeAttempt]);
 
   // useLayoutEffect (not useEffect) so the DOM attribute flips synchronously —
   // required for the view-transition screenshot below to capture the new theme.
@@ -327,7 +332,7 @@ function App() {
               {runtimeStatus === "error" ? (
                 <React.Fragment>
                   <div className="lbl">The 3D globe couldn’t load.</div>
-                  <button className="btn btn-solid" onClick={() => setRuntimeStatus("idle")}>Retry globe</button>
+                  <button className="btn btn-solid" onClick={() => setRuntimeAttempt((attempt) => attempt + 1)}>Retry globe</button>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
