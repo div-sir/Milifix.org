@@ -19,6 +19,14 @@ test('Meridiel publishes its canonical URL', async ({ page }) => {
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://milifix.com/meridiel/');
 });
 
+test('Meridiel can be explored without signing in', async ({ page }) => {
+  await page.goto('/meridiel/');
+  await expect(page.getByRole('button', { name: 'Explore atlas' })).toBeVisible();
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.locator('.topbar')).toBeVisible();
+  await expect(page.getByText('Local atlas')).toBeVisible();
+});
+
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
   for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
     await page.goto(path);

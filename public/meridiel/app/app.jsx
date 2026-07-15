@@ -29,6 +29,7 @@ function supportsThemeViewTransition() {
 
 function App() {
   const ALL = window.ATLAS.FLIGHTS;
+  const LOCAL_ACCOUNT = { name: "Explorer", handle: "Local atlas", initial: "E", mode: "local" };
 
   /* ---- auth + theme ---- */
   const [account, setAccount] = useStateA(loadAccount);
@@ -59,9 +60,13 @@ function App() {
     const result = window.MeridielData.writeJson(localStorage, "fa-account", acct);
     if (!result.ok) console.error("Meridiel: account cache could not be saved —", result.error);
   };
+  const onExplore = () => {
+    setAccount(LOCAL_ACCOUNT);
+  };
   const onLogout = () => {
     setAccount(null);
     setAcctMenu(false);
+    cloudLoaded.current = false;
     try { localStorage.removeItem("fa-account"); } catch (e) {
       console.error("Meridiel: account cache could not be cleared —", e);
     }
@@ -74,7 +79,7 @@ function App() {
   const extraRef = useRefA(extra);
   const cloudLoaded = useRefA(false);
   extraRef.current = extra;
-  const cloudSync = !!(window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
+  const cloudSync = !!(account && account.mode !== "local" && window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
 
   // A failed *silent* refresh (browser blocking the hidden iframe GIS needs,
   // third-party cookies off, etc.) is tagged "reauth-required" by store.js —
@@ -152,6 +157,31 @@ function App() {
   const [present, setPresent] = useStateA(false);
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
   const [pushToast, toastNode] = window.useToast();
+
+  const connectGoogle = () => {
+    if (!(window.MeridielAuth && window.MeridielAuth.enabled)) {
+      pushToast("Google sync is not configured.");
+      return;
+    }
+    setSyncStatus("syncing");
+    window.MeridielAuth.signIn().then((profile) => {
+      const name = (profile.name || profile.email || "Explorer").trim();
+      onLogin({
+        name,
+        email: profile.email || "",
+        handle: profile.email ? "@" + profile.email.split("@")[0] : "",
+        initial: (name[0] || "?").toUpperCase(),
+        picture: profile.picture || "",
+        mode: "google",
+      });
+      setAcctMenu(false);
+      pushToast("Google connected. Syncing your atlas…");
+    }).catch((error) => {
+      console.error("Meridiel: Google connection failed —", error);
+      setSyncStatus("local");
+      pushToast("Google connection didn’t complete.");
+    });
+  };
 
   const selectedFlight = useMemoA(
     () => flightsAll.find((f) => f.id === selectedId) || null,
@@ -233,7 +263,7 @@ function App() {
 
   // ---- not logged in → gate ----
   if (!account) {
-    return <window.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} />;
+    return <window.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
   }
 
   const liveStats = window.ATLAS.statsFor(flightsAll);
@@ -330,7 +360,7 @@ function App() {
                       <small>{account.email || account.handle}</small>
                     </div>
                   </div>
-                  {cloudSync && (
+                  {cloudSync ? (
                     <div className={"am-sync am-sync--" + (storageError ? "storage-full" : syncStatus)}>
                       {storageError ? "Device storage full · cloud sync only"
                         : syncStatus === "synced" ? "✓ Synced to Google Drive"
@@ -344,9 +374,18 @@ function App() {
                               ⟲ Reconnect Google Drive
                             </button>
                           )
-                        : syncStatus === "offline" ? "Offline · saved on this device"
-                        : "Saved on this device"}
+                        : syncStatus === "offline" ? "Offline · saved in this browser"
+                        : "Saved in this browser"}
                     </div>
+                  ) : (
+                    <div className={"am-sync " + (storageError ? "am-sync--storage-full" : "am-sync--local")}>
+                      {storageError ? "Browser storage full · changes not saved" : "Local only · saved in this browser"}
+                    </div>
+                  )}
+                  {account.mode === "local" && (
+                    <button className="am-item" onClick={connectGoogle}>
+                      <window.Icon.google /> Sync with Google Drive
+                    </button>
                   )}
                   <button className="am-item" onClick={(e) => toggleTheme(e)}>
                     {theme === "dark" ? <window.Icon.sun /> : <window.Icon.moon />}

@@ -1,32 +1,24 @@
 /* 由 scripts/build-meridiel.mjs 從 login.jsx 編譯產生，請勿手動編輯 */
 (function () {
 /* ============================================================
-   MERIDIEL — Google Sign-in Gate
+   MERIDIEL — Welcome / optional Google sign-in
    Real Google sign-in via Google Identity Services (client-side,
    no backend). The Client ID and the auth/Drive plumbing live in
-   store.js (window.MeridielAuth); if it's disabled the built-in
-   demo account is used so the app still runs.
+   store.js (window.MeridielAuth). Local exploration remains available
+   when Google auth is not configured.
    ============================================================ */
 const {
   useState: useStateL
 } = React;
-
-/* Demo account — used only when Google auth is disabled (no Client ID). */
-const DEMO_ACCOUNT = {
-  name: "Avery Lin",
-  email: "avery.lin@gmail.com",
-  handle: "@averyflies",
-  initial: "A"
-};
 function LoginGate({
   theme,
   onToggleTheme,
-  onLogin
+  onLogin,
+  onExplore
 }) {
-  const [step, setStep] = useStateL("signin"); // signin | choose | connecting
+  const [step, setStep] = useStateL("signin"); // signin | connecting
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
-  const acct = DEMO_ACCOUNT;
   const realAuth = !!(window.MeridielAuth && window.MeridielAuth.enabled);
 
   // Build an account object from a Google userinfo payload.
@@ -37,7 +29,8 @@ function LoginGate({
       email: p.email || "",
       handle: p.email ? "@" + p.email.split("@")[0] : "",
       initial: (nm[0] || "?").toUpperCase(),
-      picture: p.picture || ""
+      picture: p.picture || "",
+      mode: "google"
     };
   };
 
@@ -58,14 +51,11 @@ function LoginGate({
 
   // Entry point for the "Sign in with Google" button.
   const onSignInClick = () => {
-    if (realAuth) realSignIn();else setStep("choose");
-  };
-
-  // Demo connect (mock account chooser path).
-  const connect = () => {
-    setSigningName(acct.name);
-    setStep("connecting");
-    setTimeout(() => onLogin(acct), 1500);
+    if (realAuth) {
+      realSignIn();
+      return;
+    }
+    setError("Google sync is temporarily unavailable. You can still explore locally.");
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "login-stage"
@@ -152,44 +142,27 @@ function LoginGate({
     d: "M2 12h20M12 2c2.6 2.7 4 5.9 4 10s-1.4 7.3-4 10c-2.6-2.7-4-5.9-4-10s1.4-7.3 4-10z"
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Meridiel"), /*#__PURE__*/React.createElement("small", null, "Charted by hand"))), step !== "connecting" && /*#__PURE__*/React.createElement("p", {
     className: "login-tag"
-  }, "Every flight you've ever taken, drawn across a living globe. Sign in to chart and keep your atlas."), step === "signin" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-    className: "gbtn",
+  }, "Build a living atlas of every flight you've taken. Explore the globe now, then connect Google Drive only if you want cross-device sync."), step === "signin" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    className: "gbtn gbtn-primary",
+    onClick: onExplore
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gbtn-g"
+  }, /*#__PURE__*/React.createElement(window.Icon.globe, null)), /*#__PURE__*/React.createElement("span", null, "Explore atlas")), /*#__PURE__*/React.createElement("button", {
+    className: "gbtn gbtn-secondary",
     onClick: onSignInClick
   }, /*#__PURE__*/React.createElement("span", {
     className: "gbtn-g"
-  }, /*#__PURE__*/React.createElement(window.Icon.google, null)), /*#__PURE__*/React.createElement("span", null, "Sign in with Google")), error && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(window.Icon.google, null)), /*#__PURE__*/React.createElement("span", null, "Continue with Google")), error && /*#__PURE__*/React.createElement("div", {
     className: "login-err"
   }, error), /*#__PURE__*/React.createElement("div", {
-    className: "login-or"
-  }, /*#__PURE__*/React.createElement("span", null, "secure \xB7 Google sign-in \xB7 your data stays in your browser")), /*#__PURE__*/React.createElement("div", {
+    className: "login-privacy"
+  }, /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("b", null, "Explore:"), " no account; changes stay in this browser."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("b", null, "Google:"), " shares your basic profile and stores the atlas in Drive's private appData folder."), /*#__PURE__*/React.createElement("a", {
+    href: "/privacy"
+  }, "Privacy details")), /*#__PURE__*/React.createElement("div", {
     className: "login-meta"
-  }, /*#__PURE__*/React.createElement("span", null, "EST. 2016"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "NO PASSWORD STORED"), /*#__PURE__*/React.createElement("span", {
     className: "dot"
-  }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "NO PASSWORD STORED"))), step === "choose" && /*#__PURE__*/React.createElement("div", {
-    className: "gchoose"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gchoose-head"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gword"
-  }, "Google"), /*#__PURE__*/React.createElement("span", {
-    className: "gchoose-sub"
-  }, "Choose an account ", /*#__PURE__*/React.createElement("em", null, "to continue to Meridiel"))), /*#__PURE__*/React.createElement("button", {
-    className: "gacct",
-    onClick: connect
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gacct-av"
-  }, acct.initial), /*#__PURE__*/React.createElement("span", {
-    className: "gacct-id"
-  }, /*#__PURE__*/React.createElement("b", null, acct.name), /*#__PURE__*/React.createElement("small", null, acct.email))), /*#__PURE__*/React.createElement("button", {
-    className: "gacct ghost",
-    onClick: connect
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gacct-av plus"
-  }, /*#__PURE__*/React.createElement(window.Icon.plus, null)), /*#__PURE__*/React.createElement("span", {
-    className: "gacct-id"
-  }, /*#__PURE__*/React.createElement("b", null, "Use another account"))), /*#__PURE__*/React.createElement("p", {
-    className: "gfine"
-  }, "To continue, Google will share your name, email address, and profile picture with Meridiel.")), step === "connecting" && /*#__PURE__*/React.createElement("div", {
+  }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "YOU CHOOSE WHEN TO SYNC"))), step === "connecting" && /*#__PURE__*/React.createElement("div", {
     className: "login-connecting"
   }, /*#__PURE__*/React.createElement("div", {
     className: "spin"
