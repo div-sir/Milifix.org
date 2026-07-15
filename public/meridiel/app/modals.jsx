@@ -1,6 +1,8 @@
 /* ============================================================
    MERIDIEL — Modals: Share card, Add flight, Present overlay
    ============================================================ */
+import { UI } from "./ui-registry.js";
+
 
 /* ---------- Share Card modal ---------- */
 let html2canvasPromise = null;
@@ -67,7 +69,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
       <div className="modal paper-tex" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h2>Share your Atlas</h2>
-          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><window.Icon.x /></button>
+          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><UI.Icon.x /></button>
         </div>
         <div className="modal-body">
           {/* The exported artifact */}
@@ -92,7 +94,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
               <div className="sc-stat"><div className="v">{s.laps}×</div><div className="k">Around Earth</div></div>
             </div>
             <div className="sc-flags">
-              {countries.map((c) => <window.Flag key={c.country} cc={c.cc} size={28} />)}
+              {countries.map((c) => <UI.Flag key={c.country} cc={c.cc} size={28} />)}
             </div>
             <div className="sc-foot">
               <span>◎ Meridiel</span>
@@ -102,10 +104,10 @@ function ShareModal({ flights, account, onClose, pushToast }) {
 
           <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
             <button className="btn btn-solid" style={{ flex: 1, justifyContent: "center" }} onClick={exportPng} onMouseEnter={warmExportLibrary} onFocus={warmExportLibrary} disabled={busy}>
-              <window.Icon.download /> {busy ? "Rendering…" : "Download image"}
+              <UI.Icon.download /> {busy ? "Rendering…" : "Download image"}
             </button>
             <button className="btn btn-ghost" style={{ justifyContent: "center" }} onClick={copyLink}>
-              <window.Icon.link /> Copy link
+              <UI.Icon.link /> Copy link
             </button>
           </div>
           <p className="hint" style={{ marginTop: 12 }}>
@@ -116,7 +118,7 @@ function ShareModal({ flights, account, onClose, pushToast }) {
     </div>
   );
 }
-window.ShareModal = ShareModal;
+UI.ShareModal = ShareModal;
 
 /* ---------- Add / Edit Flight modal ----------
    Pass `initial` (an existing flight) to edit it in place; omit it to add a new one. */
@@ -212,7 +214,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
       <div className="modal paper-tex" onClick={(e) => e.stopPropagation()} style={{ width: "min(480px, 94vw)" }}>
         <div className="modal-head">
           <h2>{isEdit ? "Edit flight" : "Add a flight"}</h2>
-          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><window.Icon.x /></button>
+          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><UI.Icon.x /></button>
         </div>
         <div className="modal-body">
           {!isEdit && (
@@ -227,7 +229,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
               <div className="field-row">
                 <div className="field">
                   <label>From</label>
-                  <window.SuggestField
+                  <UI.SuggestField
                     value={form.o}
                     onCommit={setVal("o")}
                     getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
@@ -237,7 +239,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
                 </div>
                 <div className="field">
                   <label>To</label>
-                  <window.SuggestField
+                  <UI.SuggestField
                     value={form.d}
                     onCommit={setVal("d")}
                     getDisplay={(code) => (window.ATLAS.AIRPORTS[code] ? `${code} — ${window.ATLAS.AIRPORTS[code].city}` : code)}
@@ -253,7 +255,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
               <div className="field-row">
                 <div className="field">
                   <label>Airline</label>
-                  <window.SuggestField
+                  <UI.SuggestField
                     value={form.airline}
                     onCommit={setVal("airline")}
                     getDisplay={(v) => v}
@@ -273,7 +275,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
               </div>
 
               <button type="button" className="advanced-toggle" onClick={() => setShowAdvanced((v) => !v)}>
-                <window.Icon.chevron className={"advanced-toggle-chev" + (showAdvanced ? " open" : "")} />
+                <UI.Icon.chevron className={"advanced-toggle-chev" + (showAdvanced ? " open" : "")} />
                 Advanced details
               </button>
               <div className={"advanced-collapse" + (showAdvanced ? " open" : "")}>
@@ -296,7 +298,7 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
               </div>
 
               <button className="btn btn-solid" style={{ width: "100%", justifyContent: "center", marginTop: 4 }} onClick={submit}>
-                {isEdit ? <React.Fragment><window.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><window.Icon.plus /> Add to log</React.Fragment>}
+                {isEdit ? <React.Fragment><UI.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><UI.Icon.plus /> Add to log</React.Fragment>}
               </button>
             </div>
           )}
@@ -315,4 +317,4 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
     </div>
   );
 }
-window.AddFlightModal = AddFlightModal;
+UI.AddFlightModal = AddFlightModal;

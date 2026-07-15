@@ -4,6 +4,8 @@
    Supports: theme (light/dark), unified camera focus (selection
    AND flight-by-flight replay), draw-on arc entrances.
    ============================================================ */
+import { UI } from "./ui-registry.js";
+
 const { useRef, useEffect } = React;
 
 function paletteFor(theme) {
@@ -400,4 +402,4 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
   return <div ref={elRef} className="globe-canvas" />;
 }
 
-window.GlobeView = GlobeView;
+UI.GlobeView = GlobeView;

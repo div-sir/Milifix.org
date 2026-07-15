@@ -1,6 +1,8 @@
 /* ============================================================
-   MERIDIEL — Small UI components & icons (React, global)
+   MERIDIEL — Small UI components & icons
    ============================================================ */
+import { UI } from "./ui-registry.js";
+
 const { useState, useEffect, useRef } = React;
 
 /* ---------- Inline icons ---------- */
@@ -41,7 +43,7 @@ const Icon = {
     </svg>
   ),
 };
-window.Icon = Icon;
+UI.Icon = Icon;
 
 /* ---------- Flag (circle-flags via CDN) ---------- */
 function Flag({ cc, label, size }) {
@@ -53,7 +55,7 @@ function Flag({ cc, label, size }) {
     </span>
   );
 }
-window.Flag = Flag;
+UI.Flag = Flag;
 
 /* ---------- SuggestField: type-ahead text field with a suggestion dropdown ----------
    Data-agnostic — the caller supplies `search(query)` returning up to a
@@ -121,7 +123,7 @@ function SuggestField({ value, onCommit, getDisplay, search, placeholder, minCha
     </div>
   );
 }
-window.SuggestField = SuggestField;
+UI.SuggestField = SuggestField;
 
 /* ---------- Animated number (GSAP count-up) ---------- */
 function StatNum({ value, suffix = "", decimals = 0 }) {
@@ -144,7 +146,7 @@ function StatNum({ value, suffix = "", decimals = 0 }) {
 function fmt(n, d) {
   return d ? (+n).toFixed(d) : Math.round(n).toLocaleString();
 }
-window.StatNum = StatNum;
+UI.StatNum = StatNum;
 
 /* ---------- Toast system ---------- */
 function useToast() {
@@ -161,14 +163,14 @@ function useToast() {
   );
   return [push, node];
 }
-window.useToast = useToast;
+UI.useToast = useToast;
 
 /* ---------- Format helpers ---------- */
-window.fmtDur = (min) => {
+UI.fmtDur = (min) => {
   const h = Math.floor(min / 60), m = min % 60;
   return `${h}h ${String(m).padStart(2, "0")}m`;
 };
-window.fmtDate = (iso) => {
+UI.fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
 };
