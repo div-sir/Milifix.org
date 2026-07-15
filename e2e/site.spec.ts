@@ -24,7 +24,8 @@ test('Meridiel can be explored without signing in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Explore atlas' })).toBeVisible();
   await page.getByRole('button', { name: 'Explore atlas' }).click();
   await expect(page.locator('.topbar')).toBeVisible();
-  await expect(page.getByText('Local atlas')).toBeVisible();
+  await page.locator('.top-owner').click();
+  await expect(page.getByText('Local only · saved in this browser')).toBeVisible();
 });
 
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
