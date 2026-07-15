@@ -1,25 +1,16 @@
 /* ============================================================
-   MERIDIEL — Google Sign-in Gate
+   MERIDIEL — Welcome / optional Google sign-in
    Real Google sign-in via Google Identity Services (client-side,
    no backend). The Client ID and the auth/Drive plumbing live in
-   store.js (window.MeridielAuth); if it's disabled the built-in
-   demo account is used so the app still runs.
+   store.js (window.MeridielAuth). Local exploration remains available
+   when Google auth is not configured.
    ============================================================ */
 const { useState: useStateL } = React;
 
-/* Demo account — used only when Google auth is disabled (no Client ID). */
-const DEMO_ACCOUNT = {
-  name: "Avery Lin",
-  email: "avery.lin@gmail.com",
-  handle: "@averyflies",
-  initial: "A",
-};
-
-function LoginGate({ theme, onToggleTheme, onLogin }) {
-  const [step, setStep] = useStateL("signin"); // signin | choose | connecting
+function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
+  const [step, setStep] = useStateL("signin"); // signin | connecting
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
-  const acct = DEMO_ACCOUNT;
   const realAuth = !!(window.MeridielAuth && window.MeridielAuth.enabled);
 
   // Build an account object from a Google userinfo payload.
@@ -31,6 +22,7 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
       handle: p.email ? "@" + p.email.split("@")[0] : "",
       initial: (nm[0] || "?").toUpperCase(),
       picture: p.picture || "",
+      mode: "google",
     };
   };
 
@@ -51,15 +43,11 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
 
   // Entry point for the "Sign in with Google" button.
   const onSignInClick = () => {
-    if (realAuth) realSignIn();
-    else setStep("choose");
-  };
-
-  // Demo connect (mock account chooser path).
-  const connect = () => {
-    setSigningName(acct.name);
-    setStep("connecting");
-    setTimeout(() => onLogin(acct), 1500);
+    if (realAuth) {
+      realSignIn();
+      return;
+    }
+    setError("Google sync is temporarily unavailable. You can still explore locally.");
   };
 
   return (
@@ -99,47 +87,31 @@ function LoginGate({ theme, onToggleTheme, onLogin }) {
 
         {step !== "connecting" && (
           <p className="login-tag">
-            Every flight you've ever taken, drawn across a living globe.
-            Sign in to chart and keep your atlas.
+            Build a living atlas of every flight you've taken. Explore the globe now,
+            then connect Google Drive only if you want cross-device sync.
           </p>
         )}
 
         {step === "signin" && (
           <React.Fragment>
-            <button className="gbtn" onClick={onSignInClick}>
+            <button className="gbtn gbtn-primary" onClick={onExplore}>
+              <span className="gbtn-g"><window.Icon.globe /></span>
+              <span>Explore atlas</span>
+            </button>
+            <button className="gbtn gbtn-secondary" onClick={onSignInClick}>
               <span className="gbtn-g"><window.Icon.google /></span>
-              <span>Sign in with Google</span>
+              <span>Continue with Google</span>
             </button>
             {error && <div className="login-err">{error}</div>}
-            <div className="login-or"><span>secure · Google sign-in · your data stays in your browser</span></div>
+            <div className="login-privacy">
+              <p><b>Explore:</b> no account; changes stay in this browser.</p>
+              <p><b>Google:</b> shares your basic profile and stores the atlas in Drive's private appData folder.</p>
+              <a href="/privacy">Privacy details</a>
+            </div>
             <div className="login-meta">
-              <span>EST. 2016</span><span className="dot">•</span><span>NO PASSWORD STORED</span>
+              <span>NO PASSWORD STORED</span><span className="dot">•</span><span>YOU CHOOSE WHEN TO SYNC</span>
             </div>
           </React.Fragment>
-        )}
-
-        {step === "choose" && (
-          <div className="gchoose">
-            <div className="gchoose-head">
-              <span className="gword">Google</span>
-              <span className="gchoose-sub">Choose an account <em>to continue to Meridiel</em></span>
-            </div>
-            <button className="gacct" onClick={connect}>
-              <span className="gacct-av">{acct.initial}</span>
-              <span className="gacct-id">
-                <b>{acct.name}</b>
-                <small>{acct.email}</small>
-              </span>
-            </button>
-            <button className="gacct ghost" onClick={connect}>
-              <span className="gacct-av plus"><window.Icon.plus /></span>
-              <span className="gacct-id"><b>Use another account</b></span>
-            </button>
-            <p className="gfine">
-              To continue, Google will share your name, email address, and
-              profile picture with Meridiel.
-            </p>
-          </div>
         )}
 
         {step === "connecting" && (

@@ -39,6 +39,12 @@ function supportsThemeViewTransition() {
 }
 function App() {
   const ALL = window.ATLAS.FLIGHTS;
+  const LOCAL_ACCOUNT = {
+    name: "Explorer",
+    handle: "Local atlas",
+    initial: "E",
+    mode: "local"
+  };
 
   /* ---- auth + theme ---- */
   const [account, setAccount] = useStateA(loadAccount);
@@ -69,9 +75,13 @@ function App() {
     const result = window.MeridielData.writeJson(localStorage, "fa-account", acct);
     if (!result.ok) console.error("Meridiel: account cache could not be saved —", result.error);
   };
+  const onExplore = () => {
+    setAccount(LOCAL_ACCOUNT);
+  };
   const onLogout = () => {
     setAccount(null);
     setAcctMenu(false);
+    cloudLoaded.current = false;
     try {
       localStorage.removeItem("fa-account");
     } catch (e) {
@@ -86,7 +96,7 @@ function App() {
   const extraRef = useRefA(extra);
   const cloudLoaded = useRefA(false);
   extraRef.current = extra;
-  const cloudSync = !!(window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
+  const cloudSync = !!(account && account.mode !== "local" && window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
 
   // A failed *silent* refresh (browser blocking the hidden iframe GIS needs,
   // third-party cookies off, etc.) is tagged "reauth-required" by store.js —
@@ -159,6 +169,30 @@ function App() {
   const [present, setPresent] = useStateA(false);
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
   const [pushToast, toastNode] = window.useToast();
+  const connectGoogle = () => {
+    if (!(window.MeridielAuth && window.MeridielAuth.enabled)) {
+      pushToast("Google sync is not configured.");
+      return;
+    }
+    setSyncStatus("syncing");
+    window.MeridielAuth.signIn().then(profile => {
+      const name = (profile.name || profile.email || "Explorer").trim();
+      onLogin({
+        name,
+        email: profile.email || "",
+        handle: profile.email ? "@" + profile.email.split("@")[0] : "",
+        initial: (name[0] || "?").toUpperCase(),
+        picture: profile.picture || "",
+        mode: "google"
+      });
+      setAcctMenu(false);
+      pushToast("Google connected. Syncing your atlas…");
+    }).catch(error => {
+      console.error("Meridiel: Google connection failed —", error);
+      setSyncStatus("local");
+      pushToast("Google connection didn’t complete.");
+    });
+  };
   const selectedFlight = useMemoA(() => flightsAll.find(f => f.id === selectedId) || null, [flightsAll, selectedId]);
 
   // single source of truth for the camera
@@ -279,7 +313,8 @@ function App() {
     return /*#__PURE__*/React.createElement(window.LoginGate, {
       theme: theme,
       onToggleTheme: toggleTheme,
-      onLogin: onLogin
+      onLogin: onLogin,
+      onExplore: onExplore
     });
   }
   const liveStats = window.ATLAS.statsFor(flightsAll);
@@ -439,7 +474,7 @@ function App() {
     referrerPolicy: "no-referrer"
   }) : account.initial || account.name[0]), /*#__PURE__*/React.createElement("div", {
     className: "am-id"
-  }, /*#__PURE__*/React.createElement("b", null, account.name), /*#__PURE__*/React.createElement("small", null, account.email || account.handle))), cloudSync && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("b", null, account.name), /*#__PURE__*/React.createElement("small", null, account.email || account.handle))), cloudSync ? /*#__PURE__*/React.createElement("div", {
     className: "am-sync am-sync--" + (storageError ? "storage-full" : syncStatus)
   }, storageError ? "Device storage full · cloud sync only" : syncStatus === "synced" ? "✓ Synced to Google Drive" : syncStatus === "syncing" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "am-sync-spin"
@@ -447,7 +482,12 @@ function App() {
     type: "button",
     className: "am-sync-reconnect",
     onClick: reconnectSync
-  }, "\u27F2 Reconnect Google Drive") : syncStatus === "offline" ? "Offline · saved on this device" : "Saved on this device"), /*#__PURE__*/React.createElement("button", {
+  }, "\u27F2 Reconnect Google Drive") : syncStatus === "offline" ? "Offline · saved in this browser" : "Saved in this browser") : /*#__PURE__*/React.createElement("div", {
+    className: "am-sync " + (storageError ? "am-sync--storage-full" : "am-sync--local")
+  }, storageError ? "Browser storage full · changes not saved" : "Local only · saved in this browser"), account.mode === "local" && /*#__PURE__*/React.createElement("button", {
+    className: "am-item",
+    onClick: connectGoogle
+  }, /*#__PURE__*/React.createElement(window.Icon.google, null), " Sync with Google Drive"), /*#__PURE__*/React.createElement("button", {
     className: "am-item",
     onClick: e => toggleTheme(e)
   }, theme === "dark" ? /*#__PURE__*/React.createElement(window.Icon.sun, null) : /*#__PURE__*/React.createElement(window.Icon.moon, null), theme === "dark" ? "Light mode" : "Dark mode"), /*#__PURE__*/React.createElement("button", {
