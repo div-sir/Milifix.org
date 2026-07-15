@@ -449,19 +449,26 @@ function App() {
   })), /*#__PURE__*/React.createElement("div", {
     className: "wordmark"
   }, /*#__PURE__*/React.createElement("b", null, "Meridiel"), /*#__PURE__*/React.createElement("small", null, "Charted by hand"))), /*#__PURE__*/React.createElement("div", {
+    className: "account-control"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
     className: "top-owner btn-like",
-    onClick: () => setAcctMenu(v => !v)
-  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setAcctMenu(v => !v),
+    "aria-label": "Open account menu",
+    "aria-expanded": acctMenu,
+    "aria-controls": "meridiel-account-menu"
+  }, /*#__PURE__*/React.createElement("span", {
     className: "avatar"
   }, account.picture ? /*#__PURE__*/React.createElement("img", {
     src: account.picture,
     alt: "",
     referrerPolicy: "no-referrer"
-  }) : account.initial || account.name[0]), /*#__PURE__*/React.createElement("div", {
+  }) : account.initial || account.name[0]), /*#__PURE__*/React.createElement("span", {
     className: "who"
   }, /*#__PURE__*/React.createElement("b", null, account.name), /*#__PURE__*/React.createElement("small", null, account.handle)), /*#__PURE__*/React.createElement(window.Icon.chevron, {
     className: "caret"
-  }), acctMenu && /*#__PURE__*/React.createElement("div", {
+  })), acctMenu && /*#__PURE__*/React.createElement("div", {
+    id: "meridiel-account-menu",
     className: "acct-menu paper-tex",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
@@ -489,6 +496,18 @@ function App() {
     onClick: connectGoogle
   }, /*#__PURE__*/React.createElement(window.Icon.google, null), " Sync with Google Drive"), /*#__PURE__*/React.createElement("button", {
     className: "am-item",
+    onClick: () => {
+      setAcctMenu(false);
+      setModal("share");
+    }
+  }, /*#__PURE__*/React.createElement(window.Icon.share, null), " Share atlas"), /*#__PURE__*/React.createElement("button", {
+    className: "am-item",
+    onClick: () => {
+      setAcctMenu(false);
+      setPresent(true);
+    }
+  }, /*#__PURE__*/React.createElement(window.Icon.present, null), " Present mode"), /*#__PURE__*/React.createElement("button", {
+    className: "am-item",
     onClick: e => toggleTheme(e)
   }, theme === "dark" ? /*#__PURE__*/React.createElement(window.Icon.sun, null) : /*#__PURE__*/React.createElement(window.Icon.moon, null), theme === "dark" ? "Light mode" : "Dark mode"), /*#__PURE__*/React.createElement("button", {
     className: "am-item",
@@ -496,26 +515,22 @@ function App() {
   }, /*#__PURE__*/React.createElement(window.Icon.logout, null), " Sign out"))), /*#__PURE__*/React.createElement("div", {
     className: "top-actions"
   }, /*#__PURE__*/React.createElement("button", {
-    className: "icon-btn",
-    title: "Toggle dark mode",
-    onClick: toggleTheme
-  }, theme === "dark" ? /*#__PURE__*/React.createElement(window.Icon.sun, null) : /*#__PURE__*/React.createElement(window.Icon.moon, null)), /*#__PURE__*/React.createElement("button", {
-    className: "icon-btn",
+    className: "icon-btn top-action-secondary",
     title: autoRotate ? "Pause spin" : "Resume spin",
     onClick: () => setAutoRotate(r => !r)
   }, /*#__PURE__*/React.createElement(window.Icon.rotate, null)), /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-ghost",
-    title: "Present",
-    onClick: () => setPresent(true)
-  }, /*#__PURE__*/React.createElement(window.Icon.present, null), " ", /*#__PURE__*/React.createElement("span", {
-    className: "btn-label"
-  }, "Present")), /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-accent",
-    title: "Share",
+    className: "btn btn-ghost top-action-secondary",
+    title: "Share atlas",
     onClick: () => setModal("share")
   }, /*#__PURE__*/React.createElement(window.Icon.share, null), " ", /*#__PURE__*/React.createElement("span", {
     className: "btn-label"
-  }, "Share")))), /*#__PURE__*/React.createElement(window.FlightLog, {
+  }, "Share")), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-accent",
+    title: "Add flight",
+    onClick: () => setModal("add")
+  }, /*#__PURE__*/React.createElement(window.Icon.plus, null), " ", /*#__PURE__*/React.createElement("span", {
+    className: "btn-label"
+  }, "Add flight")))), /*#__PURE__*/React.createElement(window.FlightLog, {
     flights: flightsAll,
     selectedId: selectedId,
     onSelect: handleSelect,
@@ -538,14 +553,22 @@ function App() {
     allFlights: flightsAll,
     className: mobileTab === "stats" ? "" : "hidden-mobile"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "mobile-tabs"
+    className: "mobile-tabs",
+    role: "tablist",
+    "aria-label": "Atlas views"
   }, /*#__PURE__*/React.createElement("button", {
+    role: "tab",
+    "aria-selected": mobileTab === "log",
     className: mobileTab === "log" ? "on" : "",
     onClick: () => setMobileTab("log")
   }, "Log"), /*#__PURE__*/React.createElement("button", {
+    role: "tab",
+    "aria-selected": mobileTab === "globe",
     className: mobileTab === "globe" ? "on" : "",
     onClick: () => setMobileTab("globe")
   }, "Globe"), /*#__PURE__*/React.createElement("button", {
+    role: "tab",
+    "aria-selected": mobileTab === "stats",
     className: mobileTab === "stats" ? "on" : "",
     onClick: () => setMobileTab("stats")
   }, "Stats"))), acctMenu && /*#__PURE__*/React.createElement("div", {
