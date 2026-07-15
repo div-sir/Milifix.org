@@ -2,6 +2,7 @@
    MERIDIEL — Panels: Log, Rail (stats+flags), Detail, Timeline
    ============================================================ */
 import { UI } from "./ui-registry.js";
+import { ATLAS } from "./data.js";
 
 const { useMemo: useMemoP } = React;
 
@@ -55,13 +56,13 @@ UI.FlightLog = FlightLog;
 
 /* ---------- Stats + Flag wall (right rail) ---------- */
 function StatsRail({ flights, allFlights, className }) {
-  const s = useMemoP(() => window.ATLAS.statsFor(flights), [flights]);
-  const countries = useMemoP(() => window.ATLAS.countryList(flights), [flights]);
+  const s = useMemoP(() => ATLAS.statsFor(flights), [flights]);
+  const countries = useMemoP(() => ATLAS.countryList(flights), [flights]);
   return (
     <section className={"panel rail paper-tex " + (className || "")}>
       <div className="panel-head">
         <h3>The Tally</h3>
-        <span className="count">since {window.ATLAS.sinceOf(allFlights || flights)}</span>
+        <span className="count">since {ATLAS.sinceOf(allFlights || flights)}</span>
       </div>
       <div className="panel-body">
         <div className="stat-grid">

@@ -6,19 +6,22 @@ import "./globe.jsx";
 import "./panels.jsx";
 import "./modals.jsx";
 import "./login.jsx";
+import { ATLAS } from "./data.js";
+import { MeridielData } from "./model.js";
+import { MeridielAuth, MeridielStore } from "./store.js";
 import { UI } from "./ui-registry.js";
 
 const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
 
 /* ---------- persisted helpers ---------- */
 function loadAccount() {
-  return window.MeridielData.readJson(localStorage, "fa-account", null);
+  return MeridielData.readJson(localStorage, "fa-account", null);
 }
 function loadTheme() {
   try { return localStorage.getItem("fa-theme") || "light"; } catch (e) { return "light"; }
 }
 function loadFlights() {
-  const value = window.MeridielData.readJson(localStorage, "fa-flights", []);
+  const value = MeridielData.readJson(localStorage, "fa-flights", []);
   return Array.isArray(value) ? value : [];
 }
 
@@ -35,7 +38,7 @@ function supportsThemeViewTransition() {
 }
 
 function App() {
-  const ALL = window.ATLAS.FLIGHTS;
+  const ALL = ATLAS.FLIGHTS;
   const LOCAL_ACCOUNT = { name: "Explorer", handle: "Local atlas", initial: "E", mode: "local" };
 
   /* ---- auth + theme ---- */
@@ -64,7 +67,7 @@ function App() {
 
   const onLogin = (acct) => {
     setAccount(acct);
-    const result = window.MeridielData.writeJson(localStorage, "fa-account", acct);
+    const result = MeridielData.writeJson(localStorage, "fa-account", acct);
     if (!result.ok) console.error("Meridiel: account cache could not be saved —", result.error);
   };
   const onExplore = () => {
@@ -86,7 +89,7 @@ function App() {
   const extraRef = useRefA(extra);
   const cloudLoaded = useRefA(false);
   extraRef.current = extra;
-  const cloudSync = !!(account && account.mode !== "local" && window.MeridielAuth && window.MeridielAuth.enabled && window.MeridielStore);
+  const cloudSync = !!(account && account.mode !== "local" && MeridielAuth.enabled && MeridielStore);
 
   // A failed *silent* refresh (browser blocking the hidden iframe GIS needs,
   // third-party cookies off, etc.) is tagged "reauth-required" by store.js —
@@ -102,10 +105,10 @@ function App() {
     if (!account || !cloudSync) return;
     let cancelled = false;
     setSyncStatus("syncing");
-    window.MeridielStore.load().then((data) => {
+    MeridielStore.load().then((data) => {
       if (cancelled) return;
-      if (Array.isArray(data)) setExtra((local) => window.MeridielData.mergeByFlightId(local, data));
-      else window.MeridielStore.save(extraRef.current).catch(() => {});
+      if (Array.isArray(data)) setExtra((local) => MeridielData.mergeByFlightId(local, data));
+      else MeridielStore.save(extraRef.current).catch(() => {});
       cloudLoaded.current = true;
       setSyncStatus("synced");
     }).catch((e) => { if (!cancelled) setSyncStatus(statusForSyncError(e)); });
@@ -117,14 +120,14 @@ function App() {
   // not continuous typing — so there's nothing to debounce; every change
   // gets its own sync instead of waiting on an artificial delay.
   useEffectA(() => {
-    const localResult = window.MeridielData.writeJson(localStorage, "fa-flights", extra);
+    const localResult = MeridielData.writeJson(localStorage, "fa-flights", extra);
     if (!localResult.ok) {
       console.error("Meridiel: local flight save failed —", localResult.error);
       setStorageError(true);
     } else setStorageError(false);
     if (!cloudLoaded.current || !cloudSync) return;
     setSyncStatus("syncing");
-    window.MeridielStore.save(extra)
+    MeridielStore.save(extra)
       .then(() => setSyncStatus("synced"))
       .catch((e) => setSyncStatus(statusForSyncError(e)));
   }, [extra]);
@@ -133,13 +136,13 @@ function App() {
   // blocks the silent refresh, since it's a real user gesture, not a hidden
   // iframe. Re-runs the same pull-from-Drive flow afterwards.
   const reconnectSync = () => {
-    if (!cloudSync || !window.MeridielAuth) return;
+    if (!cloudSync) return;
     setSyncStatus("syncing");
-    window.MeridielAuth.signIn()
-      .then(() => window.MeridielStore.load())
+    MeridielAuth.signIn()
+      .then(() => MeridielStore.load())
       .then((data) => {
-        if (Array.isArray(data)) setExtra((local) => window.MeridielData.mergeByFlightId(local, data));
-        else window.MeridielStore.save(extraRef.current).catch(() => {});
+        if (Array.isArray(data)) setExtra((local) => MeridielData.mergeByFlightId(local, data));
+        else MeridielStore.save(extraRef.current).catch(() => {});
         cloudLoaded.current = true;
         setSyncStatus("synced");
       })
@@ -150,10 +153,10 @@ function App() {
   // older-schema or partially-synced record with only o/d codes would
   // otherwise crash any panel/stat that reads f.from.country etc.
   const flightsAll = useMemoA(() => {
-    const removed = window.MeridielData.deletedIds(extra);
+    const removed = MeridielData.deletedIds(extra);
     const bundled = ALL.filter((f) => !removed.has(f.id));
-    return [...bundled, ...window.MeridielData.activeRecords(extra)]
-      .map((f) => window.ATLAS.hydrateFlight(f));
+    return [...bundled, ...MeridielData.activeRecords(extra)]
+      .map((f) => ATLAS.hydrateFlight(f));
   }, [extra]);
 
   const [selectedId, setSelectedId] = useStateA(null);
@@ -166,12 +169,12 @@ function App() {
   const [pushToast, toastNode] = UI.useToast();
 
   const connectGoogle = () => {
-    if (!(window.MeridielAuth && window.MeridielAuth.enabled)) {
+    if (!MeridielAuth.enabled) {
       pushToast("Google sync is not configured.");
       return;
     }
     setSyncStatus("syncing");
-    window.MeridielAuth.signIn().then((profile) => {
+    MeridielAuth.signIn().then((profile) => {
       const name = (profile.name || profile.email || "Explorer").trim();
       onLogin({
         name,
@@ -212,15 +215,15 @@ function App() {
   };
 
   const addFlight = (form) => {
-    const A = window.ATLAS.AIRPORTS[form.o], B = window.ATLAS.AIRPORTS[form.d];
-    const km = window.ATLAS.distKm(A, B);
+    const A = ATLAS.AIRPORTS[form.o], B = ATLAS.AIRPORTS[form.d];
+    const km = ATLAS.distKm(A, B);
     const f = {
-      id: window.MeridielData.createId(),
+      id: MeridielData.createId(),
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
       flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
-      km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
+      km, miles: Math.round(km * 0.621371), dur: ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
       updatedAt: Date.now(),
     };
@@ -228,22 +231,22 @@ function App() {
   };
 
   const updateFlight = (id, form) => {
-    const A = window.ATLAS.AIRPORTS[form.o], B = window.ATLAS.AIRPORTS[form.d];
-    const km = window.ATLAS.distKm(A, B);
+    const A = ATLAS.AIRPORTS[form.o], B = ATLAS.AIRPORTS[form.d];
+    const km = ATLAS.distKm(A, B);
     setExtra((e) => e.map((f) => f.id !== id ? f : {
       ...f,
       date: form.date, o: form.o, d: form.d,
       airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
       flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
-      km, miles: Math.round(km * 0.621371), dur: window.ATLAS.durMin(km),
+      km, miles: Math.round(km * 0.621371), dur: ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
       updatedAt: Date.now(),
     }));
   };
 
   const deleteFlight = (id) => {
-    setExtra((e) => window.MeridielData.markDeleted(e, id));
+    setExtra((e) => MeridielData.markDeleted(e, id));
     setSelectedId((sid) => (sid === id ? null : sid));
   };
 
@@ -273,8 +276,8 @@ function App() {
     return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
   }
 
-  const liveStats = window.ATLAS.statsFor(flightsAll);
-  const presentCountries = window.ATLAS.countryList(flightsAll);
+  const liveStats = ATLAS.statsFor(flightsAll);
+  const presentCountries = ATLAS.countryList(flightsAll);
 
   return (
     <div className="app">
@@ -311,7 +314,7 @@ function App() {
         <React.Fragment>
           <div className="present-ui present-title">
             <b>{account.name}'s Meridiel</b>
-            <small>{window.ATLAS.sinceOf(flightsAll)} — {new Date().getFullYear()}</small>
+            <small>{ATLAS.sinceOf(flightsAll)} — {new Date().getFullYear()}</small>
           </div>
 
           {/* countries visited so far */}

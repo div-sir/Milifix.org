@@ -2,10 +2,11 @@
    MERIDIEL — Welcome / optional Google sign-in
    Real Google sign-in via Google Identity Services (client-side,
    no backend). The Client ID and the auth/Drive plumbing live in
-   store.js (window.MeridielAuth). Local exploration remains available
+   store.js. Local exploration remains available
    when Google auth is not configured.
    ============================================================ */
 import { UI } from "./ui-registry.js";
+import { MeridielAuth } from "./store.js";
 
 const { useState: useStateL } = React;
 
@@ -13,7 +14,7 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
   const [step, setStep] = useStateL("signin"); // signin | connecting
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
-  const realAuth = !!(window.MeridielAuth && window.MeridielAuth.enabled);
+  const realAuth = MeridielAuth.enabled;
 
   // Build an account object from a Google userinfo payload.
   const acctFromProfile = (p) => {
@@ -33,7 +34,7 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
     setError("");
     setSigningName("");
     setStep("connecting");
-    window.MeridielAuth.signIn().then((p) => {
+    MeridielAuth.signIn().then((p) => {
       setSigningName(p.name || p.email || "");
       onLogin(acctFromProfile(p));
     }).catch((err) => {

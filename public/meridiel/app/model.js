@@ -1,10 +1,7 @@
 /* ============================================================
    MERIDIEL — persistence and conflict-resolution helpers
-   Plain JS so the current classic-script app and Vitest can share
-   exactly the same behavior while the larger TypeScript migration
-   is handled separately.
+   Shared by the browser bundle and Vitest as an ES module.
    ============================================================ */
-(function (root) {
   function changeTime(record) {
     return Math.max(Number(record && record.updatedAt) || 0, Number(record && record.deletedAt) || 0);
   }
@@ -56,7 +53,7 @@
   }
 
   function createId() {
-    if (root.crypto && typeof root.crypto.randomUUID === "function") return root.crypto.randomUUID();
+    if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
     return "flight-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
   }
 
@@ -78,7 +75,7 @@
     }
   }
 
-  root.MeridielData = {
+  export const MeridielData = {
     activeRecords: activeRecords,
     createId: createId,
     deletedIds: deletedIds,
@@ -87,4 +84,3 @@
     readJson: readJson,
     writeJson: writeJson,
   };
-})(typeof window !== "undefined" ? window : globalThis);

@@ -5,6 +5,7 @@
    AND flight-by-flight replay), draw-on arc entrances.
    ============================================================ */
 import { UI } from "./ui-registry.js";
+import { ATLAS } from "./data.js";
 
 const { useRef, useEffect } = React;
 
@@ -104,7 +105,7 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
   // the crash this was meant to prevent.
   const repairEndpoint = (point, code) => {
     if (point && isFinite(point.lat) && isFinite(point.lng)) return point;
-    const a = code && window.ATLAS.AIRPORTS[code];
+    const a = code && ATLAS.AIRPORTS[code];
     return a ? { code, ...a } : null;
   };
   const sanitizeFlight = (f) => {

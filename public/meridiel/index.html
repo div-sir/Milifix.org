@@ -31,13 +31,8 @@
   <script defer src="vendor/react.production.min.js?v=20260710c"></script>
   <script defer src="vendor/react-dom.production.min.js?v=20260710c"></script>
 
-  <!-- Data/storage still expose compatibility globals. The React UI is built
-       from ES modules into one IIFE, so components no longer depend on six
-       ordered window.X scripts. -->
-  <script defer src="app/data.js?v=20260710c"></script>
-  <script defer src="app/model.js?v=20260715a"></script>
-  <script defer src="app/store.js?v=20260715a"></script>
-  <script defer src="app/compiled/app.bundle.js?v=20260715e"></script>
+  <!-- The complete app module graph is built into one deterministic IIFE. -->
+  <script defer src="app/compiled/app.bundle.js?v=20260715f"></script>
 </head>
 <body>
   <div id="root">
