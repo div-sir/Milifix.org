@@ -51,27 +51,48 @@
   }
   var token = loadCachedToken(); // { access_token, expires_at }
 
-  // The GIS script tag loads `async`, so it can still be mid-flight when the
-  // app mounts and (for a returning, already-signed-in user) immediately
-  // tries a silent token refresh. Without this wait, that first request sees
-  // `window.google` not there yet and fails instantly — showing "offline"
-  // even though the user really is signed in and GIS finishes loading a
-  // moment later.
-  function waitForGis(timeoutMs) {
-    timeoutMs = timeoutMs || 8000;
-    return new Promise(function (resolve, reject) {
-      if (window.google && window.google.accounts && window.google.accounts.oauth2) { resolve(); return; }
-      var start = now();
-      var iv = setInterval(function () {
-        if (window.google && window.google.accounts && window.google.accounts.oauth2) {
-          clearInterval(iv);
-          resolve();
-        } else if (now() - start > timeoutMs) {
-          clearInterval(iv);
-          reject(new Error("gis-not-loaded"));
-        }
-      }, 150);
+  // Google Identity Services is third-party code and most visitors never use
+  // it. Inject it only when auth is actually requested. Cache concurrent loads
+  // but clear failures so a later click can retry after a transient outage.
+  var gisPromise = null;
+  function gisReady() {
+    return !!(window.google && window.google.accounts && window.google.accounts.oauth2);
+  }
+  function loadGis() {
+    if (gisReady()) return Promise.resolve();
+    if (gisPromise) return gisPromise;
+
+    gisPromise = new Promise(function (resolve, reject) {
+      var src = "https://accounts.google.com/gsi/client";
+      var existing = document.querySelector('script[data-meridiel-gis="true"]');
+      var script = existing || document.createElement("script");
+      var timeout = setTimeout(function () { fail(new Error("gis-load-timeout")); }, 8000);
+      function cleanup() {
+        clearTimeout(timeout);
+        script.removeEventListener("load", onLoad);
+        script.removeEventListener("error", onError);
+      }
+      function done() { cleanup(); resolve(); }
+      function fail(error) { cleanup(); script.remove(); reject(error); }
+      function onLoad() {
+        if (gisReady()) done();
+        else fail(new Error("gis-not-loaded"));
+      }
+      function onError() { fail(new Error("gis-load-failed")); }
+
+      script.addEventListener("load", onLoad, { once: true });
+      script.addEventListener("error", onError, { once: true });
+      if (!existing) {
+        script.src = src;
+        script.async = true;
+        script.dataset.meridielGis = "true";
+        document.head.appendChild(script);
+      }
+    }).catch(function (error) {
+      gisPromise = null;
+      throw error;
     });
+    return gisPromise;
   }
 
   function ensureClient() {
@@ -106,7 +127,7 @@
   // interactive=true → may show account chooser / consent.
   // interactive=false → silent refresh (fails if interaction is required).
   async function requestToken(interactive) {
-    await waitForGis();
+    await loadGis();
     return new Promise(function (resolve, reject) {
       var client = ensureClient();
       if (!client) { reject(new Error("gis-not-loaded")); return; }

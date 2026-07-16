@@ -52,6 +52,25 @@ test('Meridiel loads global reference data only when adding a flight', async ({ 
   await expect.poll(() => referenceRequests.length, { timeout: 5_000 }).toBe(2);
 });
 
+test('Meridiel loads Google Identity Services only on sign-in intent', async ({ page }) => {
+  const gisRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('accounts.google.com/gsi/client')) gisRequests.push(request.url());
+  });
+  await page.route('https://accounts.google.com/gsi/client', (route) => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'window.google={accounts:{oauth2:{initTokenClient:()=>({requestAccessToken:()=>{}})}}};',
+  }));
+
+  await page.goto('/meridiel/');
+  await page.waitForTimeout(1_500);
+  expect(gisRequests).toEqual([]);
+
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect.poll(() => gisRequests.length).toBe(1);
+  await expect(page.locator('script[data-meridiel-gis="true"]')).toHaveCount(1);
+});
+
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
   for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
     await page.goto(path);
