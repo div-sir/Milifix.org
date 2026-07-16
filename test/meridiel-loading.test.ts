@@ -4,6 +4,18 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../public/meridiel/', import.meta.url);
 
 describe('Meridiel loading strategy', () => {
+  it('loads Google Identity Services only when authentication is requested', async () => {
+    const [html, store] = await Promise.all([
+      readFile(new URL('index.html', root), 'utf8'),
+      readFile(new URL('app/store.js', root), 'utf8'),
+    ]);
+
+    expect(html).not.toMatch(/<script[^>]+src=["'][^"']*accounts\.google\.com\/gsi\/client/i);
+    expect(store).toContain('function loadGis()');
+    expect(store).toContain('https://accounts.google.com/gsi/client');
+    expect(store).toContain('await loadGis()');
+  });
+
   it('loads global reference data only from the add-flight workflow', async () => {
     const [data, modals] = await Promise.all([
       readFile(new URL('app/data.js', root), 'utf8'),

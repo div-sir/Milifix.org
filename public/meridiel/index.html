@@ -19,10 +19,6 @@
   <link rel="stylesheet" href="app/styles.css?v=20260710c" />
   <link rel="stylesheet" href="app/layout.css?v=20260715d" />
 
-  <!-- Google Identity Services (real sign-in; set a Client ID in app/login.jsx).
-       Third-party origin by nature — this one stays remote. -->
-  <script src="https://accounts.google.com/gsi/client" async></script>
-
   <!-- Same-origin runtime. `defer` preserves dependency order while allowing
        the document and loading shell to render during the ~1.4 MB download.
        html2canvas is intentionally absent: ShareModal loads it on export intent. -->
@@ -30,7 +26,7 @@
   <script defer src="vendor/react-dom.production.min.js?v=20260710c"></script>
 
   <!-- The complete app module graph is built into one deterministic IIFE. -->
-  <script defer src="app/compiled/app.bundle.js?v=20260715h"></script>
+  <script defer src="app/compiled/app.bundle.js?v=20260716i"></script>
 </head>
 <body>
   <div id="root">
