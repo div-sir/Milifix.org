@@ -49,6 +49,7 @@ test('Meridiel serves the globe land geometry from its own origin', async ({ pag
 test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   const remoteFlagRequests: string[] = [];
   const spriteResponses: import('@playwright/test').Response[] = [];
+  await page.route('https://raw.githubusercontent.com/jpatokal/openflights/**', (route) => route.fulfill({ body: '' }));
   page.on('request', (request) => {
     if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
   });
@@ -62,6 +63,9 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   await page.getByRole('button', { name: 'Add flight' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
   await page.getByRole('button', { name: 'Add to log' }).click();
+  if ((page.viewportSize()?.width || 0) <= 900) {
+    await page.getByRole('tab', { name: 'Stats' }).click();
+  }
   await expect(page.locator('.flag')).toHaveCount(1);
   await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
   await expect(page.locator('.flag > svg').first()).toBeVisible();
