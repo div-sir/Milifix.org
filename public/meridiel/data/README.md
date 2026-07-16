@@ -8,3 +8,12 @@ Natural Earth data is in the public domain.
 circle-flags 2.8.3, consolidated into a sprite and namespaced for same-origin
 delivery. The upstream project is copyright HatScripts and licensed under MIT;
 see `circle-flags-LICENSE.md`.
+
+`openflights-airports.dat` and `openflights-airlines.dat` are same-origin
+snapshots of the OpenFlights airport and airline databases. They are pinned to
+upstream blobs `02f6fa493aa6f036b4078db77cb12d5d9b116396` and
+`56ae32b2cb1a29db06745d2f650625a706057c47`, respectively. OpenFlights makes
+these databases available under the Open Database License, with individual
+contents under the Database Contents License. Source and license details:
+https://openflights.org/data.php. These datasets are not suitable for
+navigation and come without warranty.

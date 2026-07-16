@@ -55,6 +55,9 @@ describe('Meridiel loading strategy', () => {
     ]);
 
     expect(data).toContain('function loadReferenceData()');
+    expect(data).toContain('data/openflights-airports.dat');
+    expect(data).toContain('data/openflights-airlines.dat');
+    expect(data).not.toContain('raw.githubusercontent.com/jpatokal/openflights');
     expect(data).not.toMatch(/^\s*loadFullAirportDatabase\(\);\s*$/m);
     expect(data).not.toMatch(/^\s*loadFullAirlineDatabase\(\);\s*$/m);
     expect(modals).toContain('ATLAS.loadReferenceData()');

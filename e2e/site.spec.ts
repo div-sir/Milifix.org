@@ -49,7 +49,6 @@ test('Meridiel serves the globe land geometry from its own origin', async ({ pag
 test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   const remoteFlagRequests: string[] = [];
   const spriteResponses: import('@playwright/test').Response[] = [];
-  await page.route('https://raw.githubusercontent.com/jpatokal/openflights/**', (route) => route.fulfill({ body: '' }));
   page.on('request', (request) => {
     if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
   });
@@ -76,8 +75,14 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
 
 test('Meridiel loads global reference data only when adding a flight', async ({ page }) => {
   const referenceRequests: string[] = [];
+  const referenceResponses: import('@playwright/test').Response[] = [];
+  const remoteReferenceRequests: string[] = [];
   page.on('request', (request) => {
-    if (request.url().includes('jpatokal/openflights')) referenceRequests.push(request.url());
+    if (request.url().includes('/meridiel/data/openflights-')) referenceRequests.push(request.url());
+    if (request.url().includes('raw.githubusercontent.com/jpatokal/openflights')) remoteReferenceRequests.push(request.url());
+  });
+  page.on('response', (response) => {
+    if (response.url().includes('/meridiel/data/openflights-')) referenceResponses.push(response);
   });
 
   await page.goto('/meridiel/');
@@ -92,6 +97,9 @@ test('Meridiel loads global reference data only when adding a flight', async ({ 
   await page.getByRole('button', { name: 'Add flight' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
   await expect.poll(() => referenceRequests.length, { timeout: 5_000 }).toBe(2);
+  await expect.poll(() => referenceResponses.length, { timeout: 5_000 }).toBe(2);
+  expect(referenceResponses.every((response) => response.ok())).toBe(true);
+  expect(remoteReferenceRequests).toEqual([]);
 });
 
 test('Meridiel loads Google Identity Services only on sign-in intent', async ({ page }) => {
