@@ -789,15 +789,15 @@
 
   // ---- Full-world airport database, merged in at runtime ----
   // AIRPORTS above is a hand-picked, always-available fallback (curated
-  // names, instant on load, no network needed). This fetches the public
+  // names, instant on load, no network needed). This fetches our pinned copy
   // OpenFlights database (~6000 airports with IATA codes) once, caches the
   // parsed result in localStorage, and merges in every code we don't
   // already have — so first-run search still works instantly, and everyone
   // gets full world coverage within a second or two, without shipping
-  // several hundred KB of airport data in this file. Mirrors how
-  // globe.jsx already fetches country borders from the same GitHub host.
-  const AIRPORTS_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat";
-  const AIRPORTS_CACHE_KEY = "fa-airports-db-v1";
+  // several hundred KB of airport data in this file. Keeping the snapshot on
+  // our own origin avoids making the add-flight workflow depend on GitHub Raw.
+  const AIRPORTS_DB_URL = "data/openflights-airports.dat?v=20260716m";
+  const AIRPORTS_CACHE_KEY = "fa-airports-db-v2";
 
   // Keep non-critical parsing and network work off the interaction path. The
   // curated lists already work immediately; the full databases are requested
@@ -905,8 +905,8 @@
   // duplicate/reused codes, so this only fills in codes our curated list
   // doesn't already have, and only ones flagged "active" — the curated list
   // still wins on any conflict (e.g. JX staying STARLUX Airlines).
-  const AIRLINES_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat";
-  const AIRLINES_CACHE_KEY = "fa-airlines-db-v1";
+  const AIRLINES_DB_URL = "data/openflights-airlines.dat?v=20260716m";
+  const AIRLINES_CACHE_KEY = "fa-airlines-db-v2";
 
   async function mergeAirlineRows(text) {
     const added = [];
