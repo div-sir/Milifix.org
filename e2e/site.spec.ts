@@ -31,6 +31,27 @@ test('Meridiel can be explored without signing in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Add flight' })).toBeVisible();
 });
 
+test('Meridiel loads global reference data only when adding a flight', async ({ page }) => {
+  const referenceRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('jpatokal/openflights')) referenceRequests.push(request.url());
+  });
+
+  await page.goto('/meridiel/');
+  await page.waitForTimeout(1_500);
+  expect(referenceRequests).toEqual([]);
+
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.locator('.topbar')).toBeVisible();
+  await page.waitForTimeout(1_500);
+  expect(referenceRequests).toEqual([]);
+
+  await page.getByRole('button', { name: 'Open account menu' }).click();
+  await page.getByRole('button', { name: 'Add flight' }).click();
+  await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
+  await expect.poll(() => referenceRequests.length, { timeout: 5_000 }).toBe(2);
+});
+
 test('standalone projects do not link back to the platform homepage', async ({ page }) => {
   for (const path of ['/lumiveil', '/meridiel/', '/zh/travel', '/konbini']) {
     await page.goto(path);

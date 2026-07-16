@@ -4,6 +4,18 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../public/meridiel/', import.meta.url);
 
 describe('Meridiel loading strategy', () => {
+  it('loads global reference data only from the add-flight workflow', async () => {
+    const [data, modals] = await Promise.all([
+      readFile(new URL('app/data.js', root), 'utf8'),
+      readFile(new URL('app/modals.jsx', root), 'utf8'),
+    ]);
+
+    expect(data).toContain('function loadReferenceData()');
+    expect(data).not.toMatch(/^\s*loadFullAirportDatabase\(\);\s*$/m);
+    expect(data).not.toMatch(/^\s*loadFullAirlineDatabase\(\);\s*$/m);
+    expect(modals).toContain('ATLAS.loadReferenceData()');
+  });
+
   it('keeps the PNG renderer out of the initial document', async () => {
     const html = await readFile(new URL('index.html', root), 'utf8');
     expect(html).not.toMatch(/<script[^>]+src=["'][^"']*html2canvas/i);

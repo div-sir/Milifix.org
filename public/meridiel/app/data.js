@@ -799,12 +799,9 @@
   const AIRPORTS_DB_URL = "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat";
   const AIRPORTS_CACHE_KEY = "fa-airports-db-v1";
 
-  // Push a non-critical network fetch off the startup critical path. The
-  // globe also fetches its land polygons from raw.githubusercontent.com, and
-  // firing the two OpenFlights downloads at the same instant can get the
-  // whole burst rate-limited — which would silently leave the globe with no
-  // land. The curated lists already work immediately, so there's no downside
-  // to letting the globe's land load first and running these when idle.
+  // Keep non-critical parsing and network work off the interaction path. The
+  // curated lists already work immediately; the full databases are requested
+  // only when the add-flight workflow actually needs global search coverage.
   function deferIdle(fn) {
     if (typeof requestIdleCallback === "function") requestIdleCallback(fn, { timeout: 3000 });
     else setTimeout(fn, 1200);
@@ -880,21 +877,28 @@
     return added;
   }
 
+  let airportDatabasePromise = null;
   function loadFullAirportDatabase() {
-    try {
-      const cached = localStorage.getItem(AIRPORTS_CACHE_KEY);
-      if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return; }
-    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+    if (airportDatabasePromise) return airportDatabasePromise;
 
-    deferIdle(() => fetch(AIRPORTS_DB_URL)
-      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-      .then((text) => mergeAirportRows(text))
-      .then((added) => {
-        try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+    airportDatabasePromise = new Promise((resolve) => deferIdle(resolve))
+      .then(() => {
+        try {
+          const cached = localStorage.getItem(AIRPORTS_CACHE_KEY);
+          if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return null; }
+        } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+        return fetch(AIRPORTS_DB_URL)
+          .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+          .then((text) => mergeAirportRows(text))
+          .then((added) => {
+            try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+            return null;
+          });
       })
-      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ }));
+      .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
+    return airportDatabasePromise;
   }
-  loadFullAirportDatabase();
 
   // ---- Full airline list, merged in at runtime (same approach as airports) ----
   // OpenFlights' airlines.dat also carries a lot of defunct operators and
@@ -922,25 +926,43 @@
     return added;
   }
 
+  let airlineDatabasePromise = null;
   function loadFullAirlineDatabase() {
-    try {
-      const cached = localStorage.getItem(AIRLINES_CACHE_KEY);
-      if (cached) {
-        const list = JSON.parse(cached);
-        list.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
-        return;
-      }
-    } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+    if (airlineDatabasePromise) return airlineDatabasePromise;
 
-    deferIdle(() => fetch(AIRLINES_DB_URL)
-      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-      .then((text) => mergeAirlineRows(text))
-      .then((added) => {
-        try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+    airlineDatabasePromise = new Promise((resolve) => deferIdle(resolve))
+      .then(() => {
+        try {
+          const cached = localStorage.getItem(AIRLINES_CACHE_KEY);
+          if (cached) {
+            const list = JSON.parse(cached);
+            list.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
+            return null;
+          }
+        } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
+
+        return fetch(AIRLINES_DB_URL)
+          .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+          .then((text) => mergeAirlineRows(text))
+          .then((added) => {
+            try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
+            return null;
+          });
       })
-      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ }));
+      .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
+    return airlineDatabasePromise;
   }
-  loadFullAirlineDatabase();
+
+  let referenceDataPromise = null;
+  function loadReferenceData() {
+    if (!referenceDataPromise) {
+      referenceDataPromise = Promise.all([
+        loadFullAirportDatabase(),
+        loadFullAirlineDatabase(),
+      ]).then(() => undefined);
+    }
+    return referenceDataPromise;
+  }
 
   const YEARS = [...new Set(FLIGHTS.map((f) => f.year))].sort();
 
@@ -957,7 +979,7 @@
 
   export const ATLAS = {
     AIRPORTS, AIRLINES, AIRLINE_CODES, FLIGHTS, YEARS,
-    statsFor, countryList, distKm, durMin, sinceOf, homeOf, hydrateFlight,
+    statsFor, countryList, distKm, durMin, sinceOf, homeOf, hydrateFlight, loadReferenceData,
     // name/handle fall back to these only when not signed in; a Google login overrides them.
     profile: { name: "Traveler", handle: "@traveler", home: "—", since: new Date().getFullYear() },
   };

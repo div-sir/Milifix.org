@@ -183,6 +183,14 @@ function searchAirlines(query) {
 function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
   const isEdit = !!initial;
   const [tab, setTab] = React.useState("manual");
+  const [, setReferenceDataVersion] = React.useState(0);
+  React.useEffect(() => {
+    let cancelled = false;
+    ATLAS.loadReferenceData().then(() => {
+      if (!cancelled) setReferenceDataVersion((version) => version + 1);
+    });
+    return () => { cancelled = true; };
+  }, []);
   const [form, setForm] = React.useState(() => (
     initial
       ? {
