@@ -56,7 +56,8 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
     if (response.url().includes('/meridiel/data/circle-flags.svg')) spriteResponses.push(response);
   });
 
-  await page.addInitScript(() => {
+  await page.goto('/meridiel/');
+  await page.evaluate(() => {
     localStorage.setItem('fa-flights', JSON.stringify([{
       id: 'flag-test-flight',
       date: '2026-07-16',
@@ -67,9 +68,9 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
       updatedAt: 1,
     }]));
   });
-
-  await page.goto('/meridiel/');
+  await page.reload();
   await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.locator('.flag')).toHaveCount(2);
   await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
   await expect(page.locator('.flag > svg').first()).toBeVisible();
   await expect.poll(() => spriteResponses.length).toBe(1);
