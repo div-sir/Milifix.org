@@ -4,6 +4,17 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../public/meridiel/', import.meta.url);
 
 describe('Meridiel loading strategy', () => {
+  it('serves its display fonts from the Meridiel origin', async () => {
+    const styles = await readFile(new URL('app/styles.css', root), 'utf8');
+
+    expect(styles).not.toContain('fonts.googleapis.com');
+    expect(styles).not.toContain('fonts.gstatic.com');
+    expect(styles).toContain("url('../fonts/jost-latin-400-normal.woff2')");
+    expect(styles).toContain("url('../fonts/space-mono-latin-400-normal.woff2')");
+    expect(styles).toContain("url('../fonts/dm-serif-display-latin-400-normal.woff2')");
+    expect(styles.match(/font-display: swap/g)?.length).toBe(10);
+  });
+
   it('serves flags from a pinned same-origin sprite', async () => {
     const [components, sprite] = await Promise.all([
       readFile(new URL('app/components.jsx', root), 'utf8'),
