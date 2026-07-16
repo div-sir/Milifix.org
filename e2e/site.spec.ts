@@ -19,6 +19,25 @@ test('Meridiel publishes its canonical URL', async ({ page }) => {
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://milifix.com/meridiel/');
 });
 
+test('Meridiel serves display fonts from its own origin', async ({ page }) => {
+  const remoteFontRequests: string[] = [];
+  const localFontResponses: import('@playwright/test').Response[] = [];
+  page.on('request', (request) => {
+    if (/fonts\.(googleapis|gstatic)\.com/.test(request.url())) remoteFontRequests.push(request.url());
+  });
+  page.on('response', (response) => {
+    if (response.url().includes('/meridiel/fonts/') && response.url().endsWith('.woff2')) {
+      localFontResponses.push(response);
+    }
+  });
+
+  await page.goto('/meridiel/');
+  await expect(page.getByRole('button', { name: 'Explore atlas' })).toBeVisible();
+  await expect.poll(() => localFontResponses.length).toBeGreaterThan(0);
+  expect(localFontResponses.every((response) => response.ok())).toBe(true);
+  expect(remoteFontRequests).toEqual([]);
+});
+
 test('Meridiel can be explored without signing in', async ({ page }) => {
   await page.goto('/meridiel/');
   await expect(page.getByRole('button', { name: 'Explore atlas' })).toBeVisible();

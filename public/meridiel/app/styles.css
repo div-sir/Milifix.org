@@ -2,7 +2,18 @@
    MERIDIEL — Vintage Travel-Poster Design System
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap');
+/* Pinned same-origin Fontsource 5.2.6 builds. Each face is split so browsers
+   only fetch weights/styles the current view actually uses. */
+@font-face { font-family: 'Jost'; src: url('../fonts/jost-latin-400-normal.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Jost'; src: url('../fonts/jost-latin-500-normal.woff2') format('woff2'); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Jost'; src: url('../fonts/jost-latin-500-italic.woff2') format('woff2'); font-style: italic; font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Jost'; src: url('../fonts/jost-latin-600-normal.woff2') format('woff2'); font-style: normal; font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Jost'; src: url('../fonts/jost-latin-700-normal.woff2') format('woff2'); font-style: normal; font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('../fonts/space-mono-latin-400-normal.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('../fonts/space-mono-latin-400-italic.woff2') format('woff2'); font-style: italic; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('../fonts/space-mono-latin-700-normal.woff2') format('woff2'); font-style: normal; font-weight: 700; font-display: swap; }
+@font-face { font-family: 'DM Serif Display'; src: url('../fonts/dm-serif-display-latin-400-normal.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'DM Serif Display'; src: url('../fonts/dm-serif-display-latin-400-italic.woff2') format('woff2'); font-style: italic; font-weight: 400; font-display: swap; }
 
 /* ------------------------------------------------------------
    Palette aligned to milifix.com — warm ochre/gold accent on a
