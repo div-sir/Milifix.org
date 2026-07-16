@@ -4,6 +4,20 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../public/meridiel/', import.meta.url);
 
 describe('Meridiel loading strategy', () => {
+  it('serves pinned land geometry from Meridiel instead of GitHub Raw', async () => {
+    const [globe, geoText] = await Promise.all([
+      readFile(new URL('app/globe.jsx', root), 'utf8'),
+      readFile(new URL('data/ne_110m_admin_0_countries.geojson', root), 'utf8'),
+    ]);
+    const geo = JSON.parse(geoText);
+
+    expect(globe).toContain('data/ne_110m_admin_0_countries.geojson');
+    expect(globe).not.toContain('raw.githubusercontent.com/vasturiano');
+    expect(globe).not.toContain('LAND_CACHE_KEY');
+    expect(geo.type).toBe('FeatureCollection');
+    expect(geo.features.length).toBeGreaterThan(150);
+  });
+
   it('loads Google Identity Services only when authentication is requested', async () => {
     const [html, store] = await Promise.all([
       readFile(new URL('index.html', root), 'utf8'),

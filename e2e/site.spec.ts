@@ -31,6 +31,21 @@ test('Meridiel can be explored without signing in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Add flight' })).toBeVisible();
 });
 
+test('Meridiel serves the globe land geometry from its own origin', async ({ page }) => {
+  const remoteLandRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('raw.githubusercontent.com/vasturiano')) remoteLandRequests.push(request.url());
+  });
+
+  await page.goto('/meridiel/');
+  const landResponse = page.waitForResponse((response) => (
+    response.url().includes('/meridiel/data/ne_110m_admin_0_countries.geojson')
+  ));
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  expect((await landResponse).ok()).toBe(true);
+  expect(remoteLandRequests).toEqual([]);
+});
+
 test('Meridiel loads global reference data only when adding a flight', async ({ page }) => {
   const referenceRequests: string[] = [];
   page.on('request', (request) => {
