@@ -46,6 +46,22 @@ test('Meridiel serves the globe land geometry from its own origin', async ({ pag
   expect(remoteLandRequests).toEqual([]);
 });
 
+test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
+  const remoteFlagRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
+  });
+
+  await page.goto('/meridiel/');
+  const spriteResponse = page.waitForResponse((response) => (
+    response.url().includes('/meridiel/data/circle-flags.svg')
+  ));
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  expect((await spriteResponse).ok()).toBe(true);
+  await expect(page.locator('.flag > svg').first()).toBeVisible();
+  expect(remoteFlagRequests).toEqual([]);
+});
+
 test('Meridiel loads global reference data only when adding a flight', async ({ page }) => {
   const referenceRequests: string[] = [];
   page.on('request', (request) => {
