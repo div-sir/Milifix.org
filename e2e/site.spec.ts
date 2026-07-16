@@ -57,19 +57,25 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   });
 
   await page.goto('/meridiel/');
-  await page.evaluate(() => {
-    localStorage.setItem('fa-flights', JSON.stringify([{
-      id: 'flag-test-flight',
-      date: '2026-07-16',
-      o: 'TPE',
-      d: 'NRT',
-      from: { code: 'TPE', city: 'Taipei', country: 'Taiwan', cc: 'tw', lat: 25.0777, lng: 121.2328 },
-      to: { code: 'NRT', city: 'Tokyo', country: 'Japan', cc: 'jp', lat: 35.772, lng: 140.3929 },
-      updatedAt: 1,
-    }]));
-  });
-  await page.reload();
-  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await Promise.all([
+    page.waitForNavigation(),
+    page.evaluate(() => {
+      localStorage.setItem('fa-account', JSON.stringify({
+        name: 'Flag Tester', handle: 'Local atlas', initial: 'F', mode: 'local',
+      }));
+      localStorage.setItem('fa-flights', JSON.stringify([{
+        id: 'flag-test-flight',
+        date: '2026-07-16',
+        o: 'TPE',
+        d: 'NRT',
+        from: { code: 'TPE', city: 'Taipei', country: 'Taiwan', cc: 'tw', lat: 25.0777, lng: 121.2328 },
+        to: { code: 'NRT', city: 'Tokyo', country: 'Japan', cc: 'jp', lat: 35.772, lng: 140.3929 },
+        updatedAt: 1,
+      }]));
+      location.reload();
+    }),
+  ]);
+  await expect(page.locator('.topbar')).toBeVisible();
   await expect(page.locator('.flag')).toHaveCount(2);
   await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
   await expect(page.locator('.flag > svg').first()).toBeVisible();
