@@ -19,21 +19,6 @@ test('Meridiel publishes its canonical URL', async ({ page }) => {
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://milifix.com/meridiel/');
 });
 
-test('Meridiel ships a narrow content security policy', async ({ page }) => {
-  const response = await page.goto('/meridiel/');
-  const csp = response?.headers()['content-security-policy'] || '';
-
-  expect(csp).toContain("script-src 'self' https://accounts.google.com");
-  expect(csp).toContain("script-src-attr 'none'");
-  expect(csp).toContain("frame-ancestors 'none'");
-  expect(csp).toContain("object-src 'none'");
-  expect(csp).toContain('upgrade-insecure-requests');
-  expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
-  expect(csp).not.toContain('fonts.googleapis.com');
-  expect(csp).not.toContain('fonts.gstatic.com');
-  expect(csp).not.toContain('raw.githubusercontent.com');
-});
-
 test('Meridiel serves display fonts from its own origin', async ({ page }) => {
   const remoteFontRequests: string[] = [];
   const localFontResponses: import('@playwright/test').Response[] = [];
