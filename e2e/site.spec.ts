@@ -52,6 +52,16 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
     if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
   });
 
+  await page.addInitScript(() => {
+    localStorage.setItem('fa-flights', JSON.stringify([{
+      id: 'flag-test-flight',
+      date: '2026-07-16',
+      o: 'TPE',
+      d: 'NRT',
+      updatedAt: 1,
+    }]));
+  });
+
   await page.goto('/meridiel/');
   const spriteResponse = page.waitForResponse((response) => (
     response.url().includes('/meridiel/data/circle-flags.svg')
