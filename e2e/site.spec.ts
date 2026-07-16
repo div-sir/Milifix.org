@@ -48,8 +48,12 @@ test('Meridiel serves the globe land geometry from its own origin', async ({ pag
 
 test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   const remoteFlagRequests: string[] = [];
+  const spriteResponses: import('@playwright/test').Response[] = [];
   page.on('request', (request) => {
     if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
+  });
+  page.on('response', (response) => {
+    if (response.url().includes('/meridiel/data/circle-flags.svg')) spriteResponses.push(response);
   });
 
   await page.addInitScript(() => {
@@ -58,18 +62,18 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
       date: '2026-07-16',
       o: 'TPE',
       d: 'NRT',
+      from: { code: 'TPE', city: 'Taipei', country: 'Taiwan', cc: 'tw', lat: 25.0777, lng: 121.2328 },
+      to: { code: 'NRT', city: 'Tokyo', country: 'Japan', cc: 'jp', lat: 35.772, lng: 140.3929 },
       updatedAt: 1,
     }]));
   });
 
   await page.goto('/meridiel/');
-  const spriteResponse = page.waitForResponse((response) => (
-    response.url().includes('/meridiel/data/circle-flags.svg')
-  ));
   await page.getByRole('button', { name: 'Explore atlas' }).click();
-  expect((await spriteResponse).ok()).toBe(true);
   await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
   await expect(page.locator('.flag > svg').first()).toBeVisible();
+  await expect.poll(() => spriteResponses.length).toBe(1);
+  expect(spriteResponses[0].ok()).toBe(true);
   expect(remoteFlagRequests).toEqual([]);
 });
 
