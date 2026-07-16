@@ -45,12 +45,64 @@ const Icon = {
 };
 UI.Icon = Icon;
 
-/* ---------- Flag (circle-flags via CDN) ---------- */
+/* ---------- Flag (pinned, same-origin circle-flags sprite) ---------- */
+const FLAG_CODES = new Set("ac ad ae af ag ai al am an ao aq ar as at au aw ax az ba bb bd be bf bg bh bi bj bl bm bn bo bq br bs bt bv bw by bz ca cc cd cf cg ch ci ck cl cm cn co cp cq cr cu cv cw cx cy cz de dg dj dk dm do dz ea ec ee eg eh er es et eu fi fj fk fm fo fr fx ga gb gd ge gf gg gh gi gl gm gn gp gq gr gs gt gu gw gy hk hm hn hr ht hu ic id ie il im in io iq ir is it je jm jo jp ke kg kh ki km kn kp kr kw ky kz la lb lc li lk lr ls lt lu lv ly ma mc md me mf mg mh mk ml mm mn mo mp mq mr ms mt mu mv mw mx my mz na nc ne nf ng ni nl no np nr nu nz om pa pe pf pg ph pk pl pm pn pr ps pt pw py qa re ro rs ru rw sa sb sc sd se sg sh si sj sk sl sm sn so sr ss st su sv sx sy sz ta tc td tf tg th tj tk tl tm tn to tr tt tv tw tz ua ug uk um un us uy uz va vc ve vg vi vn vu wf ws xk xx ye yt yu za zm zw".split(" "));
+const FLAG_SPRITE_URL = "data/circle-flags.svg?v=20260716k";
+const FLAG_SPRITE_ID = "meridiel-flag-sprite";
+let flagSpritePromise = null;
+
+function flagSpriteReady() {
+  return !!document.getElementById(FLAG_SPRITE_ID);
+}
+
+function loadFlagSprite() {
+  if (flagSpriteReady()) return Promise.resolve();
+  if (flagSpritePromise) return flagSpritePromise;
+
+  flagSpritePromise = fetch(FLAG_SPRITE_URL)
+    .then((response) => (response.ok ? response.text() : Promise.reject(new Error("HTTP " + response.status))))
+    .then((text) => {
+      if (flagSpriteReady()) return;
+      const parsed = new DOMParser().parseFromString(text, "image/svg+xml");
+      const svg = parsed.documentElement;
+      if (svg.localName !== "svg" || parsed.querySelector("parsererror")) throw new Error("invalid flag sprite");
+      svg.id = FLAG_SPRITE_ID;
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("width", "0");
+      svg.setAttribute("height", "0");
+      svg.style.position = "absolute";
+      svg.style.overflow = "hidden";
+      document.body.appendChild(document.adoptNode(svg));
+    })
+    .catch((error) => {
+      flagSpritePromise = null;
+      throw error;
+    });
+  return flagSpritePromise;
+}
+
 function Flag({ cc, label, size }) {
-  const src = `https://cdn.jsdelivr.net/gh/HatScripts/circle-flags/flags/${cc}.svg`;
+  const requested = String(cc || "").toLowerCase();
+  const code = FLAG_CODES.has(requested) ? requested : "xx";
+  const accessibleName = label || requested || "Unknown flag";
+  const [spriteReady, setSpriteReady] = useState(flagSpriteReady);
+  useEffect(() => {
+    if (spriteReady) return undefined;
+    let cancelled = false;
+    loadFlagSprite()
+      .then(() => { if (!cancelled) setSpriteReady(true); })
+      .catch((error) => console.error("Meridiel: flag artwork failed to load —", error));
+    return () => { cancelled = true; };
+  }, [spriteReady]);
   return (
     <span className="flag" style={size ? { width: size, height: size } : null}>
-      <img src={src} alt={label || cc} loading="lazy" />
+      {spriteReady ? (
+        <svg viewBox="0 0 512 512" role="img" aria-label={accessibleName}>
+          <use href={`#flag-${code}`} />
+        </svg>
+      ) : (
+        <span className="flag-fallback" role="img" aria-label={accessibleName}>{code.toUpperCase()}</span>
+      )}
       {label && <span className="tip">{label}</span>}
     </span>
   );

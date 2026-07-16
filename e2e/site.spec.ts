@@ -46,6 +46,34 @@ test('Meridiel serves the globe land geometry from its own origin', async ({ pag
   expect(remoteLandRequests).toEqual([]);
 });
 
+test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
+  const remoteFlagRequests: string[] = [];
+  const spriteResponses: import('@playwright/test').Response[] = [];
+  await page.route('https://raw.githubusercontent.com/jpatokal/openflights/**', (route) => route.fulfill({ body: '' }));
+  page.on('request', (request) => {
+    if (request.url().includes('cdn.jsdelivr.net/gh/HatScripts')) remoteFlagRequests.push(request.url());
+  });
+  page.on('response', (response) => {
+    if (response.url().includes('/meridiel/data/circle-flags.svg')) spriteResponses.push(response);
+  });
+
+  await page.goto('/meridiel/');
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.locator('.topbar')).toBeVisible();
+  await page.getByRole('button', { name: 'Add flight' }).click();
+  await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
+  await page.getByRole('button', { name: 'Add to log' }).click();
+  if ((page.viewportSize()?.width || 0) <= 900) {
+    await page.getByRole('tab', { name: 'Stats' }).click();
+  }
+  await expect(page.locator('.flag')).toHaveCount(1);
+  await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
+  await expect(page.locator('.flag > svg').first()).toBeVisible();
+  await expect.poll(() => spriteResponses.length).toBe(1);
+  expect(spriteResponses[0].ok()).toBe(true);
+  expect(remoteFlagRequests).toEqual([]);
+});
+
 test('Meridiel loads global reference data only when adding a flight', async ({ page }) => {
   const referenceRequests: string[] = [];
   page.on('request', (request) => {
@@ -61,7 +89,6 @@ test('Meridiel loads global reference data only when adding a flight', async ({ 
   await page.waitForTimeout(1_500);
   expect(referenceRequests).toEqual([]);
 
-  await page.getByRole('button', { name: 'Open account menu' }).click();
   await page.getByRole('button', { name: 'Add flight' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
   await expect.poll(() => referenceRequests.length, { timeout: 5_000 }).toBe(2);

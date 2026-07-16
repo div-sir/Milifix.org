@@ -4,6 +4,24 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../public/meridiel/', import.meta.url);
 
 describe('Meridiel loading strategy', () => {
+  it('serves flags from a pinned same-origin sprite', async () => {
+    const [components, sprite] = await Promise.all([
+      readFile(new URL('app/components.jsx', root), 'utf8'),
+      readFile(new URL('data/circle-flags.svg', root), 'utf8'),
+    ]);
+    const ids = [...sprite.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
+
+    expect(components).toContain('data/circle-flags.svg');
+    expect(components).not.toContain('cdn.jsdelivr.net/gh/HatScripts');
+    expect(components).toContain('fetch(FLAG_SPRITE_URL)');
+    expect(components).toContain('new DOMParser()');
+    expect(components).toContain('href={`#flag-${code}`}');
+    expect(sprite).toContain('id="flag-tw"');
+    expect(sprite).toContain('id="flag-us"');
+    expect(sprite.match(/id="flag-[a-z]{2}"/g)?.length).toBeGreaterThan(240);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('serves pinned land geometry from Meridiel instead of GitHub Raw', async () => {
     const [globe, geoText] = await Promise.all([
       readFile(new URL('app/globe.jsx', root), 'utf8'),
