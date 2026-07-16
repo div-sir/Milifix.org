@@ -29,8 +29,7 @@ function paletteFor(theme) {
   };
 }
 
-const COUNTRIES_URL =
-  "https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson";
+const COUNTRIES_URL = "data/ne_110m_admin_0_countries.geojson?v=20260716j";
 
 function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, focusFlight = null, theme = "light" }) {
   const elRef = useRef(null);
@@ -261,13 +260,9 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
 
     world.pointOfView({ lat: 22, lng: -40, altitude: 2.6 }, 0);
 
-    // vintage land polygons — cached in localStorage after the first success.
-    // The countries GeoJSON, airports.dat and airlines.dat all download from
-    // raw.githubusercontent.com at startup; if that burst gets rate-limited the
-    // land fetch can fail, and swallowing it would leave the globe with an ocean
-    // and no continents. Caching means land shows instantly (and forever) after
-    // one good load, and a single retry covers a transient first-load miss.
-    const LAND_CACHE_KEY = "fa-land-geojson-v1";
+    // Vintage land polygons are a pinned same-origin asset. Browser/CDN caching
+    // now handles repeat visits without duplicating ~500 KB in localStorage or
+    // making the globe depend on GitHub Raw being reachable at runtime.
     const drawLand = (features) => {
       world
         .polygonsData(features.filter((f) => f.properties && f.properties.ISO_A2 !== "AQ"))
@@ -276,21 +271,10 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
         .polygonStrokeColor(() => palRef.current.landEdge)
         .polygonAltitude(0.008);
     };
-    const fetchLand = (attempt) => {
-      fetch(COUNTRIES_URL)
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))))
-        .then((geo) => {
-          drawLand(geo.features);
-          try { localStorage.setItem(LAND_CACHE_KEY, JSON.stringify(geo.features)); } catch (e) { /* storage full — fine */ }
-        })
-        .catch(() => { if (attempt < 2) setTimeout(() => fetchLand(attempt + 1), 1400); });
-    };
-    let drewLandFromCache = false;
-    try {
-      const cachedLand = localStorage.getItem(LAND_CACHE_KEY);
-      if (cachedLand) { drawLand(JSON.parse(cachedLand)); drewLandFromCache = true; }
-    } catch (e) { /* corrupt cache — fetch fresh */ }
-    if (!drewLandFromCache) fetchLand(0);
+    fetch(COUNTRIES_URL)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((geo) => drawLand(geo.features))
+      .catch((error) => console.error("Meridiel: land data failed to load —", error));
 
     globeRef.current = world;
     window.__GLOBE = world;
