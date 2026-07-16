@@ -58,6 +58,7 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   ));
   await page.getByRole('button', { name: 'Explore atlas' }).click();
   expect((await spriteResponse).ok()).toBe(true);
+  await expect(page.locator('#meridiel-flag-sprite')).toHaveCount(1);
   await expect(page.locator('.flag > svg').first()).toBeVisible();
   expect(remoteFlagRequests).toEqual([]);
 });
@@ -77,7 +78,6 @@ test('Meridiel loads global reference data only when adding a flight', async ({ 
   await page.waitForTimeout(1_500);
   expect(referenceRequests).toEqual([]);
 
-  await page.getByRole('button', { name: 'Open account menu' }).click();
   await page.getByRole('button', { name: 'Add flight' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
   await expect.poll(() => referenceRequests.length, { timeout: 5_000 }).toBe(2);

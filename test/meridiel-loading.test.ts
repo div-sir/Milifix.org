@@ -13,6 +13,9 @@ describe('Meridiel loading strategy', () => {
 
     expect(components).toContain('data/circle-flags.svg');
     expect(components).not.toContain('cdn.jsdelivr.net/gh/HatScripts');
+    expect(components).toContain('fetch(FLAG_SPRITE_URL)');
+    expect(components).toContain('new DOMParser()');
+    expect(components).toContain('href={`#flag-${code}`}');
     expect(sprite).toContain('id="flag-tw"');
     expect(sprite).toContain('id="flag-us"');
     expect(sprite.match(/id="flag-[a-z]{2}"/g)?.length).toBeGreaterThan(240);
