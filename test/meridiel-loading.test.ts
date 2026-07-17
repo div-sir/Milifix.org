@@ -74,6 +74,16 @@ describe('Meridiel loading strategy', () => {
     expect(modals).toContain('ATLAS.loadReferenceData()');
   });
 
+  it('relies on immutable HTTP caching instead of duplicating reference data in localStorage', async () => {
+    const data = await readFile(new URL('app/data.js', root), 'utf8');
+
+    expect(data).not.toContain('localStorage.getItem(AIRPORTS_CACHE_KEY)');
+    expect(data).not.toContain('localStorage.getItem(AIRLINES_CACHE_KEY)');
+    expect(data).not.toContain('localStorage.setItem(AIRPORTS_CACHE_KEY)');
+    expect(data).not.toContain('localStorage.setItem(AIRLINES_CACHE_KEY)');
+    expect(data).toContain('LEGACY_REFERENCE_CACHE_KEYS.forEach((key) => localStorage.removeItem(key))');
+  });
+
   it('keeps the PNG renderer out of the initial document', async () => {
     const html = await readFile(new URL('index.html', root), 'utf8');
     expect(html).not.toMatch(/<script[^>]+src=["'][^"']*html2canvas/i);
