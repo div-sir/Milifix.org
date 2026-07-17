@@ -790,14 +790,14 @@
   // ---- Full-world airport database, merged in at runtime ----
   // AIRPORTS above is a hand-picked, always-available fallback (curated
   // names, instant on load, no network needed). This fetches our pinned copy
-  // OpenFlights database (~6000 airports with IATA codes) once, caches the
-  // parsed result in localStorage, and merges in every code we don't
-  // already have — so first-run search still works instantly, and everyone
-  // gets full world coverage within a second or two, without shipping
-  // several hundred KB of airport data in this file. Keeping the snapshot on
-  // our own origin avoids making the add-flight workflow depend on GitHub Raw.
+  // OpenFlights database (~6000 airports with IATA codes) and merges in every
+  // code we don't already have — so first-run search still works instantly,
+  // and everyone gets full world coverage within a second or two, without
+  // shipping several hundred KB of airport data in this file. The pinned
+  // same-origin response has an immutable HTTP cache; duplicating the parsed
+  // payload in localStorage would waste the small quota reserved for flights.
   const AIRPORTS_DB_URL = "data/openflights-airports.dat?v=20260716m";
-  const AIRPORTS_CACHE_KEY = "fa-airports-db-v2";
+  const LEGACY_REFERENCE_CACHE_KEYS = ["fa-airports-db-v2", "fa-airlines-db-v2"];
 
   // Keep non-critical parsing and network work off the interaction path. The
   // curated lists already work immediately; the full databases are requested
@@ -857,7 +857,7 @@
 
   // Parses OpenFlights' airports.dat rows (id,name,city,country,iata,icao,
   // lat,lng,alt,tz,dst,tzdb,type,source), keeping only codes we don't
-  // already have. Resolves with just the added entries (what gets cached).
+  // already have.
   async function mergeAirportRows(text) {
     const added = {};
     const lines = text.split("\n");
@@ -874,7 +874,6 @@
       added[iata] = { city: row[2] || iata, name: row[1] || iata, country, cc: COUNTRY_ISO[country] || "", lat, lng };
     });
     Object.assign(AIRPORTS, added);
-    return added;
   }
 
   let airportDatabasePromise = null;
@@ -882,20 +881,9 @@
     if (airportDatabasePromise) return airportDatabasePromise;
 
     airportDatabasePromise = new Promise((resolve) => deferIdle(resolve))
-      .then(() => {
-        try {
-          const cached = localStorage.getItem(AIRPORTS_CACHE_KEY);
-          if (cached) { Object.assign(AIRPORTS, JSON.parse(cached)); return null; }
-        } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
-
-        return fetch(AIRPORTS_DB_URL)
-          .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-          .then((text) => mergeAirportRows(text))
-          .then((added) => {
-            try { localStorage.setItem(AIRPORTS_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
-            return null;
-          });
-      })
+      .then(() => fetch(AIRPORTS_DB_URL))
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => mergeAirportRows(text))
       .catch(() => { /* offline or blocked — the curated ~316 above still work fine */ });
     return airportDatabasePromise;
   }
@@ -906,7 +894,6 @@
   // doesn't already have, and only ones flagged "active" — the curated list
   // still wins on any conflict (e.g. JX staying STARLUX Airlines).
   const AIRLINES_DB_URL = "data/openflights-airlines.dat?v=20260716m";
-  const AIRLINES_CACHE_KEY = "fa-airlines-db-v2";
 
   async function mergeAirlineRows(text) {
     const added = [];
@@ -931,31 +918,23 @@
     if (airlineDatabasePromise) return airlineDatabasePromise;
 
     airlineDatabasePromise = new Promise((resolve) => deferIdle(resolve))
-      .then(() => {
-        try {
-          const cached = localStorage.getItem(AIRLINES_CACHE_KEY);
-          if (cached) {
-            const list = JSON.parse(cached);
-            list.forEach((a) => { AIRLINES.push(a); AIRLINE_CODES.set(a.code, a.name); });
-            return null;
-          }
-        } catch (e) { /* corrupt cache — fall through to a fresh fetch */ }
-
-        return fetch(AIRLINES_DB_URL)
-          .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
-          .then((text) => mergeAirlineRows(text))
-          .then((added) => {
-            try { localStorage.setItem(AIRLINES_CACHE_KEY, JSON.stringify(added)); } catch (e) { /* storage full/private mode — fine, just won't cache */ }
-            return null;
-          });
-      })
+      .then(() => fetch(AIRLINES_DB_URL))
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status))))
+      .then((text) => mergeAirlineRows(text))
       .catch(() => { /* offline or blocked — the curated ~105 above still work fine */ });
     return airlineDatabasePromise;
+  }
+
+  function removeLegacyReferenceCaches() {
+    try {
+      LEGACY_REFERENCE_CACHE_KEYS.forEach((key) => localStorage.removeItem(key));
+    } catch (e) { /* private/blocked storage — nothing needs to be persisted */ }
   }
 
   let referenceDataPromise = null;
   function loadReferenceData() {
     if (!referenceDataPromise) {
+      removeLegacyReferenceCaches();
       referenceDataPromise = Promise.all([
         loadFullAirportDatabase(),
         loadFullAirlineDatabase(),
