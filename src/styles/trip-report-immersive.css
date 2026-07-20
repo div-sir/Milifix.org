@@ -22,6 +22,7 @@
   --imm-shadow-back: 0 2px 10px rgba(0, 0, 0, 0.7);
   --imm-photo-bg: #12151b;
   --imm-panel-scrim: rgba(10, 11, 14, 0.35);
+  --imm-local-scrim: rgba(5, 6, 8, 0.5);
   --imm-tick-dot: rgba(255, 255, 255, 0.4);
   --imm-tick-dot-edge: rgba(10, 11, 14, 0.7);
   --imm-bar-track: rgba(255, 255, 255, 0.08);
@@ -38,6 +39,7 @@ html[data-theme='light'] .immersive-main {
   --imm-shadow-back: 0 1px 8px rgba(255, 255, 255, 0.85);
   --imm-photo-bg: #d9d3c5;
   --imm-panel-scrim: rgba(244, 242, 236, 0.62);
+  --imm-local-scrim: rgba(255, 255, 255, 0.62);
   --imm-tick-dot: rgba(26, 23, 18, 0.4);
   --imm-tick-dot-edge: rgba(244, 242, 236, 0.85);
   --imm-bar-track: rgba(26, 23, 18, 0.1);
@@ -60,6 +62,12 @@ html[data-theme='light'] .immersive-main {
   transition: opacity 0.2s ease, color 0.4s ease;
 }
 .immersive-back:hover { opacity: 0.7; }
+.immersive-back:active { opacity: 0.5; transform: scale(0.97); }
+.immersive-back:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 72%, transparent);
+  outline-offset: 6px;
+  border-radius: 2px;
+}
 
 /* ── 沈浸式階段：地圖常駐 sticky，錨點軌道疊在同一格 ─────── */
 
@@ -409,6 +417,8 @@ html[data-theme='light'] .immersive-main {
   right: clamp(7rem, 13vw, 12rem);
   bottom: clamp(8.5rem, 20vh, 11rem);
   width: min(34vw, 30rem);
+  padding: 0.8rem 1rem 0.75rem;
+  background: radial-gradient(ellipse at 35% 48%, var(--imm-local-scrim), transparent 72%);
 }
 .immersive-hud__title-cluster::after {
   content: '';
@@ -425,8 +435,9 @@ html[data-theme='light'] .immersive-main {
   top: clamp(6.5rem, 15vh, 9rem);
   left: clamp(5rem, 7vw, 7rem);
   width: min(33vw, 27rem);
-  padding-left: 0.9rem;
+  padding: 0.5rem 2rem 0.5rem 0.9rem;
   border-left: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  background: linear-gradient(90deg, var(--imm-local-scrim), transparent 92%);
   font-family: var(--serif);
   font-weight: 380;
   font-size: clamp(0.9rem, 1.15vw, 1.02rem);
@@ -443,6 +454,8 @@ html[data-theme='light'] .immersive-main {
   align-items: center;
   gap: 7px;
   max-width: min(30vw, 22rem);
+  padding: 0.35rem 0.6rem;
+  background: linear-gradient(90deg, transparent, var(--imm-local-scrim) 22%, var(--imm-local-scrim) 74%, transparent);
   font-family: var(--mono);
   font-size: 0.7rem;
   letter-spacing: 0.06em;
@@ -462,8 +475,9 @@ html[data-theme='light'] .immersive-main {
   left: clamp(5rem, 7vw, 7rem);
   bottom: clamp(8rem, 18vh, 10rem);
   width: min(27vw, 23rem);
-  padding: 0.15rem 0 0.15rem 0.85rem;
+  padding: 0.45rem 1.5rem 0.45rem 0.85rem;
   border-left: 2px solid var(--accent);
+  background: linear-gradient(90deg, var(--imm-local-scrim), transparent 94%);
   font-family: var(--mono);
   font-size: clamp(0.68rem, 0.85vw, 0.78rem);
   line-height: 1.55;
@@ -507,6 +521,8 @@ html[data-theme='light'] .immersive-main {
   font-weight: 560;
   font-size: clamp(1.5rem, 3vw, 2rem);
   line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-optical-sizing: auto;
   color: var(--imm-ink);
   text-shadow: var(--imm-shadow-title);
 }
@@ -522,6 +538,8 @@ html[data-theme='light'] .immersive-main {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   text-shadow: var(--imm-shadow-tag);
+  padding: 0.65rem 0.8rem;
+  background: radial-gradient(ellipse at 42% 50%, var(--imm-local-scrim), transparent 78%);
 }
 .immersive-hud__telemetry > div {
   display: grid;
@@ -540,7 +558,7 @@ html[data-theme='light'] .immersive-main {
   letter-spacing: 0.16em;
 }
 .immersive-hud__telemetry strong {
-  color: var(--imm-ink-faint);
+  color: color-mix(in srgb, var(--imm-ink) 58%, transparent);
   font-size: clamp(0.58rem, 0.75vw, 0.68rem);
   font-weight: 500;
   letter-spacing: 0.07em;
@@ -570,6 +588,14 @@ html[data-theme='light'] .immersive-main {
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
 .immersive-daynav__dot { position: relative; }
+.immersive-daynav__dot:active { transform: scale(0.9); transition-duration: 80ms; }
+.immersive-daynav__dot:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 74%, transparent);
+  outline-offset: -4px;
+}
+
+/* 小螢幕情境導覽：補足 Day 導覽與刻度尺在手機隱藏後的直接操作路徑。 */
+.immersive-mobile-route { display: none; }
 
 /* ── 底部氣泡導覽（取代頂部導覽列）───────────────────────── */
 .immersive-dock { z-index: 190; }
@@ -883,6 +909,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
 
 @media (max-width: 640px) {
   /* 手機改用單欄資訊帶；保留些微縮排差，不把數據重新排成一張整齊卡片。 */
+  .immersive-scroll-hint { display: none; }
   .immersive-hud__desc {
     top: 9rem;
     left: 20px;
@@ -909,20 +936,20 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-hud__title-cluster {
     left: 20px;
     right: 20px;
-    bottom: 25vh;
+    bottom: 32vh;
     width: auto;
   }
   .immersive-hud__title { font-size: clamp(1.35rem, 8vw, 1.8rem); }
   .immersive-hud__note {
     left: 20px;
     right: 20px;
-    bottom: 8rem;
+    bottom: 12.2rem;
     width: auto;
     font-size: 0.68rem;
   }
   .immersive-hud__photo {
     right: 20px;
-    bottom: 8rem;
+    bottom: 12.2rem;
     width: 84px;
     height: 84px;
   }
@@ -930,11 +957,83 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-mission__sep,
   .immersive-mission span:nth-last-child(-n + 2) { display: none; }
   .immersive-progress { left: 20px; right: 20px; top: 72px; bottom: auto; width: auto; transform: none; }
+
+  .immersive-mobile-route {
+    position: absolute;
+    left: 50%;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    z-index: 191;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    width: min(calc(100vw - 40px), 350px);
+    min-height: 52px;
+    padding: 4px;
+    transform: translateX(-50%);
+    border: 1px solid color-mix(in srgb, var(--imm-ink) 14%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--imm-scene-bg) 74%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(135%);
+    backdrop-filter: blur(14px) saturate(135%);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    pointer-events: auto;
+  }
+  .immersive-mobile-route button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--imm-ink) 8%, transparent);
+    color: var(--imm-ink);
+    font: 700 1rem/1 var(--mono);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 100ms ease-out, background 180ms ease, opacity 180ms ease;
+  }
+  .immersive-mobile-route button:active { transform: scale(0.9); }
+  .immersive-mobile-route button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .immersive-mobile-route button:disabled { opacity: 0.28; cursor: default; }
+  .immersive-mobile-route__status {
+    min-width: 0;
+    padding: 0 0.55rem;
+    text-align: center;
+    font-family: var(--mono);
+  }
+  .immersive-mobile-route__status span {
+    display: block;
+    margin-bottom: 0.12rem;
+    color: var(--accent);
+    font-size: 0.52rem;
+    font-weight: 750;
+    letter-spacing: 0.13em;
+  }
+  .immersive-mobile-route__status strong {
+    display: block;
+    overflow: hidden;
+    color: var(--imm-ink-soft);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
+  .immersive-main { --imm-local-scrim: var(--imm-scene-bg); }
   .trip-review { background: var(--surface); }
   .immersive-map .maplibregl-ctrl-attrib { background: var(--imm-scene-bg) !important; }
+  .immersive-mobile-route {
+    background: var(--imm-scene-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 @media (prefers-contrast: more) {
@@ -944,6 +1043,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
   .immersive-progress,
   .immersive-coords,
   .immersive-cam { color: var(--imm-ink-soft); }
+  .immersive-mobile-route { border-color: var(--imm-ink); }
 }
 
 @media (prefers-reduced-motion: reduce) {

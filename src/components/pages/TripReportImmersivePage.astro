@@ -67,6 +67,7 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
 
 // ── 沈浸式錨點：由完整行程資料生成，鏡頭捲到哪就飛到哪 ──────
 interface ImmersiveAnchor {
+  id: string;
   lng: number;
   lat: number;
   zoom: number;
@@ -112,6 +113,7 @@ const anchors: ImmersiveAnchor[] = [];
 
 // 刊頭：行程總覽
 anchors.push({
+  id: 'overview',
   lng: trip.mapDefault.center.lng,
   lat: trip.mapDefault.center.lat,
   zoom: trip.mapDefault.zoom,
@@ -126,6 +128,7 @@ anchors.push({
 // 核心票券
 trip.essentials.forEach((e, i) => {
   anchors.push({
+    id: `essential-${i + 1}`,
     lng: trip.mapDefault.center.lng,
     lat: trip.mapDefault.center.lat,
     zoom: trip.mapDefault.zoom + 0.15 * (i + 1),
@@ -147,6 +150,7 @@ for (const day of trip.days) {
   const tipNote = day.tips && day.tips.length > 0 ? day.tips[0] : undefined;
 
   anchors.push({
+    id: `day-${day.day}`,
     lng: day.camera?.center?.lng ?? avgLng,
     lat: day.camera?.center?.lat ?? avgLat,
     zoom: day.camera?.zoom ?? 10.3,
@@ -167,6 +171,7 @@ for (const day of trip.days) {
     // 供 HUD 顯示「怎麼到這裡」。
     const arrivingSeg = (day.segments ?? []).find((sg) => sg.to === stop.id);
     anchors.push({
+      id: `day-${day.day}-stop-${i + 1}-${stop.id}`,
       lng: stop.coords.lng,
       lat: stop.coords.lat,
       zoom: zoomForKind(stop.kind),
@@ -255,6 +260,7 @@ const mapData = {
     data-lightbox-next="下一張"
   >
     <h1 class="sr-only">{trip.title}</h1>
+    <p id="immersive-live" class="sr-only" aria-live="polite" aria-atomic="true"></p>
     <a class="immersive-back" href={reportsIndexPath}>← 返回報告書列表</a>
 
     <!-- ── 沈浸式階段：全螢幕地圖 + 浮動 HUD，捲動即飛鏡頭 ── -->
@@ -290,7 +296,7 @@ const mapData = {
           <span class="immersive-reticle__v"></span>
           <span class="immersive-reticle__ring"></span>
         </div>
-        <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓</div>
+        <div class="immersive-scroll-hint immersive-parallax-mid" aria-hidden="true">SCROLL ↓ · ← → STOP</div>
 
         <!-- 僅顯示可驗證的狀態，不製造虛構速度或高度等遙測資料。 -->
         <div class="immersive-mission" aria-hidden="true">
@@ -319,13 +325,27 @@ const mapData = {
         </div>
 
         <!-- 當日行程刻度尺：僅列出目前所在日的停靠點，資訊隨游標相對位置浮動 -->
-        <div class="immersive-day-ruler" id="immersive-day-ruler" aria-hidden="true">
+        <div class="immersive-day-ruler" id="immersive-day-ruler">
           <p class="immersive-day-ruler__label" id="immersive-day-ruler-daylabel"></p>
           <div class="immersive-day-ruler__track" id="immersive-day-ruler-track"></div>
           <div class="immersive-day-ruler__cursor" id="immersive-day-ruler-cursor" hidden>
             <span class="immersive-day-ruler__cursor-name" id="immersive-day-ruler-cursor-name"></span>
           </div>
         </div>
+
+        <!-- 手機沒有右側 Day 導覽與左側刻度尺，改用可直接前後切換的情境控制列。 -->
+        <nav class="immersive-mobile-route" aria-label="行程停靠點導覽">
+          <button type="button" id="immersive-route-prev" aria-label="上一個行程場景" aria-keyshortcuts="ArrowLeft">
+            <span aria-hidden="true">←</span>
+          </button>
+          <div class="immersive-mobile-route__status" aria-hidden="true">
+            <span id="immersive-route-index">01 / {String(anchors.length).padStart(2, '0')}</span>
+            <strong id="immersive-route-title">{trip.title}</strong>
+          </div>
+          <button type="button" id="immersive-route-next" aria-label="下一個行程場景" aria-keyshortcuts="ArrowRight">
+            <span aria-hidden="true">→</span>
+          </button>
+        </nav>
 
         <!-- 分散式 HUD：標題、描述、交通與提醒各自佔用地圖留白區，不再擠成單一卡片。 -->
         <div id="immersive-hud" class="immersive-hud">
@@ -363,7 +383,9 @@ const mapData = {
         {
           anchors.map((a, index) => (
             <div
+              id={`route-${a.id}`}
               class="immersive-anchor"
+              data-anchor-id={a.id}
               data-lng={a.lng}
               data-lat={a.lat}
               data-zoom={a.zoom}
