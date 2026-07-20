@@ -25,6 +25,7 @@ interface DayData {
   segments: Seg[];
 }
 interface AnchorData {
+  id: string;
   lng: number;
   lat: number;
   zoom: number;
@@ -331,6 +332,11 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
   const telemetryEl = document.getElementById('immersive-hud-telemetry');
+  const liveEl = document.getElementById('immersive-live');
+  const mobileRouteIndexEl = document.getElementById('immersive-route-index');
+  const mobileRouteTitleEl = document.getElementById('immersive-route-title');
+  const mobileRoutePrevEl = document.getElementById('immersive-route-prev') as HTMLButtonElement | null;
+  const mobileRouteNextEl = document.getElementById('immersive-route-next') as HTMLButtonElement | null;
   const photoBoxEl = document.getElementById('immersive-hud-photo');
   const photoImgEl = document.getElementById('immersive-hud-img') as HTMLImageElement | null;
   const photoPlaceholderEl = document.getElementById('immersive-hud-placeholder');
@@ -370,7 +376,20 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
           }
         : null;
 
+    const resetParallax = (): void => {
+      for (const m of movers) {
+        m.x(0);
+        m.y(0);
+      }
+      tilt?.ry(0);
+      tilt?.rx(0);
+    };
+
     window.addEventListener('mousemove', (e) => {
+      if (window.innerWidth <= 640) {
+        resetParallax();
+        return;
+      }
       const nx = e.clientX / window.innerWidth - 0.5;
       const ny = e.clientY / window.innerHeight - 0.5;
       for (const m of movers) {
@@ -379,6 +398,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       }
       tilt?.ry(nx * 10);
       tilt?.rx(ny * -10);
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 640) resetParallax();
     });
   }
 
@@ -420,6 +442,13 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     // 不再把整組文字搬到同一角落，避免重新形成文字牆。
     hudEl.dataset.layout = pos;
   };
+
+  const hudVector = (pos: AnchorData['pos']): { x: number; y: number } => ({
+    'bottom-left': { x: -12, y: 9 },
+    'bottom-right': { x: 12, y: 9 },
+    'top-left': { x: -12, y: -9 },
+    'top-right': { x: 12, y: -9 },
+  })[pos];
 
   // ── HUD 內容切換動畫（GSAP）──────────────────────────────
   // 立即把新內容寫進 DOM（避免捲動快速切換時殘留舊資料），再由 GSAP
@@ -468,28 +497,61 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   );
   let hudTl: gsap.core.Timeline | null = null;
   let hudFirst = true;
-  const swapHud = (d: DOMStringMap): void => {
+  let currentHudLayout: AnchorData['pos'] = 'bottom-left';
+  const swapHud = (d: DOMStringMap, nextLayout: AnchorData['pos']): void => {
     if (hudFirst || reduce) {
       // 首次（尚在讀取遮罩下，隨場景一起淡入）或減少動態：直接寫入定位
+      applyPos(nextLayout);
       writeHudContent(d);
       gsap.set(hudAnimTargets, { clearProps: 'opacity,transform' });
+      currentHudLayout = nextLayout;
       hudFirst = false;
       return;
     }
     hudTl?.kill();
+    const exitVector = hudVector(currentHudLayout);
+    const entryVector = hudVector(nextLayout);
     hudTl = gsap.timeline();
-    hudTl.to(hudAnimTargets, { opacity: 0, y: 7, duration: 0.16, ease: 'power2.in' });
-    hudTl.add(() => writeHudContent(d));
+    // 退場與進場都沿著該構圖的來源方向；中途再次捲動時，GSAP 直接從
+    // 當下畫面值接手，因此不必等待舊動畫結束，也不會跳回預設位置。
+    hudTl.to(hudAnimTargets, {
+      opacity: 0,
+      x: exitVector.x,
+      y: exitVector.y,
+      duration: 0.16,
+      ease: 'power2.in',
+      overwrite: 'auto',
+    });
+    hudTl.add(() => {
+      applyPos(nextLayout);
+      writeHudContent(d);
+      currentHudLayout = nextLayout;
+    });
     hudTl.fromTo(
       hudAnimTargets,
-      { opacity: 0, y: -9 },
-      { opacity: 1, y: 0, duration: 0.38, stagger: 0.045, ease: 'power3.out' }
+      { opacity: 0, x: entryVector.x, y: entryVector.y },
+      {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        duration: 0.4,
+        stagger: 0.04,
+        ease: 'power3.out',
+        onComplete: () => {
+          gsap.set(hudAnimTargets, { clearProps: 'opacity,transform' });
+        },
+      }
     );
   };
 
   const dayNavDots = Array.from(document.querySelectorAll<HTMLElement>('.immersive-daynav__dot'));
   const anchorEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-anchor'));
   const anchorTotal = anchorEls.length;
+
+  const scrollToAnchorAt = (index: number): void => {
+    const target = anchorEls[Math.max(0, Math.min(anchorTotal - 1, index))];
+    target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  };
 
   const jumpToStopId = (stopId: string): void => {
     const target = anchorEls.find((a) => {
@@ -532,6 +594,12 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (progressCountEl) {
       progressCountEl.textContent = `${String(anchorIndex).padStart(2, '0')} / ${String(anchorTotal).padStart(2, '0')}`;
     }
+    if (mobileRouteIndexEl) {
+      mobileRouteIndexEl.textContent = `${String(anchorIndex).padStart(2, '0')} / ${String(anchorTotal).padStart(2, '0')}`;
+    }
+    if (mobileRouteTitleEl) mobileRouteTitleEl.textContent = d.title || '';
+    if (mobileRoutePrevEl) mobileRoutePrevEl.disabled = anchorIndex <= 1;
+    if (mobileRouteNextEl) mobileRouteNextEl.disabled = anchorIndex >= anchorTotal;
     if (progressDayEl) {
       progressDayEl.textContent = d.day ? `DAY ${String(d.day).padStart(2, '0')}` : d.tag || 'OVERVIEW';
     }
@@ -539,8 +607,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || 'MAP SYNCHRONIZED';
     }
 
-    applyPos((d.pos as AnchorData['pos']) || 'bottom-left');
-    swapHud(d);
+    swapHud(d, (d.pos as AnchorData['pos']) || 'bottom-left');
 
     const dayNum = d.day ? Number(d.day) : null;
     const isDayIntro = d.dayIntro === '1';
@@ -561,10 +628,34 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
     ruler.markActive(activeStopId);
 
-    for (const dot of dayNavDots) dot.classList.toggle('is-active', Number(dot.dataset.day) === dayNum);
+    for (const dot of dayNavDots) {
+      const active = Number(dot.dataset.day) === dayNum;
+      dot.classList.toggle('is-active', active);
+      if (active) dot.setAttribute('aria-current', 'step');
+      else dot.removeAttribute('aria-current');
+    }
+
+    if (liveEl) {
+      liveEl.textContent = [d.tag, d.title, d.transportLabel].filter(Boolean).join('，');
+    }
+    if (d.anchorId && location.hash !== `#${encodeURIComponent(d.anchorId)}`) {
+      history.replaceState(null, '', `${location.pathname}${location.search}#${encodeURIComponent(d.anchorId)}`);
+    }
   };
 
-  if (anchorEls.length > 0) activate(anchorEls[0]);
+  let initialAnchor = anchorEls[0];
+  try {
+    const requestedAnchorId = decodeURIComponent(location.hash.slice(1));
+    initialAnchor = anchorEls.find((a) => a.dataset.anchorId === requestedAnchorId) ?? initialAnchor;
+  } catch {
+    // 無效 percent-encoding 不應阻擋報告載入，回到總覽即可。
+  }
+  if (initialAnchor) {
+    activate(initialAnchor);
+    if (initialAnchor !== anchorEls[0]) {
+      requestAnimationFrame(() => initialAnchor.scrollIntoView({ behavior: 'auto', block: 'center' }));
+    }
+  }
 
   // ── 捲動 → 啟用錨點：改用「與視窗中心最近」精準判定 ──────────
   // 原本用 IntersectionObserver 搭配一條縮出來的中央帶（rootMargin），
@@ -601,6 +692,28 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   };
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
   window.addEventListener('resize', onScrollOrResize, { passive: true });
+
+  mobileRoutePrevEl?.addEventListener('click', () => {
+    const index = activeAnchorEl ? anchorEls.indexOf(activeAnchorEl) : 0;
+    scrollToAnchorAt(index - 1);
+  });
+  mobileRouteNextEl?.addEventListener('click', () => {
+    const index = activeAnchorEl ? anchorEls.indexOf(activeAnchorEl) : 0;
+    scrollToAnchorAt(index + 1);
+  });
+
+  // 桌面用左右方向鍵前後切換場景；不攔截輸入欄位，也不改寫熟悉的上下捲動。
+  window.addEventListener('keydown', (event) => {
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
+    const stageRect = document.querySelector<HTMLElement>('.immersive-stage')?.getBoundingClientRect();
+    if (!stageRect || stageRect.bottom <= 0 || stageRect.top >= window.innerHeight) return;
+    event.preventDefault();
+    const index = activeAnchorEl ? anchorEls.indexOf(activeAnchorEl) : 0;
+    scrollToAnchorAt(index + (event.key === 'ArrowRight' ? 1 : -1));
+  });
 
   // ── Day 導覽：跳到該日的日概覽錨點 ─────────────────────
   for (const dot of dayNavDots) {
@@ -717,7 +830,12 @@ function initDayRuler(
   return {
     rebuild,
     markActive: (stopId: string | null): void => {
-      for (const t of ticks) t.el.classList.toggle('is-active', t.stopId === stopId);
+      for (const t of ticks) {
+        const active = t.stopId === stopId;
+        t.el.classList.toggle('is-active', active);
+        if (active) t.el.setAttribute('aria-current', 'step');
+        else t.el.removeAttribute('aria-current');
+      }
     },
   };
 }
