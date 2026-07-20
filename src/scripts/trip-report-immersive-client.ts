@@ -396,6 +396,24 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const fmtCam = (zoom: number, bearing: number, pitch: number): string =>
     `ZOOM ${zoom.toFixed(1)} · BRG ${bearing >= 0 ? '+' : ''}${bearing.toFixed(0)}° · PITCH ${pitch.toFixed(0)}°`;
 
+  // ── 座標／相機／羅盤讀數：隨地圖鏡頭「即時」同步 ────────────────
+  // 監聽 MapLibre 的 move 事件，於 flyTo 飛行的每一格畫面讀當下實際的
+  // center／zoom／bearing／pitch，讀數本身就是鏡頭正在移動的即時回饋，
+  // 而非只在 activate() 當下寫一次目的地座標。羅盤指針保留 CSS 過渡，
+  // 逐格更新時會平順追隨鏡頭旋轉。
+  const syncTelemetry = (): void => {
+    const c = map.getCenter();
+    const bearing = map.getBearing();
+    if (coordsEl) coordsEl.textContent = fmtCoord(c.lat, c.lng);
+    if (camEl) camEl.textContent = fmtCam(map.getZoom(), bearing, map.getPitch());
+    const normalizedBearing = ((bearing % 360) + 360) % 360;
+    if (compassBearingEl) compassBearingEl.textContent = `${String(Math.round(normalizedBearing)).padStart(3, '0')}°`;
+    // 地圖向右旋轉時，北向指針反向旋轉，維持真實方位關係。
+    if (compassNeedleEl) compassNeedleEl.style.transform = `rotate(${-bearing}deg)`;
+  };
+  map.on('move', syncTelemetry);
+  syncTelemetry();
+
   const applyPos = (pos: AnchorData['pos']): void => {
     if (!hudEl) return;
     // 內容採固定的四區分散佈局，pos 只保留作為細微動態／除錯語意；
@@ -505,8 +523,8 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     };
     if (reduce) map.jumpTo(camera);
     else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
-    if (coordsEl) coordsEl.textContent = fmtCoord(camera.center[1], camera.center[0]);
-    if (camEl) camEl.textContent = fmtCam(camera.zoom, camera.bearing, camera.pitch);
+    // 保底立即同步一次；後續 move 事件會在整段飛行過程持續更新讀數。
+    syncTelemetry();
 
     const anchorIndex = Math.max(1, Number(d.index || '1'));
     const progress = anchorTotal > 1 ? ((anchorIndex - 1) / (anchorTotal - 1)) * 100 : 100;
@@ -519,12 +537,6 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
     if (progressStatusEl) {
       progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || 'MAP SYNCHRONIZED';
-    }
-    const normalizedBearing = ((camera.bearing % 360) + 360) % 360;
-    if (compassBearingEl) compassBearingEl.textContent = `${String(Math.round(normalizedBearing)).padStart(3, '0')}°`;
-    if (compassNeedleEl) {
-      // 地圖向右旋轉時，北向指針反向旋轉，維持真實方位關係。
-      compassNeedleEl.style.transform = `rotate(${-camera.bearing}deg)`;
     }
 
     applyPos((d.pos as AnchorData['pos']) || 'bottom-left');

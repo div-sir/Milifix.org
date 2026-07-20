@@ -512,26 +512,32 @@ html[data-theme='light'] .immersive-main {
 }
 #immersive-hud-transport-icon { font-size: 0.9rem; line-height: 1; }
 
-/* 地圖與鏡頭數值升格為 HUD 內容。兩列故意不等寬、不完全對齊，保留測繪介面的節奏。 */
+/* 地圖與鏡頭數值升格為 HUD 內容，並固定置於畫面中央偏下的位置（靠近中央、
+   讀數隨地圖 move 即時同步）；作為唯一穩定置中的讀數帶，其餘 HUD 片段仍
+   依 layout 錯位分佈。橫向排成一條 POSITION／CAMERA 讀數帶。 */
 .immersive-hud__telemetry {
-  top: 39vh;
-  right: clamp(7rem, 13vw, 12rem);
-  width: min(25vw, 19rem);
-  display: grid;
-  gap: 0.65rem;
+  top: 58vh;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.5rem;
+  white-space: nowrap;
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   text-shadow: var(--imm-shadow-tag);
 }
 .immersive-hud__telemetry > div {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
+  display: flex;
   align-items: baseline;
-  gap: 0.8rem;
+  gap: 0.55rem;
 }
 .immersive-hud__telemetry > div:last-child {
-  width: 88%;
-  margin-left: 1.25rem;
+  width: auto;
+  margin-left: 0;
 }
 .immersive-hud__telemetry span {
   color: var(--accent);
@@ -553,19 +559,20 @@ html[data-theme='light'] .immersive-main {
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__transport { top: 12vh; right: 17vw; }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__title-cluster { right: 10vw; bottom: 17vh; width: min(31vw, 27rem); }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__note { left: 6vw; bottom: 24vh; }
-  .immersive-hud[data-layout='bottom-left'] .immersive-hud__telemetry { top: 43vh; right: auto; left: 8vw; }
+  /* 讀數帶維持置中偏下，不隨 layout 移到側邊，作為穩定的即時讀數參考點。 */
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__telemetry { top: 60vh; right: auto; left: 50%; bottom: auto; transform: translateX(-50%); }
 
   .immersive-hud[data-layout='top-left'] .immersive-hud__desc { top: 12vh; left: 12vw; width: min(29vw, 24rem); }
   .immersive-hud[data-layout='top-left'] .immersive-hud__transport { top: 23vh; right: 9vw; }
   .immersive-hud[data-layout='top-left'] .immersive-hud__title-cluster { right: 15vw; bottom: 22vh; }
   .immersive-hud[data-layout='top-left'] .immersive-hud__note { left: 8vw; bottom: 14vh; width: min(31vw, 25rem); }
-  .immersive-hud[data-layout='top-left'] .immersive-hud__telemetry { top: auto; right: 8vw; bottom: 36vh; }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__telemetry { top: 56vh; right: auto; bottom: auto; left: 50%; transform: translateX(-50%); }
 
   .immersive-hud[data-layout='top-right'] .immersive-hud__desc { top: 22vh; left: 6vw; width: min(36vw, 29rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__transport { top: 11vh; right: 12vw; }
   .immersive-hud[data-layout='top-right'] .immersive-hud__title-cluster { right: 9vw; bottom: 24vh; width: min(36vw, 31rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__note { left: 13vw; bottom: 16vh; }
-  .immersive-hud[data-layout='top-right'] .immersive-hud__telemetry { top: auto; right: auto; bottom: 30vh; left: 8vw; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__telemetry { top: 60vh; right: auto; bottom: auto; left: 50%; transform: translateX(-50%); }
 }
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
@@ -864,7 +871,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     width: min(38vw, 23rem);
   }
   .immersive-hud__transport { right: 5rem; }
-  .immersive-hud__telemetry { width: min(34vw, 19rem); }
+  .immersive-hud__telemetry { width: auto; max-width: 92vw; }
   .immersive-hud__note {
     left: 4rem;
     width: min(32vw, 20rem);
@@ -897,15 +904,19 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     right: auto;
     max-width: calc(100vw - 40px);
   }
+  /* 手機空間窄，讀數帶改為置中直向堆疊，避免橫向溢出。 */
   .immersive-hud__telemetry {
-    top: 28vh;
-    left: 32px;
-    right: 20px;
+    top: 30vh;
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     width: auto;
-    gap: 0.45rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
   }
-  .immersive-hud__telemetry > div { grid-template-columns: 4rem 1fr; }
-  .immersive-hud__telemetry > div:last-child { margin-left: 0.75rem; }
+  .immersive-hud__telemetry > div { justify-content: center; }
   .immersive-hud__title-cluster {
     left: 20px;
     right: 20px;
