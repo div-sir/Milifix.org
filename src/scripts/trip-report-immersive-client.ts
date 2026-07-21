@@ -337,6 +337,14 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const mobileRouteTitleEl = document.getElementById('immersive-route-title');
   const mobileRoutePrevEl = document.getElementById('immersive-route-prev') as HTMLButtonElement | null;
   const mobileRouteNextEl = document.getElementById('immersive-route-next') as HTMLButtonElement | null;
+  const mapColEl = document.querySelector<HTMLElement>('.immersive-map-col');
+  const focusToggleEl = document.getElementById('immersive-focus-toggle') as HTMLButtonElement | null;
+  const shareSceneEl = document.getElementById('immersive-share-scene') as HTMLButtonElement | null;
+  const actionStatusEl = document.getElementById('immersive-action-status');
+  const resumeEl = document.getElementById('immersive-resume');
+  const resumeSceneEl = document.getElementById('immersive-resume-scene');
+  const resumeContinueEl = document.getElementById('immersive-resume-continue');
+  const resumeDismissEl = document.getElementById('immersive-resume-dismiss');
   const photoBoxEl = document.getElementById('immersive-hud-photo');
   const photoImgEl = document.getElementById('immersive-hud-img') as HTMLImageElement | null;
   const photoPlaceholderEl = document.getElementById('immersive-hud-placeholder');
@@ -547,6 +555,88 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const dayNavDots = Array.from(document.querySelectorAll<HTMLElement>('.immersive-daynav__dot'));
   const anchorEls = Array.from(document.querySelectorAll<HTMLElement>('.immersive-anchor'));
   const anchorTotal = anchorEls.length;
+  const progressStorageKey = `milifix:immersive-progress:${location.pathname}`;
+  const focusStorageKey = `milifix:immersive-focus:${location.pathname}`;
+  const hadExplicitAnchor = location.hash.length > 1;
+  const readStorage = (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+  const writeStorage = (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // 隱私模式或停用儲存時仍保留完整閱讀功能。
+    }
+  };
+  const removeStorage = (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // 同上，儲存功能失效不應阻擋導覽。
+    }
+  };
+  const storedAnchorId = readStorage(progressStorageKey);
+
+  let statusTimer = 0;
+  const showActionStatus = (message: string): void => {
+    if (!actionStatusEl) return;
+    window.clearTimeout(statusTimer);
+    actionStatusEl.textContent = message;
+    actionStatusEl.classList.add('is-visible');
+    statusTimer = window.setTimeout(() => actionStatusEl.classList.remove('is-visible'), 1800);
+  };
+
+  const setFocusMode = (enabled: boolean, announce = false): void => {
+    mapColEl?.classList.toggle('is-focus-mode', enabled);
+    focusToggleEl?.setAttribute('aria-pressed', String(enabled));
+    const label = enabled ? '關閉專注閱讀模式' : '開啟專注閱讀模式';
+    focusToggleEl?.setAttribute('aria-label', label);
+    focusToggleEl?.setAttribute('title', label);
+    writeStorage(focusStorageKey, enabled ? '1' : '0');
+    if (announce) {
+      const message = enabled ? '專注閱讀模式已開啟' : '專注閱讀模式已關閉';
+      showActionStatus(message);
+      if (liveEl) liveEl.textContent = message;
+    }
+  };
+  setFocusMode(readStorage(focusStorageKey) === '1');
+  focusToggleEl?.addEventListener('click', () => {
+    setFocusMode(!mapColEl?.classList.contains('is-focus-mode'), true);
+  });
+
+  shareSceneEl?.addEventListener('click', async () => {
+    const url = location.href;
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch {
+      const field = document.createElement('textarea');
+      field.value = url;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.appendChild(field);
+      field.select();
+      copied = document.execCommand('copy');
+      field.remove();
+    }
+    const message = copied ? '已複製目前場景連結' : '無法複製，請手動複製網址';
+    showActionStatus(message);
+    if (liveEl) liveEl.textContent = message;
+    if (copied) {
+      shareSceneEl.dataset.state = 'copied';
+      shareSceneEl.setAttribute('aria-label', message);
+      window.setTimeout(() => {
+        delete shareSceneEl.dataset.state;
+        shareSceneEl.setAttribute('aria-label', '複製目前場景連結');
+      }, 1800);
+    }
+  });
 
   const scrollToAnchorAt = (index: number): void => {
     const target = anchorEls[Math.max(0, Math.min(anchorTotal - 1, index))];
@@ -638,6 +728,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (liveEl) {
       liveEl.textContent = [d.tag, d.title, d.transportLabel].filter(Boolean).join('，');
     }
+    if (d.anchorId) writeStorage(progressStorageKey, d.anchorId);
     if (d.anchorId && location.hash !== `#${encodeURIComponent(d.anchorId)}`) {
       history.replaceState(null, '', `${location.pathname}${location.search}#${encodeURIComponent(d.anchorId)}`);
     }
@@ -655,6 +746,27 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (initialAnchor !== anchorEls[0]) {
       requestAnimationFrame(() => initialAnchor.scrollIntoView({ behavior: 'auto', block: 'center' }));
     }
+  }
+
+  const storedAnchor = storedAnchorId
+    ? anchorEls.find((anchor) => anchor.dataset.anchorId === storedAnchorId && anchor !== anchorEls[0])
+    : undefined;
+  if (!hadExplicitAnchor && storedAnchor && resumeEl) {
+    if (resumeSceneEl) resumeSceneEl.textContent = storedAnchor.dataset.title || storedAnchor.dataset.tag || '';
+    resumeEl.hidden = false;
+    requestAnimationFrame(() => resumeEl.classList.add('is-visible'));
+    resumeContinueEl?.addEventListener('click', () => {
+      storedAnchor.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      resumeEl.classList.remove('is-visible');
+      window.setTimeout(() => (resumeEl.hidden = true), reduce ? 0 : 260);
+      showActionStatus('已回到上次閱讀的場景');
+    });
+    resumeDismissEl?.addEventListener('click', () => {
+      removeStorage(progressStorageKey);
+      resumeEl.classList.remove('is-visible');
+      window.setTimeout(() => (resumeEl.hidden = true), reduce ? 0 : 260);
+      showActionStatus('已從行程總覽開始');
+    });
   }
 
   // ── 捲動 → 啟用錨點：改用「與視窗中心最近」精準判定 ──────────
