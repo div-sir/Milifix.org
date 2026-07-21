@@ -347,6 +347,20 @@ const mapData = {
           </button>
         </nav>
 
+        <aside id="immersive-resume" class="immersive-resume" hidden aria-labelledby="immersive-resume-title">
+          <div>
+            <span>CONTINUE ROUTE</span>
+            <strong id="immersive-resume-title">繼續上次的閱讀進度？</strong>
+            <p id="immersive-resume-scene"></p>
+          </div>
+          <div class="immersive-resume__actions">
+            <button type="button" id="immersive-resume-continue">繼續閱讀</button>
+            <button type="button" id="immersive-resume-dismiss">從頭開始</button>
+          </div>
+        </aside>
+
+        <p id="immersive-action-status" class="immersive-action-status" role="status" aria-live="polite"></p>
+
         <!-- 分散式 HUD：標題、描述、交通與提醒各自佔用地圖留白區，不再擠成單一卡片。 -->
         <div id="immersive-hud" class="immersive-hud">
           <div id="immersive-hud-photo" class="immersive-hud__photo immersive-hud-fragment" hidden>
@@ -521,6 +535,42 @@ const mapData = {
               </svg>
             </span>
           </a>
+        </li>
+
+        <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
+
+        <li class="dock-pill-nav__cell">
+          <button
+            type="button"
+            class="dock-pill-nav__pill dock-pill-nav__pill--icon"
+            id="immersive-focus-toggle"
+            aria-label="開啟專注閱讀模式"
+            title="開啟專注閱讀模式"
+            aria-pressed="false"
+          >
+            <span class="dock-pill-nav__home-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="12" r="2.25" stroke="currentColor" stroke-width="1.65" />
+              </svg>
+            </span>
+          </button>
+        </li>
+
+        <li class="dock-pill-nav__cell">
+          <button
+            type="button"
+            class="dock-pill-nav__pill dock-pill-nav__pill--icon"
+            id="immersive-share-scene"
+            aria-label="複製目前場景連結"
+            title="複製目前場景連結"
+          >
+            <span class="dock-pill-nav__home-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9.5 14.5l5-5M7.7 16.3l-1.1 1.1a3.4 3.4 0 0 1-4.8-4.8l3.1-3.1a3.4 3.4 0 0 1 4.8 0M16.3 7.7l1.1-1.1a3.4 3.4 0 0 1 4.8 4.8l-3.1 3.1a3.4 3.4 0 0 1-4.8 0" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" />
+              </svg>
+            </span>
+          </button>
         </li>
 
         <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
