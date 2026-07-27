@@ -1,6 +1,6 @@
 # Milifix.org
 
-獨立創作者空間策展站台：多語系（en / zh / ja）、作品集、部落格、App 頁面與台灣信用卡旅遊權益（`/travel`）。以 [Astro](https://astro.build) 建置，靜態輸出至 `dist/`，內容由 [Payload CMS](https://payloadcms.com) 管理。
+獨立創作者空間策展站台：多語系（en / zh / ja）、作品集、部落格、App 頁面、台灣信用卡旅遊權益（`/travel`）與使用者投稿的超商評價（`/konbini`）。以 [Astro](https://astro.build) 建置，靜態輸出至 `dist/`，內容由 [Payload CMS](https://payloadcms.com) 管理。
 
 **前端原始碼：** [github.com/div-sir/Milifix.org](https://github.com/div-sir/Milifix.org)  
 **CMS 原始碼：** [github.com/div-sir/milifix-cms](https://github.com/div-sir/milifix-cms)  
@@ -15,14 +15,20 @@ Payload CMS（Render）
   ├── Works collection         作品集
   ├── Posts collection         部落格文章
   ├── Pages collection         頁面文案
-  ├── Media collection         媒體庫（UploadThing）
-  ├── Users collection         後台帳號管理
+  ├── Media collection         公開媒體庫（editor 專用；UploadThing public-read）
+  ├── Users collection         後台帳號（admin / client / service）
   ├── ✈ 旅遊權益
   │   ├── CreditCards          信用卡與權益（benefits 陣列）
   │   ├── Airlines             航空公司（IATA、聯盟）
   │   ├── Lounges              機場貴賓室（航廈、位置）
   │   └── Programs             貴賓室／飯店／聯盟網路（可被卡片關聯）
-          ↓ REST API
+  └── 🏪 超商評價
+      ├── KonbiniChains        連鎖店（站主維護）
+      ├── KonbiniProducts      商品（投稿一律 pending，核准後公開）
+      ├── KonbiniReviews       投稿評價（approved 才進公開聚合）
+      ├── KonbiniReports       問題回報收件匣（僅 editor 可讀）
+      └── SubmissionMedia      投稿圖片（private ACL，核准後轉 public）
+          ↓ REST API（公眾唯讀，只讀 approved）
 Astro build（Vercel）
   ├── /                     首頁（Creator spaces）
   ├── /solilium             攝影作品集
@@ -31,7 +37,9 @@ Astro build（Vercel）
   ├── /meridiel             Meridiel 飛行足跡互動地球儀（public/ 靜態 App）
   ├── /blog                 部落格列表
   ├── /blog/[slug]          部落格文章頁
-  └── /travel               台灣信用卡旅遊權益（卡片／航空／貴賓室／網路／比較表）
+  ├── /travel               台灣信用卡旅遊權益（卡片／航空／貴賓室／網路／比較表）
+  └── /konbini              超商必吃評價（列表／商品／新增；投稿走 serverless 代理）
+          ↑ POST /api/konbini-*（Google 登入 + service API key 寫入 pending）
 ```
 
 **內容更新流程：**
@@ -73,6 +81,8 @@ const page  = await getPage('home')        // 頁面文案
 | 變數 | 說明 |
 |---|---|
 | `CMS_URL` | Payload API 網址（本地 `http://localhost:3000`，正式 `https://milifix-cms.onrender.com`） |
+| `KONBINI_SUBMIT_API_KEY` | 超商評價投稿代理端寫入 CMS 用的 **service 角色** Payload API key（僅伺服器端，勿外洩到瀏覽器） |
+| `GOOGLE_OAUTH_CLIENT_ID` / `PUBLIC_GOOGLE_OAUTH_CLIENT_ID` | 投稿的 Google 登入 Client ID；代理端以此驗證 ID token 的 audience |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 投稿與 Pass API 的跨 instance 共用 rate limit；可由 Vercel Marketplace Redis 提供 |
 | `RATE_LIMIT_KEY_SALT` | rate-limit key 的 IP 雜湊 salt，正式環境應使用隨機秘密值 |
 | `ALLOWED_PREVIEW_HOSTS` | 額外允許的精確 preview hostname，逗號分隔；禁止使用萬用 `*.vercel.app` |
@@ -111,8 +121,11 @@ const page  = await getPage('home')        // 頁面文案
 | `/travel/lounges` · `/travel/lounges/[slug]` | 貴賓室列表與內頁（航廈位置、可進入的卡片） |
 | `/travel/programs` · `/travel/programs/[slug]` | 貴賓室／飯店／航空聯盟網路內頁（彙整各分點與關聯卡片） |
 | `/travel/matrix` | 信用卡 × 航空／貴賓室權益比較表 |
+| `/konbini` · `/zh/konbini` | 超商必吃評價列表（依連鎖店／分類瀏覽） |
+| `/konbini/[slug]` | 商品評價頁，含 Google 登入評分與照片上傳 |
+| `/konbini/new` | 投稿新商品（附第一則評價） |
 
-> `/travel` 系列為 en / zh 雙語（不含 ja）。
+> `/travel` 與 `/konbini` 系列為 en / zh 雙語（不含 ja）。
 
 ---
 
@@ -159,6 +172,32 @@ const page  = await getPage('home')        // 頁面文案
 
 ---
 
+## 超商評價投稿（`/konbini`）
+
+使用者投稿的超商必吃評價。前台以 Google 登入後送出，經 **Vercel serverless 代理端點** 以 service 角色的 Payload API key 寫入 CMS；公眾不直接接觸 Payload，Payload 對外只讀 `approved` 內容。
+
+**代理端點（`api/`，僅伺服器端）：**
+
+| 端點 | 用途 |
+|---|---|
+| `api/konbini-submit.js` | 送出商品評分＋照片（Google 登入必填），寫入 `pending` 評價 |
+| `api/konbini-propose-product.js` | 投稿新商品＋第一則評價（皆 `pending`，待站主核准） |
+| `api/konbini-report.js` | 回報問題（文字＋選填截圖），寫入後台收件匣；不需登入 |
+| `api/_konbini-*.js` | 共用模組（CMS client、Google token 驗證、圖片 sanitize、驗證）；底線前綴讓 Vercel builder 略過 |
+
+**安全模型（對應 CMS 端 RBAC）：**
+
+- 身分：代理端以 Google `tokeninfo` 驗證 ID token 的 `iss`／`aud`／`exp`／`sub` 與 `email_verified`；`authorId` 一律取自驗證過的 `sub`，不接受瀏覽器自報值。
+- 圖片：瀏覽器只送圖片 bytes，代理端自行上傳到 CMS 的 private `submission-media` 並取得 media ID（封死 IDOR），核准公開評論時 CMS 才把圖轉 public。每張圖帶 alt（CMS 核准前強制）。
+- 濫用防護：跨 instance 共用 rate limit（Upstash/Redis，退回本機 Map）、Origin/Referer allowlist、單筆 ≤3 張、單檔遠低於 CMS 的 10 MB 上限；service API key 只存在伺服器端。
+- 內容狀態：`status`／`submittedAt`／審核欄位由 CMS 端 hook 對 service 建立的內容強制設定，代理端不送這些欄位。
+
+**前端組成：** [`src/components/pages/`](src/components/pages/) 的 `KonbiniIndexPage`／`KonbiniProductPage`／`KonbiniNewProductForm`；文案在 [`src/i18n/konbini.ts`](src/i18n/konbini.ts)；資料層 `getKonbini*`（[`src/lib/cms.ts`](src/lib/cms.ts)）。
+
+> ⚠️ **部署相依：** 這些端點寫入 CMS 的 `submission-media` collection，必須在 **CMS 已部署並完成 migration 之後** 才上線；否則對舊 CMS 上傳會 404。上線順序見 [milifix-cms `RELEASE_RUNBOOK.md`](https://github.com/div-sir/milifix-cms/blob/main/RELEASE_RUNBOOK.md)。
+
+---
+
 ## Apple Wallet 發票卡片（`/invoice-pass`）
 
 `/invoice-pass` 頁面提供前端表單，讓使用者產生並下載 `.pkpass` 檔案，由 `api/generate-pass.js`（Vercel serverless function）使用 [passkit-generator](https://github.com/alexandercerutti/passkit-generator) 簽署產出。
@@ -193,7 +232,11 @@ src/
 └── styles/             全域與區塊 CSS
 
 api/
-└── generate-pass.js    Apple Wallet pkpass 產生（Vercel serverless function）
+├── generate-pass.js         Apple Wallet pkpass 產生（Vercel serverless function）
+├── konbini-submit.js        超商評價投稿（Google 登入 + service API key）
+├── konbini-propose-product.js  投稿新商品＋第一則評價
+├── konbini-report.js        問題回報（寫入後台收件匣）
+└── _konbini-*.js / _pass-security.js  共用模組（底線前綴，Vercel builder 略過）
 
 pass-assets/            Wallet pass 靜態圖片資源（已納入 git 版控）
 ```
@@ -245,7 +288,7 @@ CMS_URL=http://localhost:3000
 
 ### CMS（Render）
 
-見 [milifix-cms README](https://github.com/div-sir/milifix-cms)。
+見 [milifix-cms README](https://github.com/div-sir/milifix-cms)。超商評價投稿與 CMS 一同上線時，請照 [milifix-cms `RELEASE_RUNBOOK.md`](https://github.com/div-sir/milifix-cms/blob/main/RELEASE_RUNBOOK.md) 的順序（CMS migration 先、前端 proxy 後）。
 
 ---
 
