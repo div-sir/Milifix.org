@@ -1,10 +1,18 @@
 // @ts-check
 // 公開評分端點：接收前端 Google 登入後的評分，驗證身分與內容、擋濫用，
-// 再以 Payload API key 寫入一筆 status=pending 的評價（待站主後台審核）。
-// 公眾不直接接觸 Payload；Payload 對外維持唯讀。
+// 再以 service 角色的 Payload API key 寫入一筆評價。公眾不直接接觸
+// Payload；Payload 對外維持唯讀。
 //
-// 防灌票：同一個 Google 帳號對同一商品重複送出時，改成「更新」既有那筆
-// 評價（並重置為 pending 待重新審核），而不是無限累加新的一筆。
+// CMS 端的 RBAC（harden-payload-security）決定了這裡的形狀：
+//  - service 帳號只能 create，不能讀 pending、不能以 authorId 查詢、
+//    也不能 update／delete，所以舊的「同帳號重複投稿改成更新既有評價」
+//    流程已不可行；重複投稿會成為新的 pending 評價，由站主審核時合併
+//    或退回（rate limit 仍是灌票的第一道剎車）。
+//  - status／submittedAt／審核欄位由 CMS 端 hook 強制（service 建立
+//    一律 pending），代理端不再送出這些欄位。
+//  - authorId 一律取自伺服器端驗證過的 Google token（identity.sub），
+//    不接受瀏覽器自報的值；照片由本端點上傳並取得 media id，瀏覽器
+//    無法指定任意 media id 掛進評價（防 IDOR）。
 import {
   checkOrigin,
   checkSharedRateLimit,
@@ -17,35 +25,13 @@ import {
   SUBMIT_API_KEY,
   fetchWithTimeout,
   apiKeyHeaders,
-  uploadMedia,
-  deleteMedia,
+  uploadSubmissionMedia,
+  deleteSubmissionMedia,
 } from './_konbini-cms-client.js';
 import { CLIENT_ID, verifyGoogleIdToken } from './_konbini-google-auth.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
 const RATE_LIMIT_STORE = new Map();
-
-/**
- * 找出「這位使用者對這個商品」既有的評價（不論審核狀態）。
- * 用 API key 身分讀取，才能看到 pending/rejected（公開唯讀只看得到 approved）。
- * @param {string} productId
- * @param {string} authorId
- */
-async function findExistingReview(productId, authorId) {
-  // 多個頂層 where[field][operator] 條件間，Payload 預設以 AND 合併。
-  const params = new URLSearchParams({
-    'where[product][equals]': productId,
-    'where[authorId][equals]': authorId,
-    limit: '1',
-    depth: '0',
-  });
-  const res = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews?${params}`, {
-    headers: apiKeyHeaders(),
-  });
-  if (!res.ok) throw new Error(`existing review lookup ${res.status}`);
-  const json = await res.json();
-  return json?.docs?.[0] ?? null;
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -92,7 +78,8 @@ export default async function handler(req, res) {
   }
   const v = check.value;
 
-  // 照片：解碼＋驗型別/大小。上限 MAX_PHOTOS 張。
+  // 照片：解碼＋驗型別/大小。上限 MAX_PHOTOS 張（低於 CMS 的 5 張上限；
+  // sanitize 後單張遠低於 CMS 的 10 MB 上限）。
   const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
   if (rawPhotos.length > MAX_PHOTOS) {
     res.status(400).json({ error: `Too many photos (max ${MAX_PHOTOS})` });
@@ -122,56 +109,34 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 2) 先上傳照片到 media（任何一張失敗即整筆放棄，不建立缺圖評價）
-    for (const img of decodedPhotos) {
-      const id = await uploadMedia(img, product.name);
+    // 2) 先上傳照片到 private submission-media（任何一張失敗即整筆放棄，
+    //    不建立缺圖評價）。alt 帶商品名＋序號，滿足核准公開時的 alt 必填。
+    for (const [index, img] of decodedPhotos.entries()) {
+      const id = await uploadSubmissionMedia(img, `${product.name} 投稿照片 ${index + 1}`);
       if (!id) throw new Error('media upload failed');
       uploadedMediaIds.push(id);
     }
 
-    // 3) 防灌票：同一人對同一商品已有評價就更新它，不再新增一筆。
-    //    有新照片才覆蓋 photos 欄位；沒有新照片就保留原本的照片。
-    const existing = await findExistingReview(product.id, identity.sub);
-
+    // 3) 建立評價。status／submittedAt／審核欄位由 CMS 強制，不在此送出。
     const doc = {
       product: product.id,
       rating: v.rating,
       body: v.body,
       authorName: identity.name || '匿名',
       authorId: identity.sub,
-      status: 'pending',
-      submittedAt: new Date().toISOString(),
       ...(uploadedMediaIds.length > 0 ? { photos: uploadedMediaIds.map((id) => ({ image: id })) } : {}),
-      ...(existing?.id ? { moderationNote: '投稿者更新內容，重新送審' } : {}),
     };
 
-    const write = await fetchWithTimeout(
-      existing?.id
-        ? `${CMS_URL}/api/konbini-reviews/${existing.id}`
-        : `${CMS_URL}/api/konbini-reviews`,
-      {
-        method: existing?.id ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json', ...apiKeyHeaders() },
-        body: JSON.stringify(doc),
-      },
-    );
-    if (!write.ok) throw new Error(`${existing?.id ? 'update' : 'create'} ${write.status}`);
+    const write = await fetchWithTimeout(`${CMS_URL}/api/konbini-reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...apiKeyHeaders() },
+      body: JSON.stringify(doc),
+    });
+    if (!write.ok) throw new Error(`create ${write.status}`);
 
-    // 更新既有評論且確實換了圖片後，刪除已不再被引用的舊媒體。
-    if (existing?.id && uploadedMediaIds.length > 0) {
-      const oldPhotoIds = (existing.photos ?? [])
-        .map((photo) => (typeof photo?.image === 'object' ? photo.image?.id : photo?.image))
-        .filter(Boolean)
-        .filter((id) => {
-          const coverId = typeof product.cover === 'object' ? product.cover?.id : product.cover;
-          return coverId === undefined || String(id) !== String(coverId);
-        });
-      await Promise.allSettled(oldPhotoIds.map((id) => deleteMedia(id)));
-    }
-
-    res.status(200).json({ ok: true, updated: Boolean(existing?.id) });
+    res.status(200).json({ ok: true });
   } catch (err) {
-    await Promise.allSettled(uploadedMediaIds.map((id) => deleteMedia(id)));
+    await Promise.allSettled(uploadedMediaIds.map((id) => deleteSubmissionMedia(id)));
     // 僅伺服器端記錄，不外洩內部細節
     console.error('[konbini-submit]', err);
     res.status(500).json({ error: 'Failed to submit review' });

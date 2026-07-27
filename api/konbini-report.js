@@ -12,8 +12,8 @@ import {
   SUBMIT_API_KEY,
   fetchWithTimeout,
   apiKeyHeaders,
-  uploadMedia,
-  deleteMedia,
+  uploadSubmissionMedia,
+  deleteSubmissionMedia,
 } from './_konbini-cms-client.js';
 
 /** @type {Map<string, number[]>} 每個暖實例共用的記憶體 rate-limit 表 */
@@ -63,18 +63,20 @@ export default async function handler(req, res) {
 
   let photoId;
   try {
+    // 截圖進 private submission-media：report 收件匣本來就不公開，檔案
+    // 也維持 private ACL，不再走公開 media collection。
     if (photoImage) {
-      photoId = await uploadMedia(photoImage, v.pageTitle || 'konbini report');
+      photoId = await uploadSubmissionMedia(photoImage, v.pageTitle || 'konbini report');
       if (!photoId) throw new Error('photo upload failed');
     }
+    // status／submittedAt 由 CMS 端 hook 對 service 建立的回報強制設定，
+    // 代理端不再送出。
     const doc = {
       pageUrl: v.pageUrl,
       message: v.message,
       pageTitle: v.pageTitle,
       productName: v.productName,
-      status: 'new',
       kind: v.kind,
-      submittedAt: new Date().toISOString(),
       ...(photoId ? { photo: photoId } : {}),
       ...(v.productId ? { product: v.productId } : {}),
       ...(v.reviewId ? { review: v.reviewId } : {}),
@@ -89,7 +91,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ ok: true });
   } catch (err) {
-    if (photoId) await deleteMedia(photoId).catch(() => false);
+    if (photoId) await deleteSubmissionMedia(photoId).catch(() => false);
     // 僅伺服器端記錄，不外洩內部細節
     console.error('[konbini-report]', err);
     res.status(500).json({ error: 'Failed to submit report' });
