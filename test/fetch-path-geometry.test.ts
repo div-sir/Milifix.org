@@ -65,10 +65,10 @@ describe('buildNetworkGraph', () => {
     const { adjacency } = buildNetworkGraph(elements);
     const fromN1 = adjacency.get(10) ?? [];
     const fromN3 = adjacency.get(30) ?? [];
-    expect(fromN1.some((e) => e.to === 20)).toBe(true);
-    expect(fromN3.some((e) => e.to === 20)).toBe(true);
+    expect(fromN1.some((e: { to: number }) => e.to === 20)).toBe(true);
+    expect(fromN3.some((e: { to: number }) => e.to === 20)).toBe(true);
     // n1 直接沒有到 n3 的邊（中間隔著 n2）
-    expect(fromN1.some((e) => e.to === 30)).toBe(false);
+    expect(fromN1.some((e: { to: number }) => e.to === 30)).toBe(false);
   });
 
   it('skips ways with mismatched nodes/geometry lengths', () => {
