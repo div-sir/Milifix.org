@@ -446,13 +446,15 @@ html[data-theme='light'] .immersive-main {
   text-shadow: var(--imm-shadow-desc);
 }
 
-/* 交通方式是短狀態，獨立放在右上，不與景點名稱爭奪層級。 */
+/* 交通方式是短狀態，獨立放在右上，不與景點名稱爭奪層級。
+   抵達（ARR）／離開（DEP）各一排，任一段沒有資料就整排隱藏。 */
 .immersive-hud__transport {
   top: clamp(6.75rem, 15vh, 9rem);
   right: clamp(7rem, 13vw, 12rem);
   display: flex;
-  align-items: center;
-  gap: 7px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   max-width: min(30vw, 22rem);
   padding: 0.35rem 0.6rem;
   background: linear-gradient(90deg, transparent, var(--imm-local-scrim) 22%, var(--imm-local-scrim) 74%, transparent);
@@ -461,6 +463,17 @@ html[data-theme='light'] .immersive-main {
   letter-spacing: 0.06em;
   color: var(--imm-ink-soft);
   text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__transport-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.immersive-hud__transport-kicker {
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
 }
 .immersive-hud__transport::after {
   content: '';

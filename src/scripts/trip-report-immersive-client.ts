@@ -42,6 +42,8 @@ interface AnchorData {
   dayIntro: string;
   transportIcon: string;
   transportLabel: string;
+  departIcon: string;
+  departLabel: string;
   /** 此錨點聚焦的停靠點 id（日概覽錨點沒有）；用於抵達路徑與標記高亮。 */
   stopId?: string;
 }
@@ -392,8 +394,12 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const tagEl = document.getElementById('immersive-hud-tag');
   const titleEl = document.getElementById('immersive-hud-title');
   const transportEl = document.getElementById('immersive-hud-transport');
+  const transportArriveRowEl = document.getElementById('immersive-hud-transport-arrive');
   const transportIconEl = document.getElementById('immersive-hud-transport-icon');
   const transportLabelEl = document.getElementById('immersive-hud-transport-label');
+  const transportDepartRowEl = document.getElementById('immersive-hud-transport-depart');
+  const transportDepartIconEl = document.getElementById('immersive-hud-transport-depart-icon');
+  const transportDepartLabelEl = document.getElementById('immersive-hud-transport-depart-label');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
   const linksBoxEl = document.getElementById('immersive-hud-links');
@@ -533,14 +539,22 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const writeHudContent = (d: DOMStringMap): void => {
     if (tagEl) tagEl.textContent = d.tag || '';
     if (titleEl) titleEl.textContent = d.title || '';
-    if (transportEl && transportIconEl && transportLabelEl) {
+    if (transportEl && transportArriveRowEl && transportIconEl && transportLabelEl && transportDepartRowEl && transportDepartIconEl && transportDepartLabelEl) {
       if (d.transportLabel) {
         transportIconEl.textContent = d.transportIcon || '';
         transportLabelEl.textContent = d.transportLabel;
-        transportEl.hidden = false;
+        transportArriveRowEl.hidden = false;
       } else {
-        transportEl.hidden = true;
+        transportArriveRowEl.hidden = true;
       }
+      if (d.departLabel) {
+        transportDepartIconEl.textContent = d.departIcon || '';
+        transportDepartLabelEl.textContent = d.departLabel;
+        transportDepartRowEl.hidden = false;
+      } else {
+        transportDepartRowEl.hidden = true;
+      }
+      transportEl.hidden = !d.transportLabel && !d.departLabel;
     }
     if (descEl) descEl.textContent = d.desc || '';
     if (noteBoxEl) {
@@ -803,7 +817,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       progressDayEl.textContent = d.day ? `DAY ${String(d.day).padStart(2, '0')}` : d.tag || 'OVERVIEW';
     }
     if (progressStatusEl) {
-      progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || 'MAP SYNCHRONIZED';
+      progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || d.departLabel || 'MAP SYNCHRONIZED';
     }
 
     swapHud(d, (d.pos as AnchorData['pos']) || 'bottom-left');
@@ -839,7 +853,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
 
     if (liveEl) {
-      liveEl.textContent = [d.tag, d.title, d.transportLabel].filter(Boolean).join('，');
+      liveEl.textContent = [d.tag, d.title, d.transportLabel, d.departLabel].filter(Boolean).join('，');
     }
     if (d.anchorId) writeStorage(progressStorageKey, d.anchorId);
     if (d.anchorId && location.hash !== `#${encodeURIComponent(d.anchorId)}`) {

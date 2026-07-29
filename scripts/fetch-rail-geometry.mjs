@@ -662,4 +662,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
 }
 
-export { stitchWays, sliceBetween, buildCorridor, haversineKm, candidatesToNameRegex, patchSegmentLine };
+export { stitchWays, sliceBetween, buildCorridor, haversineKm, candidatesToNameRegex, patchSegmentLine, overpassQuery, TRIPS_DIR };

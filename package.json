@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "test:budget": "node scripts/check-performance-budget.mjs",
     "astro": "astro",
-    "fetch:rail": "tsx scripts/fetch-rail-geometry.mjs"
+    "fetch:rail": "tsx scripts/fetch-rail-geometry.mjs",
+    "fetch:paths": "tsx scripts/fetch-path-geometry.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
