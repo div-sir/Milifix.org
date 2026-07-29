@@ -396,6 +396,8 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const transportLabelEl = document.getElementById('immersive-hud-transport-label');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
+  const linksBoxEl = document.getElementById('immersive-hud-links');
+  const linksListEl = document.getElementById('immersive-hud-links-list');
   const telemetryEl = document.getElementById('immersive-hud-telemetry');
   const liveEl = document.getElementById('immersive-live');
   const mobileRouteIndexEl = document.getElementById('immersive-route-index');
@@ -549,6 +551,42 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
         noteBoxEl.hidden = true;
       }
     }
+    if (linksBoxEl && linksListEl) {
+      // data-links 為 JSON 陣列（label + 選填 url）。沒有 url 的項目沿用詳細
+      // 行程資料的做法渲染成純文字，不做成假連結。
+      let links: Array<{ label?: string; url?: string }> = [];
+      if (d.links) {
+        try {
+          const parsed: unknown = JSON.parse(d.links);
+          if (Array.isArray(parsed)) links = parsed as Array<{ label?: string; url?: string }>;
+        } catch {
+          links = [];
+        }
+      }
+      linksListEl.replaceChildren();
+      for (const link of links) {
+        if (!link?.label) continue;
+        const li = document.createElement('li');
+        if (link.url) {
+          const a = document.createElement('a');
+          a.href = link.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = link.label;
+          const ext = document.createElement('span');
+          ext.setAttribute('aria-hidden', 'true');
+          ext.textContent = '↗';
+          a.appendChild(ext);
+          li.appendChild(a);
+        } else {
+          const span = document.createElement('span');
+          span.textContent = link.label;
+          li.appendChild(span);
+        }
+        linksListEl.appendChild(li);
+      }
+      linksBoxEl.hidden = linksListEl.childElementCount === 0;
+    }
     if (photoBoxEl && photoImgEl && photoPlaceholderEl) {
       if (d.photo) {
         photoImgEl.src = d.photo;
@@ -565,7 +603,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, telemetryEl].filter(
+  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, linksBoxEl, telemetryEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;

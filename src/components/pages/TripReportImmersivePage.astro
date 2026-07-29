@@ -6,7 +6,7 @@ import type { DayLabels } from '../trips/DaySection.astro';
 import type { Lang } from '../../i18n/types';
 import { reportsPath, homePath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
-import type { TripReport, TripStop, TransportSegment } from '../../data/trips/types';
+import type { TripReport, TripStop, TransportSegment, LinkEntry } from '../../data/trips/types';
 import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
@@ -86,6 +86,8 @@ interface ImmersiveAnchor {
   transportLabel?: string;
   /** 此錨點聚焦的停靠點 id；客戶端據此找出「抵達本站的交通段」並在地圖上畫出抵達路徑。 */
   stopId?: string;
+  /** 實用連結：核心票券錨點用該票券的連結，日概覽錨點用當日的連結。 */
+  links?: LinkEntry[];
 }
 
 const POS_CYCLE = ['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const;
@@ -140,6 +142,7 @@ trip.essentials.forEach((e, i) => {
     tag: '核心票券',
     title: e.title,
     desc: e.desc ?? '',
+    links: e.links,
   });
 });
 
@@ -165,6 +168,7 @@ for (const day of trip.days) {
     note: tipNote,
     day: day.day,
     dayIntro: true,
+    links: day.links,
   });
 
   day.stops.forEach((stop, i) => {
@@ -385,6 +389,17 @@ const mapData = {
           </div>
           <div id="immersive-hud-desc" class="immersive-hud__desc immersive-hud-fragment"></div>
           <div id="immersive-hud-note" class="immersive-hud__note immersive-hud-fragment" hidden></div>
+          <!-- 實用連結：核心票券錨點顯示該票券的連結，日概覽錨點顯示當日連結。
+               HUD 其餘片段皆 pointer-events:none，只有這裡的連結本身可點。 -->
+          <nav
+            id="immersive-hud-links"
+            class="immersive-hud__links immersive-hud-fragment"
+            aria-label={labels.links}
+            hidden
+          >
+            <p class="immersive-hud__links-label">{labels.links}</p>
+            <ul id="immersive-hud-links-list"></ul>
+          </nav>
           <div id="immersive-hud-telemetry" class="immersive-hud__telemetry immersive-hud-fragment" aria-hidden="true">
             <div>
               <span>POSITION</span>
@@ -422,6 +437,7 @@ const mapData = {
               data-transport-icon={a.transportIcon ?? ''}
               data-transport-label={a.transportLabel ?? ''}
               data-stop-id={a.stopId ?? ''}
+              data-links={a.links && a.links.length > 0 ? JSON.stringify(a.links) : ''}
               data-index={index + 1}
             />
           ))
