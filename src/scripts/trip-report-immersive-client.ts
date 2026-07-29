@@ -42,6 +42,8 @@ interface AnchorData {
   dayIntro: string;
   transportIcon: string;
   transportLabel: string;
+  /** 此錨點聚焦的停靠點 id（日概覽錨點沒有）；用於抵達路徑與標記高亮。 */
+  stopId?: string;
 }
 interface MapData {
   mapDefault: { center: GeoPoint; zoom: number };
@@ -56,9 +58,34 @@ const STYLE_URL: Record<'dark' | 'light', string> = {
 };
 const SRC_ALL = 'immersive-route-all';
 const SRC_ACTIVE = 'immersive-route-active';
+/** 抵達本站的交通段：貼近單一停靠點時單獨highlight，回答「怎麼到這裡的」。 */
+const SRC_ARRIVAL = 'immersive-route-arrival';
 
 function currentTheme(): 'dark' | 'light' {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+// ── 鏡頭移位：主體在畫面上的落點方向（每種 HUD 版面推向文字的對側）──
+// MapLibre 的 offset 是「目標點相對畫面中心的像素位移」，正值為右／下。
+// 位移量隨視窗尺寸縮放並設上限，窄螢幕（HUD 改為上下堆疊）只保留較小的
+// 垂直位移，避免主體被推出畫面。
+const OFFSET_DIR: Record<AnchorData['pos'], [number, number]> = {
+  'bottom-left': [1, -1],
+  'bottom-right': [-1, -1],
+  'top-left': [1, 1],
+  'top-right': [-1, 1],
+};
+
+function cameraOffset(pos: AnchorData['pos'], zoom: number): [number, number] {
+  const [dx, dy] = OFFSET_DIR[pos] ?? OFFSET_DIR['bottom-left'];
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  // 同樣的像素位移，在低 zoom 的廣角鏡頭下換算成的地理距離大得多（總覽鏡頭
+  // 一個 180px 位移可達 1.9 個經度），會把整個國家推到畫面邊緣。依 zoom 收斂
+  // 位移量，讓廣角總覽維持接近置中，貼近單站時才用足位移。
+  const damp = Math.min(1, Math.max(0.35, (zoom - 4) / 4));
+  if (w <= 640) return [0, dy * Math.min(60, h * 0.07) * damp];
+  return [dx * Math.min(180, w * 0.12) * damp, dy * Math.min(90, h * 0.09) * damp];
 }
 
 function readVar(name: string, fallback: string): string {
@@ -239,6 +266,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
     map.addSource(SRC_ALL, { type: 'geojson', data: allFeatures });
     map.addSource(SRC_ACTIVE, { type: 'geojson', data: emptyFC() });
+    map.addSource(SRC_ARRIVAL, { type: 'geojson', data: emptyFC() });
 
     map.addLayer({
       id: `${SRC_ALL}-solid`,
@@ -272,6 +300,23 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: { 'line-color': accent, 'line-width': 4, 'line-opacity': 0.9, 'line-dasharray': [1.5, 1.2] },
     });
+
+    // 抵達路徑：柔和的光暈底 + 上層實線，讓「怎麼到這裡的」在貼近單站的
+    // 鏡頭下也清楚可辨，同時與整日路線（SRC_ACTIVE）的視覺層級區隔。
+    map.addLayer({
+      id: `${SRC_ARRIVAL}-glow`,
+      type: 'line',
+      source: SRC_ARRIVAL,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': accent, 'line-width': 11, 'line-opacity': 0.16, 'line-blur': 5 },
+    });
+    map.addLayer({
+      id: `${SRC_ARRIVAL}-line`,
+      type: 'line',
+      source: SRC_ARRIVAL,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': accent, 'line-width': 3.2, 'line-opacity': 0.95 },
+    });
   };
   map.on('load', () => {
     addLayers();
@@ -286,6 +331,25 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const paintActiveRoute = (segs: Seg[]): void => {
     const src = map.getSource(SRC_ACTIVE) as maplibregl.GeoJSONSource | undefined;
     if (src) src.setData(toFeatures(segs));
+  };
+
+  // ── 抵達路徑：畫出「抵達目前這一站」的交通段 ──────────────────
+  // 資料上同一天的相鄰景點、以及跨日銜接段都收在 day.segments 裡，
+  // 因此以 seg.to === stopId 就能取到抵達本站的那一段；找不到（如當天
+  // 第一站且無銜接段）則清空，不留上一站的殘影。
+  let activeArrivalStopId: string | null = null;
+  const arrivalSegsFor = (stopId: string | null): Seg[] => {
+    if (!stopId) return [];
+    for (const d of data.days) {
+      const found = d.segments.filter((sg) => sg.to === stopId);
+      if (found.length > 0) return found;
+    }
+    return [];
+  };
+  const paintArrival = (stopId: string | null): void => {
+    activeArrivalStopId = stopId;
+    const src = map.getSource(SRC_ARRIVAL) as maplibregl.GeoJSONSource | undefined;
+    if (src) src.setData(toFeatures(arrivalSegsFor(stopId)));
   };
   const markDay = (dayIds: Set<string>): void => {
     for (const [id, m] of markerByStop) m.classList.toggle('is-day', dayIds.has(id));
@@ -318,6 +382,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     addLayers();
     const d = activeDay != null ? dayByNum.get(activeDay) : undefined;
     paintActiveRoute(activeShowRoute && d ? d.segments : []);
+    paintArrival(activeArrivalStopId);
     if (d) markDay(new Set(d.stopIds));
   });
 
@@ -673,8 +738,14 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       pitch: Number(d.pitch || 0),
       bearing: Number(d.bearing || 0),
     };
-    if (reduce) map.jumpTo(camera);
-    else map.flyTo({ ...camera, duration: 1700, curve: 1.4, essential: true });
+    // 鏡頭移位：主體不再固定釘在畫面正中央，而是依該錨點的 HUD 版面推向
+    // 對側，留出文字所在的一側；四種版面給出四個方向，連續飛行時鏡頭的
+    // 落點也跟著換邊，配合逐站錯開的傾角／方位形成運鏡感。
+    const offset = cameraOffset((d.pos as AnchorData['pos']) || 'bottom-left', camera.zoom);
+    // jumpTo 的型別不含 offset（僅動畫類鏡頭方法支援），減少動態時改用
+    // duration 0 的 easeTo，等同瞬移但同樣吃 offset。
+    if (reduce) map.easeTo({ ...camera, offset, duration: 0 });
+    else map.flyTo({ ...camera, offset, duration: 1700, curve: 1.4, essential: true });
     // 保底立即同步一次；後續 move 事件會在整段飛行過程持續更新讀數。
     syncTelemetry();
 
@@ -706,17 +777,21 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
     for (const m of markerByStop.values()) m.classList.remove('is-active');
     if (!isDayIntro) {
-      const matchedStop = data.allStops.find(
-        (s) => Math.abs(s.coords.lng - camera.center[0]) < 1e-4 && Math.abs(s.coords.lat - camera.center[1]) < 1e-4
-      );
-      if (matchedStop) {
-        markerByStop.get(matchedStop.id)?.classList.add('is-active');
-        activeStopId = matchedStop.id;
-      }
+      // 優先用錨點自帶的 stopId（精確），僅在缺漏時退回座標比對。
+      const matchedStop =
+        (d.stopId ? stopById.get(d.stopId) : undefined) ??
+        data.allStops.find(
+          (s) => Math.abs(s.coords.lng - camera.center[0]) < 1e-4 && Math.abs(s.coords.lat - camera.center[1]) < 1e-4
+        );
+      // 比對不到就歸零，避免沿用上一站的 id（刻度尺高亮與抵達路徑都依賴它）。
+      activeStopId = matchedStop?.id ?? null;
+      if (matchedStop) markerByStop.get(matchedStop.id)?.classList.add('is-active');
     } else {
       activeStopId = null;
     }
     ruler.markActive(activeStopId);
+    // 抵達路徑只在貼近單一停靠點時畫；日概覽鏡頭已有整日路線，不重複疊加。
+    paintArrival(isDayIntro ? null : activeStopId);
 
     for (const dot of dayNavDots) {
       const active = Number(dot.dataset.day) === dayNum;

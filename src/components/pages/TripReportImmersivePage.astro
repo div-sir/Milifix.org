@@ -84,6 +84,8 @@ interface ImmersiveAnchor {
   dayIntro?: boolean;
   transportIcon?: string;
   transportLabel?: string;
+  /** 此錨點聚焦的停靠點 id；客戶端據此找出「抵達本站的交通段」並在地圖上畫出抵達路徑。 */
+  stopId?: string;
 }
 
 const POS_CYCLE = ['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const;
@@ -175,10 +177,12 @@ for (const day of trip.days) {
       lng: stop.coords.lng,
       lat: stop.coords.lat,
       zoom: zoomForKind(stop.kind),
-      // 停靠點鏡頭刻意用較淺的傾角：高 pitch + 粗色路線在透視下會朝地平線
-      // 方向被拉伸成長條「尖刺」，貼近單一景點時改以淺傾角只強調 marker。
-      pitch: 24,
-      bearing: (day.day % 2 === 0 ? -1 : 1) * 16,
+      // 鏡頭角度逐站移位：同一天內每站的傾角與方位都稍微錯開，讓連續飛行
+      // 不會每站都是同一個角度，帶出「換一個角度再看」的運鏡感。
+      // 傾角仍壓在 20–34° 這個較淺的區間：高 pitch + 粗色路線在透視下會朝
+      // 地平線方向被拉伸成長條「尖刺」，貼近單一景點時只需夠淺的立體感。
+      pitch: 20 + ((i * 7) % 15),
+      bearing: (day.day % 2 === 0 ? -1 : 1) * (12 + ((i * 23) % 41)),
       pos: nextPos(),
       tag: `DAY ${dayNum} · STOP ${String(i + 1).padStart(2, '0')}`,
       title: stop.name,
@@ -189,6 +193,7 @@ for (const day of trip.days) {
       day: day.day,
       transportIcon: arrivingSeg ? MODE_ICON[arrivingSeg.mode] : undefined,
       transportLabel: arrivingSeg?.label,
+      stopId: stop.id,
     });
   });
 }
@@ -416,6 +421,7 @@ const mapData = {
               data-day-intro={a.dayIntro ? '1' : ''}
               data-transport-icon={a.transportIcon ?? ''}
               data-transport-label={a.transportLabel ?? ''}
+              data-stop-id={a.stopId ?? ''}
               data-index={index + 1}
             />
           ))
