@@ -431,9 +431,13 @@ html[data-theme='light'] .immersive-main {
 }
 
 /* 描述移到左上，與標題形成真正的空間分層，不再視覺黏成同一段落。 */
+/* 左欄下限 5.75rem（92px）：左側行程刻度尺實測占 x 34–78px，留 14px 淨距。
+   右欄下限 9.25rem（148px）：右側羅盤實測占距右 91–137px，Day 導覽點占距右 35–92px。
+   底部下限 8.5rem（136px）：置中進度列實測占距底 82–125px。
+   四種 layout 的 vw／vh 值在矮螢幕（如 1280×800）會掉進這些帶內，故一律加下限。 */
 .immersive-hud__desc {
   top: clamp(6.5rem, 15vh, 9rem);
-  left: clamp(5rem, 7vw, 7rem);
+  left: clamp(5.75rem, 7vw, 7rem);
   width: min(33vw, 27rem);
   padding: 0.5rem 2rem 0.5rem 0.9rem;
   border-left: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
@@ -482,11 +486,149 @@ html[data-theme='light'] .immersive-main {
   margin-left: 0.25rem;
   background: color-mix(in srgb, var(--accent) 50%, transparent);
 }
+/* 預估時間：與線名同一排但降一階對比，讀起來是附註而非並列資訊。 */
+.immersive-hud__transport-dur {
+  color: color-mix(in srgb, var(--imm-ink) 52%, transparent);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+}
+.immersive-hud__transport-dur[hidden] { display: none; }
+/* Pass 涵蓋標記：涵蓋用強調色描邊，須另付費用中性灰，兩者都是既有資料的狀態，
+   不做成綠燈／紅燈式的價值判斷。 */
+.immersive-hud__pass {
+  padding: 1px 5px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 0.5rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.immersive-hud__pass[hidden] { display: none; }
+.immersive-hud__pass[data-covered='1'] { color: var(--accent); }
+.immersive-hud__pass[data-covered='0'] { color: color-mix(in srgb, var(--imm-ink) 46%, transparent); }
+
+/* 標題附屬資訊：停靠點類型徽章與下一站預告，跟在標題下方同一群組內。 */
+.immersive-hud__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__meta[hidden] { display: none; }
+.immersive-hud__kind {
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 3px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.immersive-hud__kind[hidden] { display: none; }
+.immersive-hud__next {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  color: color-mix(in srgb, var(--imm-ink) 55%, transparent);
+}
+.immersive-hud__next[hidden] { display: none; }
+.immersive-hud__next-kicker {
+  color: var(--accent);
+  font-size: 0.5rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+}
+.immersive-hud__next > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 交通路徑明細與當日概況共用同一種定義列版式：左標籤右內容，窄欄可換行。 */
+.immersive-hud__route,
+.immersive-hud__dayboard {
+  width: min(26vw, 19rem);
+  font-family: var(--mono);
+}
+.immersive-hud__route-label,
+.immersive-hud__dayboard-label {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.45rem;
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: var(--imm-shadow-tag);
+}
+/* 段名是中文線名，不套用上方的 uppercase／寬字距。 */
+#immersive-hud-route-name {
+  color: color-mix(in srgb, var(--imm-ink) 62%, transparent);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.immersive-hud__route dl,
+.immersive-hud__dayboard dl {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+}
+.immersive-hud__route dl > div,
+.immersive-hud__dayboard dl > div {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.immersive-hud__route dl > div[hidden],
+.immersive-hud__dayboard dl > div[hidden] { display: none; }
+.immersive-hud__route dt,
+.immersive-hud__dayboard dt {
+  color: color-mix(in srgb, var(--accent) 78%, transparent);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.immersive-hud__route dd,
+.immersive-hud__dayboard dd {
+  margin: 0;
+  color: var(--imm-ink-soft);
+  font-size: clamp(0.64rem, 0.8vw, 0.72rem);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--imm-shadow-desc);
+}
+/* 經由站鏈以強調色分隔符連起來，視覺上像一條路徑而非一串詞。 */
+#immersive-hud-route-via { letter-spacing: 0.04em; }
+
+/* 兩個新片段各自借用「該類錨點必定空著」的欄位，因此不需要新的畫面區域：
+   · 路徑明細只出現在停靠點錨點 → 借用實用連結格（連結只出現在票券／日概覽錨點）
+   · 當日概況只出現在日概覽錨點 → 借用交通方式格（交通只出現在停靠點錨點）
+   日概覽同時有當日概況與實用連結，故連結在概況存在時整體下移（見 :not([hidden]) ~ 規則）。 */
+.immersive-hud__route {
+  top: clamp(9.5rem, 25vh, 14rem);
+  right: clamp(7rem, 13vw, 12rem);
+}
+.immersive-hud__dayboard {
+  top: clamp(6.75rem, 15vh, 9rem);
+  right: clamp(7rem, 13vw, 12rem);
+}
+#immersive-hud-dayboard:not([hidden]) ~ .immersive-hud__links { top: clamp(15rem, 34vh, 20rem); }
 
 /* 提醒位於左下，以細線而非大色塊表達警示，保留地圖的呼吸感。 */
 .immersive-hud__note {
-  left: clamp(5rem, 7vw, 7rem);
-  bottom: clamp(8rem, 18vh, 10rem);
+  left: clamp(5.75rem, 7vw, 7rem);
+  bottom: clamp(8.5rem, 18vh, 10rem);
   width: min(27vw, 23rem);
   padding: 0.45rem 1.5rem 0.45rem 0.85rem;
   border-left: 2px solid var(--accent);
@@ -640,22 +782,31 @@ html[data-theme='light'] .immersive-main {
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__desc { top: 19vh; left: 9vw; width: min(31vw, 25rem); }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__transport { top: 12vh; right: 17vw; }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__title-cluster { right: 10vw; bottom: 17vh; width: min(31vw, 27rem); }
-  .immersive-hud[data-layout='bottom-left'] .immersive-hud__note { left: 6vw; bottom: 24vh; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__note { left: max(6vw, 5.75rem); bottom: 24vh; }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__links { top: 24vh; right: 17vw; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__route { top: 24vh; right: 17vw; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__dayboard { top: 12vh; right: 17vw; }
+  .immersive-hud[data-layout='bottom-left'] #immersive-hud-dayboard:not([hidden]) ~ .immersive-hud__links { top: 33vh; }
   /* 讀數帶固定在左下角，四種版面都不移動：它是持續更新的儀表讀數，
      位置穩定才好追讀，因此不參與 layout 的錯位輪替。 */
 
   .immersive-hud[data-layout='top-left'] .immersive-hud__desc { top: 12vh; left: 12vw; width: min(29vw, 24rem); }
-  .immersive-hud[data-layout='top-left'] .immersive-hud__transport { top: 23vh; right: 9vw; }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__transport { top: 23vh; right: max(9vw, 9.25rem); }
   .immersive-hud[data-layout='top-left'] .immersive-hud__title-cluster { right: 15vw; bottom: 22vh; }
-  .immersive-hud[data-layout='top-left'] .immersive-hud__note { left: 8vw; bottom: 14vh; width: min(31vw, 25rem); }
-  .immersive-hud[data-layout='top-left'] .immersive-hud__links { top: 35vh; right: 9vw; }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__note { left: 8vw; bottom: max(14vh, 8.5rem); width: min(31vw, 25rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__links { top: 35vh; right: max(9vw, 9.25rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__route { top: 35vh; right: max(9vw, 9.25rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__dayboard { top: 23vh; right: max(9vw, 9.25rem); }
+  .immersive-hud[data-layout='top-left'] #immersive-hud-dayboard:not([hidden]) ~ .immersive-hud__links { top: 44vh; }
 
-  .immersive-hud[data-layout='top-right'] .immersive-hud__desc { top: 22vh; left: 6vw; width: min(36vw, 29rem); }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__desc { top: 22vh; left: max(6vw, 5.75rem); width: min(36vw, 29rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__transport { top: 11vh; right: 12vw; }
-  .immersive-hud[data-layout='top-right'] .immersive-hud__title-cluster { right: 9vw; bottom: 24vh; width: min(36vw, 31rem); }
-  .immersive-hud[data-layout='top-right'] .immersive-hud__note { left: 13vw; bottom: 16vh; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__title-cluster { right: max(9vw, 9.25rem); bottom: 24vh; width: min(36vw, 31rem); }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__note { left: 13vw; bottom: max(16vh, 8.5rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__links { top: 24vh; right: 12vw; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__route { top: 24vh; right: 12vw; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__dayboard { top: 11vh; right: 12vw; }
+  .immersive-hud[data-layout='top-right'] #immersive-hud-dayboard:not([hidden]) ~ .immersive-hud__links { top: 32vh; }
 }
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
@@ -1079,7 +1230,9 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     width: min(38vw, 23rem);
   }
   .immersive-hud__transport { right: 5rem; }
-  .immersive-hud__links { right: 5rem; width: min(34vw, 17rem); }
+  .immersive-hud__links,
+  .immersive-hud__route,
+  .immersive-hud__dayboard { right: 5rem; width: min(34vw, 17rem); }
   .immersive-hud__telemetry { width: auto; max-width: 92vw; }
   .immersive-hud__note {
     left: 4rem;
@@ -1108,8 +1261,11 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     font-size: 0.88rem;
     line-height: 1.55;
   }
+  /* 交通方式與實用連結永不同時出現（交通只在停靠點錨點、連結只在票券／日概覽錨點），
+     因此共用同一個插槽。原本的 top: 50vh 會與由底部定位的標題群組互相壓到，
+     移上來後兩者之間留有實際間距。 */
   .immersive-hud__transport {
-    top: 50vh;
+    top: 17rem;
     left: 20px;
     right: auto;
     max-width: calc(100vw - 40px);
@@ -1147,6 +1303,14 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     right: 20px;
     width: auto;
   }
+  /* 390px 寬的畫面放不下「經由／座席／注意」與「當日概況」這兩組定義列——
+     硬塞進來就得跟描述、標題群組、提醒、讀數搶同一段直向空間，必然互相遮擋。
+     兩者的完整內容改由下方「詳細行程資料」的交通卡片承接（同樣的欄位、可捲動、
+     不會被壓到）；HUD 在手機保留最需要一眼看到的 ARR／DEP、預估時間與 Pass 標記。 */
+  .immersive-hud__route,
+  .immersive-hud__dayboard { display: none; }
+  /* 直向空間吃緊，下一站預告在手機讓位（其功能由底部路線列的前後鍵取代）。 */
+  .immersive-hud__next { display: none; }
   .immersive-hud__photo {
     right: 20px;
     bottom: 12.2rem;
