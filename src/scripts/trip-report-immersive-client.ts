@@ -42,6 +42,8 @@ interface AnchorData {
   dayIntro: string;
   transportIcon: string;
   transportLabel: string;
+  departIcon: string;
+  departLabel: string;
   /** 此錨點聚焦的停靠點 id（日概覽錨點沒有）；用於抵達路徑與標記高亮。 */
   stopId?: string;
 }
@@ -392,11 +394,16 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const tagEl = document.getElementById('immersive-hud-tag');
   const titleEl = document.getElementById('immersive-hud-title');
   const transportEl = document.getElementById('immersive-hud-transport');
+  const transportArriveRowEl = document.getElementById('immersive-hud-transport-arrive');
   const transportIconEl = document.getElementById('immersive-hud-transport-icon');
   const transportLabelEl = document.getElementById('immersive-hud-transport-label');
+  const transportDepartRowEl = document.getElementById('immersive-hud-transport-depart');
+  const transportDepartIconEl = document.getElementById('immersive-hud-transport-depart-icon');
+  const transportDepartLabelEl = document.getElementById('immersive-hud-transport-depart-label');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
-  const telemetryEl = document.getElementById('immersive-hud-telemetry');
+  const linksBoxEl = document.getElementById('immersive-hud-links');
+  const linksListEl = document.getElementById('immersive-hud-links-list');
   const liveEl = document.getElementById('immersive-live');
   const mobileRouteIndexEl = document.getElementById('immersive-route-index');
   const mobileRouteTitleEl = document.getElementById('immersive-route-title');
@@ -531,14 +538,22 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const writeHudContent = (d: DOMStringMap): void => {
     if (tagEl) tagEl.textContent = d.tag || '';
     if (titleEl) titleEl.textContent = d.title || '';
-    if (transportEl && transportIconEl && transportLabelEl) {
+    if (transportEl && transportArriveRowEl && transportIconEl && transportLabelEl && transportDepartRowEl && transportDepartIconEl && transportDepartLabelEl) {
       if (d.transportLabel) {
         transportIconEl.textContent = d.transportIcon || '';
         transportLabelEl.textContent = d.transportLabel;
-        transportEl.hidden = false;
+        transportArriveRowEl.hidden = false;
       } else {
-        transportEl.hidden = true;
+        transportArriveRowEl.hidden = true;
       }
+      if (d.departLabel) {
+        transportDepartIconEl.textContent = d.departIcon || '';
+        transportDepartLabelEl.textContent = d.departLabel;
+        transportDepartRowEl.hidden = false;
+      } else {
+        transportDepartRowEl.hidden = true;
+      }
+      transportEl.hidden = !d.transportLabel && !d.departLabel;
     }
     if (descEl) descEl.textContent = d.desc || '';
     if (noteBoxEl) {
@@ -548,6 +563,42 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       } else {
         noteBoxEl.hidden = true;
       }
+    }
+    if (linksBoxEl && linksListEl) {
+      // data-links 為 JSON 陣列（label + 選填 url）。沒有 url 的項目沿用詳細
+      // 行程資料的做法渲染成純文字，不做成假連結。
+      let links: Array<{ label?: string; url?: string }> = [];
+      if (d.links) {
+        try {
+          const parsed: unknown = JSON.parse(d.links);
+          if (Array.isArray(parsed)) links = parsed as Array<{ label?: string; url?: string }>;
+        } catch {
+          links = [];
+        }
+      }
+      linksListEl.replaceChildren();
+      for (const link of links) {
+        if (!link?.label) continue;
+        const li = document.createElement('li');
+        if (link.url) {
+          const a = document.createElement('a');
+          a.href = link.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = link.label;
+          const ext = document.createElement('span');
+          ext.setAttribute('aria-hidden', 'true');
+          ext.textContent = '↗';
+          a.appendChild(ext);
+          li.appendChild(a);
+        } else {
+          const span = document.createElement('span');
+          span.textContent = link.label;
+          li.appendChild(span);
+        }
+        linksListEl.appendChild(li);
+      }
+      linksBoxEl.hidden = linksListEl.childElementCount === 0;
     }
     if (photoBoxEl && photoImgEl && photoPlaceholderEl) {
       if (d.photo) {
@@ -565,7 +616,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, telemetryEl].filter(
+  // 座標／相機讀數（telemetryEl）不列入淡出淡入清單：它由 syncTelemetry 隨鏡頭
+  // 即時更新文字，若跟著內容切換一起淡出再淡入，捲動時座標會閃爍消失又出現。
+  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, linksBoxEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;
@@ -765,7 +818,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       progressDayEl.textContent = d.day ? `DAY ${String(d.day).padStart(2, '0')}` : d.tag || 'OVERVIEW';
     }
     if (progressStatusEl) {
-      progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || 'MAP SYNCHRONIZED';
+      progressStatusEl.textContent = d.dayIntro === '1' ? 'DAY ROUTE ACQUIRED' : d.transportLabel || d.departLabel || 'MAP SYNCHRONIZED';
     }
 
     swapHud(d, (d.pos as AnchorData['pos']) || 'bottom-left');
@@ -801,7 +854,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
 
     if (liveEl) {
-      liveEl.textContent = [d.tag, d.title, d.transportLabel].filter(Boolean).join('，');
+      liveEl.textContent = [d.tag, d.title, d.transportLabel, d.departLabel].filter(Boolean).join('，');
     }
     if (d.anchorId) writeStorage(progressStorageKey, d.anchorId);
     if (d.anchorId && location.hash !== `#${encodeURIComponent(d.anchorId)}`) {

@@ -446,13 +446,15 @@ html[data-theme='light'] .immersive-main {
   text-shadow: var(--imm-shadow-desc);
 }
 
-/* 交通方式是短狀態，獨立放在右上，不與景點名稱爭奪層級。 */
+/* 交通方式是短狀態，獨立放在右上，不與景點名稱爭奪層級。
+   抵達（ARR）／離開（DEP）各一排，任一段沒有資料就整排隱藏。 */
 .immersive-hud__transport {
   top: clamp(6.75rem, 15vh, 9rem);
   right: clamp(7rem, 13vw, 12rem);
   display: flex;
-  align-items: center;
-  gap: 7px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   max-width: min(30vw, 22rem);
   padding: 0.35rem 0.6rem;
   background: linear-gradient(90deg, transparent, var(--imm-local-scrim) 22%, var(--imm-local-scrim) 74%, transparent);
@@ -461,6 +463,17 @@ html[data-theme='light'] .immersive-main {
   letter-spacing: 0.06em;
   color: var(--imm-ink-soft);
   text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__transport-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.immersive-hud__transport-kicker {
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
 }
 .immersive-hud__transport::after {
   content: '';
@@ -484,6 +497,57 @@ html[data-theme='light'] .immersive-main {
   color: var(--imm-ink-soft);
   text-shadow: var(--imm-shadow-desc);
 }
+/* 實用連結：只出現在核心票券與日概覽錨點（此時交通方式那格是空的），
+   放在右欄、交通方式的下方、標題群組的上方。HUD 其餘片段都是
+   pointer-events:none，這裡只在連結本身重新開啟指標事件。 */
+.immersive-hud__links {
+  top: clamp(9.5rem, 25vh, 14rem);
+  right: clamp(7rem, 13vw, 12rem);
+  width: min(26vw, 19rem);
+  font-family: var(--mono);
+}
+.immersive-hud__links-label {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.54rem;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: var(--imm-shadow-tag);
+}
+.immersive-hud__links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.3rem;
+}
+.immersive-hud__links li {
+  font-size: clamp(0.68rem, 0.85vw, 0.76rem);
+  line-height: 1.5;
+  color: var(--imm-ink-soft);
+  text-shadow: var(--imm-shadow-desc);
+}
+.immersive-hud__links a {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--imm-ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.immersive-hud__links a:hover { color: var(--imm-ink); border-bottom-color: var(--accent); }
+.immersive-hud__links a:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 74%, transparent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.immersive-hud__links a span { font-size: 0.85em; color: var(--accent); }
+/* 沒有網址的項目維持純文字，不偽裝成可點的連結。 */
+.immersive-hud__links li > span { opacity: 0.75; }
+
 .immersive-hud__photo {
   right: clamp(2rem, 5vw, 5rem);
   bottom: clamp(8rem, 18vh, 10rem);
@@ -577,6 +641,7 @@ html[data-theme='light'] .immersive-main {
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__transport { top: 12vh; right: 17vw; }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__title-cluster { right: 10vw; bottom: 17vh; width: min(31vw, 27rem); }
   .immersive-hud[data-layout='bottom-left'] .immersive-hud__note { left: 6vw; bottom: 24vh; }
+  .immersive-hud[data-layout='bottom-left'] .immersive-hud__links { top: 24vh; right: 17vw; }
   /* 讀數帶固定在左下角，四種版面都不移動：它是持續更新的儀表讀數，
      位置穩定才好追讀，因此不參與 layout 的錯位輪替。 */
 
@@ -584,11 +649,13 @@ html[data-theme='light'] .immersive-main {
   .immersive-hud[data-layout='top-left'] .immersive-hud__transport { top: 23vh; right: 9vw; }
   .immersive-hud[data-layout='top-left'] .immersive-hud__title-cluster { right: 15vw; bottom: 22vh; }
   .immersive-hud[data-layout='top-left'] .immersive-hud__note { left: 8vw; bottom: 14vh; width: min(31vw, 25rem); }
+  .immersive-hud[data-layout='top-left'] .immersive-hud__links { top: 35vh; right: 9vw; }
 
   .immersive-hud[data-layout='top-right'] .immersive-hud__desc { top: 22vh; left: 6vw; width: min(36vw, 29rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__transport { top: 11vh; right: 12vw; }
   .immersive-hud[data-layout='top-right'] .immersive-hud__title-cluster { right: 9vw; bottom: 24vh; width: min(36vw, 31rem); }
   .immersive-hud[data-layout='top-right'] .immersive-hud__note { left: 13vw; bottom: 16vh; }
+  .immersive-hud[data-layout='top-right'] .immersive-hud__links { top: 24vh; right: 12vw; }
 }
 
 /* ── Day 導覽：微調位置避開右下角地圖控制項 ──────────────── */
@@ -1012,6 +1079,7 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     width: min(38vw, 23rem);
   }
   .immersive-hud__transport { right: 5rem; }
+  .immersive-hud__links { right: 5rem; width: min(34vw, 17rem); }
   .immersive-hud__telemetry { width: auto; max-width: 92vw; }
   .immersive-hud__note {
     left: 4rem;
@@ -1071,6 +1139,13 @@ html[data-theme='light'] .immersive-theme-icon--sun {
     bottom: 12.2rem;
     width: auto;
     font-size: 0.68rem;
+  }
+  /* 手機改為單欄全寬，塞在描述之下、標題群組之上的空檔。 */
+  .immersive-hud__links {
+    top: 17rem;
+    left: 20px;
+    right: 20px;
+    width: auto;
   }
   .immersive-hud__photo {
     right: 20px;
