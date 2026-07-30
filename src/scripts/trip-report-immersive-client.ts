@@ -404,7 +404,6 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const noteBoxEl = document.getElementById('immersive-hud-note');
   const linksBoxEl = document.getElementById('immersive-hud-links');
   const linksListEl = document.getElementById('immersive-hud-links-list');
-  const telemetryEl = document.getElementById('immersive-hud-telemetry');
   const liveEl = document.getElementById('immersive-live');
   const mobileRouteIndexEl = document.getElementById('immersive-route-index');
   const mobileRouteTitleEl = document.getElementById('immersive-route-title');
@@ -617,7 +616,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
   };
 
-  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, linksBoxEl, telemetryEl].filter(
+  // 座標／相機讀數（telemetryEl）不列入淡出淡入清單：它由 syncTelemetry 隨鏡頭
+  // 即時更新文字，若跟著內容切換一起淡出再淡入，捲動時座標會閃爍消失又出現。
+  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, linksBoxEl].filter(
     (el): el is HTMLElement => el != null
   );
   let hudTl: gsap.core.Timeline | null = null;
