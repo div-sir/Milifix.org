@@ -91,7 +91,69 @@ interface ImmersiveAnchor {
   stopId?: string;
   /** 實用連結：核心票券錨點用該票券的連結，日概覽錨點用當日的連結。 */
   links?: LinkEntry[];
+  /** 抵達／離開段的預估時間與 Pass 涵蓋狀態，直接併進 ARR／DEP 兩排顯示。 */
+  transportDur?: string;
+  transportPass?: boolean;
+  departDur?: string;
+  departPass?: boolean;
+  /** 交通路徑明細：以抵達段為主（首站無抵達段時退回離開段），列出經由站、座席規則與該段注意事項。 */
+  route?: RouteDetail;
+  /** 日概覽專屬的當日概況：停靠點數、移動時間、時間窗與已列費用。 */
+  dayboard?: DayBoard;
+  /** 停靠點類型標籤（如「神社」）；非停靠點錨點不顯示。 */
+  kindLabel?: string;
+  /** 下一個錨點的標題，讓讀者預知鏡頭接著要去哪。 */
+  nextTitle?: string;
 }
+
+/** 交通段的路徑明細（僅收有資料的欄位，全空時不建立此物件）。 */
+interface RouteDetail {
+  /** 這段的顯示名稱與圖示，讓明細自己能標示是哪一段。 */
+  icon: string;
+  label: string;
+  /** 'arrive'＝抵達本站的那段；'depart'＝本站出發的那段。 */
+  direction: 'arrive' | 'depart';
+  via?: string[];
+  seat?: string;
+  note?: string;
+}
+
+interface DayBoard {
+  stops: number;
+  /** 當日 segments 的 durationMin 合計（格式化字串）；無任何時間資料時省略。 */
+  move?: string;
+  /** 由 timeline 首末項推出的時間窗。 */
+  window?: string;
+  /** 當日 costs 已列金額合計。 */
+  costJpy?: number;
+}
+
+/** 與 DaySection 相同的時間格式，讓 HUD 與詳細行程讀起來一致。 */
+const fmtDur = (min?: number): string => {
+  if (!min || min <= 0) return '';
+  if (min < 60) return `約 ${min} 分`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `約 ${h} 小時 ${m} 分` : `約 ${h} 小時`;
+};
+
+/** 交通段有任何一項明細才建立 RouteDetail，避免產生空的片段。 */
+const routeDetailOf = (
+  seg: TransportSegment | undefined,
+  direction: RouteDetail['direction']
+): RouteDetail | undefined => {
+  if (!seg) return undefined;
+  const hasVia = (seg.via?.length ?? 0) > 0;
+  if (!hasVia && !seg.seat && !seg.note) return undefined;
+  return {
+    icon: MODE_ICON[seg.mode],
+    label: seg.label,
+    direction,
+    via: hasVia ? seg.via : undefined,
+    seat: seg.seat,
+    note: seg.note,
+  };
+};
 
 const POS_CYCLE = ['bottom-left', 'bottom-right', 'top-left', 'top-right'] as const;
 let posIdx = 0;
@@ -157,6 +219,35 @@ for (const day of trip.days) {
   const dayDesc = day.activities.slice(0, 2).join('；');
   const tipNote = day.tips && day.tips.length > 0 ? day.tips[0] : undefined;
 
+  // 當日概況：全部由既有資料彙總（停靠點數、segments 時間合計、timeline 首末時刻、costs 金額合計）。
+  const daySegs = day.segments ?? [];
+  const moveMin = daySegs.reduce((sum, sg) => sum + (sg.durationMin ?? 0), 0);
+  const times = (day.timeline ?? []).map((t) => t.time).filter((t): t is string => !!t);
+  // timeline 的 time 本身可能已是區間（如 '09:30–10:30'）。時間窗取第一項的起點與
+  // 最後一項的終點，否則會顯示成「09:30–10:30 – 16:30–17:30」這種雙重區間。
+  // 「前後」「後」等限定語照原樣保留，不修飾成看似更精確的時刻。
+  const rangeEnds = (t: string): [string, string] => {
+    const parts = t
+      .split(/[–—]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return parts.length > 1 ? [parts[0], parts[parts.length - 1]] : [t, t];
+  };
+  const windowStart = times.length > 0 ? rangeEnds(times[0])[0] : undefined;
+  const windowEnd = times.length > 0 ? rangeEnds(times[times.length - 1])[1] : undefined;
+  const dayCost = (day.costs ?? []).reduce((sum, c) => sum + (typeof c.amountJpy === 'number' ? c.amountJpy : 0), 0);
+  const dayboard: DayBoard = {
+    stops: day.stops.length,
+    move: fmtDur(moveMin) || undefined,
+    window:
+      windowStart && windowEnd
+        ? windowStart === windowEnd
+          ? windowStart
+          : `${windowStart} – ${windowEnd}`
+        : undefined,
+    costJpy: dayCost > 0 ? dayCost : undefined,
+  };
+
   anchors.push({
     id: `day-${day.day}`,
     lng: day.camera?.center?.lng ?? avgLng,
@@ -172,6 +263,7 @@ for (const day of trip.days) {
     day: day.day,
     dayIntro: true,
     links: day.links,
+    dayboard,
   });
 
   day.stops.forEach((stop, i) => {
@@ -201,12 +293,22 @@ for (const day of trip.days) {
       day: day.day,
       transportIcon: arrivingSeg ? MODE_ICON[arrivingSeg.mode] : undefined,
       transportLabel: arrivingSeg?.label,
+      transportDur: fmtDur(arrivingSeg?.durationMin) || undefined,
+      transportPass: arrivingSeg?.passCovered,
       departIcon: departingSeg ? MODE_ICON[departingSeg.mode] : undefined,
       departLabel: departingSeg?.label,
+      departDur: fmtDur(departingSeg?.durationMin) || undefined,
+      departPass: departingSeg?.passCovered,
+      // 明細以「怎麼到這裡」為主；當日首站沒有抵達段時，退而說明本站出發的那段。
+      route: routeDetailOf(arrivingSeg, 'arrive') ?? routeDetailOf(departingSeg, 'depart'),
+      kindLabel: stop.kind ? KIND_LABELS_ZH[stop.kind] : undefined,
       stopId: stop.id,
     });
   });
 }
+
+// 下一站預告：全部錨點排定後才知道順序，因此在此回填（最後一個錨點沒有下一站）。
+for (let i = 0; i < anchors.length - 1; i++) anchors[i].nextTitle = anchors[i + 1].title;
 
 // ── 地圖資料（完整路線／全部停靠點，供沈浸式階段與偵測頁一起使用）──
 const stopById = new Map<string, TripStop>();
@@ -388,18 +490,77 @@ const mapData = {
               <span id="immersive-hud-tag"></span>
             </div>
             <div id="immersive-hud-title" class="immersive-hud__title"></div>
+            <!-- 標題附屬資訊：停靠點類型與下一站預告。附在標題群組內而非另開一區，
+                 避免又多佔一塊地圖留白、增加互相遮擋的風險。 -->
+            <div id="immersive-hud-meta" class="immersive-hud__meta" hidden>
+              <span id="immersive-hud-kind" class="immersive-hud__kind" hidden></span>
+              <span id="immersive-hud-next" class="immersive-hud__next" hidden>
+                <span class="immersive-hud__next-kicker">NEXT</span>
+                <span id="immersive-hud-next-title"></span>
+              </span>
+            </div>
           </div>
           <div id="immersive-hud-transport" class="immersive-hud__transport immersive-hud-fragment" hidden>
             <div id="immersive-hud-transport-arrive" class="immersive-hud__transport-row" hidden>
               <span class="immersive-hud__transport-kicker">ARR</span>
               <span id="immersive-hud-transport-icon" aria-hidden="true"></span>
               <span id="immersive-hud-transport-label"></span>
+              <span id="immersive-hud-transport-dur" class="immersive-hud__transport-dur" hidden></span>
+              <span id="immersive-hud-transport-pass" class="immersive-hud__pass" hidden></span>
             </div>
             <div id="immersive-hud-transport-depart" class="immersive-hud__transport-row" hidden>
               <span class="immersive-hud__transport-kicker">DEP</span>
               <span id="immersive-hud-transport-depart-icon" aria-hidden="true"></span>
               <span id="immersive-hud-transport-depart-label"></span>
+              <span id="immersive-hud-depart-dur" class="immersive-hud__transport-dur" hidden></span>
+              <span id="immersive-hud-depart-pass" class="immersive-hud__pass" hidden></span>
             </div>
+          </div>
+
+          <!-- 交通路徑明細：只在停靠點錨點出現（此時右欄的實用連結格是空的），
+               列出該段的經由站、座席規則與注意事項。 -->
+          <div id="immersive-hud-route" class="immersive-hud__route immersive-hud-fragment" hidden>
+            <p class="immersive-hud__route-label">
+              <span id="immersive-hud-route-dir">ROUTE DETAIL</span>
+              <span id="immersive-hud-route-name"></span>
+            </p>
+            <dl>
+              <div id="immersive-hud-route-via-row" hidden>
+                <dt>經由</dt>
+                <dd id="immersive-hud-route-via"></dd>
+              </div>
+              <div id="immersive-hud-route-seat-row" hidden>
+                <dt>座席</dt>
+                <dd id="immersive-hud-route-seat"></dd>
+              </div>
+              <div id="immersive-hud-route-note-row" hidden>
+                <dt>注意</dt>
+                <dd id="immersive-hud-route-note"></dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- 當日概況：只在日概覽錨點出現（此時右欄上方的交通格是空的）。 -->
+          <div id="immersive-hud-dayboard" class="immersive-hud__dayboard immersive-hud-fragment" hidden>
+            <p class="immersive-hud__dayboard-label">DAY BRIEF</p>
+            <dl>
+              <div>
+                <dt>停靠點</dt>
+                <dd id="immersive-hud-day-stops"></dd>
+              </div>
+              <div id="immersive-hud-day-move-row" hidden>
+                <dt>移動時間</dt>
+                <dd id="immersive-hud-day-move"></dd>
+              </div>
+              <div id="immersive-hud-day-window-row" hidden>
+                <dt>時間窗</dt>
+                <dd id="immersive-hud-day-window"></dd>
+              </div>
+              <div id="immersive-hud-day-cost-row" hidden>
+                <dt>已列費用</dt>
+                <dd id="immersive-hud-day-cost"></dd>
+              </div>
+            </dl>
           </div>
           <div id="immersive-hud-desc" class="immersive-hud__desc immersive-hud-fragment"></div>
           <div id="immersive-hud-note" class="immersive-hud__note immersive-hud-fragment" hidden></div>
@@ -450,8 +611,16 @@ const mapData = {
               data-day-intro={a.dayIntro ? '1' : ''}
               data-transport-icon={a.transportIcon ?? ''}
               data-transport-label={a.transportLabel ?? ''}
+              data-transport-dur={a.transportDur ?? ''}
+              data-transport-pass={a.transportPass === undefined ? '' : a.transportPass ? '1' : '0'}
               data-depart-icon={a.departIcon ?? ''}
               data-depart-label={a.departLabel ?? ''}
+              data-depart-dur={a.departDur ?? ''}
+              data-depart-pass={a.departPass === undefined ? '' : a.departPass ? '1' : '0'}
+              data-route={a.route ? JSON.stringify(a.route) : ''}
+              data-dayboard={a.dayboard ? JSON.stringify(a.dayboard) : ''}
+              data-kind={a.kindLabel ?? ''}
+              data-next={a.nextTitle ?? ''}
               data-stop-id={a.stopId ?? ''}
               data-links={a.links && a.links.length > 0 ? JSON.stringify(a.links) : ''}
               data-index={index + 1}

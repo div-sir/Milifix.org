@@ -25,6 +25,40 @@ if (segs.length === 0) return null;
           </span>
           <span class="trip-connector__label">{seg.label}</span>
           {seg.durationMin ? <span class="trip-connector__time">{fmtDur(seg.durationMin)}</span> : null}
+          {/* Pass 涵蓋狀態：未填 passCovered 代表尚未查證，不顯示任何標記。 */}
+          {seg.passCovered !== undefined && (
+            <span class="trip-connector__pass" data-covered={seg.passCovered ? '1' : '0'}>
+              {seg.passCovered ? 'JR PASS' : '另行付費'}
+            </span>
+          )}
+          {(seg.via?.length || seg.seat || seg.note) && (
+            <dl class="trip-connector__detail">
+              {seg.via && seg.via.length > 0 && (
+                <div>
+                  <dt>經由</dt>
+                  <dd>{seg.via.join(' › ')}</dd>
+                </div>
+              )}
+              {seg.seat && (
+                <div>
+                  <dt>座席</dt>
+                  <dd>{seg.seat}</dd>
+                </div>
+              )}
+              {seg.fareJpy !== undefined && (
+                <div>
+                  <dt>票價</dt>
+                  <dd>約 ¥{seg.fareJpy.toLocaleString('en-US')}</dd>
+                </div>
+              )}
+              {seg.note && (
+                <div>
+                  <dt>注意</dt>
+                  <dd>{seg.note}</dd>
+                </div>
+              )}
+            </dl>
+          )}
         </div>
       ))
     }
