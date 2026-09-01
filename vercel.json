@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/generate-pass.js": {
-      "maxDuration": 30
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",

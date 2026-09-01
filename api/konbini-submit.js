@@ -17,7 +17,7 @@ import {
   checkOrigin,
   checkSharedRateLimit,
   getClientIp,
-} from './_pass-security.js';
+} from './_request-security.js';
 import { validateSubmission } from './_konbini-submit-validate.js';
 import { sanitizeReviewImage, MAX_PHOTOS } from './_konbini-image.js';
 import {

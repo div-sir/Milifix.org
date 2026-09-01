@@ -7,6 +7,7 @@ import type { Lang } from '../../i18n/types';
 import { reportsPath, homePath } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import type { TripReport, TripStop, TransportSegment, LinkEntry } from '../../data/trips/types';
+import { tripPhotoUrl } from '../../lib/trip-photos';
 import '@fontsource-variable/fraunces';
 import '../../styles/theme.css';
 import '../../styles/portfolio-atmosphere.css';
@@ -196,7 +197,9 @@ for (const day of trip.days) {
       title: stop.name,
       desc: stop.desc ?? '',
       note: stop.note,
-      photoSrc: photo?.src,
+      // HUD 的照片由客戶端腳本換 src，拿不到 ImageMetadata 物件，
+      // 因此在建置期先解析成最佳化後的字串網址。
+      photoSrc: tripPhotoUrl(photo?.src) || undefined,
       photoAlt: photo?.alt ?? photo?.caption,
       day: day.day,
       transportIcon: arrivingSeg ? MODE_ICON[arrivingSeg.mode] : undefined,
