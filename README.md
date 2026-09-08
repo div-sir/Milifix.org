@@ -37,7 +37,7 @@ Astro build（Vercel）
   ├── /meridiel             Meridiel 飛行足跡互動地球儀（public/ 靜態 App）
   ├── /blog                 部落格列表
   ├── /blog/[slug]          部落格文章頁
-  ├── /reports              旅行報告書（行程資料寫在 src/data/trips/）
+  ├── /reports              旅行報告書（行程資料寫在 src/data/trips/；另有 /zh、/ja 版）
   ├── /zh/travel            台灣信用卡旅遊權益（單一入口頁 + 各項目內頁）
   └── /konbini              超商必吃評價（列表／商品／新增；投稿走 serverless 代理）
           ↑ POST /api/konbini-*（Google 登入 + service API key 寫入 pending）
@@ -138,7 +138,7 @@ const page  = await getPage('home')        // 頁面文案
 | `/lumiveil` | Lumiveil iOS App 介紹頁 |
 | `/meridiel` | Meridiel 飛行足跡互動地球儀（`public/meridiel/` 靜態 App）|
 | `/linktree` | 連結樹（`noindex`，不列在首頁） |
-| `/reports` | 旅行報告書列表 |
+| `/reports` · `/zh/reports` · `/ja/reports` | 旅行報告書列表 |
 | `/reports/[slug]` | 報告書內頁；`presentation: 'immersive'` 時為全螢幕地圖 + HUD 版型 |
 | `/zh/travel` | 台灣信用卡旅遊權益入口頁（卡片／航空／貴賓室／網路皆在此頁瀏覽） |
 | `/zh/travel/cards/[slug]` | 信用卡內頁（依權益分組、可點擊關聯標籤） |
@@ -149,7 +149,9 @@ const page  = await getPage('home')        // 頁面文案
 | `/konbini/[slug]` | 商品評價頁，含 Google 登入評分與照片上傳 |
 | `/konbini/new` | 投稿新商品（附第一則評價） |
 
-> `/konbini` 為 en / zh 雙語；`/zh/travel` 與 `/reports` 僅繁中（見 `availableLangsForPath`）。
+> `/konbini` 為 en / zh 雙語；`/zh/travel` 僅繁中（見 `availableLangsForPath`）。
+> `/reports` 介面為 en / zh / ja 三語（字串集中在 `src/i18n/trip-report.ts`），
+> 但行程內容本身（站名、活動、tips）維持繁中——翻譯內容屬創作，不由程式代勞。
 > `/zh/travel` 沒有 `cards`／`airlines`／`lounges` 各自的列表頁，也沒有 `matrix` 比較表——
 > 所有瀏覽與篩選都收在同一個入口頁內，只有各項目的 `[slug]` 內頁是獨立路由。
 

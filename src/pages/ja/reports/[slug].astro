@@ -1,0 +1,22 @@
+---
+import TripReportPage from '../../../components/pages/TripReportPage.astro';
+import TripReportImmersivePage from '../../../components/pages/TripReportImmersivePage.astro';
+import { tripReports } from '../../../data/trips/index';
+
+export async function getStaticPaths() {
+  return tripReports.map((trip) => ({
+    params: { slug: trip.slug },
+    props: { trip },
+  }));
+}
+
+const { trip } = Astro.props;
+---
+
+{
+  trip.presentation === 'immersive' ? (
+    <TripReportImmersivePage lang="ja" trip={trip} />
+  ) : (
+    <TripReportPage lang="ja" trip={trip} />
+  )
+}

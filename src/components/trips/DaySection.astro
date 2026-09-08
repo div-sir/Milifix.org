@@ -1,31 +1,19 @@
 ---
-import type { TripDay, TransportSegment, TripStop } from '../../data/trips/types';
+import type { TripDay, TransportSegment, TripStop, DayLabels } from '../../data/trips/types';
 import PhotoPlaceholder from './PhotoPlaceholder.astro';
 import TripConnector from './TripConnector.astro';
+import type { Lang } from '../../i18n/types';
+import { formatDuration } from '../../i18n/trip-report';
 
-export interface DayLabels {
-  dayWord: string;
-  timeline: string;
-  activities: string;
-  costs: string;
-  tips: string;
-  links: string;
-  photos: string;
-  passBadge: string;
-  /** 「沿途」小標 */
-  stopsHeading: string;
-  /** 實用資訊 dossier 標題（如「行程手記」） */
-  dossier: string;
-  /** 景點類型標籤 */
-  kindLabels: Partial<Record<NonNullable<TripStop['kind']>, string>>;
-}
+export type { DayLabels };
 
 interface Props {
   day: TripDay;
   labels: DayLabels;
+  lang: Lang;
 }
 
-const { day, labels } = Astro.props;
+const { day, labels, lang } = Astro.props;
 
 const MODE_ICON: Record<TransportSegment['mode'], string> = {
   flight: '✈️',
@@ -56,13 +44,7 @@ const fmtJpy = (n: number) => `¥${n.toLocaleString('en-US')}`;
 const kindLabel = (k?: TripStop['kind']) => (k ? labels.kindLabels[k] ?? '' : '');
 
 // 預估移動時間 → 文字
-const fmtDur = (min?: number): string => {
-  if (!min || min <= 0) return '';
-  if (min < 60) return `約 ${min} 分`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m ? `約 ${h} 小時 ${m} 分` : `約 ${h} 小時`;
-};
+const fmtDur = (min?: number): string => formatDuration(lang, min);
 
 // ── 把交通段對應到「兩景點之間」，供條目間顯示移動方式與時間 ──
 const stopIdSet = new Set(stops.map((s) => s.id));

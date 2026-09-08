@@ -44,18 +44,18 @@ const LABELS: Record<Lang, IndexLabels> = {
     empty: 'No reports yet.',
   },
   ja: {
-    tag: 'Trip Reports',
-    title: 'Trip Reports',
-    desc: 'Day-by-day itineraries, transit and cost logs — travel along with the map.',
-    days: 'days',
-    stops: 'stops',
-    empty: 'No reports yet.',
+    tag: '旅行レポート',
+    title: '旅行レポート',
+    desc: '日ごとの行程・交通・費用の記録を、地図とともにたどれます。',
+    days: '日',
+    stops: '立ち寄り地',
+    empty: 'まだレポートはありません。',
   },
 };
 
 const { lang } = Astro.props;
 const t = LABELS[lang];
-const base = reportsPath();
+const base = reportsPath(lang);
 ---
 
 <BaseLayout
@@ -63,7 +63,7 @@ const base = reportsPath();
   title={`${t.title} — Milifix`}
   description={t.desc}
   canonicalPath={Astro.url.pathname}
-  hreflangAlternates={false}
+  hreflangAlternates={true}
 >
   <AmbientBackdrop />
   <PageTransition />

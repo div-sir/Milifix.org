@@ -160,3 +160,24 @@ export interface TripReport {
    *  'immersive' 為全螢幕地圖 + 浮動 HUD 的沈浸式捲動敘事版型。 */
   presentation?: 'magazine' | 'immersive';
 }
+
+/**
+ * 行程頁面的介面字串（不含行程內容本身）。
+ * 定義在此而非 DaySection.astro，讓純 TS 的 i18n 模組也能引用同一份型別。
+ */
+export interface DayLabels {
+  dayWord: string;
+  timeline: string;
+  activities: string;
+  costs: string;
+  tips: string;
+  links: string;
+  photos: string;
+  passBadge: string;
+  /** 「沿途」小標 */
+  stopsHeading: string;
+  /** 實用資訊 dossier 標題（如「行程手記」） */
+  dossier: string;
+  /** 景點類型標籤 */
+  kindLabels: Partial<Record<NonNullable<TripStop['kind']>, string>>;
+}

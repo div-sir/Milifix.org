@@ -4,7 +4,8 @@ import SiteNav from '../SiteNav.astro';
 import AmbientBackdrop from '../AmbientBackdrop.astro';
 import PageTransition from '../PageTransition.astro';
 import DaySection from '../trips/DaySection.astro';
-import type { DayLabels } from '../trips/DaySection.astro';
+import type { DayLabels } from '../../data/trips/types';
+import { TRIP_REPORT_LABELS } from '../../i18n/trip-report';
 import type { Lang } from '../../i18n/types';
 import { reportsPath } from '../../i18n/routes';
 import type { TripReport, TripStop } from '../../data/trips/types';
@@ -19,124 +20,8 @@ interface Props {
   trip: TripReport;
 }
 
-interface TripLabels extends DayLabels {
-  reportTag: string;
-  essentials: string;
-  back: string;
-  statDays: string;
-  statStops: string;
-  statCost: string;
-  dayNavAria: string;
-  mapTitle: string;
-  tileNote: string;
-  lightboxClose: string;
-  lightboxPrev: string;
-  lightboxNext: string;
-}
-
-const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
-  airport: '機場',
-  station: '車站',
-  sight: '名勝',
-  shrine: '神社',
-  castle: '城郭',
-  garden: '庭園',
-  viewpoint: '展望',
-  facility: '設施',
-  area: '地區',
-};
-const KIND_LABELS_EN: DayLabels['kindLabels'] = {
-  airport: 'Airport',
-  station: 'Station',
-  sight: 'Landmark',
-  shrine: 'Shrine',
-  castle: 'Castle',
-  garden: 'Garden',
-  viewpoint: 'Viewpoint',
-  facility: 'Facility',
-  area: 'Area',
-};
-
-const LABELS: Record<Lang, TripLabels> = {
-  zh: {
-    reportTag: '旅行報告書',
-    essentials: '核心票券與工具',
-    back: '← 返回報告書列表',
-    statDays: '天數',
-    statStops: '停靠點',
-    statCost: '費用合計',
-    dayNavAria: '每日行程導覽',
-    mapTitle: '行程地圖',
-    tileNote: '地圖圖磚載入受阻（正式環境正常）',
-    lightboxClose: '關閉',
-    lightboxPrev: '上一張',
-    lightboxNext: '下一張',
-    dayWord: 'Day',
-    timeline: '時間節點',
-    activities: '行程',
-    costs: '費用紀錄',
-    tips: '容易忽略的',
-    links: '實用連結',
-    photos: '影像',
-    passBadge: 'PASS',
-    stopsHeading: '沿途景點',
-    dossier: '行程手記',
-    kindLabels: KIND_LABELS_ZH,
-  },
-  en: {
-    reportTag: 'Trip Report',
-    essentials: 'Essential Passes & Tools',
-    back: '← Back to all reports',
-    statDays: 'Days',
-    statStops: 'Stops',
-    statCost: 'Total cost',
-    dayNavAria: 'Daily itinerary navigation',
-    mapTitle: 'Itinerary map',
-    tileNote: 'Map tiles blocked here (fine in production)',
-    lightboxClose: 'Close',
-    lightboxPrev: 'Previous',
-    lightboxNext: 'Next',
-    dayWord: 'Day',
-    timeline: 'Timeline',
-    activities: 'What to do',
-    costs: 'Costs',
-    tips: 'Easy to miss',
-    links: 'Useful links',
-    photos: 'Photos',
-    passBadge: 'PASS',
-    stopsHeading: 'Along the way',
-    dossier: 'Field notes',
-    kindLabels: KIND_LABELS_EN,
-  },
-  ja: {
-    reportTag: 'Trip Report',
-    essentials: 'Essential Passes & Tools',
-    back: '← Back to all reports',
-    statDays: 'Days',
-    statStops: 'Stops',
-    statCost: 'Total cost',
-    dayNavAria: 'Daily itinerary navigation',
-    mapTitle: 'Itinerary map',
-    tileNote: 'Map tiles blocked here (fine in production)',
-    lightboxClose: 'Close',
-    lightboxPrev: 'Previous',
-    lightboxNext: 'Next',
-    dayWord: 'Day',
-    timeline: 'Timeline',
-    activities: 'What to do',
-    costs: 'Costs',
-    tips: 'Easy to miss',
-    links: 'Useful links',
-    photos: 'Photos',
-    passBadge: 'PASS',
-    stopsHeading: 'Along the way',
-    dossier: 'Field notes',
-    kindLabels: KIND_LABELS_EN,
-  },
-};
-
 const { lang, trip } = Astro.props;
-const t = LABELS[lang];
+const t = TRIP_REPORT_LABELS[lang];
 const dayLabels: DayLabels = t;
 
 // ── 統計 ──────────────────────────────────────────────
@@ -175,7 +60,7 @@ const mapData = {
   })),
 };
 
-const reportsIndexPath = reportsPath();
+const reportsIndexPath = reportsPath(lang);
 const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} — Milifix`;
 ---
 
@@ -184,7 +69,7 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
   title={metaTitle}
   description={trip.summary}
   canonicalPath={Astro.url.pathname}
-  hreflangAlternates={false}
+  hreflangAlternates={true}
 >
   <AmbientBackdrop />
   <PageTransition />
@@ -274,7 +159,7 @@ const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} 
       </div>
 
       <div class="trip-days">
-        {trip.days.map((day) => <DaySection day={day} labels={dayLabels} />)}
+        {trip.days.map((day) => <DaySection day={day} labels={dayLabels} lang={lang} />)}
       </div>
     </div>
 
