@@ -6,7 +6,7 @@ import {
   checkRateLimit,
   isValidCarrier,
   isValidHexColor,
-} from '../api/_pass-security.js';
+} from '../api/_request-security.js';
 
 // Minimal valid PNG: signature + IHDR chunk header with width=1, height=1.
 // decodeImage only inspects the first 24 bytes (signature + length + "IHDR" + w + h),

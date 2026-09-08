@@ -4,7 +4,7 @@
 // 外公開）。不要求 Google 登入——回報問題的門檻應該越低越好，rate limit
 // 是防濫用的第一道關卡（跟其他 konbini 端點一樣，公眾不直接接觸
 // Payload；Payload 對外維持唯讀）。
-import { checkOrigin, checkSharedRateLimit, getClientIp } from './_pass-security.js';
+import { checkOrigin, checkSharedRateLimit, getClientIp } from './_request-security.js';
 import { validateReport } from './_konbini-report-validate.js';
 import { sanitizeReviewImage } from './_konbini-image.js';
 import {

@@ -37,7 +37,8 @@ Astro build（Vercel）
   ├── /meridiel             Meridiel 飛行足跡互動地球儀（public/ 靜態 App）
   ├── /blog                 部落格列表
   ├── /blog/[slug]          部落格文章頁
-  ├── /travel               台灣信用卡旅遊權益（卡片／航空／貴賓室／網路／比較表）
+  ├── /reports              旅行報告書（行程資料寫在 src/data/trips/）
+  ├── /zh/travel            台灣信用卡旅遊權益（單一入口頁 + 各項目內頁）
   └── /konbini              超商必吃評價（列表／商品／新增；投稿走 serverless 代理）
           ↑ POST /api/konbini-*（Google 登入 + service API key 寫入 pending）
 ```
@@ -98,13 +99,36 @@ const page  = await getPage('home')        // 頁面文案
 
 文章 bucket 分類由 Payload `Posts` collection 的 `bucket` 欄位管理（後台選擇）。
 
+### 圖片
+
+圖片依「誰負責維護」分成兩條路，處理方式不同：
+
+| 來源 | 放哪 | 最佳化 |
+|---|---|---|
+| 作品集封面／圖集、文章封面、旅遊權益 logo、超商投稿照 | **CMS**（Payload + UploadThing） | 無，原生 `<img>` |
+| 旅行報告書照片、站內固定素材 | **`src/assets/`** | `astro:assets` `<Image>`，WebP + 多尺寸 `srcset` |
+
+**遠端（CMS）圖為什麼不走 `<Image>`：** `astro:assets` 在建置期會把遠端圖抓下來
+最佳化，任何一張抓不到（UploadThing 暫時故障、圖被刪、CMS 冷啟動逾時）就會讓
+**整個 build 失敗**。但本站資料層的設計是「CMS 連不到就回空陣列繼續 build」
+（見 `CMS_ALLOW_EMPTY`），兩者直接衝突——內容平台的短暫故障不該讓整站發不出去。
+因此遠端圖維持 `<img>`，並在各處標好 `width`／`height`／`loading`／`decoding`。
+
+`astro.config.mjs` 的 `image.remotePatterns` 已列入 `utfs.io` 與 `*.ufs.sh`，
+若日後決定接受這個取捨，可直接改用 `<Image>`。
+
+**本地圖：** 放 `src/assets/`（**不是** `public/`——`public/` 不會被處理）。
+旅行報告書照片的放置慣例見 [`src/assets/trips/README.md`](src/assets/trips/README.md)；
+路徑解析在 [`src/lib/trip-photos.ts`](src/lib/trip-photos.ts)，檔名打錯會直接讓 build
+失敗並列出實際存在的檔案。
+
 ---
 
 ## 頁面說明
 
 | 路由 | 說明 |
 |---|---|
-| `/` | 首頁，列出所有 Creator spaces（SOLILIUM、VOID LANE、BLOG、LUMIVEIL） |
+| `/` | 首頁，列出所有 Creator spaces（SOLILIUM、VOID LANE、BLOG、LUMIVEIL、MERIDIEL、TRAVEL、旅行報告書、KONBINI） |
 | `/solilium` | 攝影作品集首頁 |
 | `/solilium/[slug]` | 作品內頁，含 Lexical 富文字渲染 |
 | `/voidlane` | 實驗動態作品集首頁 |
@@ -113,19 +137,21 @@ const page  = await getPage('home')        // 頁面文案
 | `/blog/[slug]` | 文章頁，含側邊浮動目錄 |
 | `/lumiveil` | Lumiveil iOS App 介紹頁 |
 | `/meridiel` | Meridiel 飛行足跡互動地球儀（`public/meridiel/` 靜態 App）|
-| `/linktree` | 連結樹 |
-| `/invoice-pass` | Apple Wallet 發票卡片產生器 |
-| `/travel` | 台灣信用卡旅遊權益首頁（卡片／航空／貴賓室精選） |
-| `/travel/cards` · `/travel/cards/[slug]` | 信用卡列表與內頁（依權益分組、可點擊關聯標籤） |
-| `/travel/airlines` · `/travel/airlines/[slug]` | 航空公司列表與內頁（尾翼 logo、所屬聯盟、關聯卡片） |
-| `/travel/lounges` · `/travel/lounges/[slug]` | 貴賓室列表與內頁（航廈位置、可進入的卡片） |
-| `/travel/programs` · `/travel/programs/[slug]` | 貴賓室／飯店／航空聯盟網路內頁（彙整各分點與關聯卡片） |
-| `/travel/matrix` | 信用卡 × 航空／貴賓室權益比較表 |
+| `/linktree` | 連結樹（`noindex`，不列在首頁） |
+| `/reports` | 旅行報告書列表 |
+| `/reports/[slug]` | 報告書內頁；`presentation: 'immersive'` 時為全螢幕地圖 + HUD 版型 |
+| `/zh/travel` | 台灣信用卡旅遊權益入口頁（卡片／航空／貴賓室／網路皆在此頁瀏覽） |
+| `/zh/travel/cards/[slug]` | 信用卡內頁（依權益分組、可點擊關聯標籤） |
+| `/zh/travel/airlines/[slug]` | 航空公司內頁（尾翼 logo、所屬聯盟、關聯卡片） |
+| `/zh/travel/lounges/[slug]` | 貴賓室內頁（航廈位置、可進入的卡片） |
+| `/zh/travel/programs/[slug]` | 貴賓室／飯店／航空聯盟網路內頁（彙整各分點與關聯卡片） |
 | `/konbini` · `/zh/konbini` | 超商必吃評價列表（依連鎖店／分類瀏覽） |
 | `/konbini/[slug]` | 商品評價頁，含 Google 登入評分與照片上傳 |
 | `/konbini/new` | 投稿新商品（附第一則評價） |
 
-> `/travel` 與 `/konbini` 系列為 en / zh 雙語（不含 ja）。
+> `/konbini` 為 en / zh 雙語；`/zh/travel` 與 `/reports` 僅繁中（見 `availableLangsForPath`）。
+> `/zh/travel` 沒有 `cards`／`airlines`／`lounges` 各自的列表頁，也沒有 `matrix` 比較表——
+> 所有瀏覽與篩選都收在同一個入口頁內，只有各項目的 `[slug]` 內頁是獨立路由。
 
 ---
 
@@ -198,23 +224,6 @@ const page  = await getPage('home')        // 頁面文案
 
 ---
 
-## Apple Wallet 發票卡片（`/invoice-pass`）
-
-`/invoice-pass` 頁面提供前端表單，讓使用者產生並下載 `.pkpass` 檔案，由 `api/generate-pass.js`（Vercel serverless function）使用 [passkit-generator](https://github.com/alexandercerutti/passkit-generator) 簽署產出。
-
-**靜態資源：** `pass-assets/`（icon、logo、背景圖，見其內 README；此目錄已納入 git 版控）
-
-**環境變數（簽署憑證，僅伺服器端）：**
-
-| 變數 | 說明 |
-|---|---|
-| `PASS_CERT_BASE64` | Pass 簽署憑證（base64） |
-| `PASS_KEY_BASE64` | 簽署私鑰（base64） |
-| `APPLE_WWDR_BASE64` | Apple WWDR 中繼憑證（base64） |
-| `APPLE_TEAM_ID` | Apple Team ID（選填，預設見 `api/generate-pass.js`） |
-
----
-
 ## 目錄結構
 
 ```
@@ -223,22 +232,22 @@ src/
 │   ├── pages/          頁面級複合元件（SpaceIndexPage、WorkSlugPage、CardSlugPage…）
 │   ├── travel/         /travel 卡片元件（CreditCardCard、AirlineCard、LoungeCard…）
 │   └── react-bits/     React island（ShinyText、SpotlightCard）
-├── data/               空間定義、作品型別輔助函式
+├── assets/             需經 astro:assets 最佳化的本地圖片（見「圖片」一節）
+│   └── trips/          旅行報告書照片，依 trip slug 分資料夾
+├── data/               空間定義、作品型別輔助函式、旅行報告書行程資料
 ├── i18n/               多語文案、路由 helpers
 ├── lib/
-│   └── cms.ts          Payload REST API 資料層
-├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil、invoice-pass、travel/）
+│   ├── cms.ts          Payload REST API 資料層
+│   └── trip-photos.ts  行程照片路徑 → 最佳化後 ImageMetadata 的解析
+├── pages/              Astro 路由（含 zh/、ja/、blog/、lumiveil、reports/、travel/）
 ├── scripts/            client 動效、目錄、游標、語言轉場
 └── styles/             全域與區塊 CSS
 
 api/
-├── generate-pass.js         Apple Wallet pkpass 產生（Vercel serverless function）
 ├── konbini-submit.js        超商評價投稿（Google 登入 + service API key）
 ├── konbini-propose-product.js  投稿新商品＋第一則評價
 ├── konbini-report.js        問題回報（寫入後台收件匣）
-└── _konbini-*.js / _pass-security.js  共用模組（底線前綴，Vercel builder 略過）
-
-pass-assets/            Wallet pass 靜態圖片資源（已納入 git 版控）
+└── _konbini-*.js / _request-security.js  共用模組（底線前綴，Vercel builder 略過）
 ```
 
 ---

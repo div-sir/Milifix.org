@@ -1,29 +1,46 @@
 ---
+import { Image } from 'astro:assets';
 import type { PhotoSlot } from '../../data/trips/types';
+import { resolveTripPhoto, tripPhotoAlt } from '../../lib/trip-photos';
 
 interface Props {
   photo: PhotoSlot;
 }
 
 const { photo } = Astro.props;
-const hasSrc = typeof photo.src === 'string' && photo.src.length > 0;
+const resolved = resolveTripPhoto(photo.src);
+const alt = tripPhotoAlt(photo);
+// 燈箱由 client 腳本讀 data-lightbox-src，需要字串網址；本地圖用最佳化後的 src。
+const lightboxSrc = resolved.kind === 'local' ? resolved.image.src : resolved.kind === 'raw' ? resolved.src : '';
 ---
 
 {
-  hasSrc ? (
+  resolved.kind !== 'empty' ? (
     <figure class="trip-photo" data-onscroll-reveal>
       <button
         type="button"
         class="trip-photo__trigger"
-        data-lightbox-src={photo.src}
-        data-lightbox-alt={photo.alt ?? photo.caption ?? ''}
+        data-lightbox-src={lightboxSrc}
+        data-lightbox-alt={alt}
         data-lightbox-caption={photo.caption ?? ''}
-        aria-label={photo.caption ?? photo.alt ?? '放大檢視'}
+        aria-label={photo.caption ?? alt ?? '放大檢視'}
       >
-        {/* 實際照片尺寸未知（外部圖檔，build 時無 CMS 圖片管線）；
-           父層 .trip-photo 已用 CSS aspect-ratio: 3/2 佔位防止 CLS，
-           此處 width/height 屬性依同比例給瀏覽器預留空間的提示 */}
-        <img src={photo.src} alt={photo.alt ?? photo.caption ?? ''} width="600" height="400" loading="lazy" decoding="async" />
+        {resolved.kind === 'local' ? (
+          // 本地圖：astro:assets 由原圖推導尺寸並產生 WebP／responsive srcset。
+          // widths 對應版面實際用到的寬度（條目縮圖 ~600、影像帶 ~900、燈箱前的高解析 1200）。
+          <Image
+            src={resolved.image}
+            alt={alt}
+            widths={[400, 600, 900, 1200]}
+            sizes="(max-width: 640px) 90vw, (max-width: 1100px) 45vw, 600px"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          // 外部網址：建置期無法取得原圖尺寸，父層 .trip-photo 已用 CSS
+          // aspect-ratio: 3/2 佔位防 CLS，這裡的 width/height 是同比例提示。
+          <img src={resolved.src} alt={alt} width="600" height="400" loading="lazy" decoding="async" />
+        )}
         {photo.caption && (
           <span class="trip-photo__overlay">
             <span class="trip-photo__overlay-caption">{photo.caption}</span>
