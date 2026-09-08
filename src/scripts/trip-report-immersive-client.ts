@@ -194,10 +194,36 @@ function loadStrings(): void {
   S.listSep = d.imListSep || S.listSep;
 }
 
+// ── 詳細行程資料：逐日內容預設收合 ────────────────────────
+// 內容仍在 HTML 裡（可被搜尋引擎索引、find-in-page 亦能展開），
+// 只是不再一次攤開七天的長度。
+function initDayFolds(): void {
+  const btn = document.getElementById('immersive-days-toggle') as HTMLButtonElement | null;
+  const folds = Array.from(document.querySelectorAll<HTMLDetailsElement>('.trip-day-fold'));
+  if (!btn || folds.length === 0) return;
+
+  const sync = (): void => {
+    const allOpen = folds.every((f) => f.open);
+    btn.dataset.state = allOpen ? 'expanded' : 'collapsed';
+    btn.textContent = (allOpen ? btn.dataset.collapse : btn.dataset.expand) || '';
+  };
+
+  btn.addEventListener('click', () => {
+    const expand = btn.dataset.state !== 'expanded';
+    folds.forEach((f) => {
+      f.open = expand;
+    });
+    sync();
+  });
+  folds.forEach((f) => f.addEventListener('toggle', sync));
+  sync();
+}
+
 export function initTripReportImmersiveClient(): void {
   const dataEl = document.getElementById('immersive-map-data');
   const mapEl = document.getElementById('immersive-map');
   loadStrings();
+  initDayFolds();
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const loader = initLoader(reduce);
   if (!dataEl || !mapEl) {

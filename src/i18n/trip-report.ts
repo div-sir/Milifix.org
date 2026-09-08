@@ -48,6 +48,9 @@ export interface ImmersiveLabels {
   passExtra: string;
   /** 核心票券錨點的標籤（比頁面標題短） */
   essentialsTag: string;
+  /** 逐日詳細資料預設收合，這是展開／收合全部的控制項文字 */
+  expandAll: string;
+  collapseAll: string;
 }
 
 const KIND_ZH: DayLabels['kindLabels'] = {
@@ -194,6 +197,8 @@ export const IMMERSIVE_LABELS: Record<Lang, ImmersiveLabels> = {
     routeDepart: '接下來的路徑',
     passExtra: '另付費',
     essentialsTag: '核心票券',
+    expandAll: '全部展開',
+    collapseAll: '全部收合',
   },
   en: {
     detailLabel: 'Full itinerary',
@@ -220,6 +225,8 @@ export const IMMERSIVE_LABELS: Record<Lang, ImmersiveLabels> = {
     routeDepart: 'Next leg',
     passExtra: 'Not covered',
     essentialsTag: 'Key passes',
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
   },
   ja: {
     detailLabel: '詳細行程データ',
@@ -246,6 +253,8 @@ export const IMMERSIVE_LABELS: Record<Lang, ImmersiveLabels> = {
     routeDepart: '次のルート',
     passExtra: '別料金',
     essentialsTag: '主なパス',
+    expandAll: 'すべて開く',
+    collapseAll: 'すべて閉じる',
   },
 };
 
