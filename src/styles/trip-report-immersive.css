@@ -828,6 +828,84 @@ html[data-theme='light'] .immersive-main {
   background: color-mix(in srgb, var(--accent) 16%, var(--dock-pill-bg));
 }
 
+/* ── 詳細行程資料：逐日內容預設收合 ─────────────────────── */
+.trip-days__controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.9rem;
+}
+.trip-days__controls button {
+  padding: 0.42rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.trip-days__controls button:hover,
+.trip-days__controls button:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.trip-day-fold {
+  border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+.trip-day-fold:last-of-type {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+.trip-day-fold__summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.95rem 0.2rem;
+  cursor: pointer;
+  list-style: none;
+}
+.trip-day-fold__summary::-webkit-details-marker {
+  display: none;
+}
+.trip-day-fold__summary::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 1.05rem;
+  opacity: 0.55;
+}
+.trip-day-fold[open] > .trip-day-fold__summary::after {
+  content: '\2212';
+}
+.trip-day-fold__summary:hover,
+.trip-day-fold__summary:focus-visible {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+.trip-day-fold__day {
+  flex: none;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.trip-day-fold__title {
+  font-size: 0.98rem;
+}
+.trip-day-fold__meta {
+  flex: none;
+  font-size: 0.74rem;
+  opacity: 0.62;
+}
+@media (max-width: 640px) {
+  .trip-day-fold__summary {
+    flex-wrap: wrap;
+    gap: 0.3rem 0.6rem;
+  }
+  .trip-day-fold__meta {
+    width: 100%;
+  }
+}
+
 .immersive-dock__langs {
   display: inline-flex;
   align-items: center;

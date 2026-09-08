@@ -767,7 +767,21 @@ const mapData = {
       }
 
       <div class="trip-days">
-        {trip.days.map((day) => <DaySection day={day} labels={labels} lang={lang} />)}
+        <div class="trip-days__controls">
+          <button type="button" id="immersive-days-toggle" data-state="collapsed" data-expand={im.expandAll} data-collapse={im.collapseAll}>
+            {im.expandAll}
+          </button>
+        </div>
+        {trip.days.map((day) => (
+          <details class="trip-day-fold">
+            <summary class="trip-day-fold__summary">
+              <span class="trip-day-fold__day">{`${t.dayWord} ${day.day}`}</span>
+              <span class="trip-day-fold__title">{day.title}</span>
+              <span class="trip-day-fold__meta">{`${day.stops.length} ${im.boardStops}`}</span>
+            </summary>
+            <DaySection day={day} labels={labels} lang={lang} />
+          </details>
+        ))}
       </div>
     </section>
   </main>

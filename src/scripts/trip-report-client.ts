@@ -1,4 +1,4 @@
-import type maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -51,8 +51,29 @@ function currentTheme(): 'dark' | 'light' {
 }
 
 function readVar(name: string, fallback: string): string {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || fallback;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return resolveColor(raw) || fallback;
+}
+
+/**
+ * 把 CSS 色彩運算式解析成具體色值。
+ *
+ * 自訂屬性（--foo）不會被計算成解析後的顏色，getPropertyValue 拿到的是字面值，
+ * 例如 `color-mix(in srgb, #e9ebef 32%, transparent)`。maplibre-gl 6 起會拒收
+ * 這種值並在樣式驗證時報錯（5 則會吞下去），導致圖層加不進去。
+ * 這裡用一個離屏探針讓瀏覽器先算成 rgb()／rgba() 再交給地圖。
+ */
+function resolveColor(raw: string): string {
+  if (!raw) return '';
+  const probe = document.createElement('span');
+  probe.style.color = raw;
+  // 瀏覽器會直接拒絕無效值，此時維持空字串，交由呼叫端用 fallback。
+  if (!probe.style.color) return '';
+  probe.style.cssText += ';position:absolute;width:0;height:0;visibility:hidden';
+  document.documentElement.appendChild(probe);
+  const resolved = getComputedStyle(probe).color;
+  probe.remove();
+  return resolved;
 }
 
 function zoomForKind(kind?: string): number {
@@ -115,7 +136,8 @@ export function initTripReportClient(): void {
 }
 
 async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean): Promise<void> {
-  const [{ default: maplibregl }] = await Promise.all([
+  // maplibre-gl 6 起改為具名匯出，沒有 default export。
+  const [maplibregl] = await Promise.all([
     import('maplibre-gl'),
     import('maplibre-gl/dist/maplibre-gl.css'),
   ]);
