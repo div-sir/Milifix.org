@@ -50,7 +50,7 @@ const homepageEntries = [
   { name: 'LUMIVEIL', tagline: P.lumiveilTagline, href: lang === 'en' ? '/lumiveil' : `/${lang}/lumiveil`, workCount: 0, countUnit: P.projectCountUnit },
   { name: 'MERIDIEL', tagline: P.meridielTagline, href: '/meridiel/', workCount: 0, countUnit: P.projectCountUnit },
   { name: 'TRAVEL', tagline: P.travelTagline, href: travelPath('zh'), workCount: 0, countUnit: P.projectCountUnit },
-  { name: P.reportsName, tagline: P.reportsTagline, href: reportsPath(), workCount: tripReports.length, countUnit: P.reportsCountUnit },
+  { name: P.reportsName, tagline: P.reportsTagline, href: reportsPath(lang), workCount: tripReports.length, countUnit: P.reportsCountUnit },
   { name: 'KONBINI', tagline: P.konbiniTagline, href: konbiniPath(projectLang), workCount: 0, countUnit: P.projectCountUnit },
 ].map((entry, i) => ({
   ...entry,

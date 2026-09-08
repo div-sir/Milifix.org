@@ -157,9 +157,47 @@ function initLoader(reduce: boolean): LoaderController {
   };
 }
 
+// ── 介面字串 ──────────────────────────────────────────────
+// 由伺服器端依語系寫進 <main> 的 data 屬性，腳本本身不綁任何語系；
+// 預設值為英文，讓屬性缺漏時仍有可讀的輸出。
+const S = {
+  focusOn: 'Enter focus mode',
+  focusOff: 'Exit focus mode',
+  focusOnStatus: 'Focus mode on',
+  focusOffStatus: 'Focus mode off',
+  share: 'Copy link to this scene',
+  shareOk: 'Scene link copied',
+  shareFail: 'Copy failed — please copy the URL manually',
+  resumeDone: 'Returned to your last scene',
+  restartDone: 'Started from the overview',
+  routeArrive: 'Arrival leg',
+  routeDepart: 'Next leg',
+  passExtra: 'Not covered',
+  listSep: ', ',
+};
+
+function loadStrings(): void {
+  const d = (document.getElementById('main-content') as HTMLElement | null)?.dataset;
+  if (!d) return;
+  S.focusOn = d.imFocusOn || S.focusOn;
+  S.focusOff = d.imFocusOff || S.focusOff;
+  S.focusOnStatus = d.imFocusOnStatus || S.focusOnStatus;
+  S.focusOffStatus = d.imFocusOffStatus || S.focusOffStatus;
+  S.share = d.imShare || S.share;
+  S.shareOk = d.imShareOk || S.shareOk;
+  S.shareFail = d.imShareFail || S.shareFail;
+  S.resumeDone = d.imResumeDone || S.resumeDone;
+  S.restartDone = d.imRestartDone || S.restartDone;
+  S.routeArrive = d.imRouteArrive || S.routeArrive;
+  S.routeDepart = d.imRouteDepart || S.routeDepart;
+  S.passExtra = d.imPassExtra || S.passExtra;
+  S.listSep = d.imListSep || S.listSep;
+}
+
 export function initTripReportImmersiveClient(): void {
   const dataEl = document.getElementById('immersive-map-data');
   const mapEl = document.getElementById('immersive-map');
+  loadStrings();
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const loader = initLoader(reduce);
   if (!dataEl || !mapEl) {
@@ -595,7 +633,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (passEl) {
       const covered = pass === '1';
       const known = pass === '1' || pass === '0';
-      passEl.textContent = covered ? 'PASS' : '另付費';
+      passEl.textContent = covered ? 'PASS' : S.passExtra;
       passEl.dataset.covered = covered ? '1' : '0';
       passEl.hidden = !known;
     }
@@ -654,7 +692,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
         note?: string;
       }>(d.route);
       if (route) {
-        routeDirEl.textContent = route.direction === 'depart' ? '接下來的路徑' : '抵達路徑';
+        routeDirEl.textContent = route.direction === 'depart' ? S.routeDepart : S.routeArrive;
         routeNameEl.textContent = `${route.icon ?? ''} ${route.label ?? ''}`.trim();
         setRow(routeViaRowEl, routeViaEl, route.via?.length ? route.via.join(' › ') : '');
         setRow(routeSeatRowEl, routeSeatEl, route.seat);
@@ -838,12 +876,12 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const setFocusMode = (enabled: boolean, announce = false): void => {
     mapColEl?.classList.toggle('is-focus-mode', enabled);
     focusToggleEl?.setAttribute('aria-pressed', String(enabled));
-    const label = enabled ? '關閉專注閱讀模式' : '開啟專注閱讀模式';
+    const label = enabled ? S.focusOff : S.focusOn;
     focusToggleEl?.setAttribute('aria-label', label);
     focusToggleEl?.setAttribute('title', label);
     writeStorage(focusStorageKey, enabled ? '1' : '0');
     if (announce) {
-      const message = enabled ? '專注閱讀模式已開啟' : '專注閱讀模式已關閉';
+      const message = enabled ? S.focusOnStatus : S.focusOffStatus;
       showActionStatus(message);
       if (liveEl) liveEl.textContent = message;
     }
@@ -870,7 +908,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       copied = document.execCommand('copy');
       field.remove();
     }
-    const message = copied ? '已複製目前場景連結' : '無法複製，請手動複製網址';
+    const message = copied ? S.shareOk : S.shareFail;
     showActionStatus(message);
     if (liveEl) liveEl.textContent = message;
     if (copied) {
@@ -878,7 +916,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       shareSceneEl.setAttribute('aria-label', message);
       window.setTimeout(() => {
         delete shareSceneEl.dataset.state;
-        shareSceneEl.setAttribute('aria-label', '複製目前場景連結');
+        shareSceneEl.setAttribute('aria-label', S.share);
       }, 1800);
     }
   });
@@ -983,7 +1021,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
 
     if (liveEl) {
-      liveEl.textContent = [d.tag, d.title, d.transportLabel, d.departLabel].filter(Boolean).join('，');
+      liveEl.textContent = [d.tag, d.title, d.transportLabel, d.departLabel].filter(Boolean).join(S.listSep);
     }
     if (d.anchorId) writeStorage(progressStorageKey, d.anchorId);
     if (d.anchorId && location.hash !== `#${encodeURIComponent(d.anchorId)}`) {
@@ -1016,13 +1054,13 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       storedAnchor.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
       resumeEl.classList.remove('is-visible');
       window.setTimeout(() => (resumeEl.hidden = true), reduce ? 0 : 260);
-      showActionStatus('已回到上次閱讀的場景');
+      showActionStatus(S.resumeDone);
     });
     resumeDismissEl?.addEventListener('click', () => {
       removeStorage(progressStorageKey);
       resumeEl.classList.remove('is-visible');
       window.setTimeout(() => (resumeEl.hidden = true), reduce ? 0 : 260);
-      showActionStatus('已從行程總覽開始');
+      showActionStatus(S.restartDone);
     });
   }
 

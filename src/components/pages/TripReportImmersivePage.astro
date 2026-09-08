@@ -2,9 +2,10 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageTransition from '../PageTransition.astro';
 import DaySection from '../trips/DaySection.astro';
-import type { DayLabels } from '../trips/DaySection.astro';
+import type { DayLabels } from '../../data/trips/types';
+import { TRIP_REPORT_LABELS, IMMERSIVE_LABELS, formatDuration } from '../../i18n/trip-report';
 import type { Lang } from '../../i18n/types';
-import { reportsPath, homePath } from '../../i18n/routes';
+import { reportsPath, homePath, availableLangsForPath, equivalentUrl } from '../../i18n/routes';
 import { ui } from '../../i18n/ui';
 import type { TripReport, TripDay, TripStop, TransportSegment, LinkEntry } from '../../data/trips/types';
 import { tripPhotoUrl } from '../../lib/trip-photos';
@@ -24,18 +25,6 @@ interface Props {
 const { lang, trip } = Astro.props;
 const N = ui(lang).nav;
 
-const KIND_LABELS_ZH: DayLabels['kindLabels'] = {
-  airport: '機場',
-  station: '車站',
-  sight: '名勝',
-  shrine: '神社',
-  castle: '城郭',
-  garden: '庭園',
-  viewpoint: '展望',
-  facility: '設施',
-  area: '地區',
-};
-
 // 沿用 DaySection 的交通方式圖示對照，讓 HUD 上的移動方式與詳細行程資料一致。
 const MODE_ICON: Record<TransportSegment['mode'], string> = {
   flight: '✈️',
@@ -49,21 +38,17 @@ const MODE_ICON: Record<TransportSegment['mode'], string> = {
   walk: '🚶',
 };
 
-const labels: DayLabels = {
-  dayWord: 'Day',
-  timeline: '時間節點',
-  activities: '行程',
-  costs: '費用紀錄',
-  tips: '容易忽略的',
-  links: '實用連結',
-  photos: '影像',
-  passBadge: 'PASS',
-  stopsHeading: '沿途景點',
-  dossier: '行程手記',
-  kindLabels: KIND_LABELS_ZH,
-};
+const t = TRIP_REPORT_LABELS[lang];
+const im = IMMERSIVE_LABELS[lang];
+const labels: DayLabels = t;
 
-const reportsIndexPath = reportsPath();
+const reportsIndexPath = reportsPath(lang);
+
+// 沈浸式版型以底部氣泡導覽取代 SiteNav，語言切換沿用同一組路由輔助函式。
+const dockLangs = availableLangsForPath(Astro.url.pathname);
+const dockLangUrls = Object.fromEntries(
+  dockLangs.map((l) => [l, equivalentUrl(l, Astro.url.pathname)])
+) as Record<string, string>;
 const metaTitle = `${trip.title}${trip.subtitle ? ` — ${trip.subtitle}` : ''} — Milifix`;
 
 // ── 沈浸式錨點：由完整行程資料生成，鏡頭捲到哪就飛到哪 ──────
@@ -134,13 +119,7 @@ interface DayBoard {
 }
 
 /** 與 DaySection 相同的時間格式，讓 HUD 與詳細行程讀起來一致。 */
-const fmtDur = (min?: number): string => {
-  if (!min || min <= 0) return '';
-  if (min < 60) return `約 ${min} 分`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m ? `約 ${h} 小時 ${m} 分` : `約 ${h} 小時`;
-};
+const fmtDur = (min?: number): string => formatDuration(lang, min);
 
 /**
  * 逐站配對「抵達本站」與「本站出發」的交通段。
@@ -261,7 +240,7 @@ trip.essentials.forEach((e, i) => {
     pitch: 8,
     bearing: i % 2 === 0 ? 8 : -8,
     pos: nextPos(),
-    tag: '核心票券',
+    tag: im.essentialsTag,
     title: e.title,
     desc: e.desc ?? '',
     links: e.links,
@@ -273,7 +252,7 @@ for (const day of trip.days) {
   const dayNum = String(day.day).padStart(2, '0');
   const avgLng = day.stops.reduce((s, p) => s + p.coords.lng, 0) / (day.stops.length || 1);
   const avgLat = day.stops.reduce((s, p) => s + p.coords.lat, 0) / (day.stops.length || 1);
-  const dayDesc = day.activities.slice(0, 2).join('；');
+  const dayDesc = day.activities.slice(0, 2).join(t.listSep);
   const tipNote = day.tips && day.tips.length > 0 ? day.tips[0] : undefined;
 
   // 當日概況：全部由既有資料彙總（停靠點數、segments 時間合計、timeline 首末時刻、costs 金額合計）。
@@ -361,7 +340,7 @@ for (const day of trip.days) {
       departPass: departingSeg?.passCovered,
       // 明細以「怎麼到這裡」為主；當日首站沒有抵達段時，退而說明本站出發的那段。
       route: routeDetailOf(arrivingSeg, 'arrive') ?? routeDetailOf(departingSeg, 'depart'),
-      kindLabel: stop.kind ? KIND_LABELS_ZH[stop.kind] : undefined,
+      kindLabel: stop.kind ? t.kindLabels[stop.kind] : undefined,
       stopId: stop.id,
       arrivalSegIdx: arrivingIdx,
     });
@@ -380,9 +359,9 @@ let totalCost = 0;
 for (const d of trip.days) for (const c of d.costs ?? []) if (typeof c.amountJpy === 'number') totalCost += c.amountJpy;
 
 const stats = [
-  { value: trip.durationDays, unit: '', label: '天數' },
-  { value: allStops.length, unit: '', label: '停靠點' },
-  { value: totalCost, unit: '¥', label: '已列額外費用', prefix: true },
+  { value: trip.durationDays, unit: '', label: t.statDays },
+  { value: allStops.length, unit: '', label: t.statStops },
+  { value: totalCost, unit: '¥', label: t.statCostLogged, prefix: true },
 ];
 
 const mapData = {
@@ -408,7 +387,7 @@ const mapData = {
   title={metaTitle}
   description={trip.summary}
   canonicalPath={Astro.url.pathname}
-  hreflangAlternates={false}
+  hreflangAlternates={true}
   htmlDataTheme="dark"
 >
   <PageTransition />
@@ -433,13 +412,26 @@ const mapData = {
     id="main-content"
     class="immersive-main"
     tabindex="-1"
-    data-lightbox-close="關閉"
-    data-lightbox-prev="上一張"
-    data-lightbox-next="下一張"
+    data-lightbox-close={t.lightboxClose}
+    data-lightbox-prev={t.lightboxPrev}
+    data-lightbox-next={t.lightboxNext}
+    data-im-focus-on={im.focusOn}
+    data-im-focus-off={im.focusOff}
+    data-im-focus-on-status={im.focusOnStatus}
+    data-im-focus-off-status={im.focusOffStatus}
+    data-im-share={im.shareScene}
+    data-im-share-ok={im.shareOk}
+    data-im-share-fail={im.shareFail}
+    data-im-resume-done={im.resumeDone}
+    data-im-restart-done={im.restartDone}
+    data-im-route-arrive={im.routeArrive}
+    data-im-route-depart={im.routeDepart}
+    data-im-pass-extra={im.passExtra}
+    data-im-list-sep={t.listSep}
   >
     <h1 class="sr-only">{trip.title}</h1>
     <p id="immersive-live" class="sr-only" aria-live="polite" aria-atomic="true"></p>
-    <a class="immersive-back" href={reportsIndexPath}>← 返回報告書列表</a>
+    <a class="immersive-back" href={reportsIndexPath}>{t.back}</a>
 
     <!-- ── 沈浸式階段：全螢幕地圖 + 浮動 HUD，捲動即飛鏡頭 ── -->
     <div class="immersive-stage">
@@ -512,15 +504,15 @@ const mapData = {
         </div>
 
         <!-- 手機沒有右側 Day 導覽與左側刻度尺，改用可直接前後切換的情境控制列。 -->
-        <nav class="immersive-mobile-route" aria-label="行程停靠點導覽">
-          <button type="button" id="immersive-route-prev" aria-label="上一個行程場景" aria-keyshortcuts="ArrowLeft">
+        <nav class="immersive-mobile-route" aria-label={im.routeNavAria}>
+          <button type="button" id="immersive-route-prev" aria-label={im.routePrev} aria-keyshortcuts="ArrowLeft">
             <span aria-hidden="true">←</span>
           </button>
           <div class="immersive-mobile-route__status" aria-hidden="true">
             <span id="immersive-route-index">01 / {String(anchors.length).padStart(2, '0')}</span>
             <strong id="immersive-route-title">{trip.title}</strong>
           </div>
-          <button type="button" id="immersive-route-next" aria-label="下一個行程場景" aria-keyshortcuts="ArrowRight">
+          <button type="button" id="immersive-route-next" aria-label={im.routeNext} aria-keyshortcuts="ArrowRight">
             <span aria-hidden="true">→</span>
           </button>
         </nav>
@@ -528,12 +520,12 @@ const mapData = {
         <aside id="immersive-resume" class="immersive-resume" hidden aria-labelledby="immersive-resume-title">
           <div>
             <span>CONTINUE ROUTE</span>
-            <strong id="immersive-resume-title">繼續上次的閱讀進度？</strong>
+            <strong id="immersive-resume-title">{im.resumeTitle}</strong>
             <p id="immersive-resume-scene"></p>
           </div>
           <div class="immersive-resume__actions">
-            <button type="button" id="immersive-resume-continue">繼續閱讀</button>
-            <button type="button" id="immersive-resume-dismiss">從頭開始</button>
+            <button type="button" id="immersive-resume-continue">{im.resumeContinue}</button>
+            <button type="button" id="immersive-resume-dismiss">{im.resumeDismiss}</button>
           </div>
         </aside>
 
@@ -606,19 +598,19 @@ const mapData = {
             <p class="immersive-hud__dayboard-label">DAY BRIEF</p>
             <dl>
               <div>
-                <dt>停靠點</dt>
+                <dt>{im.boardStops}</dt>
                 <dd id="immersive-hud-day-stops"></dd>
               </div>
               <div id="immersive-hud-day-move-row" hidden>
-                <dt>移動時間</dt>
+                <dt>{im.boardMoving}</dt>
                 <dd id="immersive-hud-day-move"></dd>
               </div>
               <div id="immersive-hud-day-window-row" hidden>
-                <dt>時間窗</dt>
+                <dt>{im.boardWindow}</dt>
                 <dd id="immersive-hud-day-window"></dd>
               </div>
               <div id="immersive-hud-day-cost-row" hidden>
-                <dt>已列費用</dt>
+                <dt>{im.boardCost}</dt>
                 <dd id="immersive-hud-day-cost"></dd>
               </div>
             </dl>
@@ -695,7 +687,7 @@ const mapData = {
     <!-- ── Day 導覽（跳到對應日的段落）── -->
     {
       trip.days.length > 1 && (
-        <nav class="trip-daynav" aria-label="每日行程導覽">
+        <nav class="trip-daynav" aria-label={t.dayNavAria}>
           {trip.days.map((day) => (
             <button
               type="button"
@@ -711,7 +703,7 @@ const mapData = {
 
     <!-- ── 詳細行程資料：延續沈浸式的深色主題，逐日完整內容 ── -->
     <section class="immersive-detail">
-      <p class="immersive-detail__label">詳細行程資料</p>
+      <p class="immersive-detail__label">{im.detailLabel}</p>
       {
         trip.review && (
           <aside class="trip-review" aria-labelledby="trip-review-title">
@@ -745,7 +737,7 @@ const mapData = {
       {
         trip.essentials.length > 0 && (
           <div class="trip-essentials-wrap">
-            <h2 class="trip-section-label">核心票券與工具</h2>
+            <h2 class="trip-section-label">{t.essentials}</h2>
             <div class="trip-essentials__grid">
               {trip.essentials.map((e) => (
                 <article class="trip-essential">
@@ -775,7 +767,7 @@ const mapData = {
       }
 
       <div class="trip-days">
-        {trip.days.map((day) => <DaySection day={day} labels={labels} />)}
+        {trip.days.map((day) => <DaySection day={day} labels={labels} lang={lang} />)}
       </div>
     </section>
   </main>
@@ -813,8 +805,8 @@ const mapData = {
             type="button"
             class="dock-pill-nav__pill dock-pill-nav__pill--icon"
             id="immersive-focus-toggle"
-            aria-label="開啟專注閱讀模式"
-            title="開啟專注閱讀模式"
+            aria-label={im.focusOn}
+            title={im.focusOn}
             aria-pressed="false"
           >
             <span class="dock-pill-nav__home-icon" aria-hidden="true">
@@ -831,8 +823,8 @@ const mapData = {
             type="button"
             class="dock-pill-nav__pill dock-pill-nav__pill--icon"
             id="immersive-share-scene"
-            aria-label="複製目前場景連結"
-            title="複製目前場景連結"
+            aria-label={im.shareScene}
+            title={im.shareScene}
           >
             <span class="dock-pill-nav__home-icon" aria-hidden="true">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -845,6 +837,23 @@ const mapData = {
         <li class="dock-pill-nav__sep-cell" aria-hidden="true"><span class="dock-pill-nav__vsep" /></li>
 
         <li class="dock-pill-nav__cell">
+          {
+            dockLangs.length > 1 && (
+              <div class="immersive-dock__langs" role="group" aria-label={N.langSwitcher}>
+                {dockLangs.map((l) => (
+                  <a
+                    href={dockLangUrls[l]}
+                    class:list={['immersive-dock__lang', l === lang && 'is-active']}
+                    hreflang={l === 'zh' ? 'zh-Hant' : l}
+                    aria-current={l === lang ? 'page' : undefined}
+                    translate="no"
+                  >
+                    {N.langShort[l]}
+                  </a>
+                ))}
+              </div>
+            )
+          }
           <button
             type="button"
             class="dock-pill-nav__pill dock-pill-nav__pill--icon"

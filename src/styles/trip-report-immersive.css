@@ -828,6 +828,36 @@ html[data-theme='light'] .immersive-main {
   background: color-mix(in srgb, var(--accent) 16%, var(--dock-pill-bg));
 }
 
+.immersive-dock__langs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+.immersive-dock__lang {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  padding: 0.34rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-decoration: none;
+  color: inherit;
+  opacity: 0.62;
+}
+.immersive-dock__lang:hover,
+.immersive-dock__lang:focus-visible {
+  opacity: 1;
+}
+.immersive-dock__lang.is-active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--dock-pill-bg));
+  opacity: 1;
+}
+
 .immersive-action-status {
   position: absolute;
   left: 50%;

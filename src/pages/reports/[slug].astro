@@ -15,8 +15,8 @@ const { trip } = Astro.props;
 
 {
   trip.presentation === 'immersive' ? (
-    <TripReportImmersivePage lang="zh" trip={trip} />
+    <TripReportImmersivePage lang="en" trip={trip} />
   ) : (
-    <TripReportPage lang="zh" trip={trip} />
+    <TripReportPage lang="en" trip={trip} />
   )
 }

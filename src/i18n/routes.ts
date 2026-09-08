@@ -42,7 +42,6 @@ export function parseLocalizedPath(pathname: string): { lang: Lang; logicalPath:
 export function equivalentUrl(targetLang: Lang, pathname: string): string {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/') return homePath(targetLang);
-  if (logicalPath === '/reports' || logicalPath.startsWith('/reports/')) return logicalPath;
   const p = langPrefix(targetLang);
   return p ? `${p}${logicalPath}` : logicalPath;
 }
@@ -50,12 +49,12 @@ export function equivalentUrl(targetLang: Lang, pathname: string): string {
 /**
  * 語言切換器只顯示該區塊實際存在的語系，避免直接導向 404：
  *  - /travel  僅繁中（產品決策：不提供英文／日文版本）
+ *  - /reports 介面三語，行程內容維持繁中
  *  - 其餘      en + zh + ja（含 blog：現為 build-time 多語靜態路由）
  */
 export function availableLangsForPath(pathname: string): Lang[] {
   const { logicalPath } = parseLocalizedPath(pathname);
   if (logicalPath === '/travel' || logicalPath.startsWith('/travel/')) return ['zh'];
-  if (logicalPath === '/reports' || logicalPath.startsWith('/reports/')) return ['zh'];
   if (logicalPath === '/konbini' || logicalPath.startsWith('/konbini/')) return ['en', 'zh'];
   if (logicalPath === '/privacy' || logicalPath === '/terms') return ['en', 'zh'];
   return ['en', 'zh', 'ja'];
@@ -78,14 +77,15 @@ export function travelPath(_lang: Lang): string {
   return '/zh/travel';
 }
 
-// ── Travel reports（Milifix 直屬內容，僅繁中）──────────────
+// ── Travel reports（Milifix 直屬內容，介面三語；行程內容本身仍為繁中）──
 
-export function reportsPath(): string {
-  return '/reports';
+export function reportsPath(lang: Lang): string {
+  const p = langPrefix(lang);
+  return p ? `${p}/reports` : '/reports';
 }
 
-export function reportSlugPath(slug: string): string {
-  return `${reportsPath()}/${slug}`;
+export function reportSlugPath(lang: Lang, slug: string): string {
+  return `${reportsPath(lang)}/${slug}`;
 }
 
 export function cardListPath(lang: Lang): string {
