@@ -44,8 +44,10 @@ interface AnchorData {
   transportLabel: string;
   departIcon: string;
   departLabel: string;
-  /** 此錨點聚焦的停靠點 id（日概覽錨點沒有）；用於抵達路徑與標記高亮。 */
+  /** 此錨點聚焦的停靠點 id（日概覽錨點沒有）；用於刻度尺與標記高亮。 */
   stopId?: string;
+  /** 抵達本站那一段在該日 segments 裡的索引（建置期依時間順序配對）；−1 為無。 */
+  arrivalSeg?: string;
 }
 interface MapData {
   mapDefault: { center: GeoPoint; zoom: number };
@@ -336,22 +338,20 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   };
 
   // ── 抵達路徑：畫出「抵達目前這一站」的交通段 ──────────────────
-  // 資料上同一天的相鄰景點、以及跨日銜接段都收在 day.segments 裡，
-  // 因此以 seg.to === stopId 就能取到抵達本站的那一段；找不到（如當天
-  // 第一站且無銜接段）則清空，不留上一站的殘影。
-  let activeArrivalStopId: string | null = null;
-  const arrivalSegsFor = (stopId: string | null): Seg[] => {
-    if (!stopId) return [];
-    for (const d of data.days) {
-      const found = d.segments.filter((sg) => sg.to === stopId);
-      if (found.length > 0) return found;
-    }
-    return [];
+  // 用建置期算好的索引（data-arrival-seg）直接取段，不以 seg.to === stopId
+  // 反查：同一天可能造訪同一站兩次（Day 1 橫濱站、Day 5 岡山／丸龜／琴平），
+  // 反查會取到第一次那段，甚至同時highlight兩條路徑。索引為 −1 或找不到當日
+  // 資料時清空，不留上一站的殘影。
+  let activeArrival: { day: number; segIdx: number } | null = null;
+  const arrivalSegsFor = (arrival: { day: number; segIdx: number } | null): Seg[] => {
+    if (!arrival || arrival.segIdx < 0) return [];
+    const seg = dayByNum.get(arrival.day)?.segments[arrival.segIdx];
+    return seg ? [seg] : [];
   };
-  const paintArrival = (stopId: string | null): void => {
-    activeArrivalStopId = stopId;
+  const paintArrival = (arrival: { day: number; segIdx: number } | null): void => {
+    activeArrival = arrival;
     const src = map.getSource(SRC_ARRIVAL) as maplibregl.GeoJSONSource | undefined;
-    if (src) src.setData(toFeatures(arrivalSegsFor(stopId)));
+    if (src) src.setData(toFeatures(arrivalSegsFor(arrival)));
   };
   const markDay = (dayIds: Set<string>): void => {
     for (const [id, m] of markerByStop) m.classList.toggle('is-day', dayIds.has(id));
@@ -384,7 +384,7 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     addLayers();
     const d = activeDay != null ? dayByNum.get(activeDay) : undefined;
     paintActiveRoute(activeShowRoute && d ? d.segments : []);
-    paintArrival(activeArrivalStopId);
+    paintArrival(activeArrival);
     if (d) markDay(new Set(d.stopIds));
   });
 
@@ -971,7 +971,9 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     }
     ruler.markActive(activeStopId);
     // 抵達路徑只在貼近單一停靠點時畫；日概覽鏡頭已有整日路線，不重複疊加。
-    paintArrival(isDayIntro ? null : activeStopId);
+    // 用錨點自帶的段索引（建置期依時間順序配對好），避免同一站造訪兩次時取錯段。
+    const segIdx = Number(d.arrivalSeg ?? -1);
+    paintArrival(isDayIntro || dayNum == null || !Number.isFinite(segIdx) ? null : { day: dayNum, segIdx });
 
     for (const dot of dayNavDots) {
       const active = Number(dot.dataset.day) === dayNum;
