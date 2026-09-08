@@ -148,8 +148,15 @@ test('standalone projects do not link back to the platform homepage', async ({ p
 });
 
 test('Milifix reports can return to the platform homepage', async ({ page }) => {
-  await page.goto('/reports/japan-jr-pass-2026');
-  await expect(page.locator('a[href="/zh/"]').first()).toBeVisible();
+  // 報告書介面為三語，各語系的報告頁都要能回到「自己語系」的平台首頁。
+  for (const [path, home] of [
+    ['/reports/japan-jr-pass-2026', '/'],
+    ['/zh/reports/japan-jr-pass-2026', '/zh/'],
+    ['/ja/reports/japan-jr-pass-2026', '/ja/'],
+  ]) {
+    await page.goto(path);
+    await expect(page.locator(`a[href="${home}"]`).first(), path).toBeVisible();
+  }
 });
 
 test('Travel has one canonical Traditional Chinese entry', async ({ page }) => {
