@@ -400,6 +400,31 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   const transportDepartRowEl = document.getElementById('immersive-hud-transport-depart');
   const transportDepartIconEl = document.getElementById('immersive-hud-transport-depart-icon');
   const transportDepartLabelEl = document.getElementById('immersive-hud-transport-depart-label');
+  const transportDurEl = document.getElementById('immersive-hud-transport-dur');
+  const transportPassEl = document.getElementById('immersive-hud-transport-pass');
+  const departDurEl = document.getElementById('immersive-hud-depart-dur');
+  const departPassEl = document.getElementById('immersive-hud-depart-pass');
+  const metaEl = document.getElementById('immersive-hud-meta');
+  const kindEl = document.getElementById('immersive-hud-kind');
+  const nextEl = document.getElementById('immersive-hud-next');
+  const nextTitleEl = document.getElementById('immersive-hud-next-title');
+  const routeBoxEl = document.getElementById('immersive-hud-route');
+  const routeDirEl = document.getElementById('immersive-hud-route-dir');
+  const routeNameEl = document.getElementById('immersive-hud-route-name');
+  const routeViaRowEl = document.getElementById('immersive-hud-route-via-row');
+  const routeViaEl = document.getElementById('immersive-hud-route-via');
+  const routeSeatRowEl = document.getElementById('immersive-hud-route-seat-row');
+  const routeSeatEl = document.getElementById('immersive-hud-route-seat');
+  const routeNoteRowEl = document.getElementById('immersive-hud-route-note-row');
+  const routeNoteEl = document.getElementById('immersive-hud-route-note');
+  const dayboardEl = document.getElementById('immersive-hud-dayboard');
+  const dayStopsEl = document.getElementById('immersive-hud-day-stops');
+  const dayMoveRowEl = document.getElementById('immersive-hud-day-move-row');
+  const dayMoveEl = document.getElementById('immersive-hud-day-move');
+  const dayWindowRowEl = document.getElementById('immersive-hud-day-window-row');
+  const dayWindowEl = document.getElementById('immersive-hud-day-window');
+  const dayCostRowEl = document.getElementById('immersive-hud-day-cost-row');
+  const dayCostEl = document.getElementById('immersive-hud-day-cost');
   const descEl = document.getElementById('immersive-hud-desc');
   const noteBoxEl = document.getElementById('immersive-hud-note');
   const linksBoxEl = document.getElementById('immersive-hud-links');
@@ -535,6 +560,47 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   // 時間軸播放「退場（舊內容淡出下沉）→ 寫入 → 進場（新內容錯落淡入）」。
   // 每次切換都先 kill 前一條時間軸；因寫入永遠用當下最新的錨點資料，
   // 即使中途被打斷也只會略過中間畫格、直接呈現最新內容，不會停在舊資料。
+  /** 有值就填入並顯示該列，沒值就整列隱藏——避免留下標籤卻沒有內容的空行。 */
+  const setRow = (rowEl: HTMLElement | null, valueEl: HTMLElement | null, value?: string): void => {
+    if (!rowEl || !valueEl) return;
+    if (value) {
+      valueEl.textContent = value;
+      rowEl.hidden = false;
+    } else {
+      rowEl.hidden = true;
+    }
+  };
+
+  /** data-* 的 JSON 欄位：空字串或解析失敗都視為「沒有這塊內容」。 */
+  const parseJson = <T,>(raw?: string): T | null => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  };
+
+  /** 交通排的預估時間與 Pass 標記。pass 為 '' 代表未查證，不顯示任何標記。 */
+  const setDurAndPass = (
+    durEl: HTMLElement | null,
+    passEl: HTMLElement | null,
+    dur?: string,
+    pass?: string
+  ): void => {
+    if (durEl) {
+      durEl.textContent = dur || '';
+      durEl.hidden = !dur;
+    }
+    if (passEl) {
+      const covered = pass === '1';
+      const known = pass === '1' || pass === '0';
+      passEl.textContent = covered ? 'PASS' : '另付費';
+      passEl.dataset.covered = covered ? '1' : '0';
+      passEl.hidden = !known;
+    }
+  };
+
   const writeHudContent = (d: DOMStringMap): void => {
     if (tagEl) tagEl.textContent = d.tag || '';
     if (titleEl) titleEl.textContent = d.title || '';
@@ -555,6 +621,67 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
       }
       transportEl.hidden = !d.transportLabel && !d.departLabel;
     }
+    // 預估時間與 Pass 涵蓋狀態併進 ARR／DEP 兩排。data-*-pass 為 '' 代表尚未查證，
+    // 此時完全不顯示標記，不把未知寫成「已涵蓋」。
+    setDurAndPass(transportDurEl, transportPassEl, d.transportDur, d.transportPass);
+    setDurAndPass(departDurEl, departPassEl, d.departDur, d.departPass);
+
+    // 停靠點類型與下一站預告
+    if (metaEl && kindEl && nextEl && nextTitleEl) {
+      if (d.kind) {
+        kindEl.textContent = d.kind;
+        kindEl.hidden = false;
+      } else {
+        kindEl.hidden = true;
+      }
+      if (d.next) {
+        nextTitleEl.textContent = d.next;
+        nextEl.hidden = false;
+      } else {
+        nextEl.hidden = true;
+      }
+      metaEl.hidden = !d.kind && !d.next;
+    }
+
+    // 交通路徑明細（經由／座席／注意）
+    if (routeBoxEl && routeDirEl && routeNameEl) {
+      const route = parseJson<{
+        icon?: string;
+        label?: string;
+        direction?: string;
+        via?: string[];
+        seat?: string;
+        note?: string;
+      }>(d.route);
+      if (route) {
+        routeDirEl.textContent = route.direction === 'depart' ? '接下來的路徑' : '抵達路徑';
+        routeNameEl.textContent = `${route.icon ?? ''} ${route.label ?? ''}`.trim();
+        setRow(routeViaRowEl, routeViaEl, route.via?.length ? route.via.join(' › ') : '');
+        setRow(routeSeatRowEl, routeSeatEl, route.seat);
+        setRow(routeNoteRowEl, routeNoteEl, route.note);
+        routeBoxEl.hidden = false;
+      } else {
+        routeBoxEl.hidden = true;
+      }
+    }
+
+    // 當日概況（僅日概覽錨點帶 data-dayboard）
+    if (dayboardEl && dayStopsEl) {
+      const board = parseJson<{ stops?: number; move?: string; window?: string; costJpy?: number }>(d.dayboard);
+      if (board) {
+        dayStopsEl.textContent = String(board.stops ?? 0);
+        setRow(dayMoveRowEl, dayMoveEl, board.move);
+        setRow(dayWindowRowEl, dayWindowEl, board.window);
+        setRow(
+          dayCostRowEl,
+          dayCostEl,
+          typeof board.costJpy === 'number' ? `¥${board.costJpy.toLocaleString('en-US')}` : ''
+        );
+        dayboardEl.hidden = false;
+      } else {
+        dayboardEl.hidden = true;
+      }
+    }
     if (descEl) descEl.textContent = d.desc || '';
     if (noteBoxEl) {
       if (d.note) {
@@ -567,15 +694,8 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
     if (linksBoxEl && linksListEl) {
       // data-links 為 JSON 陣列（label + 選填 url）。沒有 url 的項目沿用詳細
       // 行程資料的做法渲染成純文字，不做成假連結。
-      let links: Array<{ label?: string; url?: string }> = [];
-      if (d.links) {
-        try {
-          const parsed: unknown = JSON.parse(d.links);
-          if (Array.isArray(parsed)) links = parsed as Array<{ label?: string; url?: string }>;
-        } catch {
-          links = [];
-        }
-      }
+      const parsedLinks = parseJson<Array<{ label?: string; url?: string }>>(d.links);
+      const links = Array.isArray(parsedLinks) ? parsedLinks : [];
       linksListEl.replaceChildren();
       for (const link of links) {
         if (!link?.label) continue;
@@ -618,9 +738,16 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
 
   // 座標／相機讀數（telemetryEl）不列入淡出淡入清單：它由 syncTelemetry 隨鏡頭
   // 即時更新文字，若跟著內容切換一起淡出再淡入，捲動時座標會閃爍消失又出現。
-  const hudAnimTargets = [photoBoxEl, titleClusterEl, transportEl, descEl, noteBoxEl, linksBoxEl].filter(
-    (el): el is HTMLElement => el != null
-  );
+  const hudAnimTargets = [
+    photoBoxEl,
+    titleClusterEl,
+    transportEl,
+    routeBoxEl,
+    dayboardEl,
+    descEl,
+    noteBoxEl,
+    linksBoxEl,
+  ].filter((el): el is HTMLElement => el != null);
   let hudTl: gsap.core.Timeline | null = null;
   let hudFirst = true;
   let currentHudLayout: AnchorData['pos'] = 'bottom-left';

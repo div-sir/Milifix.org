@@ -54,6 +54,18 @@ export interface TransportSegment {
   viaCoords?: GeoPoint[];
   /** 選填：預估移動時間（分鐘），顯示於兩景點之間的轉乘標示。 */
   durationMin?: number;
+  /** 選填：途中主要經由或轉乘站名（文字）。與 viaCoords 分開：viaCoords 只負責線條走向，
+   *  這裡是給讀者看的路徑走法，如 ['大船', '藤澤']。 */
+  via?: string[];
+  /** 選填：JR Pass 是否涵蓋此段。false 代表須另外付費（私鐵、社區巴士、體驗設施接駁等）；
+   *  未填代表資料尚未查證，前端不顯示任何 Pass 標記，避免把未知當成已涵蓋。 */
+  passCovered?: boolean;
+  /** 選填：未被 Pass 涵蓋時的單程概估票價（日圓）。 */
+  fareJpy?: number;
+  /** 選填：劃位／座席規則，如「全車指定席，須事先劃位」。 */
+  seat?: string;
+  /** 選填：此段專屬注意事項（與 TripDay.tips 的全日提醒區隔）。 */
+  note?: string;
 }
 
 export interface TimelineEntry {

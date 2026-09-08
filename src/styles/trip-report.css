@@ -524,6 +524,7 @@
 .trip-connector__row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.55rem;
   padding: 0.45rem 0.8rem;
 }
@@ -550,6 +551,50 @@
   white-space: nowrap;
   padding-left: 0.6rem;
 }
+/* Pass 涵蓋標記：與沈浸式 HUD 同一套語意（涵蓋＝強調色、另行付費＝中性灰）。 */
+.trip-connector__pass {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.trip-connector__pass[data-covered='1'] { color: var(--travel-accent); }
+.trip-connector__pass[data-covered='0'] { color: var(--trip-ink-soft); }
+
+/* 經由／座席／票價／注意：整段換行佔滿卡片寬度，排在線名與時間下方。 */
+.trip-connector__detail {
+  flex: 0 0 100%;
+  display: grid;
+  gap: 0.3rem;
+  margin: 0.15rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px dashed color-mix(in srgb, var(--travel-accent) 28%, transparent);
+}
+.trip-connector__detail > div {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: baseline;
+}
+.trip-connector__detail dt {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--travel-accent) 82%, transparent);
+}
+.trip-connector__detail dd {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--trip-ink-soft);
+}
+
 .trip-connector--lead .trip-connector__card,
 .trip-connector--trail .trip-connector__card {
   border-style: dashed;
