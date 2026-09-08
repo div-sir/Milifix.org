@@ -167,6 +167,7 @@ export const japanJrPass2026: TripReport = {
         { id: 'tokyo-sta', name: '東京站', coords: { lat: 35.6812, lng: 139.7671 }, desc: '紅磚站舎的中央車站，也是 Sunrise 寢台特急的發抵點。', kind: 'station', note: '轉搭 Sunrise 特急夜車' },
       ],
       segments: [
+        { mode: 'walk', label: '步行（承前日）', from: 'tsubame-sanjo-jibasan-center', to: 'tsubame-sanjo-sta', note: '地場産センター緊鄰燕三條站，前一日行程於此結束' },
         { mode: 'shinkansen', label: '上越新幹線', from: 'tsubame-sanjo-sta', to: 'omiya-sta', durationMin: 85, via: ['長岡', '高崎'], passCovered: true, seat: '普通車指定席（有效 JR Pass 可劃位）', note: '最晚中午前抵達大宮，才有轉乘緩衝', viaCoords: [{ lat: 37.4956, lng: 138.87283 }, { lat: 37.61699, lng: 138.92371 }, { lat: 37.64381, lng: 138.93674 }, { lat: 37.88363, lng: 139.02344 }, { lat: 37.89807, lng: 139.03603 }, { lat: 37.90699, lng: 139.04708 }] },
         { mode: 'train', label: '東武城市公園線', from: 'omiya-sta', to: 'minami-sakurai-sta', durationMin: 40, via: ['春日部'], passCovered: false, note: '東武線不屬 JR Pass 範圍，須另行購票' },
         { mode: 'bus', label: '春巴士（社區巴士）／計程車', from: 'minami-sakurai-sta', to: 'underground-temple', durationMin: 10, passCovered: false, note: '春巴士自南櫻井站北口發車，週日停駛且班次有限；計程車是必要備案' },
