@@ -12,7 +12,7 @@
 // 連鎖店維持站主在後台既有維護（既有、已核准的連鎖店清單），使用者只能
 // 從既有連鎖店挑選，不能連帶新增連鎖店——避免商品／連鎖店兩層都要審核
 // 造成資料混亂。
-import { checkOrigin, checkSharedRateLimit, getClientIp } from './_pass-security.js';
+import { checkOrigin, checkSharedRateLimit, getClientIp } from './_request-security.js';
 import { validateProposal } from './_konbini-propose-validate.js';
 import { sanitizeReviewImage } from './_konbini-image.js';
 import {

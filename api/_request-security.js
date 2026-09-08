@@ -1,6 +1,8 @@
 // @ts-check
 import { createHash } from 'node:crypto';
-// Security helpers for the public generate-pass endpoint.
+// Security helpers shared by the public API endpoints (origin allowlist,
+// shared rate limiting, client IP extraction). Currently used by the konbini
+// submit / propose / report handlers.
 // Files/directories prefixed with "_" are ignored by Vercel's builder,
 // so this module is a plain helper import, NOT its own serverless route.
 //
