@@ -47,6 +47,7 @@ creators.push({
 
 const projectLang = lang === 'ja' ? 'en' : lang;
 const homepageEntries = [
+  { name: 'EKISPELL', tagline: lang === 'zh' ? '用日本車站拼出你的話，預覽 IC 乘車履歷' : lang === 'ja' ? '駅名で言葉をつくる、IC 利用履歴のプレビュー' : 'Spell a message with Japanese stations and preview IC travel history', href: '/ekispell/', workCount: 0, countUnit: P.projectCountUnit },
   { name: 'LUMIVEIL', tagline: P.lumiveilTagline, href: lang === 'en' ? '/lumiveil' : `/${lang}/lumiveil`, workCount: 0, countUnit: P.projectCountUnit },
   { name: 'MERIDIEL', tagline: P.meridielTagline, href: '/meridiel/', workCount: 0, countUnit: P.projectCountUnit },
   { name: 'TRAVEL', tagline: P.travelTagline, href: travelPath('zh'), workCount: 0, countUnit: P.projectCountUnit },

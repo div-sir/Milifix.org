@@ -1,0 +1,30 @@
+import { test, expect } from '@playwright/test';
+
+test('EkiSpell loads station data, filters cards, and restores a draft', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/ekispell/');
+  await expect(page.getByRole('link', { name: '← MILIFIX' })).toBeVisible();
+  await page.locator('#load-real').click();
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await page.locator('#profile').selectOption('ic-inferred-8');
+  await page.locator('#ic-card').selectOption('Suica');
+  await page.locator('#region').selectOption('JP-08');
+  await page.locator('#message').fill('取');
+  await expect(page.locator('#status')).toContainText('1 / 1');
+  const suica = await page.locator('#candidate-0 option').count();
+  await page.locator('#ic-card').selectOption('ICOCA');
+  expect(await page.locator('#candidate-0 option').count()).toBeLessThan(suica);
+  await page.locator('#ic-card').selectOption('Suica');
+  const downloading = page.waitForEvent('download');
+  await page.locator('#download').click();
+  const file = await downloading;
+  const path = await file.path();
+  expect(path).toBeTruthy();
+  await page.locator('#message').fill('東京');
+  await page.locator('#draft-file').setInputFiles(path!);
+  await expect(page.locator('#message')).toHaveValue('取');
+  await expect(page.locator('#ic-card')).toHaveValue('Suica');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
