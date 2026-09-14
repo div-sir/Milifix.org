@@ -43,6 +43,8 @@
     }
   ],
   "redirects": [
+    { "source": "/ekispell", "destination": "/ekispell/", "permanent": true },
+    { "source": "/EkiSpell", "destination": "/ekispell/", "permanent": true },
     { "source": "/meridiel", "destination": "/meridiel/", "permanent": true },
     { "source": "/Meridiel", "destination": "/meridiel/", "permanent": true },
     { "source": "/Meridiel/:path*", "destination": "/meridiel/:path*", "permanent": true },
