@@ -28,3 +28,28 @@ test('EkiSpell loads station data, filters cards, and restores a draft', async (
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+
+test('EkiSpell starts with real data and preserves work after reload', async ({ page }) => {
+  await page.goto('/ekispell/');
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await page.locator('#region').selectOption('JP-13');
+  await page.locator('#message').fill('京');
+  const search = page.getByRole('searchbox', { name: '搜尋第 1 字候選站' });
+  await search.fill('東京メトロ');
+  await expect(page.locator('#candidates')).toContainText('搜尋結果');
+  const select = page.locator('#candidate-0');
+  await select.selectOption({index:1});
+  const chosen = await select.inputValue();
+  await expect(page.locator('#save-status')).toContainText('已自動保存');
+  await page.reload();
+  await expect(page.locator('#save-status')).toContainText('已還原上次草稿');
+  await expect(page.locator('#message')).toHaveValue('京');
+  await expect(page.locator('#region')).toHaveValue('JP-13');
+  await expect(page.locator('#candidate-0')).toHaveValue(chosen);
+  const download = page.waitForEvent('download');
+  await page.locator('#text-export').click();
+  expect((await download).suggestedFilename()).toBe('ekispell-plan.txt');
+  await page.locator('#clear-saved').click();
+  expect(await page.evaluate(() => localStorage.getItem('ekispell-draft-v1'))).toBeNull();
+});

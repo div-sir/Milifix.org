@@ -7,6 +7,10 @@ const root = resolve('public/ekispell');
 const read = (path: string) => readFileSync(resolve(root, path), 'utf8');
 
 describe('EkiSpell deployment release', () => {
+  it('keeps the hosted UI equal to its maintained source', () => {
+    for (const name of ['app.js','index.html','style.css']) expect(read(name)).toBe(readFileSync(resolve('integrations/ekispell', name), 'utf8'));
+  });
+
   it('pins the release, route, licenses, and canonical URL', () => {
     const release = JSON.parse(read('release.json'));
     expect(release.revision).toMatch(/^[a-f0-9]{40}$/);
