@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>EkiSpell · 讓車站拼出你的話</title><link rel="stylesheet" href="./style.css"><meta name="description" content="EkiSpell 日本車站排字工具：IC 卡站點篩選、履歷印字推測與草稿預覽。"><link rel="canonical" href="https://milifix.com/ekispell/"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>EkiSpell · 讓車站拼出你的話</title><link rel="stylesheet" href="./style.css"><meta name="description" content="EkiSpell 日本車站排字工具：IC 卡站點篩選、履歷印字推測與草稿預覽。"><link rel="canonical" href="https://milifix.com/ekispell/"><link rel="stylesheet" href="./vendor/leaflet.css"></head>
 <body>
 <header><a href="/zh/">← MILIFIX</a><a class="brand" href="./">EkiSpell <span>駅スペル</span></a><a href="https://github.com/div-sir/EkiSpell">GitHub ↗</a></header>
 <main><noscript>此工具需要 JavaScript 才能載入車站與產生預覽。請啟用 JavaScript 後重新整理。</noscript>
@@ -40,6 +40,7 @@
 <div class="preview-heading"><h2 id="preview-title"><span class="step">03</span> 履歷預覽</h2><span class="badge">排字草稿</span></div>
 <p id="status" role="status" aria-live="polite"></p>
 <div class="receipt"><div class="receipt-title">ICカード ご利用履歴</div><p class="receipt-sub">EKISPELL · LAYOUT STUDY</p><div class="receipt-scroll"><table><thead><tr><th>#</th><th>入場</th><th>出場</th></tr></thead><tbody id="rows"></tbody></table></div><div class="receipt-footer"><span id="receipt-profile">示意格式</span> · 非實際票證紀錄<br>未規劃的另一端車站以「—」表示</div></div>
+<section class="map-section" aria-labelledby="map-title"><h2 id="map-title">選站位置</h2><button id="show-map" type="button">顯示車站地圖</button><p class="hint">開啟後會向 OpenStreetMap 載入底圖。座標來自 StationAPI，代表車站位置，非指定出入口。</p><div id="map-panel" hidden><div id="station-map" role="region" aria-label="選中車站位置地圖"></div><p id="map-status" role="status"></p><p id="map-tiles" role="status"></p><ul id="map-stations" aria-label="地圖車站清單"></ul><a href="https://github.com/TrainLCD/StationAPI/blob/bf6f92d08c6346253713a754944085c526ec6645/data/3!stations.csv">座標來源</a> · <a href="https://www.openstreetmap.org/fixthemap">回報底圖問題</a></div></section>
 <p id="sequence" class="hint"></p><p class="notice">此頁只驗證排字。列印名稱、設備格式與行程連接尚未確認，不代表可行乘車路線。</p>
 <ul id="warnings"></ul><div class="export-actions"><button id="text-export" type="button">下載文字清單</button><button id="print-preview" type="button">列印／存為 PDF</button></div><button id="download" type="button">下載排字草稿 JSON ↓</button>
 </section>
