@@ -1,5 +1,7 @@
 # build output
 dist/
+!public/ekispell/dist/
+!public/ekispell/dist/*.js
 
 # generated types
 .astro/

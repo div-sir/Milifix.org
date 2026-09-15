@@ -23,6 +23,7 @@ try {
     let text = await readFile(join(source, 'demo', file), 'utf8');
     text = text.replaceAll("'../dist/", "'./dist/").replaceAll("'../data/", "'./data/");
     if (file === 'index.html') {
+      text = text.replace('<main>', '<main><noscript>此工具需要 JavaScript 才能載入車站與產生預覽。請啟用 JavaScript 後重新整理。</noscript>');
       text = text.replace('</head>', '<meta name="description" content="EkiSpell 日本車站排字工具：IC 卡站點篩選、履歷印字推測與草稿預覽。"><link rel="canonical" href="https://milifix.com/ekispell/"></head>');
       text = text.replace('<header>', '<header><a href="/zh/">← MILIFIX</a>');
       text = text.replace('</footer>', '<a href="./LICENSE">EkiSpell MIT</a><a href="./data/stationapi/LICENSE">StationAPI MIT</a></footer>');

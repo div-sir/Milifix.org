@@ -46,6 +46,7 @@ export default defineConfig({
       babel: () => ({ plugins: [] })
     }),
     sitemap({
+      customPages: ['https://milifix.com/ekispell/'],
       // linktree 為 noindex 頁，不納入 sitemap
       filter: (page) => !/\/linktree\/?$/.test(page),
     })
