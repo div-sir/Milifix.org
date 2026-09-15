@@ -68,6 +68,7 @@ test('map follows selected real stations and handles missing coordinates', async
   await expect(page.locator('#map-status')).toContainText('1 個選站有座標');
   await page.locator('#candidate-0').selectOption({index:1});
   await expect(page.locator('#map-stations button')).toHaveCount(1);
+  await page.getByText('匯入自己的站名資料', {exact:true}).click();
   await page.locator('#reset').click();
   await expect(page.locator('#map-status')).toContainText('缺少可靠座標');
   await expect(page.locator('#map-stations button')).toHaveCount(0);
