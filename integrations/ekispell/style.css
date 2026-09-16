@@ -11,3 +11,9 @@
 #route-results > li { padding: 1rem 0; border-bottom: 1px solid #ccc; }
 #route-results h3 { font-size: 1rem; overflow-wrap: anywhere; }
 #route-results p, #route-results li { overflow-wrap: anywhere; }
+
+.route-exclusions { list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:6px; }
+.route-exclusions button { font-size:12px; text-align:left; overflow-wrap:anywhere; margin:0; }
+#route-condition-controls { min-width:0; }
+#route-condition-controls select { min-width:0; }
+@media print { #route-condition-controls { display:none!important; } }

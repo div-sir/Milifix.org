@@ -103,3 +103,56 @@ test('route candidates follow receipt chronology and stop at unmatched character
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('route conditions combine, persist, and clear without changing chosen stations', async ({ page }) => {
+  const errors: string[]=[]; page.on('pageerror', e=>errors.push(e.message));
+  await page.goto('/ekispell/');
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await page.locator('#profile').selectOption('stationapi-name-only');
+  await page.locator('#message').fill('東横');
+  for(const [i,name] of ['東京','横浜'].entries()) {
+    const value=await page.locator(`#candidate-${i}`).evaluate((el,name)=>Array.from((el as HTMLSelectElement).options).find(o=>o.text.startsWith(`${name} · JR東日本 ·`))?.value,name);
+    expect(value).toBeDefined(); await page.locator(`#candidate-${i}`).selectOption(value!);
+  }
+  await page.locator('#calculate-route').click();
+  await page.locator('#route-condition-controls summary').click();
+  await page.locator('#route-max-changes').selectOption('0');
+  await page.locator('#route-avoid-shinkansen').check();
+  await page.locator('#route-same-operator').check();
+  await expect(page.locator('#route-results')).toContainText('路線切換 0 次');
+  await page.locator('#route-exclusion-search').fill('東海道');
+  await page.locator('#route-line').selectOption('stationapi:11301');
+  await page.locator('#route-add-line').click();
+  await expect(page.locator('#route-excluded-lines li')).toHaveCount(1);
+  await page.locator('#route-exclusion-search').fill('JR東日本');
+  await page.locator('#route-operator').selectOption('JR東日本');
+  await page.locator('#route-add-operator').click();
+  await expect(page.locator('#route-results')).toContainText('所有可用路線都被排除');
+  await expect(page.locator('#route-results h3')).toHaveText('1. 東京 → 横浜');
+  await page.reload();
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await expect(page.locator('#route-condition-summary')).toContainText('每段最多切換 0 次');
+  await expect(page.locator('#route-condition-summary')).toContainText('排除 1 家業者');
+  await page.locator('#calculate-route').click();
+  await expect(page.locator('#route-results')).toContainText('所有可用路線都被排除');
+  await page.locator('#route-condition-controls summary').click();
+  await page.locator('#route-excluded-operators button').click();
+  await expect(page.locator('#route-excluded-operators li')).toHaveCount(0);
+  await page.locator('#route-reset-conditions').click();
+  await expect(page.locator('#route-excluded-lines li')).toHaveCount(0);
+  await expect(page.locator('#route-max-changes')).toHaveValue('');
+  await expect(page.locator('#route-avoid-shinkansen')).not.toBeChecked();
+  await expect(page.locator('#route-results')).toContainText('路線切換 0 次');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('invalid saved route conditions recover to defaults', async ({ page }) => {
+  await page.addInitScript(()=>localStorage.setItem('ekispell-route-options-v1','{"maxChanges":-1}'));
+  await page.goto('/ekispell/');
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await expect(page.locator('#route-condition-summary')).toHaveText('切換次數不限');
+  await expect(page.locator('#route-condition-storage')).toContainText('已使用預設值');
+  await page.locator('#calculate-route').click();
+  await expect(page.locator('#route-status')).toContainText('共 1 段');
+});
