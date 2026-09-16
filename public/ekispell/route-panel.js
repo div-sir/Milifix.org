@@ -15,12 +15,12 @@ export function calculateRoutes() {
   updateRouteMap([]);
   if (rows.length<2) { $('route-status').textContent='請先選擇至少兩個車站。'; return; }
   if (rows.some(row=>!row)) { $('route-status').textContent='仍有文字未匹配車站。請完成選站後再計算，避免跳過中間站。'; return; }
-  const mapSegments = []; let found=0, changes=0;
+  const mapSegments = []; let found=0;
   for (let i=1;i<rows.length;i++) {
     const from=rows[i-1], to=rows[i], result=findLineRoute(network,from.id,to.id);
     const li=node('li',''); li.append(node('h3',`${i}. ${from.name} → ${to.name}`));
     if (result.status==='found') {
-      found++; changes+=result.changes;
+      found++;
       li.append(node('p',`路線切換 ${result.changes} 次（資料圖內最少，非最快路線）`));
       const list=node('ol','');
       for (const segment of result.segments) {
@@ -45,5 +45,5 @@ export function calculateRoutes() {
     coordinates.then(points=>{ if (points && link.isConnected) link.href=transitUrl(from,to,points); });
   }
   updateRouteMap(mapSegments);
-  $('route-status').textContent=`按紀錄建立順序，共 ${rows.length-1} 段；${found} 段找到路線候選，共 ${changes} 次路線切換。其餘請查看各段提示。`;
+  $('route-status').textContent=`按紀錄建立順序，共 ${rows.length-1} 段；${found} 段找到路線候選。各段獨立計算，非全程最佳化；其餘請查看各段提示。`;
 }
