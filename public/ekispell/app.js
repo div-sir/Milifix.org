@@ -1,3 +1,4 @@
+import { updateRoutePlan, calculateRoutes } from './route-panel.js';
 import { updateStationMap, openStationMap } from './map.js';
 import { matchMessage, buildSequence, renderPreview, graphemes, cellWidth, validateCatalog, validateBundle, createDraft, restoreDraft } from './dist/index.js';
 import { sampleBundle, demoProfile } from './dist/sample.js';
@@ -49,6 +50,7 @@ function render() {
     updateStationMap(sequence.flatMap((row,i) => row.selected ? [{station:stationById.get(row.selected.stationId),number:i+1}] : []));
     const profile = { ...activeProfile, order: $('order').value };
     const preview = renderPreview(sequence, profile, $('field').value);
+    updateRoutePlan(stations, preview.chronologicalRows.map(row => row.selected ? stationById.get(row.selected.stationId) : null));
     draft = createDraft($('message').value, bundle, options, selections, $('field').value, profile.order);
     $('receipt-profile').textContent = profile.name;
     $('profile-note').replaceChildren(document.createTextNode(`${profile.maxRows} 筆 · 每欄 ${profile.fieldCells} 格 · ${draft.profile.verification === 'receipt-verified' ? '有收據佐證（資料提供者標記）' : '格式未驗證'}`));
@@ -140,7 +142,7 @@ function render() {
     $('download').disabled = !sequence.length;
     saveLocal();
   } catch (error) {
-    updateStationMap([]);
+    updateStationMap([]); updateRoutePlan(stations, []);
     exportText = ''; $('text-export').disabled = true; $('print-preview').disabled = true;
     draft = null; $('error').textContent = error.message;
     $('rows').replaceChildren(); $('candidates').replaceChildren(); $('warnings').replaceChildren();
@@ -264,3 +266,5 @@ async function start() {
   starting = false;
 }
 start();
+
+$('calculate-route').addEventListener('click', calculateRoutes);

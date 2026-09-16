@@ -74,3 +74,32 @@ test('map follows selected real stations and handles missing coordinates', async
   await expect(page.locator('#map-stations button')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('route candidates follow receipt chronology and stop at unmatched characters', async ({ page }) => {
+  const errors: string[]=[];
+  page.on('pageerror', error=>errors.push(error.message));
+  await page.route('https://tile.openstreetmap.org/**', route => route.fulfill({status:200,contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64')}));
+  await page.goto('/ekispell/');
+  await expect(page.locator('#real-status')).toContainText('9,485');
+  await page.locator('#profile').selectOption('stationapi-name-only');
+  await page.locator('#message').fill('東横');
+  for(const [i,name] of ['東京','横浜'].entries()) {
+    const value=await page.locator(`#candidate-${i}`).evaluate((el, name)=>Array.from((el as HTMLSelectElement).options).find(o=>o.text.startsWith(`${name} · JR東日本 ·`))?.value,name);
+    expect(value).toBeDefined(); await page.locator(`#candidate-${i}`).selectOption(value!);
+  }
+  await page.locator('#calculate-route').click();
+  await expect(page.locator('#route-results h3')).toHaveText('1. 東京 → 横浜');
+  await expect(page.locator('#route-status')).toContainText('1 段找到路線候選');
+  await expect(page.locator('#route-results')).toContainText('路線切換 0 次');
+  await expect(page.locator('#route-results a')).toHaveAttribute('href',/travelmode=transit/);
+  await page.locator('#show-map').click();
+  await expect(page.locator('.leaflet-overlay-pane path[stroke-dasharray]')).toHaveCount(1);
+  await page.locator('#order').selectOption('newest-first');
+  await expect(page.locator('#route-results h3')).toHaveText('1. 横浜 → 東京');
+  await page.locator('#message').fill('東🦄横');
+  await expect(page.locator('#route-status')).toContainText('仍有文字未匹配');
+  await expect(page.locator('#route-results > li')).toHaveCount(0);
+  await expect(page.locator('.leaflet-overlay-pane path[stroke-dasharray]')).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});

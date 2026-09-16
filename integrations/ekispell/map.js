@@ -1,4 +1,4 @@
-let map, layer, points, current = [], ready;
+let map, layer, routeLayer, points, current = [], ready, routes = [];
 const $ = id => document.getElementById(id);
 export function coordinateFor(station, data) {
   if (!station?.id?.startsWith('stationapi:')) return null;
@@ -24,6 +24,7 @@ async function initialize() {
     maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).on('tileerror', () => { $('map-tiles').textContent = '底圖暫時無法載入；車站位置與清單仍可查看。'; }).addTo(map);
   layer = window.L.layerGroup().addTo(map);
+  routeLayer = window.L.layerGroup().addTo(map);
   paint();
 }
 function paint() {
@@ -53,6 +54,7 @@ function paint() {
     button.addEventListener('click', () => { map.setView(point,14); marker.openPopup(); });
     li.append(button); $('map-stations').append(li);
   }
+  for (const point of paintRoutes()) bounds.push(point);
   if (bounds.length) map.fitBounds(bounds, {padding:[30,30],maxZoom:14});
   $('map-status').textContent = `${current.length-missing} 個選站有座標${missing ? `；${missing} 個缺少可靠座標` : ''}。數字為排字順序，不是乘車路線。`;
 }
@@ -65,3 +67,22 @@ export async function openStationMap() {
   } catch (error) { ready = null; $('map-status').textContent = `${error.message}，請按按鈕重試。`; }
   finally { $('show-map').disabled = false; }
 }
+
+function paintRoutes() {
+  if (!routeLayer) return [];
+  routeLayer.clearLayers();
+  const bounds=[];
+  for (const segment of routes) {
+    const from=coordinateFor(segment.from,points), to=coordinateFor(segment.to,points);
+    if (!from || !to) continue;
+    bounds.push(from,to);
+    for (const [station,point] of [[segment.from,from],[segment.to,to]]) {
+      const name=document.createElement('span'); name.textContent=`${station.name}・${segment.line}（路線候選）`;
+      window.L.circleMarker(point,{radius:5,color:'#c26728',fillOpacity:0.8}).addTo(routeLayer).bindPopup(name);
+    }
+    const label=document.createElement('span'); label.textContent=`${segment.line}：${segment.from.name} → ${segment.to.name}（示意連線）`;
+    window.L.polyline([from,to],{color:'#c26728',weight:3,dashArray:'7 7'}).addTo(routeLayer).bindPopup(label);
+  }
+  return bounds;
+}
+export function updateRouteMap(segments) { routes=segments; paint(); }
