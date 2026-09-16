@@ -1,0 +1,49 @@
+import { buildLineNetwork, findLineRoute, transitUrl } from './routes.js';
+import { updateRouteMap } from './map.js';
+let catalog, network, rows = [], active = false, coordinates;
+const $ = id => document.getElementById(id);
+const node = (tag, text) => { const n = document.createElement(tag); n.textContent=text; return n; };
+export function updateRoutePlan(stations, nextRows) {
+  rows = nextRows;
+  if (catalog !== stations) { catalog=stations; network=buildLineNetwork(stations); }
+  updateRouteMap([]);
+  if (active) calculateRoutes();
+}
+export function calculateRoutes() {
+  active=true; $('route-results').replaceChildren();
+  if (!coordinates) coordinates=fetch('./coordinates.json').then(r=>{ if (!r.ok) throw new Error('coordinates'); return r.json(); }).then(data=>{ if (data.revision!=='bf6f92d08c6346253713a754944085c526ec6645') throw new Error('revision'); return data.points; }).catch(()=>{ coordinates=null; return null; });
+  updateRouteMap([]);
+  if (rows.length<2) { $('route-status').textContent='請先選擇至少兩個車站。'; return; }
+  if (rows.some(row=>!row)) { $('route-status').textContent='仍有文字未匹配車站。請完成選站後再計算，避免跳過中間站。'; return; }
+  const mapSegments = []; let found=0, changes=0;
+  for (let i=1;i<rows.length;i++) {
+    const from=rows[i-1], to=rows[i], result=findLineRoute(network,from.id,to.id);
+    const li=node('li',''); li.append(node('h3',`${i}. ${from.name} → ${to.name}`));
+    if (result.status==='found') {
+      found++; changes+=result.changes;
+      li.append(node('p',`路線切換 ${result.changes} 次（資料圖內最少，非最快路線）`));
+      const list=node('ol','');
+      for (const segment of result.segments) {
+        list.append(node('li',`${segment.from.name} → ${segment.to.name}｜${segment.operator}・${segment.line}`));
+        mapSegments.push(segment);
+      }
+      li.append(list);
+      li.append(node('p','轉乘點依同站群判定，可能需要出站步行；同一路線也可能需要換車。'));
+    } else {
+      const messages = {
+        'same-station':'相同車站，不需移動；若要產生另一筆 IC 履歷，仍須另規劃進出站。',
+        'same-group':'位於同站群，可能需步行或出站轉乘，請確認實際動線。',
+        'unsupported':'此站缺少可用的路線資料，無法計算。',
+        'disconnected':'現有資料找不到連接，可能需要步行、巴士或其他未收錄路線。'
+      };
+      li.append(node('p',messages[result.status]));
+    }
+    const link=node('a','在 Google Maps 查詢此段班次');
+    link.href=transitUrl(from,to); link.target='_blank'; link.rel='noopener noreferrer';
+    link.title='請確認 Google Maps 辨識的起訖站是否正確';
+    li.append(link); $('route-results').append(li);
+    coordinates.then(points=>{ if (points && link.isConnected) link.href=transitUrl(from,to,points); });
+  }
+  updateRouteMap(mapSegments);
+  $('route-status').textContent=`按紀錄建立順序，共 ${rows.length-1} 段；${found} 段找到路線候選，共 ${changes} 次路線切換。其餘請查看各段提示。`;
+}
