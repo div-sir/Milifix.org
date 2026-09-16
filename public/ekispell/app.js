@@ -1,3 +1,4 @@
+import { updateStationMap, openStationMap } from './map.js';
 import { matchMessage, buildSequence, renderPreview, graphemes, cellWidth, validateCatalog, validateBundle, createDraft, restoreDraft } from './dist/index.js';
 import { sampleBundle, demoProfile } from './dist/sample.js';
 import { loadRealCatalog } from './real-data.js';
@@ -45,6 +46,7 @@ function render() {
     if ($('alignment').value === 'fixed') options.column = Number($('column').value) - 1;
     const slots = matchMessage($('message').value, stations, options);
     const sequence = buildSequence(slots, selections);
+    updateStationMap(sequence.flatMap((row,i) => row.selected ? [{station:stationById.get(row.selected.stationId),number:i+1}] : []));
     const profile = { ...activeProfile, order: $('order').value };
     const preview = renderPreview(sequence, profile, $('field').value);
     draft = createDraft($('message').value, bundle, options, selections, $('field').value, profile.order);
@@ -138,6 +140,7 @@ function render() {
     $('download').disabled = !sequence.length;
     saveLocal();
   } catch (error) {
+    updateStationMap([]);
     exportText = ''; $('text-export').disabled = true; $('print-preview').disabled = true;
     draft = null; $('error').textContent = error.message;
     $('rows').replaceChildren(); $('candidates').replaceChildren(); $('warnings').replaceChildren();
@@ -239,6 +242,7 @@ async function loadStations() {
 $('load-real').addEventListener('click', loadStations);
 $('download').addEventListener('click', () => { if (draft) downloadJson(draft, 'ekispell-draft.json'); });
 $('export-catalog').addEventListener('click', () => downloadJson(bundle, 'ekispell-catalog.json'));
+$('show-map').addEventListener('click', openStationMap);
 $('text-export').addEventListener('click', () => {
   const url = URL.createObjectURL(new Blob([exportText], {type:'text/plain;charset=utf-8'}));
   const link = element('a'); link.href = url; link.download = 'ekispell-plan.txt'; link.click();

@@ -11,3 +11,9 @@ To update, review a new upstream commit, update the revision in `scripts/sync-ek
 The app keeps upstream limitations: inferred printer names are unverified, IC coverage is scoped, and the preview is not a verified journey. Uploaded JSON is processed in the browser.
 
 The hosted UI is maintained in `integrations/ekispell/` (HTML, CSS, and app.js). The importer copies these files while continuing to compile the pinned upstream core and data loader. Keep the hosted copies equal to these sources. Browser drafts use localStorage and are revalidated on restore; custom catalogs require JSON export. Text/PDF outputs are planning drafts, not tickets or verified journeys.
+
+## Station map
+
+The map opens on demand and follows selected stations. StationAPI coordinates use the same pinned revision as the name catalog and are keyed by exact station identity. Repeated/coincident stations share a marker and list all row numbers. Unknown/custom stations without matched identities have no marker. Coordinates represent stations, not entrances. No route lines or fares are inferred.
+
+Run `python scripts/sync-ekispell-coordinates.py /path/to/clean/StationAPI` to regenerate coordinates from the pinned CSV. The map runtime is self-hosted Leaflet 1.9.4 (BSD-2-Clause; notice in vendor/LICENSE). Browser-requested OpenStreetMap tiles retain normal browser caching and visible attribution. No tile prefetch or offline download is implemented. Tile failures keep the station list available. Browser tests stub tiles to avoid consuming the public service.

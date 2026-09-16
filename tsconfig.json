@@ -9,7 +9,9 @@
     "api",
     "payload-reference",
     "public/meridiel/vendor",
-    "public/meridiel/app/compiled"
+    "public/meridiel/app/compiled",
+    "public/ekispell/vendor",
+    "integrations/ekispell/vendor"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",
