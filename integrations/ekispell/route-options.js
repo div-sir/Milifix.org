@@ -29,7 +29,7 @@ function apply() {
   options=normalizeRouteOptions(options);
   try { localStorage.setItem(key,JSON.stringify(options)); $('route-condition-storage').textContent='路線條件已保存在此瀏覽器。'; }
   catch { $('route-condition-storage').textContent='此瀏覽器無法保存條件，關閉頁面後需重新設定。'; }
-  renderOptions(); changed();
+  renderOptions(); document.dispatchEvent(new Event('ekispell-route-conditions')); changed();
 }
 function fillChoices() {
   const query=$('route-exclusion-search').value.trim().normalize('NFKC').toLowerCase();

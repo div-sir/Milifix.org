@@ -156,3 +156,34 @@ test('invalid saved route conditions recover to defaults', async ({ page }) => {
   await page.locator('#calculate-route').click();
   await expect(page.locator('#route-status')).toContainText('共 1 段');
 });
+
+test('Metro pilot plans separate transactions and invalidates stale results', async ({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/ekispell/');
+ await expect(page.locator('#real-status')).toContainText('9,485');
+ await page.locator('#profile').selectOption('stationapi-name-only');
+ await page.locator('#order').selectOption('oldest-first');
+ await page.locator('#field').selectOption('entry');
+ await page.locator('#message').fill('銀京');
+ await page.locator('#prefer-metro').click();
+ for(const [i,name] of ['銀座','京橋'].entries()){
+  const value=await page.locator(`#candidate-${i}`).evaluate((el,name)=>Array.from((el as HTMLSelectElement).options).find(o=>o.text.startsWith(`${name} · 東京メトロ ·`))?.value,name);
+  expect(value).toBeDefined();await page.locator(`#candidate-${i}`).selectOption(value!);
+ }
+ await page.locator('#load-metro').click();
+ await expect(page.locator('#journey-coverage')).toContainText('144');
+ await page.locator('#journey-start').selectOption({label:'銀座'});
+ await page.locator('#journey-end').selectOption({label:'日本橋'});
+ await page.locator('#plan-journey').click();
+ await expect(page.locator('#journey-status')).toContainText('共 2 筆');
+ await expect(page.locator('#journey-status')).toContainText('尚未實測');
+ await expect(page.locator('#journey-history tbody tr')).toHaveCount(2);
+ await expect(page.locator('#journey-results')).toContainText('日本橋');
+ const download=page.waitForEvent('download');await page.locator('#journey-export').click();
+ expect((await download).suggestedFilename()).toBe('ekispell-metro-journey.txt');
+ await page.locator('#journey-end').selectOption({label:'京橋'});
+ await expect(page.locator('#journey-export')).toBeDisabled();
+ await expect(page.locator('#journey-history tbody tr')).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ expect(errors).toEqual([]);
+});
