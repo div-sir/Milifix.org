@@ -38,5 +38,37 @@ it('routes real Tokyo to Yokohama via their shared line and keeps all source fil
  const to=stations.find(s=>s.name==='横浜'&&s.operator==='2')!;
  const result=findLineRoute(buildLineNetwork(stations),from.id,to.id);
  expect(result.status).toBe('found'); expect(result.changes).toBe(0);
- for(const name of ['routes.js','route-panel.js']) expect(readFileSync('public/ekispell/'+name)).toEqual(readFileSync('integrations/ekispell/'+name));
+ for(const name of ['routes.js','route-panel.js','route-options.js']) expect(readFileSync('public/ekispell/'+name)).toEqual(readFileSync('integrations/ekispell/'+name));
+});
+
+it('combines exclusions and maximum changes without falling back to an excluded shortcut',()=>{
+ const a=station('a','a',['1002','1']),b=station('b','b',['1002','3']);
+ const n=buildLineNetwork([a,b,station('x','x',['1','2']),station('y','y',['2','3'])]);
+ expect(findLineRoute(n,a.id,b.id).changes).toBe(0);
+ const limited={avoidShinkansen:true,maxChanges:2};
+ expect(findLineRoute(n,a.id,b.id,limited).segments.map(s=>s.lineId)).toEqual(['stationapi:1','stationapi:2','stationapi:3']);
+ expect(findLineRoute(n,a.id,b.id,{...limited,maxChanges:1}).status).toBe('restricted');
+ expect(findLineRoute(n,a.id,b.id,{...limited,excludedLines:['stationapi:2']}).status).toBe('restricted');
+ expect(findLineRoute(n,a.id,b.id,{excludedLines:['stationapi:1002'],maxChanges:2}).changes).toBe(2);
+ expect(findLineRoute(n,a.id,b.id,{excludedOperators:['operator']}).status).toBe('excluded-endpoint');
+});
+it('does not cross an excluded operator in the middle of a route or bypass operator limits',()=>{
+ const a=station('a','a',['1']),b=station('b','b',['3']);
+ const x1=station('x1','x',['1']),x2={...station('x2','x',['2']),operator:'other'};
+ const y2={...station('y2','y',['2']),operator:'other'},y3=station('y3','y',['3']);
+ const n=buildLineNetwork([a,b,x1,x2,y2,y3]);
+ expect(findLineRoute(n,a.id,b.id).changes).toBe(2);
+ expect(findLineRoute(n,a.id,b.id,{sameOperatorOnly:true}).status).toBe('restricted');
+ expect(findLineRoute(n,a.id,b.id,{excludedOperators:['other']}).status).toBe('restricted');
+ expect(findLineRoute(n,x1.id,x2.id,{sameOperatorOnly:true}).status).toBe('restricted');
+ expect(findLineRoute(n,x1.id,x2.id,{excludedLines:['stationapi:2']}).status).toBe('excluded-endpoint');
+});
+it('allows zero changes on an allowed shared line and leaves the network reusable',()=>{
+ const a=station('a','a',['1']),b=station('b','b',['1']); const n=buildLineNetwork([a,b]);
+ expect(findLineRoute(n,a.id,b.id,{maxChanges:0,avoidShinkansen:true,sameOperatorOnly:true}).changes).toBe(0);
+ expect(findLineRoute(n,a.id,b.id,{excludedLines:['stationapi:1']}).status).toBe('excluded-endpoint');
+ expect(findLineRoute(n,a.id,b.id).status).toBe('found');
+ for(const maxChanges of [-1,1.5,101,NaN,'2']) expect(()=>findLineRoute(n,a.id,b.id,{maxChanges})).toThrow();
+ expect(()=>findLineRoute(n,a.id,b.id,{excludedLines:'stationapi:1'})).toThrow();
+ expect(()=>findLineRoute(n,a.id,b.id,{avoidShinkansen:'true'})).toThrow();
 });

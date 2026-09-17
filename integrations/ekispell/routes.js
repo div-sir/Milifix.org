@@ -1,4 +1,24 @@
 // A line-membership graph, not a timetable or an adjacent-track graph.
+// StationAPI bf6f92d08c6346253713a754944085c526ec6645, 2!lines.csv:
+// active rows with line_type=1. Do not infer train category from line names.
+const shinkansen = new Set(['1002','1003','1004','1005','1006','1007','1008','1009','1010','1011','1012'].map(id=>`stationapi:${id}`));
+export function normalizeRouteOptions(value = {}) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid route conditions');
+  const result = {maxChanges:null,avoidShinkansen:false,sameOperatorOnly:false,excludedOperators:[],excludedLines:[]};
+  for (const key of ['avoidShinkansen','sameOperatorOnly']) {
+    if (value[key] !== undefined && typeof value[key] !== 'boolean') throw new Error('Invalid route condition');
+    result[key]=value[key] ?? false;
+  }
+  if (value.maxChanges != null) {
+    if (!Number.isInteger(value.maxChanges) || value.maxChanges<0 || value.maxChanges>100) throw new Error('Invalid line-change limit');
+    result.maxChanges=value.maxChanges;
+  }
+  for (const key of ['excludedOperators','excludedLines']) {
+    if (value[key] !== undefined && (!Array.isArray(value[key]) || value[key].length>1000 || value[key].some(v=>typeof v!=='string' || !v || v.length>300))) throw new Error('Invalid route exclusion');
+    result[key]=[...new Set(value[key] || [])];
+  }
+  return result;
+}
 export function buildLineNetwork(stations) {
   const byId = new Map(), groups = new Map(), lines = new Map();
   for (const station of stations) {
@@ -15,30 +35,39 @@ export function buildLineNetwork(stations) {
   }
   return {byId, groups, lines};
 }
-export function findLineRoute(network, fromId, toId) {
+export function findLineRoute(network, fromId, toId, conditions = {}) {
+  const options=normalizeRouteOptions(conditions);
+  const excludedOperators=new Set(options.excludedOperators), excludedLines=new Set(options.excludedLines);
+  const allowed=id=>network.lines.has(id) && !excludedLines.has(id) && !excludedOperators.has(network.lines.get(id).operator) && !(options.avoidShinkansen && shinkansen.has(id));
+  const restricted=options.maxChanges!==null || options.avoidShinkansen || options.sameOperatorOnly || excludedOperators.size>0 || excludedLines.size>0;
   const from = network.byId.get(fromId), to = network.byId.get(toId);
   if (!from || !to) return {status:'unsupported',segments:[]};
   if (fromId === toId) return {status:'same-station',segments:[]};
+  if (!from.lines.some(l=>allowed(l.id)) || !to.lines.some(l=>allowed(l.id))) return {status:'excluded-endpoint',segments:[]};
+  if (options.sameOperatorOnly && from.operator!==to.operator) return {status:'restricted',segments:[]};
   if (from.sourceGroupId === to.sourceGroupId) return {status:'same-group',segments:[]};
-  const targets = new Set(to.lines.map(l=>l.id)), queue = [], previous = new Map(), seenGroups = new Set();
+  const targets = new Set(to.lines.map(l=>l.id)), queue = [], previous = new Map(), seenGroups = new Set(), depth = new Map();
   for (const line of from.lines) {
-    if (!network.lines.has(line.id)) continue;
-    queue.push(line.id); previous.set(line.id, null);
+    if (!allowed(line.id)) continue;
+    queue.push(line.id); previous.set(line.id, null); depth.set(line.id,0);
   }
   let found;
   for (let i=0; i<queue.length; i++) {
     const lineId = queue[i];
     if (targets.has(lineId)) { found = lineId; break; }
+    if (options.maxChanges!==null && depth.get(lineId)>=options.maxChanges) continue;
     for (const groupId of network.lines.get(lineId).groups) {
-      if (seenGroups.has(groupId)) continue;
-      seenGroups.add(groupId);
+      const groupKey=`${groupId}:${options.sameOperatorOnly ? network.lines.get(lineId).operator : '*'}`;
+      if (seenGroups.has(groupKey)) continue;
+      seenGroups.add(groupKey);
       for (const nextId of network.groups.get(groupId).keys()) {
-        if (previous.has(nextId)) continue;
-        previous.set(nextId, {lineId,groupId}); queue.push(nextId);
+        if (previous.has(nextId) || !allowed(nextId)) continue;
+        if (options.sameOperatorOnly && network.lines.get(nextId).operator!==network.lines.get(lineId).operator) continue;
+        previous.set(nextId, {lineId,groupId}); depth.set(nextId,depth.get(lineId)+1); queue.push(nextId);
       }
     }
   }
-  if (!found) return {status:'disconnected',segments:[]};
+  if (!found) return {status:restricted ? 'restricted' : 'disconnected',segments:[]};
   const chain = [];
   for (let id=found; id; id=previous.get(id)?.lineId) chain.push({id,via:previous.get(id)?.groupId});
   chain.reverse();
