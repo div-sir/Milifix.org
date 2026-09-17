@@ -51,6 +51,23 @@
 <label for="route-line">排除路線（可加入多條）</label><select id="route-line"></select><button id="route-add-line" type="button">排除此路線</button><ul id="route-excluded-lines" class="route-exclusions" aria-label="已排除路線"></ul>
 <button id="route-reset-conditions" type="button">重設路線條件</button><p id="route-condition-storage" class="hint" role="status">路線條件只保存在此瀏覽器，不包含於排字 JSON。</p>
 </details><p id="route-condition-summary" class="hint"></p><p class="hint">Google Maps 查詢只帶入起訖站，不會套用此處的排除條件。</p><button id="calculate-route" type="button">計算路線</button><p id="route-status" role="status">選好車站後即可計算。</p><p class="notice">使用 StationAPI 的路線歸屬與同站群資料，尚無站間連接及時刻表。結果不保證直通、營運或 IC 全程可用，也不含票價與時間。中途出站可能增加履歷、打斷排字。地圖虛線只連接上車、轉乘與下車站，不代表鐵軌走向。</p><ol id="route-results"></ol></section>
+<section class="journey-section" aria-labelledby="journey-title"><h2 id="journey-title">東京 Metro 逐筆進出站規劃</h2>
+<p>先支援 9 條 Metro 路線內的普通列車。每筆只走一條路線，依官方站序連接；不假設跨業者直通或站外步行。</p>
+<button id="prefer-metro" type="button">改選東京 Metro 候選</button><p id="metro-choice-status" class="hint" role="status"></p>
+<button id="load-metro" type="button">載入 Metro 進出站規劃</button><p id="journey-coverage" class="hint"></p>
+<div id="journey-controls" hidden>
+<label for="journey-start">第一筆交易的進站站點</label><select id="journey-start"></select>
+<label for="journey-end">最後一筆交易的出站站點</label><select id="journey-end"></select>
+<label class="check"><input id="journey-interleaved" type="checkbox">允許文字中間插入額外履歷（可能打斷排字）</label>
+<p class="hint">沿用目前的入場／出場欄、列印順序、格式筆數、卡種與業者／路線排除條件。未指定卡種時使用 PASMO。每筆不跨路線，路線切換數為 0；實際換車需另查。起終點接駁可能增加排字前後的額外履歷。</p>
+<button id="plan-journey" type="button">計算逐筆進出站</button>
+</div>
+<p id="journey-status" role="status">請先完成選站，再載入 Metro 規劃。</p>
+<p class="notice">每段須獨立進站、乘車及出站扣款。轉乘閘門與連續轉乘可能合併交易，請向站務確認；此處尚未實測，不保證一段對應一筆實際履歷。定期券、一日券、充值及購物可能改變結果。尚無票價、時間及實際印字佐證。</p>
+<ol id="journey-results"></ol><p class="hint">下表依選定列印順序排列，顯示模型的進出站；站名為資料原文，非實際印字。</p><div class="receipt-scroll"><table id="journey-history" aria-label="模型進出站履歷"></table></div>
+<div class="export-actions"><button id="journey-map" type="button" disabled>在地圖查看沿線站序</button><button id="journey-export" type="button" disabled>下載進出站規劃</button></div>
+<p class="hint"><a href="https://www.tokyometro.jp/station/">官方路線與運行資訊</a> · <a href="https://www.tokyometro.jp/ticket/types/pasmo/index.html">IC 與轉乘規則</a> · <a href="./metro-evidence.json">站序來源與核對日期</a></p>
+</section>
 <p id="sequence" class="hint"></p><p class="notice">此頁只驗證排字。列印名稱、設備格式與行程連接尚未確認，不代表可行乘車路線。</p>
 <ul id="warnings"></ul><div class="export-actions"><button id="text-export" type="button">下載文字清單</button><button id="print-preview" type="button">列印／存為 PDF</button></div><button id="download" type="button">下載排字草稿 JSON ↓</button>
 </section>

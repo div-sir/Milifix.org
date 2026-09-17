@@ -17,3 +17,10 @@
 #route-condition-controls { min-width:0; }
 #route-condition-controls select { min-width:0; }
 @media print { #route-condition-controls { display:none!important; } }
+
+.journey-section { margin-top:2rem; padding-top:1rem; border-top:1px solid #c5d0c4; }
+#journey-results > li { margin:1rem 0; overflow-wrap:anywhere; line-height:1.7; }
+#journey-results details { margin:0.5rem 0; }
+#journey-status { font-size:14px; line-height:1.7; }
+#journey-history td { white-space:normal; overflow-wrap:anywhere; }
+@media print { #load-metro,#prefer-metro,#journey-controls { display:none!important; } }

@@ -1,3 +1,4 @@
+import { initializeJourneyPanel, updateJourneyContext } from './journey-panel.js';
 import { updateRoutePlan, calculateRoutes } from './route-panel.js';
 import { updateStationMap, openStationMap } from './map.js';
 import { matchMessage, buildSequence, renderPreview, graphemes, cellWidth, validateCatalog, validateBundle, createDraft, restoreDraft } from './dist/index.js';
@@ -10,6 +11,7 @@ let bundle = sampleBundle;
 let stations = bundle.stations;
 let stationById = new Map(stations.map(s => [s.id, s]));
 let selections = {};
+let currentSlots = [];
 let draft = null;
 let starting = true;
 let catalogRevision = 0;
@@ -46,10 +48,12 @@ function render() {
     $('ic-summary').textContent = `${covered} / ${stations.length} 筆站點有符合卡種的支援依據；未列入不等於不支援。指定卡種會直接篩選。`;
     if ($('alignment').value === 'fixed') options.column = Number($('column').value) - 1;
     const slots = matchMessage($('message').value, stations, options);
+    currentSlots = slots;
     const sequence = buildSequence(slots, selections);
     updateStationMap(sequence.flatMap((row,i) => row.selected ? [{station:stationById.get(row.selected.stationId),number:i+1}] : []));
     const profile = { ...activeProfile, order: $('order').value };
     const preview = renderPreview(sequence, profile, $('field').value);
+    updateJourneyContext({stations, sequence, profile, field:$('field').value, card:options.icCard || 'PASMO'});
     updateRoutePlan(stations, preview.chronologicalRows.map(row => row.selected ? stationById.get(row.selected.stationId) : null));
     draft = createDraft($('message').value, bundle, options, selections, $('field').value, profile.order);
     $('receipt-profile').textContent = profile.name;
@@ -142,7 +146,7 @@ function render() {
     $('download').disabled = !sequence.length;
     saveLocal();
   } catch (error) {
-    updateStationMap([]); updateRoutePlan(stations, []);
+    currentSlots=[]; updateJourneyContext(null); updateStationMap([]); updateRoutePlan(stations, []);
     exportText = ''; $('text-export').disabled = true; $('print-preview').disabled = true;
     draft = null; $('error').textContent = error.message;
     $('rows').replaceChildren(); $('candidates').replaceChildren(); $('warnings').replaceChildren();
@@ -254,6 +258,15 @@ $('print-preview').addEventListener('click', () => window.print());
 $('clear-saved').addEventListener('click', () => {
   try { localStorage.removeItem(savedKey); $('save-status').textContent = '已刪除瀏覽器草稿；再次編輯後會重新保存。'; }
   catch { $('save-status').textContent = '無法存取瀏覽器儲存空間。'; }
+});
+initializeJourneyPanel();
+$('prefer-metro').addEventListener('click',()=>{
+  let matched=0;
+  currentSlots.forEach((slot,index)=>{
+    const choice=slot.candidates.findIndex(c=>stationById.get(c.stationId)?.operator==='東京メトロ');
+    if(choice>=0){ selections[index]=choice;matched++; }
+  });
+  render(); $('metro-choice-status').textContent=`${matched} / ${currentSlots.length} 字已改選東京 Metro；其餘選站保持原樣，請改文字或條件。`;
 });
 updateControls();
 render();

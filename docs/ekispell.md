@@ -31,3 +31,25 @@ All route conditions apply together. Users can set a per-leg line-change limit, 
 Shinkansen IDs come from active `line_type=1` rows in the pinned StationAPI `data/2!lines.csv` (1002–1012). They are not guessed from names. Other paid express services are not classified. Update this list when updating the source snapshot.
 
 Conditions persist separately under `ekispell-route-options-v1`; invalid saved values fall back to defaults. They are not part of the existing layout JSON export. Search narrows the exclusion pickers but preserves added exclusions. Google Maps links carry endpoints only and do not carry these conditions. Existing IC card filters apply to selected message stations, not the full route.
+
+### Tokyo Metro transaction-planning pilot
+
+The separate Metro panel uses nine official line station lists, transcribed in
+`integrations/ekispell/metro-evidence.json` (checked 2026-09-17), and 144 exact
+operator/name/line identities from the pinned StationAPI projection. Regenerate
+with `python scripts/build-ekispell-metro.py`. The Marunouchi branch explicitly
+joins at Nakano-sakaue; HTML table row adjacency is not rail adjacency.
+
+Each modeled edge represents a separate entry, ordinary-train ride on one Metro
+line, and exit. Branch rides may require changing trains. No through service past
+Metro endpoints, group-based walks, or free transfers are inferred. The planner
+minimizes record count, not time, distance, or fare. It respects selected card
+support evidence, excluded operators/lines, entry/exit field, print order, and
+history capacity. Optional interleaved extra records are identified explicitly.
+
+Official station order and PASMO acceptance are evidence; the transaction and
+printer model remains unverified. Transfer-gate reentry may continue a transaction
+instead of producing another record. Ticket products and other card transactions
+may change history. Actual print labels, fare, timetables, and printer availability
+are not verified. The table uses source station names, not asserted print strings.
+A text export and schematic adjacent-stop map support reviewing the model.
