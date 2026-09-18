@@ -1,4 +1,5 @@
-import { initializeJourneyPanel, updateJourneyContext } from './journey-panel.js';
+import { createMetroExample } from './journey-review.js';
+import { initializeJourneyPanel, updateJourneyContext, openJourneyExample } from './journey-panel.js';
 import { updateRoutePlan, calculateRoutes } from './route-panel.js';
 import { updateStationMap, openStationMap } from './map.js';
 import { matchMessage, buildSequence, renderPreview, graphemes, cellWidth, validateCatalog, validateBundle, createDraft, restoreDraft } from './dist/index.js';
@@ -260,6 +261,17 @@ $('clear-saved').addEventListener('click', () => {
   catch { $('save-status').textContent = '無法存取瀏覽器儲存空間。'; }
 });
 initializeJourneyPanel();
+$('metro-example').addEventListener('click',async()=>{
+  $('metro-example').disabled=true;
+  try {
+    if(starting)throw new Error('站名資料正在載入，請稍後再試');
+    const example=createMetroExample(bundle);
+    applyDraft(example.draft);
+    $('route-reset-conditions').click();
+    await openJourneyExample(example.start,example.end);
+  }catch(error){$('journey-status').textContent=error.message;}
+  finally{$('metro-example').disabled=false;}
+});
 $('prefer-metro').addEventListener('click',()=>{
   let matched=0;
   currentSlots.forEach((slot,index)=>{

@@ -50,3 +50,57 @@ it('requires an extra record for repeated entry and respects receipt capacity',(
  expect(planMetroJourney(seq,{...profile,maxRows:2},model,{...options,allowInterleavedRecords:true}).status).toBe('infeasible');
  expect(()=>planMetroJourney(seq,profile,model,{...options,start:'unknown'})).toThrow();
 });
+
+import { reviewJourney, createMetroExample } from '../public/ekispell/journey-review.js';
+it('provides a reproducible two-transaction example with exact Metro identities',()=>{
+ const example=createMetroExample(bundle);
+ expect(example.draft.message).toBe('銀京');
+ expect(example.start).toBe(station('銀座').id);expect(example.end).toBe(station('日本橋').id);
+ expect(()=>createMetroExample({...bundle,id:'custom'})).toThrow();
+ expect(readFileSync('public/ekispell/journey-review.js')).toEqual(readFileSync('integrations/ekispell/journey-review.js'));
+});
+it('retains newest transactions regardless of printed order and counts future history',()=>{
+ const seq=sequence(['銀座','京橋']);
+ const result=planMetroJourney(seq,profile,model,{start:station('銀座').id,end:station('日本橋').id,field:'entry'});
+ const initial=reviewJourney(result,seq,profile,model);
+ expect(initial.allowance).toBe(18);expect(initial.contiguous).toBe(true);
+ const atLimit=reviewJourney(result,seq,profile,model,{afterRecords:18});
+ expect(atLimit.complete).toBe(true);expect(atLimit.remainingAllowance).toBe(0);
+ for(const order of ['oldest-first','newest-first']){
+  const expired=reviewJourney(result,seq,{...profile,order},model,{afterRecords:19});
+  expect(expired.missing).toEqual([0]);expect(expired.rows.map((r:{retained:boolean})=>r.retained)).toEqual([false,true]);
+  expect(expired.complete).toBe(false);
+ }
+ expect(reviewJourney(result,seq,profile,model,{afterRecords:100}).missing).toEqual([0,1]);
+});
+it('uses PASMO general capacity conservatively without assigning its rule to another card',()=>{
+ const seq=sequence(['銀座','京橋']);
+ const result=planMetroJourney(seq,profile,model,{start:station('銀座').id,end:station('日本橋').id,field:'entry'});
+ expect(reviewJourney(result,seq,{...profile,maxRows:100},model,{card:'PASMO'}).capacity).toBe(20);
+ expect(reviewJourney(result,seq,{...profile,maxRows:100},model,{card:'Suica'}).capacity).toBe(100);
+ expect(reviewJourney(result,seq,{...profile,maxRows:1},model).missing).toEqual([0]);
+ for(const afterRecords of [-1,1.5,101,NaN,Infinity])expect(()=>reviewJourney(result,seq,profile,model,{afterRecords})).toThrow();
+});
+it('locates middle positioning records and return-trip boundaries without certifying settlement',()=>{
+ const seq=sequence(['銀座','銀座']);
+ const result=planMetroJourney(seq,profile,model,{start:station('銀座').id,end:station('京橋').id,field:'entry',allowInterleavedRecords:true});
+ const review=reviewJourney(result,seq,profile,model);
+ expect(review.extras).toEqual({before:0,between:1,after:0});
+ expect(review.complete).toBe(true);expect(review.contiguous).toBe(false);
+ expect(review.boundaries.some(b=>b.reverses)).toBe(true);
+});
+it('ignores expendable prefix records when calculating the margin for target letters',()=>{
+ const seq=sequence(['銀座']);
+ const records=[{entry:'a',exit:'b',edgeId:'a',messageIndex:null},{entry:'b',exit:'c',edgeId:'a',messageIndex:0},{entry:'c',exit:'d',edgeId:'a',messageIndex:null}];
+ const review=reviewJourney({status:'found',records},seq,{...profile,maxRows:3},{paths:new Map([['a',{lineId:'same'}]])});
+ expect(review.extras).toEqual({before:1,between:0,after:1});expect(review.allowance).toBe(1);
+ const expired=reviewJourney({status:'found',records},seq,{...profile,maxRows:3},{paths:new Map([['a',{lineId:'same'}]])},{afterRecords:1});
+ expect(expired.missing).toEqual([]);expect(expired.complete).toBe(true);
+});
+it('identifies the exact station at a modeled line-change boundary',()=>{
+ const seq=sequence(['銀座','日本橋']);
+ const result=planMetroJourney(seq,profile,model,{start:station('銀座').id,end:station('茅場町').id,field:'entry'});
+ expect(result.status).toBe('found');
+ const review=reviewJourney(result,seq,profile,model);
+ expect(review.boundaries).toEqual([{after:1,stationId:station('日本橋').id,changesLine:true,reverses:false}]);
+});
