@@ -24,3 +24,9 @@
 #journey-status { font-size:14px; line-height:1.7; }
 #journey-history td { white-space:normal; overflow-wrap:anywhere; }
 @media print { #load-metro,#prefer-metro,#journey-controls { display:none!important; } }
+
+#journey-review{margin:1rem 0;padding:1rem;border:1px solid var(--line,#ccc)}
+#journey-after-records{width:100%;max-width:12rem}
+.history-expired{background:#fbe8d9;color:#713209}
+#journey-review-summary{overflow-wrap:anywhere}
+@media print{#metro-example{display:none}}

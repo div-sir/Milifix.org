@@ -187,3 +187,25 @@ test('Metro pilot plans separate transactions and invalidates stale results', as
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  expect(errors).toEqual([]);
 });
+
+test('Metro example checks history retention and includes the review in downloads',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/ekispell/');await expect(page.locator('#real-status')).toContainText('9,485');
+ await page.locator('#metro-example').click();
+ await expect(page.locator('#journey-status')).toContainText('共 2 筆');
+ await expect(page.locator('#message')).toHaveValue('銀京');
+ await expect(page.locator('#journey-review-summary')).toContainText('還可新增 18 筆');
+ await page.locator('#journey-after-records').fill('19');
+ await expect(page.locator('#journey-review-summary')).toContainText('第 1 字「銀」');
+ await expect(page.locator('#journey-history .history-expired')).toHaveCount(1);
+ const download=page.waitForEvent('download');await page.locator('#journey-export').click();
+ const file=await download;const {readFile}=await import('node:fs/promises');
+ const text=await readFile((await file.path())!,'utf8');expect(text).toContain('完成行程後再新增 19 筆');expect(text).toContain('第 1 字「銀」');
+ await page.locator('#journey-after-records').fill('');
+ await expect(page.locator('#journey-export')).toBeDisabled();
+ await expect(page.locator('#journey-review-summary')).toContainText('請輸入');
+ await page.locator('#journey-after-records').fill('0');await expect(page.locator('#journey-export')).toBeEnabled();
+ await page.locator('#order').selectOption('newest-first');
+ await expect(page.locator('#journey-review')).toBeHidden();await expect(page.locator('#journey-export')).toBeDisabled();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);
+});

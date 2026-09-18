@@ -23,7 +23,7 @@ describe('EkiSpell deployment release', () => {
 
   it('ships every browser module and resolves all local imports', () => {
     expect(existsSync(resolve(root, 'dist/index.js'))).toBe(true);
-    const files = ['app.js', 'real-data.js', 'map.js', 'routes.js', 'route-panel.js', 'route-options.js', 'metro-journey.js', 'journey-panel.js', ...readdirSync(resolve(root, 'dist')).filter(f => f.endsWith('.js')).map(f => `dist/${f}`)];
+    const files = ['app.js', 'real-data.js', 'map.js', 'routes.js', 'route-panel.js', 'route-options.js', 'metro-journey.js', 'journey-panel.js', 'journey-review.js', ...readdirSync(resolve(root, 'dist')).filter(f => f.endsWith('.js')).map(f => `dist/${f}`)];
     for (const file of files) {
       for (const match of read(file).matchAll(/from\s+['"]([^'"]+)['"]/g)) {
         expect(match[1].startsWith('.')).toBe(true);

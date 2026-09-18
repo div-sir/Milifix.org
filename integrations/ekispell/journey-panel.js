@@ -1,11 +1,12 @@
+import { reviewJourney, HISTORY_SOURCE, TRANSFER_SOURCE, RULES_CHECKED } from './journey-review.js';
 import { buildMetroTransactions, planMetroJourney } from './metro-journey.js';
 import { getRouteOptions } from './route-options.js';
 import { updateRouteMap, openStationMap } from './map.js';
-let context, topology, loading, generation=0, exportText='', resultSegments=[];
+let context, topology, loading, generation=0, exportText='', resultSegments=[], reviewState=null, exportBase='';
 const $=id=>document.getElementById(id);
 const node=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;return n;};
 export function invalidateJourney() {
-  generation++; exportText=''; resultSegments=[]; updateRouteMap([]);
+  generation++; reviewState=null; exportBase=''; $('journey-review').hidden=true; $('journey-review-summary').textContent=''; $('journey-boundaries').replaceChildren(); exportText=''; resultSegments=[]; updateRouteMap([]);
   $('journey-results').replaceChildren(); $('journey-history').replaceChildren();
   $('journey-export').disabled=true; $('journey-map').disabled=true;
   $('journey-status').textContent='選站或條件變更後，請重新計算進出站規劃。';
@@ -33,6 +34,7 @@ async function loadTopology() {
 }
 export function initializeJourneyPanel() {
   document.addEventListener('ekispell-route-conditions',invalidateJourney);
+  $('journey-after-records').addEventListener('input',renderReview);
   $('load-metro').addEventListener('click',async()=>{
     $('load-metro').disabled=true;
     try {await loadTopology(); if(context)fillStations(); $('journey-controls').hidden=false;}
@@ -74,12 +76,55 @@ async function calculateJourney() {
       text.push(action);
       for(let j=1;j<path.stations.length;j++)resultSegments.push({line:path.line,from:names.get(path.stations[j-1]),to:names.get(path.stations[j])});
     });
-    const head=node('tr','');for(const title of ['入場站','出場站','用途'])head.append(node('th',title));const thead=document.createElement('thead');thead.append(head);$('journey-history').append(thead);
-    const body=document.createElement('tbody');
-    for(const record of result.displayRecords){const tr=node('tr','');for(const value of [names.get(record.entry).name,names.get(record.exit).name,record.messageIndex===null?'額外履歷':`第 ${record.messageIndex+1} 字`])tr.append(node('td',value));body.append(tr);}
-    $('journey-history').append(body);
     text.push('',`模型履歷表（${context.profile.order==='newest-first'?'新紀錄在上':'舊紀錄在上'}；站名為資料原文，非實際印字）`,...result.displayRecords.map(r=>`${names.get(r.entry).name} → ${names.get(r.exit).name}｜${r.messageIndex===null?'額外履歷':`第 ${r.messageIndex+1} 字`}`),'',...topology.lines.map(l=>l.source));
-    exportText=text.join('\n');$('journey-export').disabled=false;$('journey-map').disabled=false;
+    exportBase=text.join('\n');reviewState={result,model,context};$('journey-review').hidden=false;renderReview();$('journey-map').disabled=false;
   }catch(error){$('journey-status').textContent=error.message;}
   finally{$('plan-journey').disabled=false;}
+}
+
+export async function openJourneyExample(start,end) {
+  const run=generation;
+  await loadTopology();
+  if(run!==generation)return;
+  fillStations();$('journey-controls').hidden=false;
+  $('journey-start').value=start;$('journey-end').value=end;
+  $('journey-interleaved').checked=false;$('journey-after-records').value='0';
+  await calculateJourney();
+}
+function renderReview() {
+  if(!reviewState)return;
+  $('journey-export').disabled=true;exportText='';
+  $('journey-history').replaceChildren();$('journey-boundaries').replaceChildren();
+  const {result,model,context:ctx}=reviewState;
+  try {
+    const raw=$('journey-after-records').value.trim();
+    if(!raw)throw new Error('請輸入列印前預計新增的履歷筆數');
+    const review=reviewJourney(result,ctx.sequence,ctx.profile,model,{card:ctx.card,afterRecords:Number(raw)});
+    const names=new Map(ctx.stations.map(s=>[s.id,s.name]));
+    const text=[`履歷保留試算：採最近 ${review.capacity} 筆；完成行程後再新增 ${review.afterRecords} 筆。`,
+      ctx.card==='PASMO'?'PASMO 一般履歷上限 20 筆，並受目前格式筆數限制。部分業者可印更多，本試算不假設有此設備。':'此卡種只採目前格式筆數假設，尚無對應官方印表上限佐證。',
+      `額外履歷：排字前 ${review.extras.before} 筆／文字中間 ${review.extras.between} 筆／排字後 ${review.extras.after} 筆。`];
+    if(review.missing.length)text.push(`將超出保留範圍：${review.missing.map(i=>`第 ${i+1} 字「${ctx.sequence[i].character}」`).join('、')}。請提早列印或減少後續紀錄。`);
+    else text.push(`模型內所有目標字仍保留；還可新增 ${review.remainingAllowance} 筆，之後會擠掉目標字。`);
+    if(!review.contiguous&&review.extras.between)text.push('文字中間有額外履歷，無法連續閱讀。');
+    text.push('以上假設每段各產生一筆且未合併；不是實際扣款或印字驗證。');
+    $('journey-review-summary').textContent=text.join(' ');
+    const head=node('tr','');for(const title of ['交易','入場站','出場站','用途','保留試算'])head.append(node('th',title));
+    const thead=node('thead','');thead.append(head);$('journey-history').append(thead);
+    const body=node('tbody',''),rows=ctx.profile.order==='newest-first'?[...review.rows].reverse():review.rows;
+    const kinds={before:'排字前接駁',between:'文字中間額外履歷',after:'排字後接駁'};
+    for(const row of rows){const tr=node('tr','');if(!row.retained)tr.className='history-expired';
+      const purpose=row.kind==='message'?`第 ${row.record.messageIndex+1} 字`:kinds[row.kind];
+      for(const value of [String(row.number),names.get(row.record.entry),names.get(row.record.exit),purpose,row.retained?'保留':'超出範圍'])tr.append(node('td',value));
+      body.append(tr);
+    }
+    $('journey-history').append(body);
+    for(const boundary of review.boundaries){
+      const message=`第 ${boundary.after} → ${boundary.after+1} 筆，${names.get(boundary.stationId)}：${[boundary.changesLine?'更換路線':null,boundary.reverses?'折返原站':null].filter(Boolean).join('、')}。請確認分別出站扣款，不將連續乘車當作獨立紀錄。`;
+      $('journey-boundaries').append(node('li',message));text.push(message);
+    }
+    if(!review.boundaries.length)$('journey-boundaries').append(node('li','未發現換線或折返邊界；仍需確認每筆獨立出站扣款。'));
+    text.push(`規則核對日：${RULES_CHECKED}`,HISTORY_SOURCE,TRANSFER_SOURCE);
+    exportText=exportBase+'\n\n'+text.join('\n');$('journey-export').disabled=false;
+  }catch(error){$('journey-review-summary').textContent=error.message;}
 }

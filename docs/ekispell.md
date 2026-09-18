@@ -53,3 +53,36 @@ instead of producing another record. Ticket products and other card transactions
 may change history. Actual print labels, fare, timetables, and printer availability
 are not verified. The table uses source station names, not asserted print strings.
 A text export and schematic adjacent-stop map support reviewing the model.
+
+### History retention and transaction review
+
+The Metro example button replaces the draft with `銀京`, selects exact Metro
+Ginza/Kyobashi station identities, sets PASMO/entry/oldest-first, clears route
+conditions, and plans Ginza → Kyobashi → Nihombashi. The UI explains the replacement
+before the user clicks. It does not mark the example as field-tested.
+
+`journey-review.js` checks chronological retention separately from print order.
+The user enters additional history records expected after the modeled journey.
+For PASMO, capacity is the smaller of the selected format and the general 20-record
+limit. Some operators support 100 records within 26 weeks; this UI does not assume
+that equipment. Other cards use the selected format as an explicitly unverified
+capacity assumption. Older history outside the plan is not rendered. Prefix,
+interleaved and suffix positioning records count toward the same capacity; only
+loss of a target letter makes the message incomplete. Exports include the current
+retention assumptions and any missing letters. Invalid input disables export.
+
+Line-change and return-trip boundaries are prompts to verify separate settlement,
+not claims about whether particular gates merge transactions. No waiting duration
+is recommended as a guarantee. Any change to the route context invalidates the
+review and export. A future record count updates the review without rerouting.
+
+Official sources checked 2026-09-18:
+- https://www.pasmo.co.jp/about/service/history/ — general 20-record limit, optional
+  100-record equipment, commuter-section omissions, recharge/purchase types,
+  transfer type, and station-name limitations outside the PASMO/Suica area.
+- https://www.tokyometro.jp/ticket/types/pasmo/index.html — qualifying out-of-gate
+  transfers within 60 minutes can continue fare calculation.
+
+These rules do not validate actual station abbreviations, printer column widths,
+per-gate settlement, fares, timetables, or a physical receipt. No card number or
+travel history is uploaded by this review.
