@@ -332,6 +332,7 @@ function App() {
             onReady={onGlobeReady}
             focusFlight={focusFlight}
             theme={theme}
+            paused={!!modal}
           />
         )}
         <svg className="compass-wm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8">

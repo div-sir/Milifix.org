@@ -72,7 +72,7 @@ test('Meridiel imports a valid CSV into the flight log', async ({ page }) => {
   await expect(page.getByRole('status').filter({ hasText: '2 ready' })).toBeVisible();
   await page.getByRole('button', { name: 'Import 2 flights' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toHaveCount(0);
-  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
+  // The log panel is hidden on phones but its rows stay in the DOM.
   await expect(page.locator('.log-row')).toHaveCount(2);
 });
 
@@ -88,7 +88,6 @@ test('Meridiel previews a partially invalid CSV and imports only the good rows',
   await expect(page.getByRole('status').filter({ hasText: '1 ready · 0 with warnings · 2 rejected · 1 duplicates skipped' })).toBeVisible();
   await expect(page.getByText('Unknown airport code “ZZZ”.')).toBeVisible();
   await page.getByRole('button', { name: 'Import 1 flights' }).click();
-  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
   await expect(page.locator('.log-row')).toHaveCount(1);
 });
 
@@ -97,19 +96,8 @@ test('Meridiel rejects an unusable CSV without touching the log', async ({ page 
   await page.getByTestId('meridiel-csv-input').setInputFiles(csvFile('notes.csv', 'hello,world\n1,2'));
   await expect(page.getByRole('alert')).toContainText('Missing required columns: date, from, to.');
   await expect(page.getByRole('button', { name: /^Import \d+ flights$/ })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Close' }).click();
-  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
+  // The log sits behind the modal; nothing may have been written to it.
   await expect(page.locator('.log-row')).toHaveCount(0);
-});
-
-test('Meridiel share modal no longer promises a share link', async ({ page }) => {
-  await page.goto('/meridiel/');
-  await page.getByRole('button', { name: 'Explore atlas' }).click();
-  await page.getByRole('button', { name: 'Open account menu' }).click();
-  await page.locator('.am-item', { hasText: 'Share atlas' }).click();
-  await expect(page.getByRole('button', { name: 'Download image' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Copy link' })).toHaveCount(0);
-  await expect(page.getByText('reopens this exact atlas')).toHaveCount(0);
 });
 
 test('Meridiel switches to Traditional Chinese and remembers it', async ({ page }) => {

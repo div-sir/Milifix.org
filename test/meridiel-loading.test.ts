@@ -106,6 +106,13 @@ describe('Meridiel loading strategy', () => {
     expect(source).toContain('await loadHtml2Canvas()');
   });
 
+  it('does not promise a share link it cannot deliver', async () => {
+    const source = await readFile(new URL('app/modals.jsx', root), 'utf8');
+    expect(source).not.toContain('#shared');
+    expect(source).not.toContain('Copy link');
+    expect(source).not.toContain('reopens this exact atlas');
+  });
+
   it('ships the React surface as one component bundle', async () => {
     const html = await readFile(new URL('index.html', root), 'utf8');
     const compiledScripts = [...html.matchAll(/app\/compiled\/([^?"']+)/g)].map((match) => match[1]);
