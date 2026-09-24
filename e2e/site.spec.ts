@@ -50,6 +50,80 @@ test('Meridiel can be explored without signing in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Add flight' })).toBeVisible();
 });
 
+async function openMeridielImport(page: import('@playwright/test').Page) {
+  await page.goto('/meridiel/');
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.locator('.topbar')).toBeVisible();
+  await page.getByRole('button', { name: 'Add flight' }).click();
+  await page.getByRole('button', { name: 'Import CSV' }).click();
+}
+
+function csvFile(name: string, body: string) {
+  return { name, mimeType: 'text/csv', buffer: Buffer.from(body, 'utf8') };
+}
+
+test('Meridiel imports a valid CSV into the flight log', async ({ page }) => {
+  await openMeridielImport(page);
+  await page.getByTestId('meridiel-csv-input').setInputFiles(csvFile('trip.csv', [
+    'date,from,to,airline,flight_no',
+    '2025-03-14,TPE,NRT,China Airlines,CI 100',
+    '2025-03-20,NRT,TPE,EVA Air,BR 197',
+  ].join('\n')));
+  await expect(page.getByRole('status').filter({ hasText: '2 ready' })).toBeVisible();
+  await page.getByRole('button', { name: 'Import 2 flights' }).click();
+  await expect(page.getByRole('heading', { name: 'Add a flight' })).toHaveCount(0);
+  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
+  await expect(page.locator('.log-row')).toHaveCount(2);
+});
+
+test('Meridiel previews a partially invalid CSV and imports only the good rows', async ({ page }) => {
+  await openMeridielImport(page);
+  await page.getByTestId('meridiel-csv-input').setInputFiles(csvFile('mixed.csv', [
+    'date,from,to',
+    '2025-03-14,TPE,NRT',
+    '2025-02-30,TPE,NRT',
+    '2025-03-15,ZZZ,NRT',
+    '2025-03-14,TPE,NRT',
+  ].join('\n')));
+  await expect(page.getByRole('status').filter({ hasText: '1 ready · 0 with warnings · 2 rejected · 1 duplicates skipped' })).toBeVisible();
+  await expect(page.getByText('Unknown airport code “ZZZ”.')).toBeVisible();
+  await page.getByRole('button', { name: 'Import 1 flights' }).click();
+  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
+  await expect(page.locator('.log-row')).toHaveCount(1);
+});
+
+test('Meridiel rejects an unusable CSV without touching the log', async ({ page }) => {
+  await openMeridielImport(page);
+  await page.getByTestId('meridiel-csv-input').setInputFiles(csvFile('notes.csv', 'hello,world\n1,2'));
+  await expect(page.getByRole('alert')).toContainText('Missing required columns: date, from, to.');
+  await expect(page.getByRole('button', { name: /^Import \d+ flights$/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close' }).click();
+  if ((page.viewportSize()?.width || 0) <= 900) await page.getByRole('tab', { name: 'Log' }).click();
+  await expect(page.locator('.log-row')).toHaveCount(0);
+});
+
+test('Meridiel share modal no longer promises a share link', async ({ page }) => {
+  await page.goto('/meridiel/');
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await page.getByRole('button', { name: 'Open account menu' }).click();
+  await page.locator('.am-item', { hasText: 'Share atlas' }).click();
+  await expect(page.getByRole('button', { name: 'Download image' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy link' })).toHaveCount(0);
+  await expect(page.getByText('reopens this exact atlas')).toHaveCount(0);
+});
+
+test('Meridiel switches to Traditional Chinese and remembers it', async ({ page }) => {
+  await page.goto('/meridiel/');
+  await page.getByRole('combobox', { name: 'Language' }).selectOption('zh-Hant');
+  await expect(page.getByRole('button', { name: '開始探索' })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');
+  await page.reload();
+  await page.getByRole('button', { name: '開始探索' }).click();
+  await expect(page.getByRole('button', { name: '新增航班' })).toBeVisible();
+  await page.getByRole('button', { name: '新增航班' }).click();
+  await expect(page.getByRole('heading', { name: '新增航班' })).toBeVisible();
+});
+
 test('Meridiel serves the globe land geometry from its own origin', async ({ page }) => {
   const remoteLandRequests: string[] = [];
   page.on('request', (request) => {

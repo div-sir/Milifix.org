@@ -65,7 +65,7 @@ describe('Meridiel loading strategy', () => {
       readFile(new URL('app/modals.jsx', root), 'utf8'),
     ]);
 
-    expect(data).toContain('function loadReferenceData()');
+    expect(data).toContain('function loadReferenceData(options)');
     expect(data).toContain('data/openflights-airports.dat');
     expect(data).toContain('data/openflights-airlines.dat');
     expect(data).not.toContain('raw.githubusercontent.com/jpatokal/openflights');

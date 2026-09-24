@@ -3,6 +3,7 @@
    ============================================================ */
 import { UI } from "./ui-registry.js";
 import { ATLAS } from "./data.js";
+import { t } from "./i18n.js";
 
 const { useMemo: useMemoP } = React;
 
@@ -16,8 +17,8 @@ function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, classN
   return (
     <section className={"panel log paper-tex " + (className || "")}>
       <div className="panel-head">
-        <h3>Flight Log</h3>
-        <span className="count">{flights.length} segments</span>
+        <h3>{t("log.title")}</h3>
+        <span className="count">{t("log.count", { count: UI.fmtNum(flights.length) })}</span>
       </div>
       <div className={"log-list" + (syncing ? " log-list--locked" : "")}>
         {flights.map((f) => (
@@ -34,14 +35,14 @@ function FlightLog({ flights, selectedId, onSelect, onAddFlight, syncing, classN
             </div>
             <div className="lr-date">{UI.fmtDate(f.date)}</div>
             <div className="lr-sub">{f.airline}</div>
-            <div className="lr-miles">{f.miles.toLocaleString()} mi</div>
+            <div className="lr-miles">{UI.fmtNum(f.miles)} {t("unit.mi")}</div>
           </div>
         ))}
         {/* Always-present closing CTA — gives a short log somewhere to land
             instead of trailing off into blank panel space. */}
         <button className="log-add-hint" onClick={onAddFlight} disabled={syncing}>
           <UI.Icon.plus />
-          {flights.length === 0 ? "Log your first flight" : "Add your next flight"}
+          {flights.length === 0 ? t("log.first") : t("log.next")}
         </button>
       </div>
       {syncing && (
@@ -61,40 +62,40 @@ function StatsRail({ flights, allFlights, className }) {
   return (
     <section className={"panel rail paper-tex " + (className || "")}>
       <div className="panel-head">
-        <h3>The Tally</h3>
-        <span className="count">since {ATLAS.sinceOf(allFlights || flights)}</span>
+        <h3>{t("rail.title")}</h3>
+        <span className="count">{t("rail.since", { year: ATLAS.sinceOf(allFlights || flights) })}</span>
       </div>
       <div className="panel-body">
         <div className="stat-grid">
           <div className="stat">
             <span className="v"><UI.StatNum value={s.miles} /></span>
-            <span className="k">Miles flown</span>
+            <span className="k">{t("stat.milesFlown")}</span>
           </div>
           <div className="stat">
-            <span className="v"><UI.StatNum value={s.hours} /><small> hrs</small></span>
-            <span className="k">In the air</span>
+            <span className="v"><UI.StatNum value={s.hours} /><small> {t("stat.hrs")}</small></span>
+            <span className="k">{t("stat.inAir")}</span>
           </div>
           <div className="stat">
             <span className="v"><UI.StatNum value={s.countries} /></span>
-            <span className="k">Countries</span>
+            <span className="k">{t("stat.countries")}</span>
           </div>
           <div className="stat">
             <span className="v"><UI.StatNum value={s.airports} /></span>
-            <span className="k">Airports</span>
+            <span className="k">{t("stat.airports")}</span>
           </div>
           <div className="stat wide">
             <div>
               <span className="v"><UI.StatNum value={s.flights} /></span>
-              <span className="k">Flight segments logged</span>
+              <span className="k">{t("stat.segmentsLogged")}</span>
             </div>
             <div style={{ textAlign: "right" }}>
               <span className="v"><UI.StatNum value={s.laps} decimals={1} /></span>
-              <span className="k">× around Earth</span>
+              <span className="k">{t("stat.aroundEarthSuffix")}</span>
             </div>
           </div>
         </div>
 
-        <div className="section-label">Passport · {countries.length} stamps</div>
+        <div className="section-label">{t("rail.passport", { count: countries.length })}</div>
         <div className="flagwall">
           {countries.map((c) => (
             <UI.Flag key={c.country} cc={c.cc} label={c.country} />
@@ -111,22 +112,22 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
   if (!flight) return null;
   const f = flight;
   const remove = () => {
-    if (window.confirm(`Delete the ${f.from.code} → ${f.to.code} flight? This can't be undone.`)) {
+    if (window.confirm(t("detail.confirmDelete", { from: f.from.code, to: f.to.code }))) {
       onDelete(f.id);
     }
   };
   return (
     <section className={"panel rail " + (className || "")} style={{ background: "var(--paper)" }}>
       <div className="panel-head" style={{ background: "var(--paper-3)" }}>
-        <h3>Boarding Pass</h3>
+        <h3>{t("detail.title")}</h3>
         <div style={{ display: "flex", gap: 6 }}>
-          <button className="icon-btn icon-btn-sm" onClick={() => onEdit(f)} title="Edit flight" disabled={syncing}>
+          <button className="icon-btn icon-btn-sm" onClick={() => onEdit(f)} title={t("detail.edit")} aria-label={t("detail.edit")} disabled={syncing}>
             <UI.Icon.edit />
           </button>
-          <button className="icon-btn icon-btn-sm" onClick={remove} title="Delete flight" disabled={syncing}>
+          <button className="icon-btn icon-btn-sm" onClick={remove} title={t("detail.delete")} aria-label={t("detail.delete")} disabled={syncing}>
             <UI.Icon.trash />
           </button>
-          <button className="icon-btn icon-btn-sm" onClick={onClose}>
+          <button className="icon-btn icon-btn-sm" onClick={onClose} title={t("common.close")} aria-label={t("common.close")}>
             <UI.Icon.x />
           </button>
         </div>
@@ -141,7 +142,7 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
             <div className="detail-mid">
               <span className="plane"><UI.Icon.planeFill /></span>
               <span className="line" />
-              <span style={{ fontFamily: "var(--mono)", fontSize: 10 }}>{f.miles.toLocaleString()} mi</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10 }}>{UI.fmtNum(f.miles)} {t("unit.mi")}</span>
             </div>
             <div className="detail-ap to">
               <span className="code">{f.to.code}</span>
@@ -155,23 +156,23 @@ function FlightDetail({ flight, onClose, onEdit, onDelete, onSetPhoto, syncing, 
         </figure>
 
         <div className="detail-rows">
-          <div className="drow"><span className="k">Date</span><span className="vv">{UI.fmtDate(f.date)}</span></div>
-          <div className="drow"><span className="k">Airline</span><span className="vv">{f.airline}</span></div>
-          {f.flightNo && <div className="drow"><span className="k">Flight</span><span className="vv">{f.flightNo}</span></div>}
-          <div className="drow"><span className="k">Aircraft</span><span className="vv">{f.craft}</span></div>
-          {f.reg && <div className="drow"><span className="k">Registration</span><span className="vv">{f.reg}</span></div>}
-          <div className="drow"><span className="k">Flight time</span><span className="vv">{UI.fmtDur(f.dur)}</span></div>
-          <div className="drow"><span className="k">Distance</span><span className="vv">{f.km.toLocaleString()} km · {f.miles.toLocaleString()} mi</span></div>
-          <div className="drow"><span className="k">Seat</span><span className="vv">{f.seat}</span></div>
+          <div className="drow"><span className="k">{t("detail.date")}</span><span className="vv">{UI.fmtDate(f.date)}</span></div>
+          <div className="drow"><span className="k">{t("detail.airline")}</span><span className="vv">{f.airline}</span></div>
+          {f.flightNo && <div className="drow"><span className="k">{t("detail.flight")}</span><span className="vv">{f.flightNo}</span></div>}
+          <div className="drow"><span className="k">{t("detail.aircraft")}</span><span className="vv">{f.craft}</span></div>
+          {f.reg && <div className="drow"><span className="k">{t("detail.registration")}</span><span className="vv">{f.reg}</span></div>}
+          <div className="drow"><span className="k">{t("detail.flightTime")}</span><span className="vv">{UI.fmtDur(f.dur)}</span></div>
+          <div className="drow"><span className="k">Distance</span><span className="vv">{UI.fmtNum(f.km)} {t("unit.km")} · {UI.fmtNum(f.miles)} {t("unit.mi")}</span></div>
+          <div className="drow"><span className="k">{t("detail.seat")}</span><span className="vv">{f.seat}</span></div>
           <div className="drow">
-            <span className="k">Route</span>
+            <span className="k">{t("detail.route")}</span>
             <span className="vv" style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <UI.Flag cc={f.from.cc} size={20} /> → <UI.Flag cc={f.to.cc} size={20} />
             </span>
           </div>
         </div>
         {f.notes && <div className="detail-notes">{f.notes}</div>}
-        {f.fav && <div style={{ padding: "0 16px 18px" }}><span className="stamp">Favourite Leg</span></div>}
+        {f.fav && <div style={{ padding: "0 16px 18px" }}><span className="stamp">{t("detail.favourite")}</span></div>}
       </div>
     </section>
   );
@@ -224,7 +225,7 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
     setBusy(true);
     compressImageFile(file)
       .then((dataUrl) => onSetPhoto(flight.id, dataUrl))
-      .catch(() => setError("Couldn't read that image — try another one."))
+      .catch(() => setError(t("photo.readError")))
       .finally(() => setBusy(false));
   };
 
@@ -238,10 +239,10 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
       <React.Fragment>
         <img className="detail-photo-img" src={flight.photo} alt="" />
         <div className="detail-photo-tools">
-          <button type="button" className="icon-btn icon-btn-sm" title="Change photo" onClick={pick} disabled={disabled}>
+          <button type="button" className="icon-btn icon-btn-sm" title={t("photo.change")} aria-label={t("photo.change")} onClick={pick} disabled={disabled}>
             <UI.Icon.edit />
           </button>
-          <button type="button" className="icon-btn icon-btn-sm" title="Remove photo" onClick={remove} disabled={disabled}>
+          <button type="button" className="icon-btn icon-btn-sm" title={t("photo.remove")} aria-label={t("photo.remove")} onClick={remove} disabled={disabled}>
             <UI.Icon.trash />
           </button>
         </div>
@@ -253,7 +254,7 @@ function ImageSlotMaybe({ flight, onSetPhoto, disabled }) {
   return (
     <button type="button" className="detail-photo-add" onClick={pick} disabled={busy || disabled}>
       <UI.Icon.plus />
-      <span>{busy ? "Processing…" : error || `${flight.to.city} · add a photo`}</span>
+      <span>{busy ? t("photo.processing") : error || t("photo.add", { city: flight.to.city })}</span>
       <input ref={inputRef} type="file" accept="image/*" hidden onChange={onFile} />
     </button>
   );

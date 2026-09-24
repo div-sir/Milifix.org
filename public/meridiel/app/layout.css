@@ -410,7 +410,10 @@
 .login-deco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .login-deco .lp { fill: none; stroke: var(--ochre); stroke-width: 1.4; stroke-dasharray: 5 7; opacity: 0.28; }
 .login-deco .ld { fill: var(--ochre); opacity: 0.4; }
-.login-theme { position: absolute; top: 22px; right: 22px; z-index: 3; color: #F3EAD6; border-color: rgba(243,234,214,0.35); }
+.login-corner { position: absolute; top: 22px; right: 22px; z-index: 3; display: flex; align-items: center; gap: 10px; }
+.login-corner .lang-select { color: #F3EAD6; border-color: rgba(243,234,214,0.35); }
+.login-corner .lang-select option { color: #20323D; }
+.login-theme { color: #F3EAD6; border-color: rgba(243,234,214,0.35); }
 .login-theme:hover { background: #F3EAD6; color: #20323D; }
 
 .login-card {
@@ -569,3 +572,35 @@
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none !important; }
 }
+
+/* ---------- Language picker ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.lang-select { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 3px; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); cursor: pointer; }
+.lang-select > svg { width: 14px; height: 14px; flex-shrink: 0; }
+.lang-select select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: inherit; font: inherit; letter-spacing: .06em; cursor: pointer; padding: 0 2px; }
+.lang-select select:focus-visible { outline: 2px solid var(--vermilion); outline-offset: 2px; }
+.acct-menu .am-lang { padding: 8px 15px; border-top: 1.5px dashed var(--line); }
+.acct-menu .am-lang .lang-select { width: 100%; }
+.acct-menu .am-lang select { flex: 1; }
+
+/* ---------- CSV import ---------- */
+.import-template { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--vermilion); text-decoration: underline; text-underline-offset: 3px; }
+.import-drop { width: 100%; min-height: 110px; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; border: 1.5px dashed var(--line); border-radius: 3px; background: transparent; color: var(--ink-soft); font-family: var(--mono); font-size: 12px; line-height: 1.5; cursor: pointer; text-align: center; }
+.import-drop:hover, .import-drop.dragging { border-color: var(--vermilion); color: var(--ink); background: rgba(194,74,51,0.06); }
+.import-drop:disabled { cursor: progress; }
+.spin-sm { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--vermilion); border-radius: 50%; animation: spin 1s linear infinite; }
+.import-error { margin-top: 12px; font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--vermilion); }
+.import-summary { margin-top: 14px; font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--ink); }
+.import-rows { list-style: none; margin: 10px 0 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1.5px solid var(--line); border-radius: 3px; }
+.import-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 8px 10px; border-bottom: 1px dashed var(--line); font-family: var(--mono); font-size: 11px; line-height: 1.45; color: var(--ink-soft); }
+.import-row:last-child { border-bottom: none; }
+.ir-badge { padding: 1px 6px; border-radius: 2px; border: 1px solid currentColor; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.import-row--ok .ir-badge { color: #3f7d4e; }
+.import-row--warning .ir-badge { color: #a8741a; }
+.import-row--rejected .ir-badge { color: var(--vermilion); }
+.import-row--duplicate .ir-badge { color: var(--ink-faint); }
+.ir-line { color: var(--ink-faint); }
+.ir-route { color: var(--ink); }
+.ir-issue { flex-basis: 100%; }
+.import-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.import-actions .btn { flex: 1; justify-content: center; }

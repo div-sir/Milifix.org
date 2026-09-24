@@ -802,8 +802,13 @@
   // Keep non-critical parsing and network work off the interaction path. The
   // curated lists already work immediately; the full databases are requested
   // only when the add-flight workflow actually needs global search coverage.
+  // A caller that is actively waiting on the data (the CSV import) flips this
+  // on: idle callbacks can starve behind the spinning globe for tens of
+  // seconds on phones, so urgent loads use plain timers instead.
+  let urgentReferenceLoad = false;
   function deferIdle(fn) {
-    if (typeof requestIdleCallback === "function") requestIdleCallback(fn, { timeout: 3000 });
+    if (urgentReferenceLoad) setTimeout(fn, 0);
+    else if (typeof requestIdleCallback === "function") requestIdleCallback(fn, { timeout: 3000 });
     else setTimeout(fn, 1200);
   }
 
@@ -838,9 +843,9 @@
     return new Promise((resolve) => {
       let i = 0;
       const now = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
-      const schedule = typeof requestIdleCallback === "function"
-        ? (cb) => requestIdleCallback(cb, { timeout: 200 })
-        : (cb) => setTimeout(cb, 0);
+      const schedule = (cb) => (typeof requestIdleCallback === "function" && !urgentReferenceLoad
+        ? requestIdleCallback(cb, { timeout: 200 })
+        : setTimeout(cb, 0));
       function step() {
         const start = now();
         while (i < lines.length) {
@@ -932,7 +937,8 @@
   }
 
   let referenceDataPromise = null;
-  function loadReferenceData() {
+  function loadReferenceData(options) {
+    if (options && options.urgent) urgentReferenceLoad = true;
     if (!referenceDataPromise) {
       removeLegacyReferenceCaches();
       referenceDataPromise = Promise.all([
