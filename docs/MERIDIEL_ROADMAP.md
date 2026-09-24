@@ -1,6 +1,6 @@
 # Meridiel 開發進度與未完成任務
 
-最後更新：2026-07-17
+最後更新：2026-09-24
 
 本文件是 `milifix.com/meridiel/` 的唯一後續工作清單。完成項目保留簡短紀錄；未完成項目依風險排序，只有符合驗收條件才可勾選。
 
@@ -16,30 +16,29 @@
 - [x] 收緊 Meridiel CSP（PR #75）
 - [x] 大型固定資產加入一年 immutable HTTP cache（PR #76）
 - [x] 移除 OpenFlights 解析結果的重複 localStorage 快取，並清除舊 cache key（PR #77）
+- [x] 第 0 階段「先別讓人失望」：真正的 CSV 匯入、移除假的分享連結、繁中／英／日介面、機場中日文搜尋別名
 
 ## P0：功能或資料可靠性
 
-### 1. 完成或移除假的 CSV 匯入介面
+### 1. ~~完成或移除假的 CSV 匯入介面~~（已完成）
 
-目前「Import CSV」只有外觀，沒有檔案選擇、拖放、解析、預覽或寫入功能，屬於會欺騙使用者的死入口。
+`app/csv-import.js` 為純函式解析器，`ImportPanel`（`modals.jsx`）負責讀檔 → 預覽 → 一次寫入。
 
-- [ ] 支援點擊選檔與 drag-and-drop
-- [ ] 驗證欄位、日期與 IATA 機場代碼
-- [ ] 匯入前顯示成功、警告與拒絕筆數
-- [ ] 去重並為每筆資料建立穩定 ID
-- [ ] 匯入失敗不得留下半套資料
-- [ ] 若近期不實作，先完全移除該分頁與宣稱
+- [x] 支援點擊選檔與 drag-and-drop
+- [x] 驗證欄位、日期與 IATA 機場代碼（欄位名稱接受中／日文別名）
+- [x] 匯入前顯示成功、警告與拒絕筆數，以及逐列原因
+- [x] 去重（日期＋航線＋航班編號，比對既有紀錄與檔案內重複）並為每筆資料建立 ID
+- [x] 匯入失敗不得留下半套資料（預覽不寫入；確認後單一 state 更新）
+- [x] 可下載範本 CSV（含 BOM，Excel 開啟中文不亂碼）
 
 驗收：桌面與手機 E2E 各涵蓋成功匯入、部分錯誤、整檔無效三種情境。
 
 ### 2. 修正 Share link 的錯誤承諾
 
-目前 Copy link 只附加 `#shared`，沒有序列化或上傳 atlas，卻顯示「reopens this exact atlas」。其他人開啟後不會看到分享者資料。
-
+- [x] 在完成前把按鈕與誤導文案移除（Copy link 與「reopens this exact atlas」已刪除，僅保留 PNG 下載）
 - [ ] 決定真正的唯讀分享模型：URL 壓縮快照、後端 snapshot，或取消此功能
 - [ ] 分享內容不得包含 Google access token、email、照片 EXIF 等私密資料
 - [ ] 設計 snapshot 版本與過期／刪除策略
-- [ ] 在完成前把按鈕與誤導文案移除
 
 驗收：無痕瀏覽器開啟分享 URL，可還原同一份唯讀 atlas；或產品介面已不再宣稱能分享資料。
 
@@ -67,9 +66,7 @@
 
 ### 5. 修正日期欄位重複 wrapper
 
-`public/meridiel/app/modals.jsx` 的 date field 目前有重複的 `.field-date` 開頭標籤，可能擴大點擊區與破壞表單 DOM 結構。
-
-- [ ] 移除重複 wrapper
+- [x] 移除重複 wrapper（目前原始碼只剩單一 `.field-date`）
 - [ ] 點擊日期欄以外的 Airline／Aircraft 欄位不得開啟 date picker
 - [ ] 補一個回歸測試
 
@@ -106,12 +103,12 @@
 
 ### 9. 國際化
 
-Meridiel UI 目前固定英文，與 Milifix 主站的繁中／英文／日文結構不一致。
-
-- [ ] 將 UI 文案抽成字典，不在 JSX 內散落字串
-- [ ] 支援 `zh-Hant`、`en`、`ja`
-- [ ] 日期、里程、距離與數字使用 locale formatter
-- [ ] SEO title、description 與 share card 同步語系
+- [x] 將 UI 文案抽成字典（`app/i18n.js`），不在 JSX 內散落字串
+- [x] 支援 `zh-Hant`、`en`、`ja`；首次依瀏覽器語言、之後記住使用者選擇
+- [x] 日期、里程、距離與數字使用 locale formatter
+- [x] 缺 key 或 placeholder 不一致時 CI 失敗（`test/meridiel-i18n.test.ts`）
+- [x] 機場搜尋支援常見城市中／日文名稱（`app/airport-aliases.js`）
+- [ ] SEO title、description（靜態 `index.html` 仍為英文）
 
 驗收：三語核心流程無英文 fallback；缺 key 時 CI 失敗。
 

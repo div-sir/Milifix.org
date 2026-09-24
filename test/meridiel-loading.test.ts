@@ -65,7 +65,7 @@ describe('Meridiel loading strategy', () => {
       readFile(new URL('app/modals.jsx', root), 'utf8'),
     ]);
 
-    expect(data).toContain('function loadReferenceData()');
+    expect(data).toContain('function loadReferenceData(options)');
     expect(data).toContain('data/openflights-airports.dat');
     expect(data).toContain('data/openflights-airlines.dat');
     expect(data).not.toContain('raw.githubusercontent.com/jpatokal/openflights');
@@ -104,6 +104,13 @@ describe('Meridiel loading strategy', () => {
     expect(source).toContain('function loadHtml2Canvas()');
     expect(source).toContain('vendor/html2canvas.min.js');
     expect(source).toContain('await loadHtml2Canvas()');
+  });
+
+  it('does not promise a share link it cannot deliver', async () => {
+    const source = await readFile(new URL('app/modals.jsx', root), 'utf8');
+    expect(source).not.toContain('#shared');
+    expect(source).not.toContain('Copy link');
+    expect(source).not.toContain('reopens this exact atlas');
   });
 
   it('ships the React surface as one component bundle', async () => {

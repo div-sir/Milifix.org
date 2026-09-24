@@ -11,6 +11,7 @@ import { MeridielData } from "./model.js";
 import { MeridielAuth, MeridielStore } from "./store.js";
 import { loadGlobeRuntime } from "./globe-runtime.js";
 import { UI } from "./ui-registry.js";
+import { getLocale, setLocale, t } from "./i18n.js";
 
 const { useState: useStateA, useEffect: useEffectA, useLayoutEffect: useLayoutEffectA, useMemo: useMemoA, useRef: useRefA } = React;
 
@@ -41,6 +42,12 @@ function supportsThemeViewTransition() {
 function App() {
   const ALL = ATLAS.FLIGHTS;
   const LOCAL_ACCOUNT = { name: "Explorer", handle: "Local atlas", initial: "E", mode: "local" };
+
+  /* ---- language: t() reads a module-level locale, so bumping this state
+     re-renders the whole tree in the new language ---- */
+  const [locale, setLocaleState] = useStateA(getLocale);
+  useLayoutEffectA(() => { document.documentElement.lang = locale; }, [locale]);
+  const changeLocale = (next) => setLocaleState(setLocale(next));
 
   /* ---- auth + theme ---- */
   const [account, setAccount] = useStateA(loadAccount);
@@ -195,7 +202,7 @@ function App() {
 
   const connectGoogle = () => {
     if (!MeridielAuth.enabled) {
-      pushToast("Google sync is not configured.");
+      pushToast(t("sync.notConfigured"));
       return;
     }
     setSyncStatus("syncing");
@@ -210,11 +217,11 @@ function App() {
         mode: "google",
       });
       setAcctMenu(false);
-      pushToast("Google connected. Syncing your atlas…");
+      pushToast(t("sync.connected"));
     }).catch((error) => {
       console.error("Meridiel: Google connection failed —", error);
       setSyncStatus("local");
-      pushToast("Google connection didn’t complete.");
+      pushToast(t("sync.connectFailed"));
     });
   };
 
@@ -239,35 +246,36 @@ function App() {
     if (window.innerWidth <= 900) setMobileTab("globe");
   };
 
-  const addFlight = (form) => {
+  // Shared by manual add, edit, and CSV import so every path stores the
+  // same record shape.
+  const flightFields = (form) => {
     const A = ATLAS.AIRPORTS[form.o], B = ATLAS.AIRPORTS[form.d];
     const km = ATLAS.distKm(A, B);
-    const f = {
-      id: MeridielData.createId(),
+    return {
       date: form.date, o: form.o, d: form.d,
-      airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
+      airline: form.airline || t("add.personal"), craft: form.craft || "—", seat: form.seat || "—",
       flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
       from: { code: form.o, ...A }, to: { code: form.d, ...B },
       km, miles: Math.round(km * 0.621371), dur: ATLAS.durMin(km),
       year: +form.date.slice(0, 4),
       updatedAt: Date.now(),
     };
+  };
+
+  const addFlight = (form) => {
+    const f = { id: MeridielData.createId(), ...flightFields(form) };
     setExtra((e) => [...e, f]);
   };
 
+  // One state update for the whole file: either every accepted row lands or
+  // (if the tab closes mid-read) none do.
+  const importFlights = (forms) => {
+    const records = forms.map((form) => ({ id: MeridielData.createId(), ...flightFields(form) }));
+    if (records.length) setExtra((e) => [...e, ...records]);
+  };
+
   const updateFlight = (id, form) => {
-    const A = ATLAS.AIRPORTS[form.o], B = ATLAS.AIRPORTS[form.d];
-    const km = ATLAS.distKm(A, B);
-    setExtra((e) => e.map((f) => f.id !== id ? f : {
-      ...f,
-      date: form.date, o: form.o, d: form.d,
-      airline: form.airline || "Personal", craft: form.craft || "—", seat: form.seat || "—",
-      flightNo: form.flightNo || "", reg: form.reg || "", notes: form.notes || "",
-      from: { code: form.o, ...A }, to: { code: form.d, ...B },
-      km, miles: Math.round(km * 0.621371), dur: ATLAS.durMin(km),
-      year: +form.date.slice(0, 4),
-      updatedAt: Date.now(),
-    }));
+    setExtra((e) => e.map((f) => f.id !== id ? f : { ...f, ...flightFields(form) }));
   };
 
   const deleteFlight = (id) => {
@@ -298,8 +306,15 @@ function App() {
 
   // ---- not logged in → gate ----
   if (!account) {
-    return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} />;
+    return <UI.LoginGate theme={theme} onToggleTheme={toggleTheme} onLogin={onLogin} onExplore={onExplore} onLanguage={changeLocale} />;
   }
+
+  // The local explorer's placeholder identity follows the UI language; a
+  // Google account keeps the real name.
+  const isLocal = account.mode === "local";
+  const displayName = isLocal ? t("account.explorer") : account.name;
+  const displayHandle = isLocal ? t("account.localHandle") : account.handle;
+  const displayInitial = isLocal ? displayName[0] : (account.initial || account.name[0]);
 
   const liveStats = ATLAS.statsFor(flightsAll);
   const presentCountries = ATLAS.countryList(flightsAll);
@@ -317,6 +332,7 @@ function App() {
             onReady={onGlobeReady}
             focusFlight={focusFlight}
             theme={theme}
+            paused={!!modal}
           />
         )}
         <svg className="compass-wm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8">
@@ -331,13 +347,13 @@ function App() {
             <div style={{ textAlign: "center" }}>
               {runtimeStatus === "error" ? (
                 <React.Fragment>
-                  <div className="lbl">The 3D globe couldn’t load.</div>
-                  <button className="btn btn-solid" onClick={() => setRuntimeAttempt((attempt) => attempt + 1)}>Retry globe</button>
+                  <div className="lbl">{t("loader.globeError")}</div>
+                  <button className="btn btn-solid" onClick={() => setRuntimeAttempt((attempt) => attempt + 1)}>{t("loader.retry")}</button>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
                   <div className="spin" style={{ margin: "0 auto" }} />
-                  <div className="lbl">{runtimeStatus === "ready" ? "Charting your atlas…" : "Loading the 3D atlas engine…"}</div>
+                  <div className="lbl">{runtimeStatus === "ready" ? t("loader.charting") : t("loader.engine")}</div>
                 </React.Fragment>
               )}
             </div>
@@ -349,29 +365,29 @@ function App() {
         /* ---------- PRESENT MODE ---------- */
         <React.Fragment>
           <div className="present-ui present-title">
-            <b>{account.name}'s Meridiel</b>
+            <b>{t("present.title", { name: displayName })}</b>
             <small>{ATLAS.sinceOf(flightsAll)} — {new Date().getFullYear()}</small>
           </div>
 
           {/* countries visited so far */}
           <div className="present-ui present-flags">
-            <div className="pf-label">{presentCountries.length} countries · passport stamps</div>
+            <div className="pf-label">{t("present.flags", { count: presentCountries.length })}</div>
             {presentCountries.map((c) => (
               <UI.Flag key={c.country} cc={c.cc} label={c.country} />
             ))}
           </div>
 
           <div className="present-ui present-stats">
-            <div className="ps"><div className="v">{liveStats.miles.toLocaleString()}</div><div className="k">Miles</div></div>
-            <div className="ps"><div className="v">{liveStats.countries}</div><div className="k">Countries</div></div>
-            <div className="ps"><div className="v">{liveStats.flights}</div><div className="k">Flights</div></div>
-            <div className="ps"><div className="v">{liveStats.laps}×</div><div className="k">Around Earth</div></div>
+            <div className="ps"><div className="v">{UI.fmtNum(liveStats.miles)}</div><div className="k">{t("stat.miles")}</div></div>
+            <div className="ps"><div className="v">{liveStats.countries}</div><div className="k">{t("stat.countries")}</div></div>
+            <div className="ps"><div className="v">{liveStats.flights}</div><div className="k">{t("stat.flights")}</div></div>
+            <div className="ps"><div className="v">{liveStats.laps}×</div><div className="k">{t("stat.aroundEarth")}</div></div>
           </div>
           <div className="present-exit">
-            <button className="icon-btn" onClick={toggleTheme} title="Toggle theme" style={{ marginRight: 8, color: "#F3EAD6", borderColor: "rgba(243,234,214,0.35)" }}>
+            <button className="icon-btn" onClick={toggleTheme} title={t("theme.toggle")} aria-label={t("theme.toggle")} style={{ marginRight: 8, color: "#F3EAD6", borderColor: "rgba(243,234,214,0.35)" }}>
               {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
             </button>
-            <button className="btn btn-solid" onClick={() => setPresent(false)}><UI.Icon.x /> Exit</button>
+            <button className="btn btn-solid" onClick={() => setPresent(false)}><UI.Icon.x /> {t("present.exit")}</button>
           </div>
         </React.Fragment>
       ) : (
@@ -386,7 +402,7 @@ function App() {
               </svg>
               <div className="wordmark">
                 <b>Meridiel</b>
-                <small>Charted by hand</small>
+                <small>{t("brand.tagline")}</small>
               </div>
             </div>
 
@@ -395,76 +411,79 @@ function App() {
                 type="button"
                 className="top-owner btn-like"
                 onClick={() => setAcctMenu((v) => !v)}
-                aria-label="Open account menu"
+                aria-label={t("account.menu")}
                 aria-expanded={acctMenu}
                 aria-controls="meridiel-account-menu"
               >
-                <span className="avatar">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</span>
+                <span className="avatar">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : displayInitial}</span>
                 <span className="who">
-                  <b>{account.name}</b>
-                  <small>{account.handle}</small>
+                  <b>{displayName}</b>
+                  <small>{displayHandle}</small>
                 </span>
                 <UI.Icon.chevron className="caret" />
               </button>
               {acctMenu && (
                 <div id="meridiel-account-menu" className="acct-menu paper-tex" onClick={(e) => e.stopPropagation()}>
                   <div className="am-head">
-                    <div className="am-av">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : (account.initial || account.name[0])}</div>
+                    <div className="am-av">{account.picture ? <img src={account.picture} alt="" referrerPolicy="no-referrer" /> : displayInitial}</div>
                     <div className="am-id">
-                      <b>{account.name}</b>
-                      <small>{account.email || account.handle}</small>
+                      <b>{displayName}</b>
+                      <small>{account.email || displayHandle}</small>
                     </div>
                   </div>
                   {cloudSync ? (
                     <div className={"am-sync am-sync--" + (storageError ? "storage-full" : syncStatus)}>
-                      {storageError ? "Device storage full · cloud sync only"
-                        : syncStatus === "synced" ? "✓ Synced to Google Drive"
+                      {storageError ? t("sync.storageFullCloud")
+                        : syncStatus === "synced" ? t("sync.synced")
                         : syncStatus === "syncing" ? (
                             <React.Fragment>
-                              <span className="am-sync-spin" /> Syncing to Google Drive…
+                              <span className="am-sync-spin" /> {t("sync.syncing")}
                             </React.Fragment>
                           )
                         : syncStatus === "reauth" ? (
                             <button type="button" className="am-sync-reconnect" onClick={reconnectSync}>
-                              ⟲ Reconnect Google Drive
+                              {t("sync.reconnect")}
                             </button>
                           )
-                        : syncStatus === "offline" ? "Offline · saved in this browser"
-                        : "Saved in this browser"}
+                        : syncStatus === "offline" ? t("sync.offline")
+                        : t("sync.browser")}
                     </div>
                   ) : (
                     <div className={"am-sync " + (storageError ? "am-sync--storage-full" : "am-sync--local")}>
-                      {storageError ? "Browser storage full · changes not saved" : "Local only · saved in this browser"}
+                      {storageError ? t("sync.storageFullLocal") : t("sync.localOnly")}
                     </div>
                   )}
                   {account.mode === "local" && (
                     <button className="am-item" onClick={connectGoogle}>
-                      <UI.Icon.google /> Sync with Google Drive
+                      <UI.Icon.google /> {t("sync.connect")}
                     </button>
                   )}
                   <button className="am-item" onClick={() => { setAcctMenu(false); setModal("share"); }}>
-                    <UI.Icon.share /> Share atlas
+                    <UI.Icon.share /> {t("menu.share")}
                   </button>
                   <button className="am-item" onClick={() => { setAcctMenu(false); setPresent(true); }}>
-                    <UI.Icon.present /> Present mode
+                    <UI.Icon.present /> {t("menu.present")}
                   </button>
                   <button className="am-item" onClick={(e) => toggleTheme(e)}>
                     {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
-                    {theme === "dark" ? "Light mode" : "Dark mode"}
+                    {theme === "dark" ? t("theme.light") : t("theme.dark")}
                   </button>
+                  <div className="am-lang">
+                    <UI.LanguageSelect onChange={changeLocale} />
+                  </div>
                   <button className="am-item" onClick={onLogout}>
-                    <UI.Icon.logout /> Sign out
+                    <UI.Icon.logout /> {t("menu.signOut")}
                   </button>
                 </div>
               )}
             </div>
 
             <div className="top-actions">
-              <button className="icon-btn top-action-secondary" title={autoRotate ? "Pause spin" : "Resume spin"} onClick={() => setAutoRotate((r) => !r)}>
+              <button className="icon-btn top-action-secondary" title={autoRotate ? t("top.pauseSpin") : t("top.resumeSpin")} aria-label={autoRotate ? t("top.pauseSpin") : t("top.resumeSpin")} onClick={() => setAutoRotate((r) => !r)}>
                 <UI.Icon.rotate />
               </button>
-              <button className="btn btn-ghost top-action-secondary" title="Share atlas" onClick={() => setModal("share")}><UI.Icon.share /> <span className="btn-label">Share</span></button>
-              <button className="btn btn-accent" title="Add flight" onClick={() => setModal("add")}><UI.Icon.plus /> <span className="btn-label">Add flight</span></button>
+              <button className="btn btn-ghost top-action-secondary" title={t("menu.share")} onClick={() => setModal("share")}><UI.Icon.share /> <span className="btn-label">{t("top.share")}</span></button>
+              <button className="btn btn-accent" title={t("top.addFlight")} aria-label={t("top.addFlight")} onClick={() => setModal("add")}><UI.Icon.plus /> <span className="btn-label">{t("top.addFlight")}</span></button>
             </div>
           </header>
 
@@ -497,10 +516,10 @@ function App() {
           )}
 
           {/* Mobile tab switch */}
-          <div className="mobile-tabs" role="tablist" aria-label="Atlas views">
-            <button role="tab" aria-selected={mobileTab === "log"} className={mobileTab === "log" ? "on" : ""} onClick={() => setMobileTab("log")}>Log</button>
-            <button role="tab" aria-selected={mobileTab === "globe"} className={mobileTab === "globe" ? "on" : ""} onClick={() => setMobileTab("globe")}>Globe</button>
-            <button role="tab" aria-selected={mobileTab === "stats"} className={mobileTab === "stats" ? "on" : ""} onClick={() => setMobileTab("stats")}>Stats</button>
+          <div className="mobile-tabs" role="tablist" aria-label={t("tabs.label")}>
+            <button role="tab" aria-selected={mobileTab === "log"} className={mobileTab === "log" ? "on" : ""} onClick={() => setMobileTab("log")}>{t("tabs.log")}</button>
+            <button role="tab" aria-selected={mobileTab === "globe"} className={mobileTab === "globe" ? "on" : ""} onClick={() => setMobileTab("globe")}>{t("tabs.globe")}</button>
+            <button role="tab" aria-selected={mobileTab === "stats"} className={mobileTab === "stats" ? "on" : ""} onClick={() => setMobileTab("stats")}>{t("tabs.stats")}</button>
           </div>
         </React.Fragment>
       )}
@@ -509,8 +528,8 @@ function App() {
       {acctMenu && <div style={{ position: "fixed", inset: 0, zIndex: 29 }} onClick={() => setAcctMenu(false)} />}
 
       {/* Modals */}
-      {modal === "share" && <UI.ShareModal flights={flightsAll} account={account} onClose={() => setModal(null)} pushToast={pushToast} />}
-      {modal === "add" && <UI.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} pushToast={pushToast} />}
+      {modal === "share" && <UI.ShareModal flights={flightsAll} account={isLocal ? { name: displayName, handle: displayHandle } : account} onClose={() => setModal(null)} pushToast={pushToast} />}
+      {modal === "add" && <UI.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} onImport={importFlights} existingFlights={flightsAll} pushToast={pushToast} />}
       {modal === "edit" && editingFlight && (
         <UI.AddFlightModal
           initial={editingFlight}

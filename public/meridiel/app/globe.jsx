@@ -31,7 +31,11 @@ function paletteFor(theme) {
 
 const COUNTRIES_URL = "data/ne_110m_admin_0_countries.geojson?v=20260716j";
 
-function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, focusFlight = null, theme = "light" }) {
+function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, focusFlight = null, theme = "light", paused = false }) {
+  // While a modal covers the stage there is nothing to see, so the WebGL loop
+  // stops entirely instead of burning CPU/battery (and starving the modal's
+  // own frames on slow phones).
+  const pausedRef = useRef(paused);
   const elRef = useRef(null);
   const globeRef = useRef(null);
   const flightsRef = useRef(flights);
@@ -288,14 +292,14 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
     const renderer = world.renderer();
     const watchdog = setInterval(() => {
       const f = renderer.info.render.frame;
-      if (f === lastFrame) {
+      if (f === lastFrame && !pausedRef.current) {
         try { world._animationCycle && world._animationCycle(); } catch (e) {}
       }
       lastFrame = renderer.info.render.frame;
     }, 200);
 
     const onVis = () => {
-      if (!document.hidden) {
+      if (!document.hidden && !pausedRef.current) {
         try { world.resumeAnimation && world.resumeAnimation(); } catch (e) {}
       }
     };
@@ -313,6 +317,16 @@ function GlobeView({ flights, selectedId, onSelect, autoRotate = true, onReady, 
       document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    const world = globeRef.current;
+    if (!world) return;
+    try {
+      if (paused) world.pauseAnimation && world.pauseAnimation();
+      else world.resumeAnimation && world.resumeAnimation();
+    } catch (e) { /* older globe.gl without pause support — keep rendering */ }
+  }, [paused]);
 
   // keep autoRotate intent in a ref for the resume timer
   const autoRotateRef = useRef(autoRotate);

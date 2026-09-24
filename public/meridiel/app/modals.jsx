@@ -3,6 +3,9 @@
    ============================================================ */
 import { UI } from "./ui-registry.js";
 import { ATLAS } from "./data.js";
+import { t } from "./i18n.js";
+import { AIRPORT_ALIASES } from "./airport-aliases.js";
+import { analyzeCsv, CSV_TEMPLATE } from "./csv-import.js";
 
 
 /* ---------- Share Card modal ---------- */
@@ -50,35 +53,29 @@ function ShareModal({ flights, account, onClose, pushToast }) {
       a.download = `meridiel-${handle.replace("@", "")}.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
-      pushToast("Saved your share card ✓");
+      pushToast(t("share.saved"));
     } catch (e) {
       console.error("Meridiel: PNG export failed —", e);
-      pushToast("Couldn't render — try again");
+      pushToast(t("share.failed"));
     } finally { setBusy(false); }
   };
 
   const warmExportLibrary = () => { loadHtml2Canvas().catch(() => {}); };
 
-  const copyLink = async () => {
-    const url = location.href.split("#")[0] + "#shared";
-    try { await navigator.clipboard.writeText(url); pushToast("Share link copied ✓"); }
-    catch { pushToast(url); }
-  };
-
   return (
     <div className="backdrop" onClick={onClose}>
-      <div className="modal paper-tex" onClick={(e) => e.stopPropagation()}>
+      <div className="modal paper-tex" role="dialog" aria-modal="true" aria-labelledby="meridiel-share-title" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h2>Share your Atlas</h2>
-          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><UI.Icon.x /></button>
+          <h2 id="meridiel-share-title">{t("share.title")}</h2>
+          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }} title={t("common.close")} aria-label={t("common.close")}><UI.Icon.x /></button>
         </div>
         <div className="modal-body">
           {/* The exported artifact */}
           <div className="share-card paper-tex" ref={cardRef}>
             <div className="sc-top">
               <div>
-                <div className="ttl">{name}'s<br />Meridiel</div>
-                <div className="sub">{handle} · {ATLAS.sinceOf(flights)}–{new Date().getFullYear()} · HOME {ATLAS.homeOf(flights)}</div>
+                <div className="ttl">{t("share.ttl", { name })}<br />Meridiel</div>
+                <div className="sub">{handle} · {ATLAS.sinceOf(flights)}–{new Date().getFullYear()} · {t("share.home")} {ATLAS.homeOf(flights)}</div>
               </div>
               <svg className="seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <circle cx="12" cy="12" r="10" />
@@ -87,33 +84,28 @@ function ShareModal({ flights, account, onClose, pushToast }) {
               </svg>
             </div>
             <div className="sc-stats">
-              <div className="sc-stat"><div className="v">{s.miles.toLocaleString()}</div><div className="k">Miles</div></div>
-              <div className="sc-stat"><div className="v">{s.hours.toLocaleString()}</div><div className="k">Hours aloft</div></div>
-              <div className="sc-stat"><div className="v">{s.countries}</div><div className="k">Countries</div></div>
-              <div className="sc-stat"><div className="v">{s.flights}</div><div className="k">Segments</div></div>
-              <div className="sc-stat"><div className="v">{s.airports}</div><div className="k">Airports</div></div>
-              <div className="sc-stat"><div className="v">{s.laps}×</div><div className="k">Around Earth</div></div>
+              <div className="sc-stat"><div className="v">{UI.fmtNum(s.miles)}</div><div className="k">{t("stat.miles")}</div></div>
+              <div className="sc-stat"><div className="v">{UI.fmtNum(s.hours)}</div><div className="k">{t("stat.hoursAloft")}</div></div>
+              <div className="sc-stat"><div className="v">{s.countries}</div><div className="k">{t("stat.countries")}</div></div>
+              <div className="sc-stat"><div className="v">{s.flights}</div><div className="k">{t("stat.segments")}</div></div>
+              <div className="sc-stat"><div className="v">{s.airports}</div><div className="k">{t("stat.airports")}</div></div>
+              <div className="sc-stat"><div className="v">{s.laps}×</div><div className="k">{t("stat.aroundEarth")}</div></div>
             </div>
             <div className="sc-flags">
               {countries.map((c) => <UI.Flag key={c.country} cc={c.cc} size={28} />)}
             </div>
             <div className="sc-foot">
               <span>◎ Meridiel</span>
-              <span>{countries.length} stamps collected</span>
+              <span>{t("share.stamps", { count: countries.length })}</span>
             </div>
           </div>
 
           <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
             <button className="btn btn-solid" style={{ flex: 1, justifyContent: "center" }} onClick={exportPng} onMouseEnter={warmExportLibrary} onFocus={warmExportLibrary} disabled={busy}>
-              <UI.Icon.download /> {busy ? "Rendering…" : "Download image"}
-            </button>
-            <button className="btn btn-ghost" style={{ justifyContent: "center" }} onClick={copyLink}>
-              <UI.Icon.link /> Copy link
+              <UI.Icon.download /> {busy ? t("share.rendering") : t("share.download")}
             </button>
           </div>
-          <p className="hint" style={{ marginTop: 12 }}>
-            PNG renders right in your browser — no server, no fees. The share link reopens this exact atlas.
-          </p>
+          <p className="hint" style={{ marginTop: 12 }}>{t("share.hint")}</p>
         </div>
       </div>
     </div>
@@ -135,7 +127,7 @@ function airportIndex() {
   if (airportIndexCache && airportIndexSize === codes.length) return airportIndexCache;
   airportIndexCache = codes.map((code) => {
     const a = ATLAS.AIRPORTS[code];
-    return { code, codeLower: code.toLowerCase(), hay: `${code} ${a.city} ${a.name} ${a.country}`.toLowerCase() };
+    return { code, codeLower: code.toLowerCase(), hay: `${code} ${a.city} ${a.name} ${a.country} ${AIRPORT_ALIASES[code] || ""}`.toLowerCase() };
   });
   airportIndexSize = codes.length;
   return airportIndexCache;
@@ -180,7 +172,147 @@ function searchAirlines(query) {
   ));
 }
 
-function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
+/* ---------- CSV import ----------
+   Read → analyze → preview → commit. Parsing never mutates the log; only the
+   confirm button hands every accepted row to onImport in one call, so a file
+   with errors can't leave half an import behind. */
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+const PREVIEW_LIMIT = 50;
+// The BOM makes Excel open the template as UTF-8 (Chinese/Japanese notes).
+const TEMPLATE_HREF = "data:text/csv;charset=utf-8," + encodeURIComponent("﻿" + CSV_TEMPLATE);
+const STATUS_LABEL = { ok: "import.ready", warning: "import.warning", rejected: "import.rejected", duplicate: "import.duplicate" };
+const STATUS_ORDER = { rejected: 0, warning: 1, duplicate: 2, ok: 3 };
+
+function ImportPanel({ onImport, existingFlights, pushToast, onClose }) {
+  const [phase, setPhase] = React.useState("idle"); // idle | reading | preview
+  const [fileName, setFileName] = React.useState("");
+  const [result, setResult] = React.useState(null);
+  const [error, setError] = React.useState("");
+  const [dragging, setDragging] = React.useState(false);
+  const inputRef = React.useRef(null);
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setError("");
+    setResult(null);
+    setFileName(file.name);
+    if (file.size > MAX_IMPORT_BYTES) { setPhase("idle"); setError(t("import.readFailed")); return; }
+    setPhase("reading");
+    try {
+      const [text] = await Promise.all([file.text(), ATLAS.loadReferenceData({ urgent: true })]);
+      setResult(analyzeCsv(text, { airports: ATLAS.AIRPORTS, existing: existingFlights }));
+      setPhase("preview");
+    } catch (e) {
+      console.error("Meridiel: CSV import failed —", e);
+      setPhase("idle");
+      setError(t("import.readFailed"));
+    }
+  };
+
+  const onPick = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    handleFile(file);
+  };
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    handleFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+  };
+  const confirm = () => {
+    if (!result || !result.flights.length) return;
+    onImport(result.flights);
+    pushToast(t("import.done", { count: result.flights.length }));
+    onClose();
+  };
+  const reset = () => { setPhase("idle"); setResult(null); setError(""); };
+
+  const importable = result ? result.flights.length : 0;
+  const listed = result
+    ? [...result.rows].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.line - b.line)
+    : [];
+
+  return (
+    <div className="tab-panel import-panel">
+      <p className="hint"><UI.Rich text={t("import.intro")} /></p>
+      <a className="import-template" href={TEMPLATE_HREF} download="meridiel-template.csv">
+        <UI.Icon.download /> {t("import.template")}
+      </a>
+
+      {phase !== "preview" && (
+        <button
+          type="button"
+          className={"import-drop" + (dragging ? " dragging" : "")}
+          onClick={() => inputRef.current && inputRef.current.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          disabled={phase === "reading"}
+        >
+          {phase === "reading"
+            ? <React.Fragment><span className="spin spin-sm" /> {t("import.reading", { file: fileName })}</React.Fragment>
+            : <React.Fragment><UI.Icon.plus /> {t("import.drop")}</React.Fragment>}
+        </button>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".csv,text/csv"
+        hidden
+        aria-label={t("import.pick")}
+        data-testid="meridiel-csv-input"
+        onChange={onPick}
+      />
+      {error && <p className="import-error" role="alert">{error}</p>}
+
+      {phase === "preview" && result && (
+        <div className="import-preview">
+          {result.fatal ? (
+            <p className="import-error" role="alert">{fileName}: {t(result.fatal.code, result.fatal.params)}</p>
+          ) : (
+            <React.Fragment>
+              <p className="import-summary" role="status">
+                {t("import.summary", {
+                  file: fileName,
+                  ok: result.counts.ok,
+                  warn: result.counts.warning,
+                  rejected: result.counts.rejected,
+                  dup: result.counts.duplicate,
+                })}
+              </p>
+              <ul className="import-rows">
+                {listed.slice(0, PREVIEW_LIMIT).map((row) => (
+                  <li key={row.line} className={"import-row import-row--" + row.status}>
+                    <span className="ir-badge">{t(STATUS_LABEL[row.status])}</span>
+                    <span className="ir-line">{t("import.line", { line: row.line })}</span>
+                    {row.record && <span className="ir-route">{row.record.date} {row.record.o} → {row.record.d}</span>}
+                    {row.issues.map((issue, i) => <span key={i} className="ir-issue">{t(issue.code, issue.params)}</span>)}
+                  </li>
+                ))}
+              </ul>
+              {listed.length > PREVIEW_LIMIT && (
+                <p className="hint">{t("import.moreRows", { count: listed.length - PREVIEW_LIMIT })}</p>
+              )}
+              {!importable && <p className="import-error">{t("import.nothing")}</p>}
+            </React.Fragment>
+          )}
+          <div className="import-actions">
+            <button type="button" className="btn btn-ghost" onClick={reset}>{t("import.another")}</button>
+            {!result.fatal && importable > 0 && (
+              <button type="button" className="btn btn-solid" onClick={confirm}>
+                <UI.Icon.plus /> {t("import.confirm", { count: importable })}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <p className="hint" style={{ marginTop: 12 }}>{t("import.offline")}</p>
+    </div>
+  );
+}
+
+function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToast, initial }) {
   const isEdit = !!initial;
   const [tab, setTab] = React.useState("manual");
   const [, setReferenceDataVersion] = React.useState(0);
@@ -211,25 +343,25 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
   };
 
   const submit = () => {
-    if (!ATLAS.AIRPORTS[form.o] || !ATLAS.AIRPORTS[form.d]) { pushToast("Pick a valid airport for From and To"); return; }
-    if (form.o === form.d) { pushToast("Origin and destination must differ"); return; }
+    if (!ATLAS.AIRPORTS[form.o] || !ATLAS.AIRPORTS[form.d]) { pushToast(t("add.invalidAirport")); return; }
+    if (form.o === form.d) { pushToast(t("add.sameAirport")); return; }
     onSubmit(form);
-    pushToast(isEdit ? "Flight updated ✓" : "Flight added to your log ✓");
+    pushToast(isEdit ? t("add.updated") : t("add.added"));
     onClose();
   };
 
   return (
     <div className="backdrop" onClick={onClose}>
-      <div className="modal paper-tex" onClick={(e) => e.stopPropagation()} style={{ width: "min(480px, 94vw)" }}>
+      <div className="modal paper-tex" role="dialog" aria-modal="true" aria-labelledby="meridiel-flight-title" onClick={(e) => e.stopPropagation()} style={{ width: "min(520px, 94vw)" }}>
         <div className="modal-head">
-          <h2>{isEdit ? "Edit flight" : "Add a flight"}</h2>
-          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }}><UI.Icon.x /></button>
+          <h2 id="meridiel-flight-title">{isEdit ? t("add.titleEdit") : t("add.titleAdd")}</h2>
+          <button className="icon-btn" onClick={onClose} style={{ width: 32, height: 32 }} title={t("common.close")} aria-label={t("common.close")}><UI.Icon.x /></button>
         </div>
         <div className="modal-body">
           {!isEdit && (
             <div className="tab-row">
-              <button className={tab === "manual" ? "on" : ""} onClick={() => setTab("manual")}>Manual</button>
-              <button className={tab === "import" ? "on" : ""} onClick={() => setTab("import")}>Import CSV</button>
+              <button className={tab === "manual" ? "on" : ""} aria-pressed={tab === "manual"} onClick={() => setTab("manual")}>{t("add.tabManual")}</button>
+              <button className={tab === "import" ? "on" : ""} aria-pressed={tab === "import"} onClick={() => setTab("import")}>{t("add.tabImport")}</button>
             </div>
           )}
 
@@ -237,89 +369,83 @@ function AddFlightModal({ onClose, onSubmit, pushToast, initial }) {
             <div className="tab-panel">
               <div className="field-row">
                 <div className="field">
-                  <label>From</label>
+                  <label>{t("add.from")}</label>
                   <UI.SuggestField
                     value={form.o}
                     onCommit={setVal("o")}
                     getDisplay={(code) => (ATLAS.AIRPORTS[code] ? `${code} — ${ATLAS.AIRPORTS[code].city}` : code)}
                     search={searchAirports}
-                    placeholder="Type a city or code"
+                    placeholder={t("add.airportPlaceholder")}
                   />
                 </div>
                 <div className="field">
-                  <label>To</label>
+                  <label>{t("add.to")}</label>
                   <UI.SuggestField
                     value={form.d}
                     onCommit={setVal("d")}
                     getDisplay={(code) => (ATLAS.AIRPORTS[code] ? `${code} — ${ATLAS.AIRPORTS[code].city}` : code)}
                     search={searchAirports}
-                    placeholder="Type a city or code"
+                    placeholder={t("add.airportPlaceholder")}
                   />
                 </div>
               </div>
               <div className="field field-date" onClick={openDatePicker}>
-                <label>Date</label>
+                <label>{t("add.date")}</label>
                 <input ref={dateRef} type="date" value={form.date} onChange={set("date")} />
               </div>
               <div className="field-row">
                 <div className="field">
-                  <label>Airline</label>
+                  <label>{t("add.airline")}</label>
                   <UI.SuggestField
                     value={form.airline}
                     onCommit={setVal("airline")}
                     getDisplay={(v) => v}
                     search={searchAirlines}
-                    placeholder="Name or IATA code"
+                    placeholder={t("add.airlinePlaceholder")}
                     allowFreeText
                   />
                 </div>
                 <div className="field">
-                  <label>Aircraft</label>
-                  <input placeholder="e.g. Boeing 787" value={form.craft} onChange={set("craft")} />
+                  <label>{t("add.aircraft")}</label>
+                  <input placeholder={t("add.aircraftPlaceholder")} value={form.craft} onChange={set("craft")} />
                 </div>
               </div>
               <div className="field">
-                <label>Seat (optional)</label>
-                <input placeholder="e.g. 14A" value={form.seat} onChange={set("seat")} />
+                <label>{t("add.seat")}</label>
+                <input placeholder={t("add.seatPlaceholder")} value={form.seat} onChange={set("seat")} />
               </div>
 
               <button type="button" className="advanced-toggle" onClick={() => setShowAdvanced((v) => !v)}>
                 <UI.Icon.chevron className={"advanced-toggle-chev" + (showAdvanced ? " open" : "")} />
-                Advanced details
+                {t("add.advanced")}
               </button>
               <div className={"advanced-collapse" + (showAdvanced ? " open" : "")}>
                 <div className="advanced-collapse-inner">
                   <div className="field-row">
                     <div className="field">
-                      <label>Flight number</label>
-                      <input placeholder="e.g. CI 100" value={form.flightNo} onChange={set("flightNo")} tabIndex={showAdvanced ? 0 : -1} />
+                      <label>{t("add.flightNo")}</label>
+                      <input placeholder={t("add.flightNoPlaceholder")} value={form.flightNo} onChange={set("flightNo")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
                     <div className="field">
-                      <label>Registration</label>
-                      <input placeholder="e.g. B-18317" value={form.reg} onChange={set("reg")} tabIndex={showAdvanced ? 0 : -1} />
+                      <label>{t("add.registration")}</label>
+                      <input placeholder={t("add.registrationPlaceholder")} value={form.reg} onChange={set("reg")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
                   </div>
                   <div className="field">
-                    <label>Notes (optional)</label>
-                    <textarea rows={2} placeholder="Anything else worth remembering" value={form.notes} onChange={set("notes")} tabIndex={showAdvanced ? 0 : -1} />
+                    <label>{t("add.notes")}</label>
+                    <textarea rows={2} placeholder={t("add.notesPlaceholder")} value={form.notes} onChange={set("notes")} tabIndex={showAdvanced ? 0 : -1} />
                   </div>
                 </div>
               </div>
 
               <button className="btn btn-solid" style={{ width: "100%", justifyContent: "center", marginTop: 4 }} onClick={submit}>
-                {isEdit ? <React.Fragment><UI.Icon.edit /> Save changes</React.Fragment> : <React.Fragment><UI.Icon.plus /> Add to log</React.Fragment>}
+                {isEdit ? <React.Fragment><UI.Icon.edit /> {t("add.save")}</React.Fragment> : <React.Fragment><UI.Icon.plus /> {t("add.submit")}</React.Fragment>}
               </button>
             </div>
           )}
 
           {!isEdit && tab === "import" && (
-            <div className="tab-panel">
-              <p className="hint">Drop a CSV with columns <b>date, from, to, airline, aircraft, seat</b>. Airport codes are matched to coordinates automatically.</p>
-              <div className="detail-photo" style={{ height: 120, marginTop: 14, borderRadius: 3, border: "1.5px dashed var(--line)" }}>
-                <span>Drag &amp; drop CSV — or click to browse</span>
-              </div>
-              <p className="hint" style={{ marginTop: 12 }}>Works fully offline. Your data never leaves the browser.</p>
-            </div>
+            <ImportPanel onImport={onImport} existingFlights={existingFlights} pushToast={pushToast} onClose={onClose} />
           )}
         </div>
       </div>

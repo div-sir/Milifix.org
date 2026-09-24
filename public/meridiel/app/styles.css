@@ -49,9 +49,9 @@
   --shadow:     0 18px 50px -22px rgba(12,14,18,0.5);
   --shadow-sm:  0 6px 20px -10px rgba(12,14,18,0.38);
 
-  --serif: 'DM Serif Display', Georgia, serif;
-  --sans:  'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --mono:  'Space Mono', 'SFMono-Regular', Menlo, monospace;
+  --serif: 'DM Serif Display', Georgia, 'Noto Serif TC', 'Songti TC', 'Hiragino Mincho ProN', serif;
+  --sans:  'Jost', 'Helvetica Neue', Helvetica, Arial, 'PingFang TC', 'Hiragino Sans', 'Noto Sans TC', 'Noto Sans JP', 'Microsoft JhengHei', sans-serif;
+  --mono:  'Space Mono', 'SFMono-Regular', Menlo, 'PingFang TC', 'Hiragino Sans', 'Noto Sans TC', 'Noto Sans JP', 'Microsoft JhengHei', monospace;
 
   /* paper-texture overlay tints (re-defined in dark) */
   --tex-hi:  rgba(255,255,255,0.35);

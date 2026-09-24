@@ -2,6 +2,7 @@
    MERIDIEL — Small UI components & icons
    ============================================================ */
 import { UI } from "./ui-registry.js";
+import { LOCALES, LOCALE_LABELS, getLocale, intlLocale, fmtNum, t } from "./i18n.js";
 
 const { useState, useEffect, useRef } = React;
 
@@ -196,7 +197,7 @@ function StatNum({ value, suffix = "", decimals = 0 }) {
   return <span ref={ref}>{fmt(value, decimals) + suffix}</span>;
 }
 function fmt(n, d) {
-  return d ? (+n).toFixed(d) : Math.round(n).toLocaleString();
+  return fmtNum(d ? n : Math.round(n), d);
 }
 UI.StatNum = StatNum;
 
@@ -224,5 +225,29 @@ UI.fmtDur = (min) => {
 };
 UI.fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(intlLocale(), { day: "2-digit", month: "short", year: "numeric" });
 };
+UI.fmtNum = fmtNum;
+
+/* ---------- Rich: render a translated string's <b>…</b> spans as React
+   elements. Only <b> is recognised and everything else stays text, so a
+   string never becomes innerHTML. ---------- */
+function Rich({ text }) {
+  const parts = String(text).split(/<b>(.*?)<\/b>/g);
+  return parts.map((part, i) => (i % 2 ? <b key={i}>{part}</b> : <React.Fragment key={i}>{part}</React.Fragment>));
+}
+UI.Rich = Rich;
+
+/* ---------- Language picker ---------- */
+function LanguageSelect({ onChange, className }) {
+  return (
+    <label className={"lang-select " + (className || "")}>
+      <Icon.globe aria-hidden="true" />
+      <span className="sr-only">{t("common.language")}</span>
+      <select value={getLocale()} onChange={(e) => onChange(e.target.value)} aria-label={t("common.language")}>
+        {LOCALES.map((code) => <option key={code} value={code}>{LOCALE_LABELS[code]}</option>)}
+      </select>
+    </label>
+  );
+}
+UI.LanguageSelect = LanguageSelect;

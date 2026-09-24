@@ -7,10 +7,11 @@
    ============================================================ */
 import { UI } from "./ui-registry.js";
 import { MeridielAuth } from "./store.js";
+import { t } from "./i18n.js";
 
 const { useState: useStateL } = React;
 
-function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
+function LoginGate({ theme, onToggleTheme, onLogin, onExplore, onLanguage }) {
   const [step, setStep] = useStateL("signin"); // signin | connecting
   const [error, setError] = useStateL("");
   const [signingName, setSigningName] = useStateL("");
@@ -40,7 +41,7 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
     }).catch((err) => {
       setStep("signin");
       const cancelled = err && (err.type === "popup_closed" || err.type === "popup_failed_to_open");
-      setError(cancelled ? "Sign-in was cancelled." : "Google sign-in didn’t complete. Please try again.");
+      setError(cancelled ? t("login.cancelled") : t("login.failed"));
     });
   };
 
@@ -50,7 +51,7 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
       realSignIn();
       return;
     }
-    setError("Google sync is temporarily unavailable. You can still explore locally.");
+    setError(t("login.unavailable"));
   };
 
   return (
@@ -72,9 +73,12 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
         <circle className="ld" cx="600" cy="260" r="4" /><circle className="ld" cx="720" cy="480" r="4" />
       </svg>
 
-      <button className="login-theme icon-btn" onClick={onToggleTheme} title="Toggle theme">
-        {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
-      </button>
+      <div className="login-corner">
+        <UI.LanguageSelect onChange={onLanguage} />
+        <button className="login-theme icon-btn" onClick={onToggleTheme} title={t("theme.toggle")} aria-label={t("theme.toggle")}>
+          {theme === "dark" ? <UI.Icon.sun /> : <UI.Icon.moon />}
+        </button>
+      </div>
 
       <div className="login-card paper-tex">
         <div className="login-brand">
@@ -84,35 +88,32 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
           </svg>
           <div>
             <b>Meridiel</b>
-            <small>Charted by hand</small>
+            <small>{t("brand.tagline")}</small>
           </div>
         </div>
 
         {step !== "connecting" && (
-          <p className="login-tag">
-            Build a living atlas of every flight you've taken. Explore the globe now,
-            then connect Google Drive only if you want cross-device sync.
-          </p>
+          <p className="login-tag">{t("login.tag")}</p>
         )}
 
         {step === "signin" && (
           <React.Fragment>
             <button className="gbtn gbtn-primary" onClick={onExplore}>
               <span className="gbtn-g"><UI.Icon.globe /></span>
-              <span>Explore atlas</span>
+              <span>{t("login.explore")}</span>
             </button>
             <button className="gbtn gbtn-secondary" onClick={onSignInClick}>
               <span className="gbtn-g"><UI.Icon.google /></span>
-              <span>Continue with Google</span>
+              <span>{t("login.google")}</span>
             </button>
             {error && <div className="login-err">{error}</div>}
             <div className="login-privacy">
-              <p><b>Explore:</b> no account; changes stay in this browser.</p>
-              <p><b>Google:</b> shares your basic profile and stores the atlas in Drive's private appData folder.</p>
-              <a href="/privacy">Privacy details</a>
+              <p><UI.Rich text={t("login.privacyExplore")} /></p>
+              <p><UI.Rich text={t("login.privacyGoogle")} /></p>
+              <a href="/privacy">{t("login.privacyLink")}</a>
             </div>
             <div className="login-meta">
-              <span>NO PASSWORD STORED</span><span className="dot">•</span><span>YOU CHOOSE WHEN TO SYNC</span>
+              <span>{t("login.metaNoPassword")}</span><span className="dot">•</span><span>{t("login.metaYouChoose")}</span>
             </div>
           </React.Fragment>
         )}
@@ -121,14 +122,14 @@ function LoginGate({ theme, onToggleTheme, onLogin, onExplore }) {
           <div className="login-connecting">
             <div className="spin" />
             <div className="lc-name">
-              {signingName ? <React.Fragment>Signing in as <b>{signingName}</b></React.Fragment> : "Signing you in…"}
+              {signingName ? t("login.signingAs", { name: signingName }) : t("login.signingIn")}
             </div>
-            <div className="lc-sub">Boarding your atlas…</div>
+            <div className="lc-sub">{t("login.boarding")}</div>
           </div>
         )}
       </div>
 
-      <div className="login-foot">◎ Meridiel — a personal cartography project</div>
+      <div className="login-foot">{t("brand.foot")}</div>
     </div>
   );
 }
