@@ -5,7 +5,8 @@ import { UI } from "./ui-registry.js";
 import { ATLAS } from "./data.js";
 import { t } from "./i18n.js";
 import { AIRPORT_ALIASES } from "./airport-aliases.js";
-import { analyzeCsv, CSV_TEMPLATE } from "./csv-import.js";
+import { analyzeCsv, analyzeDrafts, CSV_TEMPLATE } from "./csv-import.js";
+import { extractFlightsFromText, parseBoardingPass } from "./text-import.js";
 
 
 /* ---------- Share Card modal ---------- */
@@ -183,6 +184,169 @@ const TEMPLATE_HREF = "data:text/csv;charset=utf-8," + encodeURIComponent("﻿" 
 const STATUS_LABEL = { ok: "import.ready", warning: "import.warning", rejected: "import.rejected", duplicate: "import.duplicate" };
 const STATUS_ORDER = { rejected: 0, warning: 1, duplicate: 2, ok: 3 };
 
+/* Shared by CSV, paste and boarding-pass import: summary, per-row reasons,
+   and one confirm button that commits every accepted row at once. */
+function ImportPreview({ result, summary, fatalPrefix, rowLabel, resetLabel, onReset, onConfirm }) {
+  const importable = result.flights.length;
+  const listed = [...result.rows].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.line - b.line);
+  return (
+    <div className="import-preview">
+      {result.fatal ? (
+        <p className="import-error" role="alert">{fatalPrefix}{t(result.fatal.code, result.fatal.params)}</p>
+      ) : (
+        <React.Fragment>
+          <p className="import-summary" role="status">{summary}</p>
+          <ul className="import-rows">
+            {listed.slice(0, PREVIEW_LIMIT).map((row) => {
+              const route = row.record || row.raw;
+              return (
+                <li key={row.line} className={"import-row import-row--" + row.status}>
+                  <span className="ir-badge">{t(STATUS_LABEL[row.status])}</span>
+                  <span className="ir-line">{rowLabel(row)}</span>
+                  {route && (route.o || route.d) && (
+                    <span className="ir-route">{route.date || "????-??-??"} {route.o || "???"} → {route.d || "???"}{route.flightNo ? " · " + route.flightNo : ""}</span>
+                  )}
+                  {row.issues.map((issue, i) => <span key={i} className="ir-issue">{t(issue.code, issue.params)}</span>)}
+                </li>
+              );
+            })}
+          </ul>
+          {listed.length > PREVIEW_LIMIT && (
+            <p className="hint">{t("import.moreRows", { count: listed.length - PREVIEW_LIMIT })}</p>
+          )}
+          {!importable && <p className="import-error">{t("import.nothing")}</p>}
+        </React.Fragment>
+      )}
+      <div className="import-actions">
+        <button type="button" className="btn btn-ghost" onClick={onReset}>{resetLabel}</button>
+        {!result.fatal && importable > 0 && (
+          <button type="button" className="btn btn-solid" onClick={onConfirm}>
+            <UI.Icon.plus /> {t("import.confirm", { count: importable })}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Paste a booking email / scan a boarding pass ----------
+   Text is parsed locally; a boarding-pass screenshot is decoded with the
+   browser's BarcodeDetector (PDF417/Aztec/QR) where available. */
+const BARCODE_FORMATS = ["pdf417", "aztec", "qr_code", "data_matrix"];
+
+async function readBoardingPassImage(file) {
+  if (typeof window.BarcodeDetector !== "function") return { unsupported: true };
+  const supported = window.BarcodeDetector.getSupportedFormats
+    ? await window.BarcodeDetector.getSupportedFormats()
+    : BARCODE_FORMATS;
+  const formats = BARCODE_FORMATS.filter((f) => supported.includes(f));
+  if (!formats.length) return { unsupported: true };
+  const bitmap = await createImageBitmap(file);
+  try {
+    const codes = await new window.BarcodeDetector({ formats }).detect(bitmap);
+    return { values: codes.map((code) => code.rawValue).filter(Boolean) };
+  } finally {
+    if (bitmap.close) bitmap.close();
+  }
+}
+
+function PastePanel({ onImport, existingFlights, pushToast, onClose }) {
+  const [text, setText] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [result, setResult] = React.useState(null);
+  const imageRef = React.useRef(null);
+
+  const preview = (drafts) => {
+    if (!drafts.length) return false;
+    setResult(analyzeDrafts(drafts.map((raw, i) => ({ line: i + 1, raw })), {
+      airports: ATLAS.AIRPORTS,
+      existing: existingFlights,
+    }));
+    return true;
+  };
+
+  const findInText = async () => {
+    setMessage("");
+    setBusy(true);
+    try {
+      await ATLAS.loadReferenceData({ urgent: true });
+      const drafts = extractFlightsFromText(text, { airports: ATLAS.AIRPORTS, airlines: ATLAS.AIRLINE_CODES });
+      if (!preview(drafts)) setMessage(t("paste.noFlights"));
+    } finally { setBusy(false); }
+  };
+
+  const onImage = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setMessage("");
+    setBusy(true);
+    try {
+      const [scan] = await Promise.all([readBoardingPassImage(file), ATLAS.loadReferenceData({ urgent: true })]);
+      if (scan.unsupported) { setMessage(t("paste.unsupported")); return; }
+      const drafts = scan.values.flatMap((value) => parseBoardingPass(value, { airlines: ATLAS.AIRLINE_CODES }));
+      if (!preview(drafts)) setMessage(t("paste.noBarcode"));
+    } catch (error) {
+      console.error("Meridiel: boarding pass scan failed —", error);
+      setMessage(t("paste.noBarcode"));
+    } finally { setBusy(false); }
+  };
+
+  const confirm = () => {
+    if (!result || !result.flights.length) return;
+    onImport(result.flights);
+    pushToast(t("import.done", { count: result.flights.length }));
+    onClose();
+  };
+
+  if (result) {
+    return (
+      <div className="tab-panel import-panel">
+        <ImportPreview
+          result={result}
+          summary={t("paste.summary", {
+            ok: result.counts.ok,
+            warn: result.counts.warning,
+            rejected: result.counts.rejected,
+            dup: result.counts.duplicate,
+          })}
+          fatalPrefix=""
+          rowLabel={(row) => t("import.item", { n: row.line })}
+          resetLabel={t("paste.again")}
+          onReset={() => setResult(null)}
+          onConfirm={confirm}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="tab-panel import-panel">
+      <p className="hint">{t("paste.intro")}</p>
+      <textarea
+        className="paste-box"
+        rows={6}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={t("paste.placeholder")}
+        aria-label={t("paste.label")}
+      />
+      <div className="import-actions">
+        <button type="button" className="btn btn-ghost" onClick={() => imageRef.current && imageRef.current.click()} disabled={busy}>
+          <UI.Icon.plus /> {t("paste.scan")}
+        </button>
+        <button type="button" className="btn btn-solid" onClick={findInText} disabled={busy || !text.trim()}>
+          {busy ? <span className="spin spin-sm" /> : <UI.Icon.plane />} {t("paste.find")}
+        </button>
+      </div>
+      <input ref={imageRef} type="file" accept="image/*" hidden aria-label={t("paste.scan")} data-testid="meridiel-pass-input" onChange={onImage} />
+      {message && <p className="import-error" role="alert">{message}</p>}
+      <p className="hint" style={{ marginTop: 12 }}>{t("import.offline")}</p>
+    </div>
+  );
+}
+
 function ImportPanel({ onImport, existingFlights, pushToast, onClose }) {
   const [phase, setPhase] = React.useState("idle"); // idle | reading | preview
   const [fileName, setFileName] = React.useState("");
@@ -227,11 +391,6 @@ function ImportPanel({ onImport, existingFlights, pushToast, onClose }) {
   };
   const reset = () => { setPhase("idle"); setResult(null); setError(""); };
 
-  const importable = result ? result.flights.length : 0;
-  const listed = result
-    ? [...result.rows].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.line - b.line)
-    : [];
-
   return (
     <div className="tab-panel import-panel">
       <p className="hint"><UI.Rich text={t("import.intro")} /></p>
@@ -266,45 +425,21 @@ function ImportPanel({ onImport, existingFlights, pushToast, onClose }) {
       {error && <p className="import-error" role="alert">{error}</p>}
 
       {phase === "preview" && result && (
-        <div className="import-preview">
-          {result.fatal ? (
-            <p className="import-error" role="alert">{fileName}: {t(result.fatal.code, result.fatal.params)}</p>
-          ) : (
-            <React.Fragment>
-              <p className="import-summary" role="status">
-                {t("import.summary", {
-                  file: fileName,
-                  ok: result.counts.ok,
-                  warn: result.counts.warning,
-                  rejected: result.counts.rejected,
-                  dup: result.counts.duplicate,
-                })}
-              </p>
-              <ul className="import-rows">
-                {listed.slice(0, PREVIEW_LIMIT).map((row) => (
-                  <li key={row.line} className={"import-row import-row--" + row.status}>
-                    <span className="ir-badge">{t(STATUS_LABEL[row.status])}</span>
-                    <span className="ir-line">{t("import.line", { line: row.line })}</span>
-                    {row.record && <span className="ir-route">{row.record.date} {row.record.o} → {row.record.d}</span>}
-                    {row.issues.map((issue, i) => <span key={i} className="ir-issue">{t(issue.code, issue.params)}</span>)}
-                  </li>
-                ))}
-              </ul>
-              {listed.length > PREVIEW_LIMIT && (
-                <p className="hint">{t("import.moreRows", { count: listed.length - PREVIEW_LIMIT })}</p>
-              )}
-              {!importable && <p className="import-error">{t("import.nothing")}</p>}
-            </React.Fragment>
-          )}
-          <div className="import-actions">
-            <button type="button" className="btn btn-ghost" onClick={reset}>{t("import.another")}</button>
-            {!result.fatal && importable > 0 && (
-              <button type="button" className="btn btn-solid" onClick={confirm}>
-                <UI.Icon.plus /> {t("import.confirm", { count: importable })}
-              </button>
-            )}
-          </div>
-        </div>
+        <ImportPreview
+          result={result}
+          summary={t("import.summary", {
+            file: fileName,
+            ok: result.counts.ok,
+            warn: result.counts.warning,
+            rejected: result.counts.rejected,
+            dup: result.counts.duplicate,
+          })}
+          fatalPrefix={fileName + ": "}
+          rowLabel={(row) => t("import.line", { line: row.line })}
+          resetLabel={t("import.another")}
+          onReset={reset}
+          onConfirm={confirm}
+        />
       )}
 
       <p className="hint" style={{ marginTop: 12 }}>{t("import.offline")}</p>
@@ -312,9 +447,9 @@ function ImportPanel({ onImport, existingFlights, pushToast, onClose }) {
   );
 }
 
-function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToast, initial }) {
+function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToast, initial, initialTab, defaultOrigin }) {
   const isEdit = !!initial;
-  const [tab, setTab] = React.useState("manual");
+  const [tab, setTab] = React.useState(initialTab || "manual");
   const [, setReferenceDataVersion] = React.useState(0);
   React.useEffect(() => {
     let cancelled = false;
@@ -329,11 +464,13 @@ function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToas
           o: initial.o, d: initial.d, date: initial.date, airline: initial.airline, craft: initial.craft, seat: initial.seat,
           flightNo: initial.flightNo || "", reg: initial.reg || "", notes: initial.notes || "",
         }
-      : { o: "SFO", d: "JFK", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "", flightNo: "", reg: "", notes: "" }
+      : { o: defaultOrigin || "", d: "", date: new Date().toISOString().slice(0, 10), airline: "", craft: "", seat: "", flightNo: "", reg: "", notes: "" }
   ));
-  // Auto-expand when editing a flight that already has advanced details filled in.
+  // Only route and date are needed; the rest waits behind "More details",
+  // which opens by itself when editing a flight that already has them.
+  const filled = (v) => !!v && v !== "—";
   const [showAdvanced, setShowAdvanced] = React.useState(
-    !!(initial && (initial.flightNo || initial.reg || initial.notes))
+    !!(initial && [initial.craft, initial.seat, initial.reg, initial.notes].some(filled))
   );
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const setVal = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
@@ -361,6 +498,7 @@ function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToas
           {!isEdit && (
             <div className="tab-row">
               <button className={tab === "manual" ? "on" : ""} aria-pressed={tab === "manual"} onClick={() => setTab("manual")}>{t("add.tabManual")}</button>
+              <button className={tab === "paste" ? "on" : ""} aria-pressed={tab === "paste"} onClick={() => setTab("paste")}>{t("add.tabPaste")}</button>
               <button className={tab === "import" ? "on" : ""} aria-pressed={tab === "import"} onClick={() => setTab("import")}>{t("add.tabImport")}</button>
             </div>
           )}
@@ -406,13 +544,9 @@ function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToas
                   />
                 </div>
                 <div className="field">
-                  <label>{t("add.aircraft")}</label>
-                  <input placeholder={t("add.aircraftPlaceholder")} value={form.craft} onChange={set("craft")} />
+                  <label>{t("add.flightNo")}</label>
+                  <input placeholder={t("add.flightNoPlaceholder")} value={form.flightNo} onChange={set("flightNo")} />
                 </div>
-              </div>
-              <div className="field">
-                <label>{t("add.seat")}</label>
-                <input placeholder={t("add.seatPlaceholder")} value={form.seat} onChange={set("seat")} />
               </div>
 
               <button type="button" className="advanced-toggle" onClick={() => setShowAdvanced((v) => !v)}>
@@ -423,13 +557,17 @@ function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToas
                 <div className="advanced-collapse-inner">
                   <div className="field-row">
                     <div className="field">
-                      <label>{t("add.flightNo")}</label>
-                      <input placeholder={t("add.flightNoPlaceholder")} value={form.flightNo} onChange={set("flightNo")} tabIndex={showAdvanced ? 0 : -1} />
+                      <label>{t("add.aircraft")}</label>
+                      <input placeholder={t("add.aircraftPlaceholder")} value={form.craft} onChange={set("craft")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
                     <div className="field">
-                      <label>{t("add.registration")}</label>
-                      <input placeholder={t("add.registrationPlaceholder")} value={form.reg} onChange={set("reg")} tabIndex={showAdvanced ? 0 : -1} />
+                      <label>{t("add.seat")}</label>
+                      <input placeholder={t("add.seatPlaceholder")} value={form.seat} onChange={set("seat")} tabIndex={showAdvanced ? 0 : -1} />
                     </div>
+                  </div>
+                  <div className="field">
+                    <label>{t("add.registration")}</label>
+                    <input placeholder={t("add.registrationPlaceholder")} value={form.reg} onChange={set("reg")} tabIndex={showAdvanced ? 0 : -1} />
                   </div>
                   <div className="field">
                     <label>{t("add.notes")}</label>
@@ -442,6 +580,10 @@ function AddFlightModal({ onClose, onSubmit, onImport, existingFlights, pushToas
                 {isEdit ? <React.Fragment><UI.Icon.edit /> {t("add.save")}</React.Fragment> : <React.Fragment><UI.Icon.plus /> {t("add.submit")}</React.Fragment>}
               </button>
             </div>
+          )}
+
+          {!isEdit && tab === "paste" && (
+            <PastePanel onImport={onImport} existingFlights={existingFlights} pushToast={pushToast} onClose={onClose} />
           )}
 
           {!isEdit && tab === "import" && (
