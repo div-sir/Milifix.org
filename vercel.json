@@ -12,6 +12,12 @@
       ]
     },
     {
+      "source": "/traffic-dashboard/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' data:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; font-src 'self' data:; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" }
+      ]
+    },
+    {
       "source": "/meridiel/(.*)",
       "headers": [
         { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://accounts.google.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://accounts.google.com https://www.googleapis.com; font-src 'self'; worker-src 'self' blob:; frame-src https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; media-src 'none'; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests" }
@@ -43,6 +49,7 @@
     }
   ],
   "redirects": [
+    { "source": "/traffic-dashboard", "destination": "/traffic-dashboard/", "permanent": true },
     { "source": "/ekispell", "destination": "/ekispell/", "permanent": true },
     { "source": "/EkiSpell", "destination": "/ekispell/", "permanent": true },
     { "source": "/meridiel", "destination": "/meridiel/", "permanent": true },
