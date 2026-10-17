@@ -4,13 +4,55 @@ import { EvidenceChart, DataComponent, DataTable, Filters, MetricCard, Section, 
 import './taiwan.css';
 import { sum, rollup, rateRows, pct, num } from './metrics.js';
 const vehicleFilters=['month','city','vehicle','severity','collision'];
-const tabs=[{id:'overview',label:'事故概覽',filterIds:vehicleFilters},{id:'vehicles',label:'車種與事故率',filterIds:vehicleFilters},{id:'brands',label:'廠牌理賠比較',filterIds:['brand','origin']},{id:'models',label:'車型資料',filterIds:[]}];
+const tabs=[{id:'protection',label:'乘員保護',filterIds:['protocol','ratingYear','make']},{id:'history',label:'五年事故趨勢',filterIds:['historyYear','historyCity']},{id:'overview',label:'2025事故明細',filterIds:vehicleFilters},{id:'vehicles',label:'2025車種分析',filterIds:vehicleFilters},{id:'brands',label:'理賠背景',filterIds:['brand','origin']},{id:'models',label:'實際死亡率資料',filterIds:[]}];
 const allDimensions=['month','city','severity','vehicle','subtype','collision'];
 const measureLabels={accidents:'事故件數',involvements:'涉事次數',per10k:'每萬輛涉事次數',claimFrequencyRate:'理賠頻率',claims:'理賠件數'};
 const countChart=(x,y,extra={})=>({type:'horizontalBar',x,y,valueDecimals:0,legend:{labels:measureLabels},...extra});
 function Note({children,tone=''}){return <p className={`tw-note ${tone}`}>{children}</p>}
 function TableBlock({id,queryId,title,rows,sourceRows,columns,...rest}){return <DataComponent id={id} queryId={queryId} title={title} kind="table" variant="card" displayRows={rows} sourceRows={sourceRows} {...rest}><DataTable rows={rows} columns={columns} caption={title}/></DataComponent>}
 function Plot({id,queryId,title,rows,sourceRows,spec,height=310,children,...rest}){return <EvidenceChart id={id} queryId={queryId} title={title} rows={rows} sourceRows={sourceRows} spec={spec} height={height} variant="card" {...rest}>{children}</EvidenceChart>}
+function Protection(){
+ const {reviewedRows,filters,setFilter}=useDataApp();const rows=reviewedRows('tncap',['protocol','ratingYear','make']);
+ const comparable=filters.protocol==='第一版'||filters.protocol==='第二版';const ordered=[...rows].sort((a,b)=>b.adultScorePct-a.adultScorePct);
+ const labels={adultScorePct:'成人保護得分率（%）',childScorePct:'兒童保護得分率（%）'};
+ return <>
+ <DataComponent id="fatality-data-gap" queryId="models" title="重大事故乘客死亡率" kind="narrative" variant="card" displayRows={[]} sourceRows={[]}>
+  <div className="tw-primary-gap"><strong>目前無法計算</strong><p>台灣公開事故檔沒有乘客個別傷亡、所屬車型及含未受傷者的完整分母。整起事故死亡人數不能當成車內乘客死亡人數。</p><p>目標指標：同一定義重大事故的乘客死亡人數 ÷ 同類事故全部乘客人數（含存活未受傷者）。乘客不含駕駛；乘員含駕駛，兩者需分開統計。</p></div>
+ </DataComponent>
+ <Section id="protection-section" title="車型乘員保護測試・TNCAP" columns={1}>
+ <Note tone="amber">以下為官方碰撞／安全評等得分，並非實際死亡率或存活率。不可用「100 − 得分」推算死亡風險。第一版（2023–2025）與第二版（2026）標準不同，分開比較。</Note>
+ {!comparable?<div className="tw-empty"><h2>先選同一版規章再比較</h2><p>跨版分數不合併排名；完整表仍列出來源值。</p><button type="button" onClick={()=>setFilter('protocol','第二版')}>查看第二版</button><button type="button" onClick={()=>setFilter('protocol','第一版')}>查看第一版</button></div>:<Section id="protection-chart-section" spacing="none" columns={2}>
+ <Plot id="adult-protection-plot" queryId="tncap" title="成人保護得分率（%）" rows={ordered} sourceRows={rows} spec={{type:'horizontalBar',x:'modelLabel',y:'adultScorePct',domain:[0,100],valueDecimals:0,legend:{labels}}} height={Math.max(300,ordered.length*27)}/>
+ <Plot id="child-protection-plot" queryId="tncap" title="兒童保護得分率（%）" rows={ordered} sourceRows={rows} spec={{type:'horizontalBar',x:'modelLabel',y:'childScorePct',domain:[0,100],valueDecimals:0,legend:{labels}}} height={Math.max(300,ordered.length*27)}/>
+ </Section>}
+ <Note>評等年份不等於所有年式皆適用；同車名升級配備或改版後可有不同結果。請點開官方報告核對受驗配備與 VIN 適用範圍。成人保護包含駕駛與乘客，並依規章納入指定安全項目。</Note>
+ <TableBlock id="tncap-model-table" queryId="tncap" title="官方車型評等與報告" rows={ordered} sourceRows={rows} columns={[{field:'make',label:'廠牌'},{field:'model',label:'受評車型'},{field:'ratingYear',label:'評等年份'},{field:'protocol',label:'規章'},{field:'adultScorePct',label:'成人保護（%）'},{field:'childScorePct',label:'兒童保護（%）'},{field:'sourceUrl',label:'受驗規格／完整報告',renderCell:v=><a href={v} target="_blank" rel="noopener noreferrer">官方報告 ↗</a>}]}/>
+ </Section>
+ </>
+}
+function History(){
+ const {reviewedRows}=useDataApp();const raw=reviewedRows('history',['historyYear','historyMonth','historyCity','severity']);
+ const yearly=rollup(raw,['historyYear'],['accidents','deaths24h','injuries']).map(x=>{const fatal=raw.filter(r=>r.historyYear===x.historyYear&&r.severity==='A1');return {...x,fatalAccidents:sum(fatal,'accidents'),fatalCrashShare:x.accidents?sum(fatal,'accidents')/x.accidents:null};});
+ const monthly=rollup(raw,['historyMonth'],['accidents','deaths24h','injuries']);
+ const labels={accidents:'傷亡事故件數',deaths24h:'24小時死亡人數',fatalAccidents:'A1死亡事故件數',fatalCrashShare:'A1事故占比'};
+ return <>
+ <Note tone="amber">2021–2025 年完整年度。此頁死傷包含整起事故所有當事者，可能有行人、騎士或對方車乘員；不是乘客死亡率或車型保護能力。A1 僅代表有人當場或24小時內死亡，不能當作所有重大碰撞的統一定義。</Note>
+ <Section id="history-kpis-section" title="所選期間事故背景" spacing="none" columns={3}>
+ <MetricCard id="history-accident-count" queryId="history" title="傷亡事故件數" value={num(sum(raw,'accidents'))} displayRows={yearly} sourceRows={raw}/>
+ <MetricCard id="history-fatal-crash-count" queryId="history" title="A1 死亡事故件數" value={num(sum(raw.filter(x=>x.severity==='A1'),'accidents'))} displayRows={yearly} sourceRows={raw}/>
+ <MetricCard id="history-death-count" queryId="history" title="事故整體24小時死亡人數" value={num(sum(raw,'deaths24h'))} displayRows={yearly} sourceRows={raw}/>
+ </Section>
+ <Section id="history-years-section" title="五年變化" columns={2}>
+ <Plot id="historical-fatal-crashes" queryId="history" title="各年 A1 死亡事故件數" rows={yearly} sourceRows={raw} spec={{type:'bar',x:'historyYear',y:'fatalAccidents',valueDecimals:0,legend:{labels}}}/>
+ <Plot id="historical-deaths" queryId="history" title="各年事故整體死亡人數（24小時）" rows={yearly} sourceRows={raw} spec={{type:'bar',x:'historyYear',y:'deaths24h',valueDecimals:0,legend:{labels}}}/>
+ </Section>
+ <Section id="history-months-section" title="月份與年度明細" columns={1}>
+ <Plot id="historical-monthly-deaths" queryId="history" title="60 個月事故整體死亡趨勢" rows={monthly} sourceRows={raw} spec={{type:'line',x:'historyMonth',y:'deaths24h',valueDecimals:0,legend:{labels}}} height={300}/>
+ <TableBlock id="history-annual-table" queryId="history" title="年度件數、死亡及受傷" rows={yearly} sourceRows={raw} columns={[{field:'historyYear',label:'年份'},{field:'accidents',label:'傷亡事故件數'},{field:'fatalAccidents',label:'A1事故件數'},{field:'deaths24h',label:'24小時死亡人數'},{field:'injuries',label:'受傷人數'},{field:'fatalCrashShare',label:'A1占傷亡事故',renderCell:v=>v===null?'無分母':pct(v)}]}/>
+ <Note>A1占比＝A1事故件數 ÷（A1＋A2）事故件數，不是涉事乘客死亡的機率。未混入30日死亡統計，亦未把後續年度或不完整月份補零。</Note>
+ </Section>
+ </>
+}
 function Overview(){
  const {reviewedRows}=useDataApp();const rows=reviewedRows('accidents',allDimensions);
  const trend=rollup(rows,['month'],['accidents','deaths24h','injuries']);
@@ -70,14 +112,12 @@ function Brands(){
  <TableBlock id="brand-detail" queryId="brands" title="廠牌理賠與樣本明細" rows={[...rows].sort((a,b)=>b.earnedVehicles-a.earnedVehicles)} sourceRows={rows} columns={[{field:'brand',label:'原廠牌分類'},{field:'origin',label:'產地分類'},{field:'claims',label:'理賠件數'},{field:'earnedVehicles',label:'滿期車數'},{field:'claimFrequencyRate',label:'理賠頻率',renderCell:v=>v===null?'無分母':pct(v)},{field:'lossRatioRate',label:'賠款率（金額）',renderCell:v=>v===null?'無分母':pct(v)},{field:'page',label:'PDF頁'}]}/>
  </Section></>
 }
-const modelColumns=[{field:'year',label:'年度'},{field:'brand',label:'廠牌'},{field:'model',label:'車型'},{field:'collision',label:'事故型態'},{field:'accidents',label:'涉事次數'},{field:'averageRegistered',label:'平均登記車數'},{field:'per10k',label:'每萬輛涉事次數',renderCell:v=>v===null?'資料未取得':num(v,1)}];
 function Models(){
- const {reviewedRows}=useDataApp();const raw=reviewedRows('models');const rows=raw.map(x=>({...x,per10k:Number.isFinite(x.accidents)&&Number.isFinite(x.averageRegistered)&&x.averageRegistered>0?x.accidents/x.averageRegistered*10000:null}));
- const template=()=>{const text='year,brand,model,collision,accidents,averageRegistered,sourceUrl\n';const url=URL.createObjectURL(new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='vehicle-model-data-template.csv';a.click();URL.revokeObjectURL(url);};
- return <Section id="model-data-section" title="車型事故件數與事故率" spacing="none" columns={1}>
- {!rows.length&&<div className="tw-empty"><span className="tw-status">資料未取得</span><h2>車型比較需要額外資料</h2><p>尚無可驗證的 Corolla、Model Y 等車型事故統計。警政署公開資料未提供廠牌／車型，車體險表17也僅到廠牌／產地分類。</p><p>廠牌 × 車型 × 事故型態的比較，需要同一期間的涉事次數、平均登記車數、資料來源及一致的計數口徑。缺資料不等於零事故。</p><button type="button" onClick={template}>下載車型資料欄位範本</button><p className="tw-small">補齊並核對資料後，可請 ChatGPT 更新本頁的車型資料集；此範本不含示例數值。</p></div>}
- {rows.length>0&&<Plot id="model-rate-plot" queryId="models" title="車型每萬輛涉事次數" rows={rows.filter(x=>x.per10k!==null).map(x=>({...x,modelLabel:`${x.brand} ${x.model}・${x.year}・${x.collision}`}))} sourceRows={raw} spec={countChart('modelLabel','per10k',{valueDecimals:1})} height={400}/>}
- <TableBlock id="model-data-table" queryId="models" title="車型資料明細" rows={rows} sourceRows={raw} columns={modelColumns}/>
- </Section>
+ const {reviewedRows}=useDataApp();const rows=reviewedRows('models');
+ const template=()=>{const text='accidentId,vehicleId,year,brand,model,modelYear,occupantRole,injurySeverity30d,crashSeverityDefinition,occupantCount,sourceUrl\n';const url=URL.createObjectURL(new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='passenger-outcome-data-template.csv';a.click();URL.revokeObjectURL(url);};
+ return <Section id="model-data-section" title="重大事故乘客死亡率・所需資料" spacing="none" columns={1}>
+ <DataComponent id="model-data-requirements" queryId="models" title="實際乘客死亡率：資料未取得" kind="narrative" variant="card" displayRows={rows} sourceRows={rows}>
+ <div className="tw-empty"><span className="tw-status">無法計算，不是零死亡</span><h2>還缺個人、車輛與事故的對應資料</h2><p>需要：事故ID、乘客所屬車輛ID、廠牌／車型／年式、乘客角色、個別30日傷亡、完整乘客人數（含未受傷者），以及可比的碰撞嚴重度。</p><p>事故整體死傷可能來自對方車、騎士或行人，不能歸給第一當事者車種或每一輛涉事車。重大事故也須先以可比的撞擊或損傷條件界定；只篩A1會用死亡結果挑選母體。</p><p>取得資料後，應分開計算「乘客（不含駕駛）」與「乘員（含駕駛）」的30日死亡比例，並依車齡、車重、年式、碰撞型態、撞擊強度、安全帶及年齡等條件分層，附上樣本數及區間。</p><button type="button" onClick={template}>下載乘客傷亡資料欄位範本</button><p className="tw-small">空白欄位範本不含示例數值。統計更新應先核對資料授權、個人傷亡及分母涵蓋情況。</p></div>
+ </DataComponent></Section>
 }
-export function DashboardContent(){const {activeTabId}=useDashboardTabs(tabs);const {snapshot,queries,filters,setFilter}=useDataApp();return <article className="tw-dashboard"><Filters sticky filters={snapshot.filters??[]} queries={queries} values={filters} onChange={setFilter}/>{activeTabId==='vehicles'?<Vehicles/>:activeTabId==='brands'?<Brands/>:activeTabId==='models'?<Models/>:<Overview/>}</article>}
+export function DashboardContent(){const {activeTabId}=useDashboardTabs(tabs);const {snapshot,queries,filters,setFilter}=useDataApp();return <article className="tw-dashboard"><Filters sticky filters={snapshot.filters??[]} queries={queries} values={filters} onChange={setFilter}/>{activeTabId==='protection'?<Protection/>:activeTabId==='history'?<History/>:activeTabId==='vehicles'?<Vehicles/>:activeTabId==='brands'?<Brands/>:activeTabId==='models'?<Models/>:<Overview/>}</article>}
