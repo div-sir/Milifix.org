@@ -47,7 +47,7 @@ function History(){
  <Plot id="historical-deaths" queryId="history" title="各年事故整體死亡人數（24小時）" rows={yearly} sourceRows={raw} spec={{type:'bar',x:'historyYear',y:'deaths24h',valueDecimals:0,legend:{labels}}}/>
  </Section>
  <Section id="history-months-section" title="月份與年度明細" columns={1}>
- <Plot id="historical-monthly-deaths" queryId="history" title="60 個月事故整體死亡趨勢" rows={monthly} sourceRows={raw} spec={{type:'line',x:'historyMonth',y:'deaths24h',valueDecimals:0,legend:{labels}}} height={300}/>
+ <Plot id="historical-monthly-deaths" queryId="history" title="每月事故整體死亡趨勢（24小時）" rows={monthly} sourceRows={raw} spec={{type:'line',x:'historyMonth',y:'deaths24h',valueDecimals:0,legend:{labels}}} height={300}/>
  <TableBlock id="history-annual-table" queryId="history" title="年度件數、死亡及受傷" rows={yearly} sourceRows={raw} columns={[{field:'historyYear',label:'年份'},{field:'accidents',label:'傷亡事故件數'},{field:'fatalAccidents',label:'A1事故件數'},{field:'deaths24h',label:'24小時死亡人數'},{field:'injuries',label:'受傷人數'},{field:'fatalCrashShare',label:'A1占傷亡事故',renderCell:v=>v===null?'無分母':pct(v)}]}/>
  <Note>A1占比＝A1事故件數 ÷（A1＋A2）事故件數，不是涉事乘客死亡的機率。未混入30日死亡統計，亦未把後續年度或不完整月份補零。</Note>
  </Section>
