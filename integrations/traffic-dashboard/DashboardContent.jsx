@@ -13,6 +13,7 @@ function TableBlock({id,queryId,title,rows,sourceRows,columns,...rest}){return <
 function Plot({id,queryId,title,rows,sourceRows,spec,height=310,children,...rest}){return <EvidenceChart id={id} queryId={queryId} title={title} rows={rows} sourceRows={sourceRows} spec={spec} height={height} variant="card" {...rest}>{children}</EvidenceChart>}
 function Protection(){
  const {reviewedRows,filters,setFilter}=useDataApp();const rows=reviewedRows('tncap',['protocol','ratingYear','make']);
+ const [selected,setSelected]=React.useState([]);const [baseline,setBaseline]=React.useState('');
  const comparable=filters.protocol==='第一版'||filters.protocol==='第二版';const ordered=[...rows].sort((a,b)=>b.adultScorePct-a.adultScorePct);
  const labels={adultScorePct:'成人保護得分率（%）',childScorePct:'兒童保護得分率（%）'};
  return <>
@@ -25,6 +26,14 @@ function Protection(){
  <Plot id="adult-protection-plot" queryId="tncap" title="成人保護得分率（%）" rows={ordered} sourceRows={rows} spec={{type:'horizontalBar',x:'modelLabel',y:'adultScorePct',domain:[0,100],valueDecimals:0,legend:{labels}}} height={Math.max(300,ordered.length*27)}/>
  <Plot id="child-protection-plot" queryId="tncap" title="兒童保護得分率（%）" rows={ordered} sourceRows={rows} spec={{type:'horizontalBar',x:'modelLabel',y:'childScorePct',domain:[0,100],valueDecimals:0,legend:{labels}}} height={Math.max(300,ordered.length*27)}/>
  </Section>}
+ {comparable&&<Section id="protection-comparison-section" title="自選車款並排比較" columns={1}>
+ <div className="tw-compare-controls"><label htmlFor="compare-models">選擇 2–5 筆受評結果（同版規章）</label><select id="compare-models" multiple size={Math.min(Math.max(rows.length,3),9)} value={selected.filter(id=>rows.some(r=>r.sourceUrl===id))} onChange={e=>setSelected([...e.target.selectedOptions].map(o=>o.value).slice(0,5))}>{rows.map(r=><option key={r.sourceUrl} value={r.sourceUrl}>{r.modelLabel} · {r.ratingYear}</option>)}</select><span>按 Ctrl／⌘ 可複選；最多 5 筆。更改年份或廠牌篩選會只顯示符合範圍的車款。</span></div>
+ {(()=>{const picked=selected.map(id=>rows.find(r=>r.sourceUrl===id)).filter(Boolean);if(picked.length<2)return <Note>選取至少兩筆，顯示四個項目的原始得分與相對基準差距。</Note>;const base=picked.find(r=>r.sourceUrl===baseline)||picked[0];const metrics=[['adultScorePct','成人保護'],['childScorePct','兒童保護'],['vulnerableScorePct','行人／弱勢用路人'],['assistScorePct','安全輔助']];return <>
+ <label className="tw-baseline">比較基準車款 <select value={base.sourceUrl} onChange={e=>setBaseline(e.target.value)}>{picked.map(r=><option key={r.sourceUrl} value={r.sourceUrl}>{r.modelLabel} · {r.ratingYear}</option>)}</select></label>
+ <TableBlock id="tncap-selected-compare" queryId="tncap" title="同規章車款評分與基準差距" rows={picked.map(r=>({...r,adultDelta:r.adultScorePct-base.adultScorePct,childDelta:r.childScorePct-base.childScorePct}))} sourceRows={rows} columns={[{field:'modelLabel',label:'受評車款'},{field:'ratingYear',label:'年份'},...metrics.map(([field,label])=>({field,label:`${label}（%）`,renderCell:v=>num(v)})),{field:'adultDelta',label:'成人保護相差（百分點）',renderCell:v=>`${v>0?'+':''}${num(v)}`},{field:'childDelta',label:'兒童保護相差（百分點）',renderCell:v=>`${v>0?'+':''}${num(v)}`} ]}/>
+ <Note>差距是測試得分的百分點差，並非死亡風險差；四項得分不加總，也不代表實際乘客死亡率。對照適用於當前同版規章與篩選結果。</Note>
+ </>})()}
+ </Section>}
  <Note>評等年份不等於所有年式皆適用；同車名升級配備或改版後可有不同結果。請點開官方報告核對受驗配備與 VIN 適用範圍。成人保護包含駕駛與乘客，並依規章納入指定安全項目。</Note>
  <TableBlock id="tncap-model-table" queryId="tncap" title="官方車型評等與報告" rows={ordered} sourceRows={rows} columns={[{field:'make',label:'廠牌'},{field:'model',label:'受評車型'},{field:'ratingYear',label:'評等年份'},{field:'protocol',label:'規章'},{field:'adultScorePct',label:'成人保護（%）'},{field:'childScorePct',label:'兒童保護（%）'},{field:'sourceUrl',label:'受驗規格／完整報告',renderCell:v=><a href={v} target="_blank" rel="noopener noreferrer">官方報告 ↗</a>}]}/>
  </Section>
@@ -34,6 +43,7 @@ function History(){
  const {reviewedRows}=useDataApp();const raw=reviewedRows('history',['historyYear','historyMonth','historyCity','severity']);
  const yearly=rollup(raw,['historyYear'],['accidents','deaths24h','injuries']).map(x=>{const fatal=raw.filter(r=>r.historyYear===x.historyYear&&r.severity==='A1');return {...x,fatalAccidents:sum(fatal,'accidents'),fatalCrashShare:x.accidents?sum(fatal,'accidents')/x.accidents:null};});
  const monthly=rollup(raw,['historyMonth'],['accidents','deaths24h','injuries']);
+ const yearCompare=yearly.map((r,i)=>({...r,previousAccidents:i?yearly[i-1].accidents:null,changeAccidents:i&&yearly[i-1].accidents?(r.accidents/yearly[i-1].accidents-1):null,changeDeaths:i&&yearly[i-1].deaths24h?(r.deaths24h/yearly[i-1].deaths24h-1):null}));
  const labels={accidents:'傷亡事故件數',deaths24h:'24小時死亡人數',fatalAccidents:'A1死亡事故件數',fatalCrashShare:'A1事故占比'};
  return <>
  <Note tone="amber">2021–2025 年完整年度。此頁死傷包含整起事故所有當事者，可能有行人、騎士或對方車乘員；不是乘客死亡率或車型保護能力。A1 僅代表有人當場或24小時內死亡，不能當作所有重大碰撞的統一定義。</Note>
@@ -48,8 +58,8 @@ function History(){
  </Section>
  <Section id="history-months-section" title="月份與年度明細" columns={1}>
  <Plot id="historical-monthly-deaths" queryId="history" title="每月事故整體死亡趨勢（24小時）" rows={monthly} sourceRows={raw} spec={{type:'line',x:'historyMonth',y:'deaths24h',valueDecimals:0,legend:{labels}}} height={300}/>
- <TableBlock id="history-annual-table" queryId="history" title="年度件數、死亡及受傷" rows={yearly} sourceRows={raw} columns={[{field:'historyYear',label:'年份'},{field:'accidents',label:'傷亡事故件數'},{field:'fatalAccidents',label:'A1事故件數'},{field:'deaths24h',label:'24小時死亡人數'},{field:'injuries',label:'受傷人數'},{field:'fatalCrashShare',label:'A1占傷亡事故',renderCell:v=>v===null?'無分母':pct(v)}]}/>
- <Note>A1占比＝A1事故件數 ÷（A1＋A2）事故件數，不是涉事乘客死亡的機率。未混入30日死亡統計，亦未把後續年度或不完整月份補零。</Note>
+ <TableBlock id="history-annual-table" queryId="history" title="年度件數、死亡及受傷" rows={yearCompare} sourceRows={raw} columns={[{field:'historyYear',label:'年份'},{field:'accidents',label:'傷亡事故件數'},{field:'fatalAccidents',label:'A1事故件數'},{field:'deaths24h',label:'24小時死亡人數'},{field:'injuries',label:'受傷人數'},{field:'fatalCrashShare',label:'A1占傷亡事故',renderCell:v=>v===null?'無分母':pct(v)},{field:'changeAccidents',label:'事故件數年增減',renderCell:v=>v===null?'—':`${v>0?'+':''}${pct(v)}`},{field:'changeDeaths',label:'死亡人數年增減',renderCell:v=>v===null?'—':`${v>0?'+':''}${pct(v)}`} ]}/>
+ <Note>年度增減以相鄰完整年度相比；只選一年或縣市後，前一年不在所選範圍時顯示「—」。A1占比＝A1事故件數 ÷（A1＋A2）事故件數，不是涉事乘客死亡的機率。未混入30日死亡統計，亦未把後續年度或不完整月份補零。</Note>
  </Section>
  </>
 }
