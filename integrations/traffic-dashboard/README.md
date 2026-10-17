@@ -33,3 +33,7 @@ The detailed vehicle, collision and registration-normalized involvement tabs rem
 The source inspector retains the exact successful download URLs, counting methods, definitions and limitations. Authored React/CSS is retained here for future revisions with the supported Data app scaffold. Do not edit the bundled runtime by hand. Rebuild with the Data skill and use `data-app.mjs export-offline` to replace the public artifact; remove transient local-task metadata before publication.
 
 The route-scoped CSP permits `data:` scripts because the official offline export uses a bundled runtime data URI. Other route policies are unchanged. The complete seed snapshot SHA-256 is `d1a03f109d25d8300c6dc871a3bc90efc5750b85aa4ab68b486397397513f22a`.
+
+## 比較方式（2026 年新增）
+
+同版 TNCAP 規章可選 2–5 筆受評車型並排查看四項官方得分，指定基準車款後比較成人、兒童保護的百分點差；分數不得轉換為實際死亡率。歷史年度表增加事故件數與整體 24 小時死亡人數的相鄰年度增減，篩選至單一年時不顯示沒有前一年分母的增減。
