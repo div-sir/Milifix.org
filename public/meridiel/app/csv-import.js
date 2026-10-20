@@ -128,8 +128,6 @@ function mapHeader(cells) {
  */
 export function analyzeCsv(text, options) {
   const opts = options || {};
-  const airports = opts.airports || {};
-  const today = opts.today || new Date().toISOString().slice(0, 10);
   const empty = { ok: 0, warning: 0, rejected: 0, duplicate: 0 };
   const fail = (code, params) => ({ fatal: { code, params: params || {} }, rows: [], flights: [], counts: empty });
 
@@ -142,22 +140,43 @@ export function analyzeCsv(text, options) {
   if (!body.length) return fail("err.empty");
   if (body.length > MAX_IMPORT_ROWS) return fail("err.tooManyRows", { max: MAX_IMPORT_ROWS });
 
+  const drafts = body.map(({ line, cells }) => {
+    const raw = {};
+    Object.keys(HEADER_ALIASES).forEach((key) => {
+      raw[key] = header[key] == null ? "" : String(cells[header[key]] || "").trim();
+    });
+    return { line, raw };
+  });
+  return analyzeDrafts(drafts, opts);
+}
+
+/**
+ * Validate and de-duplicate flight drafts from any source (CSV rows, pasted
+ * text, scanned boarding passes). `line` is whatever position the UI shows.
+ * @param {Array<{ line: number, raw: Record<string, string> }>} drafts
+ * @param {object} options   { airports, existing, today }
+ */
+export function analyzeDrafts(drafts, options) {
+  const opts = options || {};
+  const airports = opts.airports || {};
+  const today = opts.today || new Date().toISOString().slice(0, 10);
   const seen = new Map();
   (opts.existing || []).forEach((f) => { if (f && f.date) seen.set(flightKey(f), 0); });
 
-  const rows = body.map(({ line, cells }) => {
-    const get = (key) => (header[key] == null ? "" : String(cells[header[key]] || "").trim());
+  const rows = drafts.map(({ line, raw }) => {
+    const get = (key) => String((raw && raw[key]) || "").trim();
     const issues = [];
     const rawDate = get("date");
     const date = normalizeDate(rawDate);
     const o = get("o").toUpperCase();
     const d = get("d").toUpperCase();
 
-    if (!date) issues.push({ code: "err.badDate", params: { value: rawDate } });
+    if (!rawDate) issues.push({ code: "err.missingDate", params: {} });
+    else if (!date) issues.push({ code: "err.badDate", params: { value: rawDate } });
     if (!airports[o]) issues.push({ code: "err.unknownAirport", params: { value: get("o") } });
     if (!airports[d]) issues.push({ code: "err.unknownAirport", params: { value: get("d") } });
     if (o && o === d) issues.push({ code: "err.sameAirport", params: { value: o } });
-    if (issues.length) return { line, status: "rejected", issues, record: null };
+    if (issues.length) return { line, status: "rejected", issues, record: null, raw };
 
     const record = { date, o, d };
     const labels = { airline: "airline", craft: "aircraft", seat: "seat", flightNo: "flight_no", reg: "registration", notes: "notes" };
@@ -175,13 +194,13 @@ export function analyzeCsv(text, options) {
     if (seen.has(key)) {
       const first = seen.get(key);
       return {
-        line, record,
+        line, record, raw,
         status: "duplicate",
         issues: [first ? { code: "dup.inFile", params: { line: first } } : { code: "dup.existing", params: {} }],
       };
     }
     seen.set(key, line);
-    return { line, record, status: issues.length ? "warning" : "ok", issues };
+    return { line, record, raw, status: issues.length ? "warning" : "ok", issues };
   });
 
   const counts = { ok: 0, warning: 0, rejected: 0, duplicate: 0 };

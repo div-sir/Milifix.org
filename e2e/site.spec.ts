@@ -100,6 +100,23 @@ test('Meridiel rejects an unusable CSV without touching the log', async ({ page 
   await expect(page.locator('.log-row')).toHaveCount(0);
 });
 
+test('Meridiel greets an empty atlas and finds flights in pasted booking text', async ({ page }) => {
+  await page.goto('/meridiel/');
+  await page.getByRole('button', { name: 'Explore atlas' }).click();
+  await expect(page.getByRole('heading', { name: 'Your globe is waiting' })).toBeVisible();
+  await page.getByRole('button', { name: 'Paste a booking email' }).click();
+  await page.getByRole('textbox', { name: 'Booking text' }).fill([
+    'Fri, 14 Mar 2025   CI 100   Taipei TPE → Tokyo NRT',
+    'Thu, 20 Mar 2025   CI 101   Tokyo NRT → Taipei TPE',
+  ].join('\n'));
+  await page.getByRole('button', { name: 'Find flights' }).click();
+  await expect(page.getByRole('status').filter({ hasText: '2 ready' })).toBeVisible();
+  await page.getByRole('button', { name: 'Import 2 flights' }).click();
+  // The log panel is hidden on phones but its rows stay in the DOM.
+  await expect(page.locator('.log-row')).toHaveCount(2);
+  await expect(page.getByRole('heading', { name: 'Your globe is waiting' })).toHaveCount(0);
+});
+
 test('Meridiel switches to Traditional Chinese and remembers it', async ({ page }) => {
   await page.goto('/meridiel/');
   await page.getByRole('combobox', { name: 'Language' }).selectOption('zh-Hant');
@@ -107,8 +124,8 @@ test('Meridiel switches to Traditional Chinese and remembers it', async ({ page 
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');
   await page.reload();
   await page.getByRole('button', { name: '開始探索' }).click();
-  await expect(page.getByRole('button', { name: '新增航班' })).toBeVisible();
-  await page.getByRole('button', { name: '新增航班' }).click();
+  await expect(page.getByRole('button', { name: '新增航班', exact: true }).first()).toBeVisible();
+  await page.getByRole('button', { name: '新增航班', exact: true }).first().click();
   await expect(page.getByRole('heading', { name: '新增航班' })).toBeVisible();
 });
 
@@ -142,6 +159,11 @@ test('Meridiel serves flag artwork from its own origin', async ({ page }) => {
   await expect(page.locator('.topbar')).toBeVisible();
   await page.getByRole('button', { name: 'Add flight' }).click();
   await expect(page.getByRole('heading', { name: 'Add a flight' })).toBeVisible();
+  const airportFields = page.getByPlaceholder('Type a city or code');
+  await airportFields.nth(0).fill('SFO');
+  await airportFields.nth(0).press('Enter');
+  await airportFields.nth(1).fill('JFK');
+  await airportFields.nth(1).press('Enter');
   await page.getByRole('button', { name: 'Add to log' }).click();
   if ((page.viewportSize()?.width || 0) <= 900) {
     await page.getByRole('tab', { name: 'Stats' }).click();

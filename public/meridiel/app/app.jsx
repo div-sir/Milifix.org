@@ -195,6 +195,8 @@ function App() {
   const [autoRotate, setAutoRotate] = useStateA(true);
   const [loading, setLoading] = useStateA(true);
   const [modal, setModal] = useStateA(null);          // 'share' | 'add' | 'edit' | null
+  const [addTab, setAddTab] = useStateA("manual");    // which Add-flight tab opens
+  const openAdd = (tab) => { setAddTab(tab || "manual"); setModal("add"); };
   const [editingFlight, setEditingFlight] = useStateA(null);
   const [present, setPresent] = useStateA(false);
   const [mobileTab, setMobileTab] = useStateA("globe"); // globe | log | stats
@@ -262,8 +264,14 @@ function App() {
     };
   };
 
+  // The very first flight gets a small celebration: the globe just lit up.
+  const celebrateFirst = () => {
+    if (!flightsAll.length) setTimeout(() => pushToast(t("add.firstFlight")), 400);
+  };
+
   const addFlight = (form) => {
     const f = { id: MeridielData.createId(), ...flightFields(form) };
+    celebrateFirst();
     setExtra((e) => [...e, f]);
   };
 
@@ -271,7 +279,9 @@ function App() {
   // (if the tab closes mid-read) none do.
   const importFlights = (forms) => {
     const records = forms.map((form) => ({ id: MeridielData.createId(), ...flightFields(form) }));
-    if (records.length) setExtra((e) => [...e, ...records]);
+    if (!records.length) return;
+    celebrateFirst();
+    setExtra((e) => [...e, ...records]);
   };
 
   const updateFlight = (id, form) => {
@@ -483,16 +493,30 @@ function App() {
                 <UI.Icon.rotate />
               </button>
               <button className="btn btn-ghost top-action-secondary" title={t("menu.share")} onClick={() => setModal("share")}><UI.Icon.share /> <span className="btn-label">{t("top.share")}</span></button>
-              <button className="btn btn-accent" title={t("top.addFlight")} aria-label={t("top.addFlight")} onClick={() => setModal("add")}><UI.Icon.plus /> <span className="btn-label">{t("top.addFlight")}</span></button>
+              <button className="btn btn-accent" title={t("top.addFlight")} aria-label={t("top.addFlight")} onClick={() => openAdd()}><UI.Icon.plus /> <span className="btn-label">{t("top.addFlight")}</span></button>
             </div>
           </header>
+
+          {/* First run: an empty globe explains itself and offers the three
+              ways in, easiest first. */}
+          {flightsAll.length === 0 && !modal && (
+            <section className="onboard-card paper-tex" aria-labelledby="meridiel-onboard-title">
+              <h2 id="meridiel-onboard-title">{t("onboard.title")}</h2>
+              <p>{t("onboard.body")}</p>
+              <div className="onboard-actions">
+                <button type="button" className="btn btn-accent" onClick={() => openAdd("manual")}><UI.Icon.plus /> {t("onboard.manual")}</button>
+                <button type="button" className="btn btn-ghost" onClick={() => openAdd("paste")}>{t("onboard.paste")}</button>
+                <button type="button" className="btn btn-ghost" onClick={() => openAdd("import")}>{t("onboard.csv")}</button>
+              </div>
+            </section>
+          )}
 
           {/* Panels */}
           <UI.FlightLog
             flights={flightsAll}
             selectedId={selectedId}
             onSelect={handleSelect}
-            onAddFlight={() => setModal("add")}
+            onAddFlight={() => openAdd()}
             syncing={syncStatus === "syncing"}
             className={mobileTab === "log" ? "" : "hidden-mobile"}
           />
@@ -529,7 +553,17 @@ function App() {
 
       {/* Modals */}
       {modal === "share" && <UI.ShareModal flights={flightsAll} account={isLocal ? { name: displayName, handle: displayHandle } : account} onClose={() => setModal(null)} pushToast={pushToast} />}
-      {modal === "add" && <UI.AddFlightModal onClose={() => setModal(null)} onSubmit={addFlight} onImport={importFlights} existingFlights={flightsAll} pushToast={pushToast} />}
+      {modal === "add" && (
+        <UI.AddFlightModal
+          onClose={() => setModal(null)}
+          onSubmit={addFlight}
+          onImport={importFlights}
+          existingFlights={flightsAll}
+          pushToast={pushToast}
+          initialTab={addTab}
+          defaultOrigin={flightsAll.length ? ATLAS.homeOf(flightsAll) : ""}
+        />
+      )}
       {modal === "edit" && editingFlight && (
         <UI.AddFlightModal
           initial={editingFlight}
