@@ -221,6 +221,15 @@ test('Milifix reports can return to the platform homepage', async ({ page }) => 
   }
 });
 
+test('JR Pass report loads its MapLibre worker', async ({ page }) => {
+  const workerResponse = page.waitForResponse((response) => (
+    response.url().includes('maplibre-gl-worker')
+  ));
+
+  await page.goto('/reports/japan-jr-pass-2026');
+  expect((await workerResponse).ok()).toBe(true);
+});
+
 test('Travel has one canonical Traditional Chinese entry', async ({ page }) => {
   await page.goto('/zh/travel');
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant');

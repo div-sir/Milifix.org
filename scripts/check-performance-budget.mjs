@@ -2,7 +2,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
 
 const root = new URL('../dist/', import.meta.url).pathname;
-const limits = { '.js': 1_250_000, '.css': 350_000 };
+const limits = { '.js': 1_250_000, '.mjs': 1_250_000, '.css': 350_000 };
 const totalLimit = 4_000_000;
 const meridielInitialJsLimit = 300_000;
 const assets = [];
