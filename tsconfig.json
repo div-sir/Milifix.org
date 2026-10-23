@@ -11,6 +11,7 @@
     "public/meridiel/vendor",
     "public/meridiel/app/compiled",
     "public/ekispell/vendor",
+    "public/vendor/maplibre-gl",
     "integrations/ekispell/vendor"
   ],
   "compilerOptions": {

@@ -22,6 +22,8 @@ export default defineConfig(
       // scripts/build-meridiel.mjs 產生的編譯輸出，皆非手寫原始碼。
       'public/meridiel/vendor/**',
       'public/meridiel/app/compiled/**',
+      // Exact MapLibre distribution files copied from the pinned npm package.
+      'public/vendor/maplibre-gl/**',
     ],
   },
 

@@ -1,6 +1,9 @@
 import type * as maplibregl from 'maplibre-gl';
 import { gsap } from 'gsap';
 
+const maplibreModuleUrl = '/vendor/maplibre-gl/maplibre-gl.mjs';
+const maplibreWorkerUrl = '/vendor/maplibre-gl/maplibre-gl-worker.mjs';
+
 // ── 由 <script id="immersive-map-data"> 傳入的資料型別 ─────
 interface GeoPoint {
   lat: number;
@@ -276,9 +279,10 @@ async function loadAndInitMap(data: MapData, mapEl: HTMLElement, reduce: boolean
   loader.setStage(15);
   // maplibre-gl 6 起改為具名匯出，沒有 default export。
   const [maplibregl] = await Promise.all([
-    import('maplibre-gl'),
+    import(/* @vite-ignore */ maplibreModuleUrl) as Promise<typeof import('maplibre-gl')>,
     import('maplibre-gl/dist/maplibre-gl.css'),
   ]);
+  maplibregl.setWorkerUrl(maplibreWorkerUrl);
   loader.setStage(45);
 
   const stopById = new Map<string, Stop>(data.allStops.map((s) => [s.id, s]));
