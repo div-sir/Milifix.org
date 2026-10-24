@@ -209,3 +209,25 @@ test('Metro example checks history retention and includes the review in download
  await expect(page.locator('#journey-review')).toBeHidden();await expect(page.locator('#journey-export')).toBeDisabled();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);
 });
+
+test('manual receipt comparison reports inserted records and invalidates its downloadable evidence',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/ekispell/');await expect(page.locator('#real-status')).toContainText('9,485');
+ await page.locator('#metro-example').click();await expect(page.locator('#receipt-check-panel')).toBeVisible();
+ await expect(page.locator('#receipt-actual')).toHaveValue('');
+ await page.locator('#receipt-actual-order').selectOption('oldest-first');
+ await page.locator('#receipt-actual').fill('銀座|京橋\n物販|—\n京橋|日本橋');
+ await page.locator('#receipt-compare').click();
+ await expect(page.locator('#receipt-check-status')).toContainText('相同 2 筆');
+ await expect(page.locator('#receipt-check-status')).toContainText('多筆 1 筆');
+ await expect(page.locator('#receipt-check-results li')).toHaveCount(3);
+ const downloading=page.waitForEvent('download');await page.locator('#receipt-report-download').click();
+ const file=await downloading;expect(file.suggestedFilename()).toBe('ekispell-receipt-comparison.json');
+ const {readFile}=await import('node:fs/promises');const report=JSON.parse(await readFile((await file.path())!,'utf8'));
+ expect(report.verification).toBe('manual-unverified');expect(report.comparison.counts.extra).toBe(1);expect(report.plan.message).toBe('銀京');
+ await page.locator('#receipt-actual').fill('not two columns');await expect(page.locator('#receipt-report-download')).toBeDisabled();
+ await page.locator('#receipt-compare').click();await expect(page.locator('#receipt-check-status')).toContainText('第 1 行');
+ await page.locator('#message').fill('京');await expect(page.locator('#receipt-check-panel')).toBeHidden();
+ await expect(page.locator('#receipt-report-download')).toBeDisabled();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);
+});
