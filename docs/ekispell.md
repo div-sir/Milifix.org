@@ -86,3 +86,28 @@ Official sources checked 2026-09-18:
 These rules do not validate actual station abbreviations, printer column widths,
 per-gate settlement, fares, timetables, or a physical receipt. No card number or
 travel history is uploaded by this review.
+
+### Manual receipt comparison
+
+After a Metro plan succeeds, users can transcribe the actual entry/exit text into
+`receipt-check-panel`. Each line contains two columns separated by a pipe or tab.
+Non-rail records can use a type label and `—`. Input remains in the page; it is not
+uploaded or saved automatically. The form starts empty and never copies modeled
+station names into the observed fields. The user selects the actual print order.
+
+The comparison aligns the complete chronological model with the transcription by
+minimum edit distance. It marks equal/changed pairs, missing planned records and
+extra observed records. Equal names use NFKC and trimmed ends; target-glyph cell
+checks use the unchanged observed text and modeled cell widths. Selected labels
+supply the target field, while the other field uses source station names. This is
+not an abbreviation dictionary or a gate-settlement check. Equal-cost alignments
+are disclosed as ambiguous, especially for repeated pairs. The future-history
+retention simulation does not remove records from this comparison.
+
+The optional JSON download includes source revision, profile, modeled station
+IDs, selected text, entered text/order, optional observation date/device, and the
+comparison. It always uses `manual-unverified`. It cannot promote catalog evidence
+to `receipt-verified`. Changes to input/metadata invalidate the report. Changes to
+the plan hide the panel and invalidate the report, but keep the transcription so
+that users do not lose their typing. Photograph evidence, review, and automatic
+catalog updates remain outside this stage.
