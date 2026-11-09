@@ -2,7 +2,7 @@
 
 Last verified: 2026-11-09 (America/Phoenix)  
 Repository: [`div-sir/Milifix.org`](https://github.com/div-sir/Milifix.org)  
-Verified branch and commit: `main` @ `c21a5ee3dfbbfe41247bf738d16ab88ba3a5160f`  
+Application source baseline (parent of this docs-only change): `main` @ `c21a5ee3dfbbfe41247bf738d16ab88ba3a5160f`  
 Production origin: <https://milifix.com>
 
 This is the maintenance source of truth for the public routes, deployable applications,
