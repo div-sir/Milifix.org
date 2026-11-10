@@ -29,6 +29,7 @@ const BUCKET_PREFIX_TO_CAT: { prefix: string; cat: BlogCatId }[] = [
   { prefix: '住宿', cat: 'journey' },
   { prefix: '航空·哩程', cat: 'journey' },
   { prefix: '專題·技術', cat: 'projects' },
+  { prefix: '其他', cat: 'misc' },
 ];
 
 /**
