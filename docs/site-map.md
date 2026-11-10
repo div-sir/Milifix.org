@@ -126,10 +126,8 @@ All redirect rules were verified from source. Representative production redirect
 build. CMS-backed slugs reflect the CMS snapshot available at build time.
 
 - `linktree` is intentionally excluded.
-- `/ekispell/` and `/traffic-dashboard/` are explicitly added through `customPages`.
-- `/meridiel/` is live and linked by the site but is not in `customPages`, so it was
-  absent from the verified production sitemap. This document records the current state;
-  it does not assume whether the omission is intentional.
+- `/ekispell/`, `/meridiel/`, and `/traffic-dashboard/` are explicitly added through
+  `customPages`.
 - API endpoints and the 404 page are not public sitemap entries.
 
 ## Application registry
