@@ -24,7 +24,7 @@ try {
     text = text.replaceAll("'../dist/", "'./dist/").replaceAll("'../data/", "'./data/");
     await writeFile(join(temporary, 'site', file), text);
   }
-  for (const name of ['map.js','routes.js','route-panel.js','route-options.js','metro-journey.js','journey-panel.js','journey-review.js','metro-evidence.json','metro-topology.json','coordinates.json','vendor']) await cp(join(root, 'integrations/ekispell', name), join(temporary, 'site', name), {recursive:true});
+  for (const name of ['map.js','routes.js','route-panel.js','route-options.js','metro-journey.js','journey-panel.js','journey-review.js','receipt-check.js','receipt-panel.js','metro-evidence.json','metro-topology.json','coordinates.json','vendor']) await cp(join(root, 'integrations/ekispell', name), join(temporary, 'site', name), {recursive:true});
   await cp(join(source, 'data'), join(temporary, 'site/data'), { recursive: true });
   for (const file of ['LICENSE', 'THIRD_PARTY_NOTICES.md']) await cp(join(source, file), join(temporary, 'site', file));
   await writeFile(join(temporary, 'site/release.json'), JSON.stringify({ repository: 'https://github.com/div-sir/EkiSpell', revision, route: '/ekispell/' }, null, 2) + '\n');

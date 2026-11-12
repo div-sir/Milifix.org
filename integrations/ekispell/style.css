@@ -30,3 +30,7 @@
 .history-expired{background:#fbe8d9;color:#713209}
 #journey-review-summary{overflow-wrap:anywhere}
 @media print{#metro-example{display:none}}
+
+#receipt-check-panel{margin-top:1.5rem;border-top:1px solid var(--line,#ccc);padding-top:1rem}
+#receipt-actual{width:100%;box-sizing:border-box;font-family:monospace;white-space:pre;overflow:auto}
+#receipt-check-results p{white-space:pre-wrap;overflow-wrap:anywhere}

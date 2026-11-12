@@ -74,6 +74,16 @@
 <p class="hint">PASMO：定期券區間內的上下車不印履歷；跨全國互通區域使用後，在 PASMO／Suica 區域查詢時可能只印業者名稱。印字範例不能當作設備實測。</p>
 <p class="hint">規則核對：2026-09-18。<a href="https://www.pasmo.co.jp/about/service/history/">PASMO 履歷規則</a> · <a href="https://www.tokyometro.jp/ticket/types/pasmo/index.html">Metro 出閘轉乘規則</a></p></section><p class="hint">下表依選定列印順序排列，顯示模型的進出站；站名為資料原文，非實際印字。</p><div class="receipt-scroll"><table id="journey-history" aria-label="模型進出站履歷"></table></div>
 <div class="export-actions"><button id="journey-map" type="button" disabled>在地圖查看沿線站序</button><button id="journey-export" type="button" disabled>下載進出站規劃</button></div>
+<section id="receipt-check-panel" hidden aria-labelledby="receipt-check-title"><h3 id="receipt-check-title">核對實際履歷（手動紀錄）</h3>
+<p>輸入同一次行程的實際履歷。每行一筆，用 | 或 Tab 分隔入場與出場站；加值或購物可填「現金|—」或「物販|—」。不要貼卡號或餘額。內容只在此頁處理，不會上傳或自動保存。</p>
+<p class="hint">比對完整規劃，不套用上方保留試算。目標欄採選定的推測印字，另一欄採站名原文。站名比較忽略頭尾空格與全半形；格位核對保留原文。文字不同可能只是縮寫；缺筆不等於合併扣款。保留欄位開頭空格，才能核對目標格位。</p>
+<label for="receipt-actual-order">實際履歷由上而下的順序</label><select id="receipt-actual-order"><option value="newest-first">新紀錄在上</option><option value="oldest-first">舊紀錄在上</option></select>
+<label for="receipt-actual">實際入場站 | 出場站</label><textarea id="receipt-actual" rows="6" maxlength="20000" spellcheck="false" placeholder="每行：入場站|出場站"></textarea>
+<label for="receipt-observed-date">實測日期（選填）</label><input id="receipt-observed-date" type="date">
+<label for="receipt-device">列印車站與設備（選填）</label><input id="receipt-device" maxlength="120" placeholder="例如：車站名稱、售票機或服務窗口">
+<div class="export-actions"><button id="receipt-compare" type="button">核對實際履歷</button><button id="receipt-report-download" type="button" disabled>下載核對 JSON</button></div>
+<p id="receipt-check-status" role="status"></p><ol id="receipt-check-results"></ol>
+<p class="hint">核對結果是你的手動觀察，不會自動修改站名資料庫或「收據已驗證」狀態。照片佐證與人工審核尚未接入。</p></section>
 <p class="hint"><a href="https://www.tokyometro.jp/station/">官方路線與運行資訊</a> · <a href="https://www.tokyometro.jp/ticket/types/pasmo/index.html">IC 與轉乘規則</a> · <a href="./metro-evidence.json">站序來源與核對日期</a></p>
 </section>
 <p id="sequence" class="hint"></p><p class="notice">此頁只驗證排字。列印名稱、設備格式與行程連接尚未確認，不代表可行乘車路線。</p>

@@ -1,3 +1,4 @@
+import { initializeReceiptPanel, updateReceiptPlan } from './receipt-panel.js';
 import { reviewJourney, HISTORY_SOURCE, TRANSFER_SOURCE, RULES_CHECKED } from './journey-review.js';
 import { buildMetroTransactions, planMetroJourney } from './metro-journey.js';
 import { getRouteOptions } from './route-options.js';
@@ -6,6 +7,7 @@ let context, topology, loading, generation=0, exportText='', resultSegments=[], 
 const $=id=>document.getElementById(id);
 const node=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;return n;};
 export function invalidateJourney() {
+  updateReceiptPlan(null);
   generation++; reviewState=null; exportBase=''; $('journey-review').hidden=true; $('journey-review-summary').textContent=''; $('journey-boundaries').replaceChildren(); exportText=''; resultSegments=[]; updateRouteMap([]);
   $('journey-results').replaceChildren(); $('journey-history').replaceChildren();
   $('journey-export').disabled=true; $('journey-map').disabled=true;
@@ -33,6 +35,7 @@ async function loadTopology() {
   return loading;
 }
 export function initializeJourneyPanel() {
+  initializeReceiptPanel();
   document.addEventListener('ekispell-route-conditions',invalidateJourney);
   $('journey-after-records').addEventListener('input',renderReview);
   $('load-metro').addEventListener('click',async()=>{
@@ -77,7 +80,7 @@ async function calculateJourney() {
       for(let j=1;j<path.stations.length;j++)resultSegments.push({line:path.line,from:names.get(path.stations[j-1]),to:names.get(path.stations[j])});
     });
     text.push('',`模型履歷表（${context.profile.order==='newest-first'?'新紀錄在上':'舊紀錄在上'}；站名為資料原文，非實際印字）`,...result.displayRecords.map(r=>`${names.get(r.entry).name} → ${names.get(r.exit).name}｜${r.messageIndex===null?'額外履歷':`第 ${r.messageIndex+1} 字`}`),'',...topology.lines.map(l=>l.source));
-    exportBase=text.join('\n');reviewState={result,model,context};$('journey-review').hidden=false;renderReview();$('journey-map').disabled=false;
+    exportBase=text.join('\n');reviewState={result,model,context};updateReceiptPlan({result,context,source:{stationApiRevision:topology.revision,topologyCheckedAt:topology.checkedAt,network:'tokyo-metro'}});$('journey-review').hidden=false;renderReview();$('journey-map').disabled=false;
   }catch(error){$('journey-status').textContent=error.message;}
   finally{$('plan-journey').disabled=false;}
 }
